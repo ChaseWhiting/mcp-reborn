@@ -213,8 +213,8 @@ public class RaccoonEntity extends TameableEntity {
 
     private static int timeBeforeRegroup;
     private int goHomeCooldown = 0;
-    private static boolean isDirty;
-    private static int dirtyCountdown = 600;
+    private boolean isDirty;
+    private int dirtyCountdown = 600;
 
 
 
@@ -283,8 +283,8 @@ public class RaccoonEntity extends TameableEntity {
         return isDirty;
     }
 
-    public boolean setDirty(boolean Boolean) {
-        return Boolean;
+    public void setDirty(boolean value) {
+        this.isDirty = value;
     }
 
     public int getDirtiness() {
@@ -1949,15 +1949,17 @@ public class RaccoonEntity extends TameableEntity {
         super.tick();
         BlockPos pos = this.getOnPos();
         Block currentBlock = this.level.getBlockState(pos).getBlock();
-        if (this.onGround && DIRTY_BLOCKS.containsKey(currentBlock) && !this.isDirty() && this.getRaccoonType() == Type.RED) {
+
+        if (this.isOnGround() && DIRTY_BLOCKS.containsKey(currentBlock)) {
             float dirtiness = DIRTY_BLOCKS.get(currentBlock);
             if (new Random().nextFloat() <= dirtiness) {
                 this.dirtyCountdown--;
+                // If the dirty countdown has finished, do the following:
                 if (this.dirtyCountdown <= 0) {
                     this.setDirty(true);
                     this.playSound(SoundEvents.GRAVEL_STEP, 1.0F, 1.0F);
                     this.spawnSprintParticle();
-                    this.resetDirtyCountdown();
+                    this.resetDirtyCountdown();  // Resetting the countdown for the next dirty cycle
                 }
             }
         }
@@ -2336,6 +2338,7 @@ public class RaccoonEntity extends TameableEntity {
                 // Added clean raccoon
                 if (this.raccoon.isDirty()) {
                     this.raccoon.setDirty(false);
+                    this.raccoon.playSound(SoundEvents.WOLF_SHAKE, 1.0F, 1.0F);
                 }
             }
         }
