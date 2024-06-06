@@ -53,12 +53,14 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -131,13 +133,32 @@ public class RaccoonEntity extends TameableEntity {
         DIRTY_BLOCKS.put(Blocks.SWEET_BERRY_BUSH, 0.3F);
         DIRTY_BLOCKS.put(Blocks.DIRT, 0.5F);
         DIRTY_BLOCKS.put(Blocks.COARSE_DIRT, 0.5F);
+        DIRTY_BLOCKS.put(Blocks.LILY_PAD, 0.35F);
+        DIRTY_BLOCKS.put(Blocks.KELP, 0.37F);
+        DIRTY_BLOCKS.put(Blocks.KELP_PLANT, 0.35F);
+        DIRTY_BLOCKS.put(Blocks.SEAGRASS, 0.45F);
+        DIRTY_BLOCKS.put(Blocks.TALL_SEAGRASS, 0.55F);
+        DIRTY_BLOCKS.put(Blocks.SEA_PICKLE, 0.4F);
+        DIRTY_BLOCKS.put(Blocks.VINE, 0.7F);
         DIRTY_BLOCKS.put(Blocks.PODZOL, 0.6F);
         DIRTY_BLOCKS.put(Blocks.GRAVEL, 0.45F);
         DIRTY_BLOCKS.put(Blocks.SAND, 0.6F);
         DIRTY_BLOCKS.put(Blocks.FARMLAND, 0.4F);
         DIRTY_BLOCKS.put(Blocks.GRASS_PATH, 0.3F);
         DIRTY_BLOCKS.put(Blocks.MYCELIUM, 0.6F);
+        DIRTY_BLOCKS.put(Blocks.HONEY_BLOCK, 0.7F);
+        //nether blocks:
+        DIRTY_BLOCKS.put(Blocks.SOUL_SAND, 0.85F);
+        DIRTY_BLOCKS.put(Blocks.SOUL_SOIL, 0.85F);
     }
+
+    private static final List<RegistryKey<Biome>> DIRTY_BIOMES = Arrays.asList(
+            Biomes.SWAMP,
+            Biomes.SWAMP_HILLS,
+            Biomes.ERODED_BADLANDS
+    );
+
+
     private static final Item[] ALL_ITEMS = {
             Items.APPLE,
             Items.BREAD,
@@ -367,9 +388,9 @@ public class RaccoonEntity extends TameableEntity {
         // Goal selector goals
         this.goalSelector.addGoal(3, new RaccoonRaidGardenGoal(this));
 
-        this.goalSelector.addGoal(1, new RaccoonMoveToWaterGoal(this, 1.22F));
+        this.goalSelector.addGoal(2, new RaccoonMoveToWaterGoal(this, 1.22F));
         this.goalSelector.addGoal(5, new RaccoonLieOnBedGoal(this, 1.3D, 16));
-        this.goalSelector.addGoal(1, new SwimGoal());
+        this.goalSelector.addGoal(1, new RaccoonEntity.SwimGoal());
         this.goalSelector.addGoal(1, new RaccoonGoHomeGoal(this, 1.3F, 30, 30));
         this.goalSelector.addGoal(1, new RaccoonStealGoal(this, 1.1F, 16));
         this.goalSelector.addGoal(1, new FindHomeGoal(this));
@@ -434,6 +455,9 @@ public class RaccoonEntity extends TameableEntity {
       //  }
         return result;
     }
+
+    PrioritizedGoal findWaterGoal = this.goalSelector.getGoal(RaccoonMoveToWaterGoal.class);
+    PrioritizedGoal swimGoal = this.goalSelector.getGoal(RaccoonEntity.SwimGoal.class);
 
 
     class RaccoonSitGoal extends SitGoal {
@@ -1953,27 +1977,31 @@ public class RaccoonEntity extends TameableEntity {
         super.tick();
         BlockPos pos = this.getOnPos();
         Block currentBlock = this.level.getBlockState(pos).getBlock();
-
-        if (this.isOnGround() && DIRTY_BLOCKS.containsKey(currentBlock) && !this.isDirty() && this.getRaccoonType() == Type.RED) {
+        Registry<Biome> biomeRegistry = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+        RegistryKey<Biome> currentBiomeKey = biomeRegistry.getResourceKey(this.level.getBiome(this.blockPosition())).orElse(null);
+        boolean flag2 = DIRTY_BIOMES.contains(currentBiomeKey);
+        if (this.isOnGround() && DIRTY_BLOCKS.containsKey(currentBlock)) {
             float dirtiness = DIRTY_BLOCKS.get(currentBlock);
-            if (new Random().nextFloat() <= dirtiness) {
-                this.dirtyCountdown--;
-                // If the dirty countdown has finished, do the following:
-                if (this.dirtyCountdown <= 0) {
-                    this.setDirty(true);
-                    this.playSound(SoundEvents.GRAVEL_STEP, 1.0F, 1.0F);
-                    this.spawnSprintParticle();
-                    this.resetDirtyCountdown();  // Resetting the countdown for the next dirty cycle
+            if (!this.isDirty() && this.getRaccoonType() == Type.RED) {
+                if (new Random().nextFloat() <= dirtiness) {
+                    this.dirtyCountdown--;
                 }
             }
+        } else if (this.isInWaterOrBubble() && flag2) {
+            if (!this.isDirty() && this.getRaccoonType() == Type.RED)
+                this.dirtyCountdown--;
         }
 
-        if (this.isInWaterRainOrBubble() && this.getRaccoonType() == Type.DIRTY){
+        if (this.isInWaterRainOrBubble() && this.getRaccoonType() == Type.DIRTY && !flag2){
             cleanRaccoon(this);
         }
 
-
-
+        if (this.dirtyCountdown <= 0) {
+            this.setDirty(true);
+            this.playSound(SoundEvents.GRAVEL_STEP, 1.0F, 1.0F);
+            this.spawnSprintParticle();
+            this.resetDirtyCountdown();
+        }
 
         if (hunger <= HUNGER_THRESHOLD + 20) {
             handleHunger();
@@ -2301,9 +2329,15 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         public boolean isInterruptable() {
-            return !this.raccoon.isInWaterRainOrBubble();
+            if (findWaterGoal != null && swimGoal != null) {
+                return shouldInterrupt(findWaterGoal, swimGoal);
+            }
+            return true;
         }
 
+        public boolean shouldInterrupt(Goal goal1, Goal goal2) {
+            return this.raccoon.goalSelector.shouldInterrupt(goal1, goal2);
+        }
         @Override
         protected void moveMobToBlock() {
             this.raccoon.getNavigation().moveTo(
@@ -2329,8 +2363,13 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         protected boolean isValidTarget(IWorldReader world, BlockPos pos) {
+            BlockPos currentBlock = pos;
+            Registry<Biome> biomeRegistry = this.raccoon.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+            RegistryKey<Biome> currentBiomeKey = biomeRegistry.getResourceKey(this.raccoon.level.getBiome(pos)).orElse(null);
+            boolean flag2 = DIRTY_BIOMES.contains(currentBiomeKey);
+
             // Added debug statement
-            boolean isWater = world.getBlockState(pos).is(Blocks.WATER);
+            boolean isWater = world.getBlockState(pos).is(Blocks.WATER) && !flag2;
            // System.out.println("Checking isValidTarget: Pos = " + pos + " isWater = " + isWater);
             return isWater;
         }
