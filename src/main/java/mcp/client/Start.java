@@ -1,7 +1,6 @@
 package mcp.client;
 
 import java.util.Arrays;
-
 import net.minecraft.client.main.Main;
 
 public class Start
@@ -14,7 +13,14 @@ public class Start
          * Working directory is used as gameDir if not provided
          */
         String assets = System.getenv().containsKey("assetDirectory") ? System.getenv("assetDirectory") : "assets";
-        Main.main(concat(new String[]{"--version", "mcp", "--accessToken", "0", "--assetsDir", assets, "--assetIndex", "1.16", "--userProperties", "{}"}, args));
+        Main.main(concat(new String[]{
+                "--version", "mcp",
+                "--accessToken", "0",
+                "--assetsDir", assets,
+                "--assetIndex", "1.16",
+                "--userProperties", "{}",
+                "--username", "ChasePixel_"
+        }, args));
     }
 
     public static <T> T[] concat(T[] first, T[] second)
