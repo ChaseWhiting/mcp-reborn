@@ -6,7 +6,11 @@ build/
 
 #Run files
 #runclient
-
+/run/saves
+/run/screenshots
+/run/logs
+/run/debug
+/run/crash-reports
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -16,6 +20,7 @@ gradle-app.setting
 # IDE files
 .idea
 *.iml
+
 #run/
 
 out/
