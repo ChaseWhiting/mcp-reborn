@@ -28,6 +28,23 @@ public class GameModeCommand {
             }).then(Commands.argument("target", EntityArgument.players()).executes((p_198486_1_) -> {
                return setMode(p_198486_1_, EntityArgument.getPlayers(p_198486_1_, "target"), gametype);
             })));
+
+            // additional literals
+            switch (gametype) {
+               case SURVIVAL ->
+                       literalargumentbuilder.then(Commands.literal("s").executes((p_198483_1_) -> {
+                          return setMode(p_198483_1_, Collections.singleton(p_198483_1_.getSource().getPlayerOrException()), GameType.SURVIVAL);
+                       }).then(Commands.argument("target", EntityArgument.players()).executes((p_198486_1_) -> {
+                          return setMode(p_198486_1_, EntityArgument.getPlayers(p_198486_1_, "target"), GameType.SURVIVAL);
+                       })));
+
+               case CREATIVE ->
+                       literalargumentbuilder.then(Commands.literal("c").executes((p_198483_1_) -> {
+                          return setMode(p_198483_1_, Collections.singleton(p_198483_1_.getSource().getPlayerOrException()), GameType.CREATIVE);
+                       }).then(Commands.argument("target", EntityArgument.players()).executes((p_198486_1_) -> {
+                          return setMode(p_198486_1_, EntityArgument.getPlayers(p_198486_1_, "target"), GameType.CREATIVE);
+                       })));
+            }
          }
       }
 
@@ -45,7 +62,6 @@ public class GameModeCommand {
 
          p_208517_0_.sendSuccess(new TranslationTextComponent("commands.gamemode.success.other", p_208517_1_.getDisplayName(), itextcomponent), true);
       }
-
    }
 
    private static int setMode(CommandContext<CommandSource> p_198484_0_, Collection<ServerPlayerEntity> p_198484_1_, GameType p_198484_2_) {
