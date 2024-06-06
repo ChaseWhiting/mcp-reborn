@@ -1876,6 +1876,7 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
             int l5 = packetbuffer.readInt();
             this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(blockpos8, l3, s10, l5);
          } else if (SCustomPayloadPlayPacket.DEBUG_RACCOON.equals(resourcelocation)) {
+            int dirtiness = packetbuffer.readInt();
             double x = packetbuffer.readDouble();
             double y = packetbuffer.readDouble();
             double z = packetbuffer.readDouble();
@@ -1899,7 +1900,7 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
             boolean hasPath = packetbuffer.readBoolean();
             Path path = hasPath ? Path.createFromStream(packetbuffer) : null;
 
-            RaccoonDebugRenderer.RaccoonInfo raccoonInfo = new RaccoonDebugRenderer.RaccoonInfo(uuid, entityId, position, homePos, path, isLeader, homeMembers, hunger, thirst, targetPos);
+            RaccoonDebugRenderer.RaccoonInfo raccoonInfo = new RaccoonDebugRenderer.RaccoonInfo(uuid, entityId, position, homePos, path, isLeader, homeMembers, hunger, thirst, targetPos, dirtiness);
             this.minecraft.debugRenderer.raccoonDebugRenderer.addOrUpdateRaccoonInfo(raccoonInfo);
          } else if (SCustomPayloadPlayPacket.DEBUG_PATH.equals(resourcelocation)){
             int entityId = packetbuffer.readInt();

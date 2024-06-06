@@ -269,6 +269,7 @@ public class DebugPacketSender {
 
     public static void sendRaccoonDebugData(ServerPlayerEntity player, RaccoonEntity raccoon) {
         PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
+        buf.writeInt(raccoon.getDirtiness());
         buf.writeDouble(raccoon.getX());
         buf.writeDouble(raccoon.getY());
         buf.writeDouble(raccoon.getZ());
