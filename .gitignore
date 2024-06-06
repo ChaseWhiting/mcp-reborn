@@ -11,6 +11,12 @@ build/
 /run/logs
 /run/debug
 /run/crash-reports
+options.txt
+saves
+assets
+logs
+/assets/objects
+/assets/indexes
 # Ignore Gradle GUI config
 gradle-app.setting
 
