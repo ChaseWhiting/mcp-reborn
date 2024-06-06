@@ -13,6 +13,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class RaccoonRenderer extends MobRenderer<RaccoonEntity, RaccoonModel<RaccoonEntity>> {
     private static final ResourceLocation RED_FOX_TEXTURE = new ResourceLocation("textures/entity/fox/raccoon.png");
+    private static final ResourceLocation RACCOON_DIRTY_TEXTURE = new ResourceLocation("textures/entity/fox/raccoon_dirty.png");
+    private static final ResourceLocation RACCOON_DIRTY_SLEEP_TEXTURE = new ResourceLocation("textures/entity/fox/raccoon_dirty_sleep.png");
+    private static final ResourceLocation RACCOON_RABID_DIRTY_TEXTURE = new ResourceLocation("textures/entity/fox/raccoon_rabid_dirty.png");
+    private static final ResourceLocation RACCOON_RABID_DIRTY_SLEEP_TEXTURE = new ResourceLocation("textures/entity/fox/raccoon_rabid_dirty_sleep.png");
     private static final ResourceLocation RED_FOX_SLEEP_TEXTURE = new ResourceLocation("textures/entity/fox/raccoon_sleep.png");
     private static final ResourceLocation RABID_FOX_TEXTURE = new ResourceLocation("textures/entity/fox/rabid_raccoon.png");
     private static final ResourceLocation RABID_FOX_SLEEP_TEXTURE = new ResourceLocation("textures/entity/fox/rabid_raccoon_sleep.png");
@@ -43,12 +47,15 @@ public class RaccoonRenderer extends MobRenderer<RaccoonEntity, RaccoonModel<Rac
 
     public ResourceLocation getTextureLocation(RaccoonEntity raccoon) {
             if (raccoon.getRaccoonType() == RaccoonEntity.Type.RED) {
-                if (raccoon.isBaby()) {
-                    return raccoon.isSleeping() ? BABY_RED_FOX_SLEEP_TEXTURE : BABY_RED_FOX_TEXTURE;
+                if (raccoon.isDirty()) {
+                       return (raccoon.isSleeping() ? RACCOON_DIRTY_SLEEP_TEXTURE : RACCOON_DIRTY_TEXTURE);
                 } else {
-                    return raccoon.isSleeping() ? RED_FOX_SLEEP_TEXTURE : RED_FOX_TEXTURE;
+                    if (raccoon.isBaby()) {
+                        return raccoon.isSleeping() ? BABY_RED_FOX_SLEEP_TEXTURE : BABY_RED_FOX_TEXTURE;
+                    } else {
+                        return raccoon.isSleeping() ? RED_FOX_SLEEP_TEXTURE : RED_FOX_TEXTURE;
+                    }
                 }
-
             } else if (raccoon.getRaccoonType() == RaccoonEntity.Type.RABID) {
                 if (raccoon.isBaby()) {
                     return raccoon.isSleeping() ? BABY_RABID_FOX_SLEEP_TEXTURE : BABY_RABID_FOX_TEXTURE;

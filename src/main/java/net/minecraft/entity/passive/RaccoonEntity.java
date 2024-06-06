@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.*;
-import net.minecraft.client.renderer.debug.DebugRenderer;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -20,9 +20,7 @@ import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.monster.PhantomEntity;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.passive.fish.AbstractGroupFishEntity;
 import net.minecraft.entity.passive.horse.HorseEntity;
@@ -43,7 +41,6 @@ import net.minecraft.particles.ItemParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathNodeType;
-import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.stats.Stats;
@@ -62,7 +59,6 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -71,13 +67,8 @@ import net.minecraft.entity.item.TNTEntity;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.item.Item;
-import net.minecraft.tags.ItemTags;
-import org.apache.commons.lang3.ObjectUtils;
 
 public class RaccoonEntity extends TameableEntity {
     private static final Logger logger = Logger.getLogger(RaccoonEntity.class.getName());
@@ -127,6 +118,24 @@ public class RaccoonEntity extends TameableEntity {
         CROP_DROP_MAP.put(Blocks.WHEAT, Items.WHEAT);
         CROP_DROP_MAP.put(Blocks.CARROTS, Items.CARROT);
         CROP_DROP_MAP.put(Blocks.SWEET_BERRY_BUSH, Items.SWEET_BERRIES);
+    }
+    // dirty blocks, each block that is dirty has a float value of how dirty it is
+    private static final Map<Block, Float> DIRTY_BLOCKS = new HashMap<>();
+
+    static {
+        DIRTY_BLOCKS.put(Blocks.GRASS_BLOCK, 0.1F);
+        DIRTY_BLOCKS.put(Blocks.WHEAT, 0.1F);
+        DIRTY_BLOCKS.put(Blocks.CARROTS, 0.2F);
+        DIRTY_BLOCKS.put(Blocks.POTATOES, 0.2F);
+        DIRTY_BLOCKS.put(Blocks.BEETROOTS, 0.3F);
+        DIRTY_BLOCKS.put(Blocks.SWEET_BERRY_BUSH, 0.3F);
+        DIRTY_BLOCKS.put(Blocks.DIRT, 0.5F);
+        DIRTY_BLOCKS.put(Blocks.COARSE_DIRT, 0.5F);
+        DIRTY_BLOCKS.put(Blocks.PODZOL, 0.6F);
+        DIRTY_BLOCKS.put(Blocks.GRAVEL, 0.45F);
+        DIRTY_BLOCKS.put(Blocks.FARMLAND, 0.4F);
+        DIRTY_BLOCKS.put(Blocks.GRASS_PATH, 0.3F);
+        DIRTY_BLOCKS.put(Blocks.MYCELIUM, 0.6F);
     }
     private static final Item[] ALL_ITEMS = {
             Items.APPLE,
@@ -204,7 +213,8 @@ public class RaccoonEntity extends TameableEntity {
 
     private static int timeBeforeRegroup;
     private int goHomeCooldown = 0;
-    private static boolean hasLeaped;
+    private static boolean isDirty;
+    private static int dirtyCountdown = 600;
 
 
 
@@ -243,8 +253,8 @@ public class RaccoonEntity extends TameableEntity {
         this.setCanHaveHome(true);
         this.setCanHome(true);
         this.setHome(0,0,0);
-        this.hasLeaped = false;
-
+        this.isDirty = false;
+        this.dirtyCountdown = 600;
     }
 
 //    private static final Predicate<Entity> STALKABLE_PREY = (entity) -> {
@@ -267,6 +277,22 @@ public class RaccoonEntity extends TameableEntity {
             }
             return false;
         };
+    }
+
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public boolean setDirty(boolean Boolean) {
+        return Boolean;
+    }
+
+    public int getDirtiness() {
+        return this.dirtyCountdown;
+    }
+
+    public void resetDirtyCountdown() {
+        this.dirtyCountdown = 600;
     }
 
     public int getThirst() {
@@ -1020,6 +1046,7 @@ public class RaccoonEntity extends TameableEntity {
         compound.putInt("CooldownBeforeGoingHome", this.entityData.get(COOLDOWN_BEFORE_GOING_HOME));
         compound.putInt("Time_For_breed", TIME_FOR_BREED);
         compound.putInt("TIME_FOR_SITTING", TIME_FOR_SITTING);
+        compound.putBoolean("Dirty", isDirty);
     }
 
     @Override
@@ -1047,7 +1074,7 @@ public class RaccoonEntity extends TameableEntity {
             UUID leaderUUID = NBTUtil.loadUUID(compound.get("Leader"));
             this.entityData.set(DATA_LEADER_ID, Optional.ofNullable(leaderUUID));
         }
-
+        this.setDirty(compound.getBoolean("Dirty"));
         this.setSleeping(compound.getBoolean("Sleeping"));
         this.setRaccoonType(Type.byName(compound.getString("Type")));
         this.setSitting(compound.getBoolean("Sitting"));
@@ -1920,18 +1947,20 @@ public class RaccoonEntity extends TameableEntity {
 
     public void tick() {
         super.tick();
-
-//        List<PlayerEntity> players = this.level.getEntitiesOfClass(PlayerEntity.class, this.getBoundingBox().inflate(12D, 6D, 12D));
-//        if (!players.isEmpty() && this.navigation.getPath() != null && this.navigation.getTargetPos() != null && !this.isTame()) {
-//            if (Cooldown > 0) {
-//                Cooldown--;
-//            } else {
-//                List<PathPoint> nodes = this.navigation.getPath().getNodes();
-//                Path zigZagPath = PathCalculation.findZigZagPath(this, this.navigation.getPath().getEndNode().asBlockPos(), nodes);
-//                PathCalculation.updateMobPath(this, zigZagPath, 1.3F);
-//                Cooldown = 0;
-//            }
-//        }
+        BlockPos pos = this.getOnPos();
+        Block currentBlock = this.level.getBlockState(pos).getBlock();
+        if (this.onGround && DIRTY_BLOCKS.containsKey(currentBlock) && !this.isDirty() && this.getRaccoonType() == Type.RED) {
+            float dirtiness = DIRTY_BLOCKS.get(currentBlock);
+            if (new Random().nextFloat() <= dirtiness) {
+                this.dirtyCountdown--;
+                if (this.dirtyCountdown <= 0) {
+                    this.setDirty(true);
+                    this.playSound(SoundEvents.GRAVEL_STEP, 1.0F, 1.0F);
+                    this.spawnSprintParticle();
+                    this.resetDirtyCountdown();
+                }
+            }
+        }
 
 
 
@@ -2277,9 +2306,7 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         public boolean canUse() {
-            // Added debug statement
-           // System.out.println("Checking canUse: Thirst = " + this.raccoon.getThirst());
-            if (this.raccoon.getThirst() < 40) {
+            if (this.raccoon.getThirst() < 40 || this.raccoon.isDirty()) {
                 return super.canUse();
             }
             return false;
@@ -2287,9 +2314,7 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         public boolean canContinueToUse() {
-            // Added debug statement
-            //System.out.println("Checking canContinueToUse: Thirst = " + this.raccoon.getThirst());
-            return this.raccoon.getThirst() < 40 && super.canContinueToUse();
+            return (this.raccoon.getThirst() < 40 || this.raccoon.isDirty()) && super.canContinueToUse();
         }
 
         @Override
@@ -2304,10 +2329,14 @@ public class RaccoonEntity extends TameableEntity {
         public void tick() {
             super.tick();
             if (this.isReachedTarget()) {
-                this.raccoon.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
-                this.raccoon.setThirst(this.raccoon.getThirst() + this.raccoon.getRandom().nextInt(21) + 40); // Random number between 40 and 60
-                // Added debug statement
-                //System.out.println("Raccoon reached water and drank. New Thirst = " + this.raccoon.getThirst());
+                if (this.raccoon.getThirst() < 40) {
+                    this.raccoon.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
+                    this.raccoon.setThirst(this.raccoon.getThirst() + this.raccoon.getRandom().nextInt(21) + 40); // Random number between 40 and 60
+                }
+                // Added clean raccoon
+                if (this.raccoon.isDirty()) {
+                    this.raccoon.setDirty(false);
+                }
             }
         }
     }
@@ -3232,7 +3261,8 @@ public class RaccoonEntity extends TameableEntity {
     public static enum Type {
         RED(0, "red"),
         SNOW(1,"snow"),
-        RABID(2,"rabid");
+        RABID(2,"rabid"),
+        DIRTY(3, "dirty");
 
 
         private static final Type[] BY_ID = Arrays.stream(values()).sorted(Comparator.comparingInt(Type::getId)).toArray((p_221084_0_) -> {
