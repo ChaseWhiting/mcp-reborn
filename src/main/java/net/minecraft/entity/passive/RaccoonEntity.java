@@ -133,6 +133,7 @@ public class RaccoonEntity extends TameableEntity {
         DIRTY_BLOCKS.put(Blocks.COARSE_DIRT, 0.5F);
         DIRTY_BLOCKS.put(Blocks.PODZOL, 0.6F);
         DIRTY_BLOCKS.put(Blocks.GRAVEL, 0.45F);
+        DIRTY_BLOCKS.put(Blocks.SAND, 0.6F);
         DIRTY_BLOCKS.put(Blocks.FARMLAND, 0.4F);
         DIRTY_BLOCKS.put(Blocks.GRASS_PATH, 0.3F);
         DIRTY_BLOCKS.put(Blocks.MYCELIUM, 0.6F);
@@ -280,11 +281,15 @@ public class RaccoonEntity extends TameableEntity {
     }
 
     public boolean isDirty() {
-        return isDirty;
+        return this.getRaccoonType() == Type.DIRTY;
     }
 
     public void setDirty(boolean value) {
-        this.isDirty = value;
+        if (value = true) {
+            this.setRaccoonType(Type.DIRTY);
+        } else {
+            this.setRaccoonType(Type.RED);
+        }
     }
 
     public int getDirtiness() {
@@ -1944,13 +1949,12 @@ public class RaccoonEntity extends TameableEntity {
         }
     }
 
-
     public void tick() {
         super.tick();
         BlockPos pos = this.getOnPos();
         Block currentBlock = this.level.getBlockState(pos).getBlock();
 
-        if (this.isOnGround() && DIRTY_BLOCKS.containsKey(currentBlock)) {
+        if (this.isOnGround() && DIRTY_BLOCKS.containsKey(currentBlock) && !this.isDirty() && this.getRaccoonType() == Type.RED) {
             float dirtiness = DIRTY_BLOCKS.get(currentBlock);
             if (new Random().nextFloat() <= dirtiness) {
                 this.dirtyCountdown--;
@@ -1962,6 +1966,10 @@ public class RaccoonEntity extends TameableEntity {
                     this.resetDirtyCountdown();  // Resetting the countdown for the next dirty cycle
                 }
             }
+        }
+
+        if (this.isInWaterRainOrBubble() && this.getRaccoonType() == Type.DIRTY){
+            cleanRaccoon(this);
         }
 
 
@@ -2293,7 +2301,7 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         public boolean isInterruptable() {
-            return false;
+            return !this.raccoon.isInWaterRainOrBubble();
         }
 
         @Override
@@ -2335,12 +2343,14 @@ public class RaccoonEntity extends TameableEntity {
                     this.raccoon.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
                     this.raccoon.setThirst(this.raccoon.getThirst() + this.raccoon.getRandom().nextInt(21) + 40); // Random number between 40 and 60
                 }
-                // Added clean raccoon
-                if (this.raccoon.isDirty()) {
-                    this.raccoon.setDirty(false);
-                    this.raccoon.playSound(SoundEvents.WOLF_SHAKE, 1.0F, 1.0F);
-                }
             }
+        }
+    }
+
+    public void cleanRaccoon(RaccoonEntity raccoon) {
+        if (raccoon.getRaccoonType() == Type.DIRTY) {
+            raccoon.setRaccoonType(Type.RED);
+            raccoon.playSound(SoundEvents.WOLF_SHAKE, 1.0F, 1.0F);
         }
     }
 

@@ -46,16 +46,14 @@ public class RaccoonRenderer extends MobRenderer<RaccoonEntity, RaccoonModel<Rac
     }
 
     public ResourceLocation getTextureLocation(RaccoonEntity raccoon) {
-            if (raccoon.getRaccoonType() == RaccoonEntity.Type.RED) {
-                if (raccoon.isDirty()) {
-                       return (raccoon.isSleeping() ? RACCOON_DIRTY_SLEEP_TEXTURE : RACCOON_DIRTY_TEXTURE);
-                } else {
+            if (raccoon.getRaccoonType() == RaccoonEntity.Type.DIRTY) {
+                return (raccoon.isSleeping() ? RACCOON_DIRTY_SLEEP_TEXTURE : RACCOON_DIRTY_TEXTURE);
+            } else if (raccoon.getRaccoonType() == RaccoonEntity.Type.RED) {
                     if (raccoon.isBaby()) {
                         return raccoon.isSleeping() ? BABY_RED_FOX_SLEEP_TEXTURE : BABY_RED_FOX_TEXTURE;
                     } else {
                         return raccoon.isSleeping() ? RED_FOX_SLEEP_TEXTURE : RED_FOX_TEXTURE;
                     }
-                }
             } else if (raccoon.getRaccoonType() == RaccoonEntity.Type.RABID) {
                 if (raccoon.isBaby()) {
                     return raccoon.isSleeping() ? BABY_RABID_FOX_SLEEP_TEXTURE : BABY_RABID_FOX_TEXTURE;
@@ -69,7 +67,5 @@ public class RaccoonRenderer extends MobRenderer<RaccoonEntity, RaccoonModel<Rac
                     return raccoon.isSleeping() ? SNOW_FOX_SLEEP_TEXTURE : SNOW_FOX_TEXTURE;
                 }
             }
-
-
     }
 }
