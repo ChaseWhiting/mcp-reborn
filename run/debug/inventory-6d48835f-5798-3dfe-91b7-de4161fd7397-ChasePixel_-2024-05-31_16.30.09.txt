@@ -1,3 +1,0 @@
-Inventory Contents of ChasePixel_:
-Slot 0: 1 x Netherite Sword
-Slot 1: 64 x item.minecraft.raccoon_spawn_egg

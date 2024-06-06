@@ -1,3 +1,0 @@
-Inventory Contents of ChasePixel_:
-Slot 0: 64 x Lead
-Slot 2: 64 x Oak Fence
