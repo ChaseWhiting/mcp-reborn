@@ -2229,6 +2229,7 @@ public class RaccoonEntity extends TameableEntity {
         this.setItemSlot(EquipmentSlotType.MAINHAND, itemstack.finishUsingItem(this.level, this));
         int hungerIncrease = MIN_HUNGER_INCREASE + this.random.nextInt(MAX_HUNGER_INCREASE - MIN_HUNGER_INCREASE + 1);
         this.setHunger(this.hunger + hungerIncrease);
+        this.setThirst(this.thirst + this.level.random.nextInt(8));
 
         // Debugging the target
 
