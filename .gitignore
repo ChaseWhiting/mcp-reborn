@@ -12,6 +12,8 @@ build/
 /run/debug
 /run/crash-reports
 options.txt
+usercache.json
+/run/usercache.json
 saves
 assets
 logs
