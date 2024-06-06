@@ -29,6 +29,9 @@ public abstract class Goal {
       this.flags.addAll(p_220684_1_);
    }
 
+
+
+
    public String toString() {
       return this.getClass().getSimpleName();
    }

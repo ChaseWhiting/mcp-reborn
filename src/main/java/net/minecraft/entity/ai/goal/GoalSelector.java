@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import net.minecraft.entity.passive.RaccoonEntity;
 import net.minecraft.profiler.IProfiler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,6 +85,24 @@ public class GoalSelector {
 
    public Stream<PrioritizedGoal> getRunningGoals() {
       return this.availableGoals.stream().filter(PrioritizedGoal::isRunning);
+   }
+
+   public PrioritizedGoal getGoal(Class<? extends Goal> goalClass) {
+      for (PrioritizedGoal goal : this.availableGoals) {
+         if (goal.getGoal().getClass() == goalClass) {
+            return goal;
+         }
+      }
+      return null;
+   }
+
+   public boolean shouldInterrupt(Goal goal, Goal goal2) {
+      PrioritizedGoal goal3 = this.getGoal(goal.getClass());
+      PrioritizedGoal goal4 = this.getGoal(goal2.getClass());
+      if (goal3 != null && goal4 != null) {
+         return goal3.getPriority() < goal4.getPriority();
+      }
+      return false;
    }
 
    public Stream<PrioritizedGoal> getAvailableGoals() {
