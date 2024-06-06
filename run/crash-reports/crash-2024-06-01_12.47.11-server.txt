@@ -1,0 +1,93 @@
+---- Minecraft Crash Report ----
+// Surprise! Haha. Well, this is awkward.
+
+Time: 2024-06-01, 12:47 p.m.
+Description: Ticking entity
+
+java.lang.NullPointerException: Cannot invoke "net.minecraft.pathfinding.Path.getNodeCount()" because "path" is null
+	at net.minecraft.network.DebugPacketSender.sendPathfindingDebugPacket(DebugPacketSender.java:106)
+	at net.minecraft.pathfinding.PathNavigator.tick(PathNavigator.java:215)
+	at net.minecraft.entity.MobEntity.serverAiStep(MobEntity.java:676)
+	at net.minecraft.entity.LivingEntity.aiStep(LivingEntity.java:2379)
+	at net.minecraft.entity.MobEntity.aiStep(MobEntity.java:487)
+	at net.minecraft.entity.AgeableEntity.aiStep(AgeableEntity.java:115)
+	at net.minecraft.entity.LivingEntity.tick(LivingEntity.java:2127)
+	at net.minecraft.entity.MobEntity.tick(MobEntity.java:299)
+	at net.minecraft.entity.merchant.villager.VillagerEntity.tick(VillagerEntity.java:234)
+	at net.minecraft.world.server.ServerWorld.tickNonPassenger(ServerWorld.java:604)
+	at net.minecraft.world.World.guardEntityTick(World.java:498)
+	at net.minecraft.world.server.ServerWorld.tick(ServerWorld.java:399)
+	at net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:835)
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:775)
+	at net.minecraft.server.integrated.IntegratedServer.tickServer(IntegratedServer.java:77)
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:636)
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:232)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Server thread
+Stacktrace:
+	at net.minecraft.network.DebugPacketSender.sendPathfindingDebugPacket(DebugPacketSender.java:106)
+	at net.minecraft.pathfinding.PathNavigator.tick(PathNavigator.java:215)
+	at net.minecraft.entity.MobEntity.serverAiStep(MobEntity.java:676)
+	at net.minecraft.entity.LivingEntity.aiStep(LivingEntity.java:2379)
+	at net.minecraft.entity.MobEntity.aiStep(MobEntity.java:487)
+	at net.minecraft.entity.AgeableEntity.aiStep(AgeableEntity.java:115)
+	at net.minecraft.entity.LivingEntity.tick(LivingEntity.java:2127)
+	at net.minecraft.entity.MobEntity.tick(MobEntity.java:299)
+	at net.minecraft.entity.merchant.villager.VillagerEntity.tick(VillagerEntity.java:234)
+	at net.minecraft.world.server.ServerWorld.tickNonPassenger(ServerWorld.java:604)
+
+-- Entity being ticked --
+Details:
+	Entity Type: minecraft:villager (net.minecraft.entity.merchant.villager.VillagerEntity)
+	Entity ID: 110
+	Entity Name: Librarian
+	Entity's Exact location: 180.30, 69.94, -157.49
+	Entity's Block location: World: (180,69,-158), Chunk: (at 4,4,2 in 11,-10; contains blocks 176,0,-160 to 191,255,-145), Region: (0,-1; contains chunks 0,-32 to 31,-1, blocks 0,0,-512 to 511,255,-1)
+	Entity's Momentum: 0.00, -0.08, 0.00
+	Entity's Passengers: []
+	Entity's Vehicle: ~~ERROR~~ NullPointerException: Cannot invoke "net.minecraft.entity.Entity.toString()" because the return value of "net.minecraft.entity.Entity.getVehicle()" is null
+Stacktrace:
+	at net.minecraft.world.World.guardEntityTick(World.java:498)
+	at net.minecraft.world.server.ServerWorld.tick(ServerWorld.java:399)
+
+-- Affected level --
+Details:
+	All players: 1 total; [ServerPlayerEntity['ChasePixel_'/242, l='ServerLevel[New World]', x=71.96, y=70.23, z=100.00]]
+	Chunk stats: ServerChunkCache: 2906
+	Level dimension: minecraft:overworld
+	Level spawn location: World: (144,64,-32), Chunk: (at 0,4,0 in 9,-2; contains blocks 144,0,-32 to 159,255,-17), Region: (0,-1; contains chunks 0,-32 to 31,-1, blocks 0,0,-512 to 511,255,-1)
+	Level time: 10444 game time, 10444 day time
+	Level name: New World
+	Level game mode: Game mode: creative (ID 1). Hardcore: false. Cheats: true
+	Level weather: Rain time: 157423 (now: false), thunder time: 77526 (now: false)
+	Known server brands: vanilla
+	Level was modded: true
+	Level storage version: 0x04ABD - Anvil
+Stacktrace:
+	at net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:835)
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:775)
+	at net.minecraft.server.integrated.IntegratedServer.tickServer(IntegratedServer.java:77)
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:636)
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:232)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.16.5
+	Minecraft Version ID: 1.16.5
+	Operating System: Windows 11 (amd64) version 10.0
+	Java Version: 15.0.10, Azul Systems, Inc.
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Azul Systems, Inc.
+	Memory: 514840400 bytes (490 MB) / 1455423488 bytes (1388 MB) up to 8573157376 bytes (8176 MB)
+	CPUs: 16
+	JVM Flags: 0 total; 
+	Player Count: 1 / 8; [ServerPlayerEntity['ChasePixel_'/242, l='ServerLevel[New World]', x=71.96, y=70.23, z=100.00]]
+	Data Packs: vanilla
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Very likely; Jar signature invalidated

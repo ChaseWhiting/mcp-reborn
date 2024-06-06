@@ -1,0 +1,62 @@
+---- Minecraft Crash Report ----
+// You should try our sister game, Minceraft!
+
+Time: 2024-06-02, 11:20 a.m.
+Description: Unexpected error
+
+java.lang.NullPointerException: Cannot invoke "net.minecraft.client.renderer.debug.RaccoonDebugRenderer.render(com.mojang.blaze3d.matrix.MatrixStack, net.minecraft.client.renderer.IRenderTypeBuffer, double, double, double)" because "this.raccoonDebugRenderer" is null
+	at net.minecraft.client.renderer.debug.DebugRenderer.render(DebugRenderer.java:109)
+	at net.minecraft.client.renderer.WorldRenderer.renderLevel(WorldRenderer.java:1095)
+	at net.minecraft.client.renderer.GameRenderer.renderLevel(GameRenderer.java:600)
+	at net.minecraft.client.renderer.GameRenderer.render(GameRenderer.java:423)
+	at net.minecraft.client.Minecraft.runTick(Minecraft.java:972)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:609)
+	at net.minecraft.client.main.Main.main(Main.java:186)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Render thread
+Stacktrace:
+	at net.minecraft.client.renderer.debug.DebugRenderer.render(DebugRenderer.java:109)
+	at net.minecraft.client.renderer.WorldRenderer.renderLevel(WorldRenderer.java:1095)
+	at net.minecraft.client.renderer.GameRenderer.renderLevel(GameRenderer.java:600)
+
+-- Affected level --
+Details:
+	All players: 1 total; [ClientPlayerEntity['ChasePixel_'/124, l='ClientLevel', x=246.50, y=67.00, z=38.50]]
+	Chunk stats: Client Chunk Cache: 1089, 441
+	Level dimension: minecraft:overworld
+	Level spawn location: World: (256,67,32), Chunk: (at 0,4,0 in 16,2; contains blocks 256,0,32 to 271,255,47), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,0,0 to 511,255,511)
+	Level time: 12 game time, 12 day time
+	Server brand: vanilla
+	Server type: Integrated singleplayer server
+Stacktrace:
+	at net.minecraft.client.world.ClientWorld.fillReportDetails(ClientWorld.java:440)
+	at net.minecraft.client.Minecraft.fillReport(Minecraft.java:2083)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:630)
+	at net.minecraft.client.main.Main.main(Main.java:186)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.16.5
+	Minecraft Version ID: 1.16.5
+	Operating System: Windows 11 (amd64) version 10.0
+	Java Version: 15.0.10, Azul Systems, Inc.
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Azul Systems, Inc.
+	Memory: 743743928 bytes (709 MB) / 1203765248 bytes (1148 MB) up to 8573157376 bytes (8176 MB)
+	CPUs: 16
+	JVM Flags: 0 total; 
+	Launched Version: 1.16.5
+	Backend library: LWJGL version 3.2.2 build 10
+	Backend API: AMD Radeon RX 7800 XT GL version 4.6.0 Compatibility Profile Context 24.2.1.240215, ATI Technologies Inc.
+	GL Caps: Using framebuffer using OpenGL 3.0
+	Using VBOs: Yes
+	Is Modded: Very likely; Jar signature invalidated
+	Type: Client (map_client.txt)
+	Graphics mode: fancy
+	Resource Packs: vanilla
+	Current Language: English (US)
+	CPU: 16x AMD Ryzen 7 5800X3D 8-Core Processor 

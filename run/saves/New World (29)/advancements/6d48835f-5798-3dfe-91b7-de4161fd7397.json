@@ -1,0 +1,36 @@
+{
+  "minecraft:recipes/food/bread": {
+    "criteria": {
+      "has_wheat": "2024-05-26 13:40:32 -0400"
+    },
+    "done": true
+  },
+  "minecraft:recipes/combat/arrow": {
+    "criteria": {
+      "has_feather": "2024-05-26 13:40:41 -0400"
+    },
+    "done": true
+  },
+  "minecraft:adventure/root": {
+    "criteria": {
+      "killed_something": "2024-05-26 13:35:47 -0400"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/hay_block": {
+    "criteria": {
+      "has_wheat": "2024-05-26 13:40:32 -0400"
+    },
+    "done": true
+  },
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "minecraft:forest": "2024-05-26 13:33:10 -0400",
+      "minecraft:mountains": "2024-05-26 13:56:54 -0400",
+      "minecraft:beach": "2024-05-26 13:35:39 -0400",
+      "minecraft:savanna": "2024-05-26 13:33:19 -0400"
+    },
+    "done": false
+  },
+  "DataVersion": 2586
+}

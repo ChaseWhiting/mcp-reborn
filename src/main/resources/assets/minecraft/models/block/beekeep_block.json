@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "minecraft:block/barrel_top",
+    "bottom": "minecraft:block/barrel_bottom",
+    "side": "minecraft:block/honey_extractor",
+    "front": "minecraft:block/honey_extractor",
+    "particle": "minecraft:block/bee_nest_side"
+  }
+}

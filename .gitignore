@@ -2,10 +2,10 @@
 build/
 
 # Source code
-src/*
+#src/*
 
 #Run files
-runclient
+#runclient
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -13,9 +13,9 @@ gradle-app.setting
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
-#IDE files
+# IDE files
 .idea
 *.iml
-run/
+#run/
 
 out/

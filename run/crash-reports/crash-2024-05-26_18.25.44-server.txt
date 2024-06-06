@@ -1,0 +1,79 @@
+---- Minecraft Crash Report ----
+// Hi. I'm Minecraft, and I'm a crashaholic.
+
+Time: 2024-05-26, 6:25 p.m.
+Description: Ticking entity
+
+java.lang.NullPointerException: Cannot invoke "net.minecraft.entity.Entity.getUUID()" because the return value of "net.minecraft.util.DamageSource.getEntity()" is null
+	at net.minecraft.entity.passive.RaccoonEntity.hurt(RaccoonEntity.java:322)
+	at net.minecraft.entity.passive.RaccoonEntity.tick(RaccoonEntity.java:1516)
+	at net.minecraft.world.server.ServerWorld.tickNonPassenger(ServerWorld.java:604)
+	at net.minecraft.world.World.guardEntityTick(World.java:498)
+	at net.minecraft.world.server.ServerWorld.tick(ServerWorld.java:399)
+	at net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:835)
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:775)
+	at net.minecraft.server.integrated.IntegratedServer.tickServer(IntegratedServer.java:77)
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:636)
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:232)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Server thread
+Stacktrace:
+	at net.minecraft.entity.passive.RaccoonEntity.hurt(RaccoonEntity.java:322)
+	at net.minecraft.entity.passive.RaccoonEntity.tick(RaccoonEntity.java:1516)
+	at net.minecraft.world.server.ServerWorld.tickNonPassenger(ServerWorld.java:604)
+
+-- Entity being ticked --
+Details:
+	Entity Type: minecraft:raccoon (net.minecraft.entity.passive.RaccoonEntity)
+	Entity ID: 180
+	Entity Name: entity.minecraft.raccoon
+	Entity's Exact location: -610.60, 63.00, 217.39
+	Entity's Block location: World: (-611,63,217), Chunk: (at 13,3,9 in -39,13; contains blocks -624,0,208 to -609,255,223), Region: (-2,0; contains chunks -64,0 to -33,31, blocks -1024,0,0 to -513,255,511)
+	Entity's Momentum: 0.00, -0.08, 0.00
+	Entity's Passengers: []
+	Entity's Vehicle: ~~ERROR~~ NullPointerException: Cannot invoke "net.minecraft.entity.Entity.toString()" because the return value of "net.minecraft.entity.Entity.getVehicle()" is null
+Stacktrace:
+	at net.minecraft.world.World.guardEntityTick(World.java:498)
+	at net.minecraft.world.server.ServerWorld.tick(ServerWorld.java:399)
+
+-- Affected level --
+Details:
+	All players: 1 total; [ServerPlayerEntity['ChasePixel_'/175, l='ServerLevel[New World]', x=-576.46, y=70.02, z=229.60]]
+	Chunk stats: ServerChunkCache: 3354
+	Level dimension: minecraft:overworld
+	Level spawn location: World: (-176,66,192), Chunk: (at 0,4,0 in -11,12; contains blocks -176,0,192 to -161,255,207), Region: (-1,0; contains chunks -32,0 to -1,31, blocks -512,0,0 to -1,255,511)
+	Level time: 58011 game time, 12357 day time
+	Level name: New World
+	Level game mode: Game mode: creative (ID 1). Hardcore: false. Cheats: true
+	Level weather: Rain time: 73876 (now: false), thunder time: 2243 (now: true)
+	Known server brands: vanilla
+	Level was modded: true
+	Level storage version: 0x04ABD - Anvil
+Stacktrace:
+	at net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:835)
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:775)
+	at net.minecraft.server.integrated.IntegratedServer.tickServer(IntegratedServer.java:77)
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:636)
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:232)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.16.5
+	Minecraft Version ID: 1.16.5
+	Operating System: Windows 11 (amd64) version 10.0
+	Java Version: 15.0.10, Azul Systems, Inc.
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Azul Systems, Inc.
+	Memory: 456132736 bytes (435 MB) / 964689920 bytes (920 MB) up to 8573157376 bytes (8176 MB)
+	CPUs: 16
+	JVM Flags: 0 total; 
+	Player Count: 1 / 8; [ServerPlayerEntity['ChasePixel_'/175, l='ServerLevel[New World]', x=-576.46, y=70.02, z=229.60]]
+	Data Packs: vanilla
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Very likely; Jar signature invalidated

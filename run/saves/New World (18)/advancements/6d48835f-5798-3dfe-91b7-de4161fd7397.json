@@ -1,0 +1,12 @@
+{
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "minecraft:forest": "2024-05-25 17:49:46 -0400",
+      "minecraft:taiga": "2024-05-25 17:49:29 -0400",
+      "minecraft:taiga_hills": "2024-05-25 17:49:40 -0400",
+      "minecraft:plains": "2024-05-25 17:49:59 -0400"
+    },
+    "done": false
+  },
+  "DataVersion": 2586
+}

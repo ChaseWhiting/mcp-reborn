@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/rail_flat",
+  "textures": {
+    "rail": "minecraft:block/jelly_rail_on"
+  }
+}

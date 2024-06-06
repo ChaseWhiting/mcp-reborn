@@ -1,0 +1,77 @@
+---- Minecraft Crash Report ----
+// Hi. I'm Minecraft, and I'm a crashaholic.
+
+Time: 2024-05-31, 9:53 p.m.
+Description: Ticking entity
+
+java.lang.NullPointerException: Cannot invoke "net.minecraft.util.math.BlockPos.getX()" because the return value of "net.minecraft.pathfinding.PathNavigator.getTargetPos()" is null
+	at net.minecraft.entity.passive.RaccoonEntity.tick(RaccoonEntity.java:1681)
+	at net.minecraft.world.server.ServerWorld.tickNonPassenger(ServerWorld.java:604)
+	at net.minecraft.world.World.guardEntityTick(World.java:498)
+	at net.minecraft.world.server.ServerWorld.tick(ServerWorld.java:399)
+	at net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:835)
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:775)
+	at net.minecraft.server.integrated.IntegratedServer.tickServer(IntegratedServer.java:77)
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:636)
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:232)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Server thread
+Stacktrace:
+	at net.minecraft.entity.passive.RaccoonEntity.tick(RaccoonEntity.java:1681)
+	at net.minecraft.world.server.ServerWorld.tickNonPassenger(ServerWorld.java:604)
+
+-- Entity being ticked --
+Details:
+	Entity Type: minecraft:raccoon (net.minecraft.entity.passive.RaccoonEntity)
+	Entity ID: 595
+	Entity Name: entity.minecraft.raccoon
+	Entity's Exact location: -13.50, 76.00, -88.39
+	Entity's Block location: World: (-14,76,-89), Chunk: (at 2,4,7 in -1,-6; contains blocks -16,0,-96 to -1,255,-81), Region: (-1,-1; contains chunks -32,-32 to -1,-1, blocks -512,0,-512 to -1,255,-1)
+	Entity's Momentum: 0.00, -0.08, 0.15
+	Entity's Passengers: []
+	Entity's Vehicle: ~~ERROR~~ NullPointerException: Cannot invoke "net.minecraft.entity.Entity.toString()" because the return value of "net.minecraft.entity.Entity.getVehicle()" is null
+Stacktrace:
+	at net.minecraft.world.World.guardEntityTick(World.java:498)
+	at net.minecraft.world.server.ServerWorld.tick(ServerWorld.java:399)
+
+-- Affected level --
+Details:
+	All players: 1 total; [ServerPlayerEntity['ChasePixel_'/270, l='ServerLevel[New World]', x=-15.70, y=78.54, z=-95.46]]
+	Chunk stats: ServerChunkCache: 2650
+	Level dimension: minecraft:overworld
+	Level spawn location: World: (-16,75,-96), Chunk: (at 0,4,0 in -1,-6; contains blocks -16,0,-96 to -1,255,-81), Region: (-1,-1; contains chunks -32,-32 to -1,-1, blocks -512,0,-512 to -1,255,-1)
+	Level time: 179 game time, 179 day time
+	Level name: New World
+	Level game mode: Game mode: creative (ID 1). Hardcore: false. Cheats: true
+	Level weather: Rain time: 96469 (now: false), thunder time: 57060 (now: false)
+	Known server brands: vanilla
+	Level was modded: true
+	Level storage version: 0x04ABD - Anvil
+Stacktrace:
+	at net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:835)
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:775)
+	at net.minecraft.server.integrated.IntegratedServer.tickServer(IntegratedServer.java:77)
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:636)
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:232)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.16.5
+	Minecraft Version ID: 1.16.5
+	Operating System: Windows 11 (amd64) version 10.0
+	Java Version: 15.0.10, Azul Systems, Inc.
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Azul Systems, Inc.
+	Memory: 404669648 bytes (385 MB) / 1233125376 bytes (1176 MB) up to 8573157376 bytes (8176 MB)
+	CPUs: 16
+	JVM Flags: 0 total; 
+	Player Count: 1 / 8; [ServerPlayerEntity['ChasePixel_'/270, l='ServerLevel[New World]', x=-15.70, y=78.54, z=-95.46]]
+	Data Packs: vanilla
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Very likely; Jar signature invalidated

@@ -1,0 +1,44 @@
+---- Minecraft Crash Report ----
+// I bet Cylons wouldn't have this problem.
+
+Time: 2024-05-25, 8:56 a.m.
+Description: Initializing game
+
+java.lang.IllegalStateException: No renderer registered for minecraft:raccoon
+	at net.minecraft.client.renderer.entity.EntityRendererManager.<init>(EntityRendererManager.java:194)
+	at net.minecraft.client.Minecraft.<init>(Minecraft.java:465)
+	at net.minecraft.client.main.Main.main(Main.java:149)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Render thread
+Stacktrace:
+	at net.minecraft.client.renderer.entity.EntityRendererManager.<init>(EntityRendererManager.java:194)
+	at net.minecraft.client.Minecraft.<init>(Minecraft.java:465)
+
+-- Initialization --
+Details:
+Stacktrace:
+	at net.minecraft.client.main.Main.main(Main.java:149)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.16.5
+	Minecraft Version ID: 1.16.5
+	Operating System: Windows 11 (amd64) version 10.0
+	Java Version: 15.0.10, Azul Systems, Inc.
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Azul Systems, Inc.
+	Memory: 1897528992 bytes (1809 MB) / 2629828608 bytes (2508 MB) up to 8573157376 bytes (8176 MB)
+	CPUs: 16
+	JVM Flags: 0 total; 
+	Launched Version: 1.16.5
+	Backend library: LWJGL version 3.2.2 build 10
+	Backend API: AMD Radeon RX 7800 XT GL version 4.6.0 Compatibility Profile Context 24.2.1.240215, ATI Technologies Inc.
+	GL Caps: Using framebuffer using OpenGL 3.0
+	Using VBOs: Yes
+	Is Modded: Very likely; Jar signature invalidated
+	Type: Client (map_client.txt)
+	CPU: 16x AMD Ryzen 7 5800X3D 8-Core Processor 
