@@ -87,6 +87,7 @@ public class RaccoonDebugRenderer implements DebugRenderer.IDebugRenderer {
         }
         renderTextOverMob(info.position, i++, "Hunger: " + info.hunger, 16759603, 0.02F);
         renderTextOverMob(info.position, i++, "Thirst: " + info.thirst, 3381759, 0.02F);
+        renderTextOverMob(info.position, i++, "Dirty Countdown: " + info.dirtiness, -256, 0.02F);
 
         if (info.path != null) {
             if (info.path.getEndNode() != null) {
@@ -139,8 +140,9 @@ public class RaccoonDebugRenderer implements DebugRenderer.IDebugRenderer {
         public final int hunger;
         public final int thirst;
         public final BlockPos targetPos;
+        public final int dirtiness;
 
-        public RaccoonInfo(UUID uuid, int id, IPosition position, BlockPos homePos, Path path, boolean isLeader, List<UUID> homeMembers, int hunger, int thirst, BlockPos targetPos) {
+        public RaccoonInfo(UUID uuid, int id, IPosition position, BlockPos homePos, Path path, boolean isLeader, List<UUID> homeMembers, int hunger, int thirst, BlockPos targetPos, int dirtiness) {
             this.uuid = uuid;
             this.id = id;
             this.position = position;
@@ -151,6 +153,7 @@ public class RaccoonDebugRenderer implements DebugRenderer.IDebugRenderer {
             this.hunger = hunger;
             this.thirst = thirst;
             this.targetPos = targetPos;
+            this.dirtiness = dirtiness;
         }
 
         public String toString() {
