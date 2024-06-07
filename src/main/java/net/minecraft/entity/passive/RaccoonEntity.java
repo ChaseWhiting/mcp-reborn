@@ -18,6 +18,7 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.LookController;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.monster.MonsterEntity;
@@ -389,6 +390,7 @@ public class RaccoonEntity extends TameableEntity {
         this.goalSelector.addGoal(3, new RaccoonRaidGardenGoal(this));
 
         this.goalSelector.addGoal(2, new RaccoonMoveToWaterGoal(this, 1.22F));
+        this.goalSelector.addGoal(4, new RaccoonPracticeGoal(this, 1.0D));
         this.goalSelector.addGoal(5, new RaccoonLieOnBedGoal(this, 1.3D, 16));
         this.goalSelector.addGoal(1, new RaccoonEntity.SwimGoal());
         this.goalSelector.addGoal(1, new RaccoonGoHomeGoal(this, 1.3F, 30, 30));
@@ -1594,29 +1596,36 @@ public class RaccoonEntity extends TameableEntity {
                 if (tileEntity instanceof IInventory) {
                     IInventory chestInventory = (IInventory) tileEntity;
 
+                    int itemCount = 0; // counter for items
+
                     // Check each slot to see if it contains an item
                     int numSlots = chestInventory.getContainerSize();
                     for (int i = 0; i < numSlots; i++) {
                         ItemStack stack = chestInventory.getItem(i);
                         if (!stack.isEmpty()) {
-                            // Check for nearby raccoons
-                            AxisAlignedBB boundingBox = new AxisAlignedBB(pos).inflate(3.5D, 3.5D, 3.5D);
-                            List<RaccoonEntity> nearbyRaccoons = RaccoonEntity.this.level.getEntitiesOfClass(RaccoonEntity.class, boundingBox);
-
-                            // Ensure there are no other raccoons within the radius
-                            for (RaccoonEntity raccoon : nearbyRaccoons) {
-                                if (!raccoon.equals(this)) {
-                                    return false;
-                                }
-                            }
-
-                            return true; // Return true if the chest has items and no other raccoons are nearby
+                            itemCount++; // Increment counter if item is found
                         }
+                    }
+
+                    // Now check if item count is enough
+                    if (itemCount >= 2) {
+                        // Check for nearby raccoons
+                        AxisAlignedBB boundingBox = new AxisAlignedBB(pos).inflate(3.5D, 3.5D, 3.5D);
+                        List<RaccoonEntity> nearbyRaccoons = RaccoonEntity.this.level.getEntitiesOfClass(RaccoonEntity.class, boundingBox);
+
+                        // Ensure there are no other raccoons within the radius
+                        for (RaccoonEntity raccoon : nearbyRaccoons) {
+                            if (!raccoon.equals(this)) {
+                                return false;
+                            }
+                        }
+
+                        return true; // Return true if the chest has enough items and no other raccoons are nearby
                     }
                 }
             }
 
-            return false; // Return false if no items are found, if there are other raccoons, or if the block is not a chest
+            return false; // Return false if not enough items, if there are other raccoons, or if the block is not a chest
         }
 
 
@@ -1657,27 +1666,33 @@ public class RaccoonEntity extends TameableEntity {
                     slots.add(i);
                 }
                 Collections.shuffle(slots);
+
                 for (int i : slots) {
                     ItemStack stack = chestInventory.getItem(i);
                     if (!stack.isEmpty()) {
+                        // If main hand is empty, steal an item
                         if (RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) {
-                            ItemStack stolenItem = stack.split(1);
-                            RaccoonEntity.this.playSound(SoundEvents.PIG_STEP, 1.0F, 1.0F);
-                            RaccoonEntity.this.playSound(SoundEvents.FOX_SNIFF, 1.0F, 1.0F);
-                            RaccoonEntity.this.setItemSlot(EquipmentSlotType.MAINHAND, stolenItem);
-                            chestInventory.setItem(i, stack.isEmpty() ? ItemStack.EMPTY : stack);
-                            break;
-                        } else if (RaccoonEntity.this.getItemBySlot(EquipmentSlotType.OFFHAND).isEmpty()) {
-                            ItemStack stolenItem = stack.split(1);
-                            RaccoonEntity.this.playSound(SoundEvents.PIG_STEP, 1.0F, 1.0F);
-                            RaccoonEntity.this.playSound(SoundEvents.FOX_SNIFF, 1.0F, 1.0F);
-                            RaccoonEntity.this.setItemSlot(EquipmentSlotType.OFFHAND, stolenItem);
-                            chestInventory.setItem(i, stack.isEmpty() ? ItemStack.EMPTY : stack);
-                            break;
+                            performSteal(chestInventory, i, EquipmentSlotType.MAINHAND);
+                            if(!RaccoonEntity.this.getItemBySlot(EquipmentSlotType.OFFHAND).isEmpty()) { return; } // If both hands are full, return
+                        }
+
+                        // If off hand is empty, steal an item
+                        if (RaccoonEntity.this.getItemBySlot(EquipmentSlotType.OFFHAND).isEmpty()) {
+                            performSteal(chestInventory, i, EquipmentSlotType.OFFHAND);
+                            if(!RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) { return; } // If both hands are full, return
                         }
                     }
                 }
             }
+        }
+
+        private void performSteal(IInventory chestInventory, int i, EquipmentSlotType hand) {
+            ItemStack stack = chestInventory.getItem(i);
+            ItemStack stolenItem = stack.split(1);
+            RaccoonEntity.this.playSound(SoundEvents.PIG_STEP, 1.0F, 1.0F);
+            RaccoonEntity.this.playSound(SoundEvents.FOX_SNIFF, 1.0F, 1.0F);
+            RaccoonEntity.this.setItemSlot(hand, stolenItem);
+            chestInventory.setItem(i, stack.isEmpty() ? ItemStack.EMPTY : stack);
         }
 
 
@@ -2329,10 +2344,11 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         public boolean isInterruptable() {
-            if (findWaterGoal != null && swimGoal != null) {
-                return shouldInterrupt(findWaterGoal, swimGoal);
-            }
-            return true;
+            return false;
+//            if (findWaterGoal != null && swimGoal != null) {
+//                return shouldInterrupt(findWaterGoal, swimGoal);
+//            }
+//            return true;
         }
 
         public boolean shouldInterrupt(Goal goal1, Goal goal2) {
@@ -3117,6 +3133,72 @@ public class RaccoonEntity extends TameableEntity {
                 }
             }
 
+        }
+    }
+
+    public class RaccoonPracticeGoal extends Goal {
+        private final RaccoonEntity raccoon;
+        private final double speed;
+        private ArmorStandEntity target;
+
+        public RaccoonPracticeGoal(RaccoonEntity raccoon, double speed) {
+            this.raccoon = raccoon;
+            this.speed = speed;
+        }
+
+        // The goal should only start if there is an ArmorStand present.
+        @Override
+        public boolean canUse() {
+            List<ArmorStandEntity> list = this.raccoon.level.getEntitiesOfClass(ArmorStandEntity.class, this.raccoon.getBoundingBox().inflate(10.0D, 8.0D, 10.0D));
+            if (!list.isEmpty()) {
+                for(ArmorStandEntity armorstand : list) {
+                    if (raccoon.canSee(armorstand)) {
+                        this.target = armorstand;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // The goal should continue as long as the ArmorStand is not 'dead'.
+        @Override
+        public boolean canContinueToUse() {
+            return target.isAlive() && raccoon.distanceTo(target) < 10.0D;
+        }
+
+        // Initiate the goal
+        @Override
+        public void start() {
+            raccoon.getNavigation().moveTo(this.target, this.speed);
+            raccoon.setIsInterested(true);
+            raccoon.setIsCrouching(true);
+        }
+
+        // What the goal should do every tick
+        @Override
+        public void tick() {
+            raccoon.getLookControl().setLookAt(target, 60.0F, 30.0F);
+            double distance = raccoon.distanceTo(this.target);
+            if (distance < 2.0D) {
+                raccoon.doHurtTarget(target);
+                 // Simulates the raccoon "attacking" the ArmorStand
+            } else {
+                raccoon.getNavigation().moveTo(this.target, this.speed);
+            }
+        }
+
+        // Reset the goal
+        @Override
+        public void stop() {
+            raccoon.setIsInterested(false);
+            raccoon.setIsCrouching(false);
+
+            try {
+                raccoon.setTarget(null);
+            } catch (NullPointerException e) {
+                System.out.println("No target");
+            }
         }
     }
 
