@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -230,19 +229,11 @@ public class RaccoonEntity extends TameableEntity {
     private static final int MIN_HUNGER_INCREASE = 20;
     private static final int MAX_HUNGER_INCREASE = 45;
     private static final int SEARCH_RADIUS = 42;
-    private static final int SEARCH_HEIGHT = 32;
-    private static final double NAVIGATION_SPEED = 1.32;
-    private static boolean SearchingForFood;
 
     private static int timeBeforeRegroup;
     private int goHomeCooldown = 0;
     private boolean isDirty;
     private int dirtyCountdown = 600;
-
-
-
-    Item ARMOR;
-    public Item Armor;
 
     public static boolean AlreadyChosenHome = false;
     public int hunger;
@@ -1952,7 +1943,6 @@ public class RaccoonEntity extends TameableEntity {
             eatFood(itemstack);
         }
 
-        SearchingForFood = true;
         searchForFood();
     }
 
@@ -2021,7 +2011,6 @@ public class RaccoonEntity extends TameableEntity {
         if (hunger <= HUNGER_THRESHOLD + 20) {
             handleHunger();
         } else {
-            SearchingForFood = false;
         }
 
 
