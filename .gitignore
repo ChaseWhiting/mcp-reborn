@@ -15,7 +15,6 @@ options.txt
 usercache.json
 /run/usercache.json
 saves
-assets
 logs
 /assets/objects
 /assets/indexes
@@ -32,3 +31,4 @@ gradle-app.setting
 #run/
 
 out/
+/assets/ # This will ignore MCP-Reborn-1.16-MOJO/assets directory
