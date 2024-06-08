@@ -1,19 +1,31 @@
 package net.minecraft.item;
 
+import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
+
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.impl.FleeCommand;
+import net.minecraft.data.CustomRecipeBuilder;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.enchantment.IVanishable;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.monster.CreeperEntity;
+import net.minecraft.entity.monster.SpiderEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.projectile.BoneArrowEntity;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.server.ServerWorld;
 
 public class BoneBowItem extends BowItem implements IVanishable {
     public BoneBowItem(Item.Properties properties) {
@@ -35,22 +47,44 @@ public class BoneBowItem extends BowItem implements IVanishable {
                 int i = this.getUseDuration(item) - releaseTime;
                 float f = getPowerForTime(i);
                 if (!((double)f < 0.1D)) {
-                    boolean flag1 = flag && itemstack.getItem() == Items.ARROW;
+                    boolean flag1 = flag && itemstack.getItem() == Items.ARROW || flag && itemstack.getItem() == Items.BONE_ARROW;
                     AbstractArrowEntity abstractarrowentity = null;
                     if (!world.isClientSide) {
-                        ArrowItem arrowitem = (ArrowItem) (itemstack.getItem() instanceof ArrowItem ? itemstack.getItem() : Items.ARROW);
+                        ArrowItem arrowitem = (ArrowItem) (itemstack.getItem() instanceof ArrowItem ? itemstack.getItem() : Items.BONE_ARROW);
                         abstractarrowentity = arrowitem.createArrow(world, itemstack, playerentity);
                         abstractarrowentity.shootFromRotation(playerentity, playerentity.xRot, playerentity.yRot, 0.0F, f * 3.0F, 1.0F);
-                        if (f == 1.0F) {
+                        if (f >= 1F) {
+                            if (itemstack.getItem() == Items.BONE_ARROW) {
+                                AxisAlignedBB area = new AxisAlignedBB(playerentity.blockPosition()).inflate(12D, 5D, 12D);
+                                List<MobEntity> mobs = world.getEntitiesOfClass(MobEntity.class, area, e -> e instanceof CreeperEntity || e instanceof SpiderEntity);
+                                world.playSound(null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), SoundEvents.SKELETON_AMBIENT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                                if (!mobs.isEmpty()) {
+                                    for (LivingEntity mob : mobs) {
+                                        scareMobs(mobs, 1.12F, 12, world);
+                                    }
+                                }
+                            }
+                            if (f >= 1.3F && abstractarrowentity instanceof BoneArrowEntity) {
+                                f = 1.3F;
+                            } else {
+                                f = 1.0F;
+                            }
+
                             abstractarrowentity.setCritArrow(true);
+                            abstractarrowentity.setBaseDamage(abstractarrowentity.getBaseDamage() * f);
                         }
 
                         int j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, item);
                         if (j > 0) {
-                            abstractarrowentity.setBaseDamage(abstractarrowentity.getBaseDamage() + (double) j * 0.5D + 1.0D);
+                                abstractarrowentity.setBaseDamage(abstractarrowentity.getBaseDamage() + (double) j * 0.5D + 1.0D);
+                                abstractarrowentity.setBaseDamage(
+                                        abstractarrowentity instanceof BoneArrowEntity
+                                                ? abstractarrowentity.getBaseDamage() + (double) j * 0.5D + 1.0D
+                                                : abstractarrowentity.getBaseDamage() + (double) j * 0.5D
+                                );
                         }
 
-                       // DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity,world,"Base damage: " + abstractarrowentity.getBaseDamage());
+                     //   DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, String.format("Arrow base damage after power: %.1f", abstractarrowentity.getBaseDamage()));
 
                         int x = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MARROW_QUIVER, item);
                         if (x > 0) {
@@ -89,19 +123,10 @@ public class BoneBowItem extends BowItem implements IVanishable {
     public void dealWithItem(PlayerEntity playerentity, ItemStack itemstack, AbstractArrowEntity abstractarrowentity, boolean flag1, float roll, float saveArrowChance, World world) {
         boolean isArrowSaved = roll < saveArrowChance;
 
-        if (!world.isClientSide()) {
-            DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, "isArrowSaved: " + isArrowSaved);
-            DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, "itemstack count: " + itemstack.getCount());
-        }
-
         ItemStack itemstack2 = ItemStack.EMPTY;
         if (isArrowSaved && itemstack.getCount() >= 1) {
             itemstack2 = itemstack.copy();
             itemstack2.setCount(1);
-        }
-
-        if (!itemstack2.isEmpty()) {
-            DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, "itemstack2 created with count: " + itemstack2.getCount());
         }
 
         if (!flag1 && !playerentity.abilities.instabuild) {
@@ -109,25 +134,20 @@ public class BoneBowItem extends BowItem implements IVanishable {
             if (itemstack.isEmpty()) {
                 playerentity.inventory.removeItem(itemstack);
             }
-            if (!itemstack2.isEmpty()) {
+            if (!itemstack2.isEmpty() && itemstack2.getCount() != 0 && !itemstack.isEmpty()) {
                 playerentity.addItem(itemstack2);
                 abstractarrowentity.pickup = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
+            } else {
+                    playerentity.inventory.removeItem(itemstack2);
             }
-        }
-
-        if (!world.isClientSide()) {
-            DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, String.format("Roll chance: %.3f", roll));
-            DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, "Copied stack: " + (!itemstack2.isEmpty() ? itemstack2 + " with count of: " + itemstack2.getCount() : "No copied items"));
-            DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, "Arrow pickup type: " + abstractarrowentity.pickup);
-            DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, "Original item count: " + itemstack.getCount());
         }
     }
 
     public static float getPowerForTime(int power) {
         float f = (float)power / 20.0F;
-        f = (f * f + f * 2.0F) / 2.0F;  // Decrease this denominator to increase output power
-        if (f > 1.0F) {
-            f = 1.0F;
+        f = (f * f + f * 2.0F) / 3.0F;  // Decrease this denominator to increase output power
+        if (f > 1.3F) {
+            f = 1.3F;
         }
 
         return f;
@@ -152,8 +172,19 @@ public class BoneBowItem extends BowItem implements IVanishable {
         }
     }
 
+    private static void scareMobs(List<MobEntity> mobs, float speed, int radius, World world) {
+        int count = 0;
+        for (MobEntity mob : mobs) {
+            ++count;
+            double X = mob.getRandomX((double) radius);
+            double Z = mob.getRandomZ((double) radius);
+            int Y = world.getHeight(Heightmap.Type.WORLD_SURFACE, (int) X, (int) Z);
+            mob.getNavigation().moveTo(X, Y, Z, speed);
+        }
+    }
+
     public Predicate<ItemStack> getAllSupportedProjectiles() {
-        return ARROW_ONLY;
+        return ARROW_OR_BONE_ARROW;
     }
     @Override
     public int getDefaultProjectileRange() {

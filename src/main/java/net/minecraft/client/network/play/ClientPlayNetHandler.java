@@ -414,7 +414,13 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
          entity = new ArrowEntity(this.level, d0, d1, d2);
          Entity entity2 = this.level.getEntity(p_147235_1_.getData());
          if (entity2 != null) {
-            ((AbstractArrowEntity)entity).setOwner(entity2);
+            ((AbstractArrowEntity) entity).setOwner(entity2);
+         }
+      } else if (entitytype == EntityType.BONE_ARROW) {
+         entity = new BoneArrowEntity(this.level, d0, d1, d2);
+         Entity entity2 = this.level.getEntity(p_147235_1_.getData());
+         if (entity2 != null) {
+            ((AbstractArrowEntity) entity).setOwner(entity2);
          }
       } else if (entitytype == EntityType.SPECTRAL_ARROW) {
          entity = new SpectralArrowEntity(this.level, d0, d1, d2);

@@ -109,7 +109,7 @@ public class BowItem extends ShootableItem implements IVanishable {
    }
 
    public Predicate<ItemStack> getAllSupportedProjectiles() {
-      return ARROW_ONLY;
+      return ARROW_OR_BONE_ARROW;
    }
 
    public int getDefaultProjectileRange() {

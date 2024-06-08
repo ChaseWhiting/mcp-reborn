@@ -71,6 +71,7 @@ public class EntityRendererManager {
       this.register(EntityType.AREA_EFFECT_CLOUD, new AreaEffectCloudRenderer(this));
       this.register(EntityType.ARMOR_STAND, new ArmorStandRenderer(this));
       this.register(EntityType.ARROW, new TippedArrowRenderer(this));
+      this.register(EntityType.BONE_ARROW, new BoneArrowRenderer(this));
       this.register(EntityType.BAT, new BatRenderer(this));
       this.register(EntityType.BEE, new BeeRenderer(this));
       this.register(EntityType.BLAZE, new BlazeRenderer(this));

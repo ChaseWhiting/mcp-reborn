@@ -590,7 +590,7 @@ public class Items {
    public static final Item BOW = registerItem("bow", new BowItem((new Item.Properties()).durability(384).tab(ItemGroup.TAB_COMBAT)));
    public static final Item BONE_BOW = registerItem("bone_bow", new BoneBowItem((new Item.Properties()).durability(586).tab(ItemGroup.TAB_COMBAT)));
    public static final Item ARROW = registerItem("arrow", new ArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT)));
-   public static final Item BONE_ARROW = registerItem("bone_arrow", new ArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT)));
+   public static final Item BONE_ARROW = registerItem("bone_arrow", new BoneArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT)));
    public static final Item COAL = registerItem("coal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item CHARCOAL = registerItem("charcoal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item DIAMOND = registerItem("diamond", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));

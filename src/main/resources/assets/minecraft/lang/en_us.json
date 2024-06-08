@@ -5,6 +5,8 @@
   "language.code": "en_us",
   "narrator.button.accessibility": "Accessibility",
   "item.minecraft.bone_bow": "Bone Bow",
+  "item.minecraft.bone_arrow": "Bone Arrow",
+  "enchantment.minecraft.marrow_quiver": "Marrow Quiver",
   "narrator.button.language": "Language",
   "narrator.button.difficulty_lock": "Difficulty lock",
   "narrator.button.difficulty_lock.unlocked": "Unlocked",

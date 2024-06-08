@@ -45,11 +45,11 @@ public class CrossbowItem extends ShootableItem implements IVanishable {
    }
 
    public Predicate<ItemStack> getSupportedHeldProjectiles() {
-      return ARROW_OR_FIREWORK;
+      return FIRE_WORK_OR_BONE_ARROW;
    }
 
    public Predicate<ItemStack> getAllSupportedProjectiles() {
-      return ARROW_ONLY;
+      return ARROW_OR_BONE_ARROW;
    }
 
    public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
