@@ -152,6 +152,57 @@ public class RaccoonEntity extends TameableEntity {
         DIRTY_BLOCKS.put(Blocks.SOUL_SOIL, 0.85F);
     }
 
+    private static final Map<Block, Float> DIRTY_ENVIRONMENT = new HashMap<>();
+
+    static {
+        DIRTY_ENVIRONMENT.put(Blocks.LILY_PAD, 0.2F);
+        DIRTY_ENVIRONMENT.put(Blocks.KELP, 0.27F);
+        DIRTY_ENVIRONMENT.put(Blocks.KELP_PLANT, 0.25F);
+        DIRTY_ENVIRONMENT.put(Blocks.SEAGRASS, 0.25F);
+        DIRTY_ENVIRONMENT.put(Blocks.TALL_SEAGRASS, 0.25F);
+        DIRTY_ENVIRONMENT.put(Blocks.SEA_PICKLE, 0.22F);
+        DIRTY_ENVIRONMENT.put(Blocks.VINE, 0.2F);
+        DIRTY_ENVIRONMENT.put(Blocks.WHEAT, 0.2F);
+        DIRTY_ENVIRONMENT.put(Blocks.CARROTS, 0.22F);
+        DIRTY_ENVIRONMENT.put(Blocks.POTATOES, 0.22F);
+        DIRTY_ENVIRONMENT.put(Blocks.BEETROOTS, 0.23F);
+        DIRTY_ENVIRONMENT.put(Blocks.SWEET_BERRY_BUSH, 0.23F);
+    }
+
+    private int getDirtyEnvironmentBonus() {
+        int bonus = 1;
+        int count = 0;
+        List<Float> roundingBonus = new ArrayList<>();
+        BlockPos currentPosition = new BlockPos.Mutable(this.getX(), this.getY(), this.getZ());
+
+        for(int k = (int)this.getX() - 6; k < (int)this.getX() + 6 && count < 14; ++k) {
+            for(int l = (int)this.getY() - 6; l < (int)this.getY() + 6 && count < 14; ++l) {
+                for(int i1 = (int)this.getZ() - 6; i1 < (int)this.getZ() + 6 && count < 14; ++i1) {
+                    Block block = this.level.getBlockState(currentPosition.offset(k, l, i1)).getBlock();
+                    // Check if the block is in the DIRTY_ENVIRONMENT map
+                    if (DIRTY_ENVIRONMENT.containsKey(block)) {
+                        if (this.random.nextFloat() < DIRTY_ENVIRONMENT.get(block)) {
+                            ++bonus;
+                            roundingBonus.add(DIRTY_ENVIRONMENT.get(block));
+                        }
+
+                        ++count;
+                    }
+                }
+            }
+        }
+
+        float sum = 0F;
+        for(Float bonuses : roundingBonus) {
+            sum += bonuses;
+        }
+        int roundedSum = (int) Math.ceil(sum);
+        bonus += roundedSum;
+
+        // limit the bonus to x8
+        return Math.min(bonus, 8);
+    }
+
     private static final List<RegistryKey<Biome>> DIRTY_BIOMES = Arrays.asList(
             Biomes.SWAMP,
             Biomes.SWAMP_HILLS,
@@ -489,6 +540,7 @@ public class RaccoonEntity extends TameableEntity {
 
     class RaccoonLieOnBedGoal extends MoveToBlockGoal {
         private final RaccoonEntity raccoon;
+        private int countdown = RaccoonEntity.this.random.nextInt(140);
 
         public RaccoonLieOnBedGoal(RaccoonEntity raccoon, double speed, int searchRange) {
             super(raccoon, speed, searchRange, 6);
@@ -498,7 +550,19 @@ public class RaccoonEntity extends TameableEntity {
         }
 
         @Override
+        public boolean canContinueToUse(){
+            if (this.countdown > 0) {
+                --this.countdown;
+                return false;
+            }
+            return super.canContinueToUse();
+        }
+
+        @Override
         public boolean canUse() {
+            if (!canReachPosition(blockPos))
+                return false;
+
             boolean flag = !this.raccoon.isOrderedToSit() && !this.raccoon.isSleeping() && super.canUse();
             // Check if the raccoon is tame
             if (this.raccoon.isTame()) {
@@ -538,9 +602,15 @@ public class RaccoonEntity extends TameableEntity {
             return 40;
         }
 
+        private boolean canReachPosition(BlockPos pos) {
+            Path path = raccoon.getNavigation().createPath(pos, 0);
+            return path != null && path.canReach();
+        }
+
         @Override
         public void stop() {
             super.stop();
+            this.countdown = RaccoonEntity.this.random.nextInt(140);
             this.raccoon.wakeUp();
         }
 
@@ -1985,16 +2055,17 @@ public class RaccoonEntity extends TameableEntity {
         Registry<Biome> biomeRegistry = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
         RegistryKey<Biome> currentBiomeKey = biomeRegistry.getResourceKey(this.level.getBiome(this.blockPosition())).orElse(null);
         boolean flag2 = DIRTY_BIOMES.contains(currentBiomeKey);
+        int dirtyEnvironmentBonus = getDirtyEnvironmentBonus();
         if (this.isOnGround() && DIRTY_BLOCKS.containsKey(currentBlock)) {
             float dirtiness = DIRTY_BLOCKS.get(currentBlock);
             if (!this.isDirty() && this.getRaccoonType() == Type.RED) {
                 if (new Random().nextFloat() <= dirtiness) {
-                    this.dirtyCountdown--;
+                    this.dirtyCountdown -= dirtyEnvironmentBonus;
                 }
             }
         } else if (this.isInWaterOrBubble() && flag2) {
             if (!this.isDirty() && this.getRaccoonType() == Type.RED)
-                this.dirtyCountdown--;
+                this.dirtyCountdown -= dirtyEnvironmentBonus;
         }
 
         if (this.isInWaterRainOrBubble() && this.getRaccoonType() == Type.DIRTY && !flag2){
