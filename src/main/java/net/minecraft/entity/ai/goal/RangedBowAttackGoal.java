@@ -36,7 +36,7 @@ public class RangedBowAttackGoal<T extends MonsterEntity & IRangedAttackMob> ext
    }
 
    protected boolean isHoldingBow() {
-      return this.mob.isHolding(Items.BOW);
+      return this.mob.isHolding(Items.BOW) || this.mob.isHolding(Items.BONE_BOW);
    }
 
    public boolean canContinueToUse() {

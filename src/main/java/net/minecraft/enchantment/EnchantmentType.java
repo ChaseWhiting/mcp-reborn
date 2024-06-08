@@ -2,14 +2,7 @@ package net.minecraft.enchantment;
 
 import net.minecraft.block.Block;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.FishingRodItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.SwordItem;
-import net.minecraft.item.ToolItem;
-import net.minecraft.item.TridentItem;
+import net.minecraft.item.*;
 
 public enum EnchantmentType {
    ARMOR {
@@ -67,6 +60,16 @@ public enum EnchantmentType {
          return p_77557_1_ instanceof BowItem;
       }
    },
+   BOW_NOT_BONE_BOW {
+      public boolean canEnchant(Item item) {
+         return item instanceof BowItem && !(item instanceof BoneBowItem);
+      }
+   },
+   BONE_BOW {
+      public boolean canEnchant(Item item) {
+         return item instanceof BoneBowItem;
+      }
+   },
    WEARABLE {
       public boolean canEnchant(Item p_77557_1_) {
          return p_77557_1_ instanceof IArmorVanishable || Block.byItem(p_77557_1_) instanceof IArmorVanishable;
@@ -75,6 +78,11 @@ public enum EnchantmentType {
    CROSSBOW {
       public boolean canEnchant(Item p_77557_1_) {
          return p_77557_1_ instanceof CrossbowItem;
+      }
+   },
+   CROSSBOW_OR_BONE_BOW {
+      public boolean canEnchant(Item p_77557_1_) {
+         return p_77557_1_ instanceof CrossbowItem || p_77557_1_ instanceof BoneBowItem;
       }
    },
    VANISHABLE {

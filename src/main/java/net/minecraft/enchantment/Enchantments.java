@@ -29,6 +29,7 @@ public class Enchantments {
    public static final Enchantment UNBREAKING = register("unbreaking", new UnbreakingEnchantment(Enchantment.Rarity.UNCOMMON, EquipmentSlotType.MAINHAND));
    public static final Enchantment BLOCK_FORTUNE = register("fortune", new LootBonusEnchantment(Enchantment.Rarity.RARE, EnchantmentType.DIGGER, EquipmentSlotType.MAINHAND));
    public static final Enchantment POWER_ARROWS = register("power", new PowerEnchantment(Enchantment.Rarity.COMMON, EquipmentSlotType.MAINHAND));
+   public static final Enchantment MARROW_QUIVER = register("marrow_quiver", new MarrowQuiverEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.MAINHAND));
    public static final Enchantment PUNCH_ARROWS = register("punch", new PunchEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.MAINHAND));
    public static final Enchantment FLAMING_ARROWS = register("flame", new FlameEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.MAINHAND));
    public static final Enchantment INFINITY_ARROWS = register("infinity", new InfinityEnchantment(Enchantment.Rarity.VERY_RARE, EquipmentSlotType.MAINHAND));

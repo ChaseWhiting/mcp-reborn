@@ -44,7 +44,7 @@ public class SkeletonModel<T extends MobEntity & IRangedAttackMob> extends Biped
       this.rightArmPose = BipedModel.ArmPose.EMPTY;
       this.leftArmPose = BipedModel.ArmPose.EMPTY;
       ItemStack itemstack = p_212843_1_.getItemInHand(Hand.MAIN_HAND);
-      if (itemstack.getItem() == Items.BOW && p_212843_1_.isAggressive()) {
+      if (itemstack.getItem() == Items.BOW && p_212843_1_.isAggressive() || itemstack.getItem() == Items.BONE_BOW && p_212843_1_.isAggressive()) {
          if (p_212843_1_.getMainArm() == HandSide.RIGHT) {
             this.rightArmPose = BipedModel.ArmPose.BOW_AND_ARROW;
          } else {
@@ -58,7 +58,7 @@ public class SkeletonModel<T extends MobEntity & IRangedAttackMob> extends Biped
    public void setupAnim(T p_225597_1_, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
       super.setupAnim(p_225597_1_, p_225597_2_, p_225597_3_, p_225597_4_, p_225597_5_, p_225597_6_);
       ItemStack itemstack = p_225597_1_.getMainHandItem();
-      if (p_225597_1_.isAggressive() && (itemstack.isEmpty() || itemstack.getItem() != Items.BOW)) {
+      if (p_225597_1_.isAggressive() && (itemstack.isEmpty() || itemstack.getItem() != Items.BOW || itemstack.getItem() != Items.BONE_BOW)) {
          float f = MathHelper.sin(this.attackTime * (float)Math.PI);
          float f1 = MathHelper.sin((1.0F - (1.0F - this.attackTime) * (1.0F - this.attackTime)) * (float)Math.PI);
          this.rightArm.zRot = 0.0F;

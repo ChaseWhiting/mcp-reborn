@@ -114,7 +114,7 @@ public abstract class AbstractClientPlayerEntity extends PlayerEntity {
          f = 1.0F;
       }
 
-      if (this.isUsingItem() && this.getUseItem().getItem() == Items.BOW) {
+      if (this.isUsingItem() && this.getUseItem().getItem() == Items.BOW || this.isUsingItem() && this.getUseItem().getItem() == Items.BONE_BOW) {
          int i = this.getTicksUsingItem();
          float f1 = (float)i / 20.0F;
          if (f1 > 1.0F) {

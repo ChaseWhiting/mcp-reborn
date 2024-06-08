@@ -208,7 +208,7 @@ public class FirstPersonRenderer {
       boolean flag1 = true;
       if (p_228396_4_.isUsingItem()) {
          ItemStack itemstack = p_228396_4_.getUseItem();
-         if (itemstack.getItem() == Items.BOW || itemstack.getItem() == Items.CROSSBOW) {
+         if (itemstack.getItem() == Items.BOW || itemstack.getItem() == Items.CROSSBOW || itemstack.getItem() == Items.BONE_BOW) {
             flag = p_228396_4_.getUsedItemHand() == Hand.MAIN_HAND;
             flag1 = !flag;
          }

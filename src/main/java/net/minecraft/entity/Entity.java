@@ -2380,6 +2380,7 @@ public abstract class Entity implements INameable, ICommandSource {
       this.bb = p_174826_1_;
    }
 
+
    protected float getEyeHeight(Pose p_213316_1_, EntitySize p_213316_2_) {
       return p_213316_2_.height * 0.85F;
    }

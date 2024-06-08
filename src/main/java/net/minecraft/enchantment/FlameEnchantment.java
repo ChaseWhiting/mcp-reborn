@@ -4,7 +4,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 
 public class FlameEnchantment extends Enchantment {
    public FlameEnchantment(Enchantment.Rarity p_i46737_1_, EquipmentSlotType... p_i46737_2_) {
-      super(p_i46737_1_, EnchantmentType.BOW, p_i46737_2_);
+      super(p_i46737_1_, EnchantmentType.BOW_NOT_BONE_BOW, p_i46737_2_);
    }
 
    public int getMinCost(int p_77321_1_) {

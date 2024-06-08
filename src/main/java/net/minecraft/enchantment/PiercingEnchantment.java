@@ -4,7 +4,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 
 public class PiercingEnchantment extends Enchantment {
    public PiercingEnchantment(Enchantment.Rarity p_i50019_1_, EquipmentSlotType... p_i50019_2_) {
-      super(p_i50019_1_, EnchantmentType.CROSSBOW, p_i50019_2_);
+      super(p_i50019_1_, EnchantmentType.CROSSBOW_OR_BONE_BOW, p_i50019_2_);
    }
 
    public int getMinCost(int p_77321_1_) {
