@@ -35,6 +35,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         ARROW_ITEM_MAP.put(CustomArrowType.POISON, Items.POISON_ARROW);
         ARROW_ITEM_MAP.put(CustomArrowType.FROZEN, Items.ARROW);
         ARROW_ITEM_MAP.put(CustomArrowType.TELEPORTATION, Items.TELEPORTATION_ARROW);
+        ARROW_ITEM_MAP.put(CustomArrowType.HEALING, Items.HEALING_ARROW);
         // Add other custom arrow types here
     }
 
@@ -94,6 +95,9 @@ public class CustomArrowEntity extends AbstractArrowEntity {
                 break;
             case 3:
                 useTeleportation(entity.level, entity);
+                break;
+            case 4:
+                entity.addEffect(new EffectInstance(Effects.HEAL, 1, 1));
                 break;
         }
     }
