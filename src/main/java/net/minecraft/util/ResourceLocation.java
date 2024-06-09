@@ -34,8 +34,8 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
       }
    }
 
-   public ResourceLocation(String p_i1293_1_) {
-      this(decompose(p_i1293_1_, ':'));
+   public ResourceLocation(String location) {
+      this(decompose(location, ':'));
    }
 
    public ResourceLocation(String p_i1292_1_, String p_i1292_2_) {

@@ -112,6 +112,7 @@ import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.projectile.*;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.HorseInventoryContainer;
@@ -420,6 +421,14 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
          entity = new BoneArrowEntity(this.level, d0, d1, d2);
          Entity entity2 = this.level.getEntity(p_147235_1_.getData());
          if (entity2 != null) {
+            ((AbstractArrowEntity) entity).setOwner(entity2);
+         }
+      } else if (entitytype == EntityType.CUSTOM_ARROW) {
+         entity = new CustomArrowEntity(this.level, d0, d1, d2);
+
+         Entity entity2 = this.level.getEntity(p_147235_1_.getData());
+         if (entity2 != null) {
+            //((CustomArrowEntity) entity).setArrowType(((CustomArrowEntity) entity).getArrowType());
             ((AbstractArrowEntity) entity).setOwner(entity2);
          }
       } else if (entitytype == EntityType.SPECTRAL_ARROW) {

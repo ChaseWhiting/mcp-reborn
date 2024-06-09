@@ -7,7 +7,7 @@ import net.minecraft.util.Hand;
 
 public abstract class ShootableItem extends Item {
    public static final Predicate<ItemStack> ARROW_ONLY = (p_220002_0_) -> {
-      return p_220002_0_.getItem().is(ItemTags.ARROWS);
+      return p_220002_0_.getItem().is(ItemTags.ARROWS) || p_220002_0_.getItem() instanceof ArrowItem;
    };
 
    public static final Predicate<ItemStack> ARROW_OR_BONE_ARROW = ARROW_ONLY.or((item) -> {

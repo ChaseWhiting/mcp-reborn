@@ -27,6 +27,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowRenderer;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -72,6 +73,7 @@ public class EntityRendererManager {
       this.register(EntityType.ARMOR_STAND, new ArmorStandRenderer(this));
       this.register(EntityType.ARROW, new TippedArrowRenderer(this));
       this.register(EntityType.BONE_ARROW, new BoneArrowRenderer(this));
+      this.register(EntityType.CUSTOM_ARROW, new CustomArrowRenderer(this));
       this.register(EntityType.BAT, new BatRenderer(this));
       this.register(EntityType.BEE, new BeeRenderer(this));
       this.register(EntityType.BLAZE, new BlazeRenderer(this));

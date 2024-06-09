@@ -31,8 +31,8 @@ public class EffectInstance implements Comparable<EffectInstance> {
       this(p_i46812_1_, p_i46812_2_, 0);
    }
 
-   public EffectInstance(Effect p_i46813_1_, int p_i46813_2_, int p_i46813_3_) {
-      this(p_i46813_1_, p_i46813_2_, p_i46813_3_, false, true);
+   public EffectInstance(Effect effect, int duration, int amplifier) {
+      this(effect, duration, amplifier, false, true);
    }
 
    public EffectInstance(Effect p_i46814_1_, int p_i46814_2_, int p_i46814_3_, boolean p_i46814_4_, boolean p_i46814_5_) {

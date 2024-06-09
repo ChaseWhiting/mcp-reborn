@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.merchant.villager.VillagerData;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -136,6 +137,23 @@ public class DataSerializers {
 
       public Optional<BlockState> copy(Optional<BlockState> p_192717_1_) {
          return p_192717_1_;
+      }
+   };
+
+   public static final IDataSerializer<CustomArrowType> CUSTOM_ARROW_TYPE = new IDataSerializer<CustomArrowType>() {
+      public void write(PacketBuffer buffer, CustomArrowType type) {
+         buffer.writeUtf(type.getName().toString());
+      }
+
+      @Override
+      public CustomArrowType read(PacketBuffer buffer) {
+         String s = buffer.readUtf();
+         return CustomArrowType.getCustomArrowTypeByName(s);
+      }
+
+      @Override
+      public CustomArrowType copy(CustomArrowType type) {
+         return type;
       }
    };
    public static final IDataSerializer<Boolean> BOOLEAN = new IDataSerializer<Boolean>() {
@@ -315,6 +333,7 @@ public class DataSerializers {
 
    static {
       registerSerializer(BYTE);
+      registerSerializer(CUSTOM_ARROW_TYPE);
       registerSerializer(INT);
       registerSerializer(FLOAT);
       registerSerializer(STRING);

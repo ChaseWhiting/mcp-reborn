@@ -5,6 +5,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.tileentity.BannerPattern;
@@ -591,6 +592,10 @@ public class Items {
    public static final Item BONE_BOW = registerItem("bone_bow", new BoneBowItem((new Item.Properties()).durability(586).tab(ItemGroup.TAB_COMBAT)));
    public static final Item ARROW = registerItem("arrow", new ArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT)));
    public static final Item BONE_ARROW = registerItem("bone_arrow", new BoneArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT)));
+   public static final Item BURNING_ARROW = registerItem("burning_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.BURNING));
+   public static final Item TELEPORTATION_ARROW = registerItem("teleportation_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.TELEPORTATION));
+   public static final Item HEALING_ARROW = registerItem("healing_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.HEALING));
+   public static final Item POISON_ARROW = registerItem("poison_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.POISON));
    public static final Item COAL = registerItem("coal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item CHARCOAL = registerItem("charcoal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item DIAMOND = registerItem("diamond", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
