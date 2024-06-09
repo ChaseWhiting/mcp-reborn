@@ -238,7 +238,8 @@ public class ItemModelsProperties {
          return p_239425_2_ != null && CrossbowItem.isCharged(p_239425_0_) ? 1.0F : 0.0F;
       });
       register(Items.CROSSBOW, new ResourceLocation("firework"), (p_239424_0_, p_239424_1_, p_239424_2_) -> {
-         return p_239424_2_ != null && CrossbowItem.isCharged(p_239424_0_) && CrossbowItem.containsChargedProjectile(p_239424_0_, Items.FIREWORK_ROCKET) ? 1.0F : 0.0F;
+         return p_239424_2_ != null && CrossbowItem.isCharged(p_239424_0_) &&
+                 (CrossbowItem.containsChargedProjectile(p_239424_0_, Items.FIREWORK_ROCKET) || CrossbowItem.containsChargedProjectile(p_239424_0_, Items.FIREWORK_ARROW)) ? 1.0F : 0.0F;
       });
       register(Items.ELYTRA, new ResourceLocation("broken"), (p_239423_0_, p_239423_1_, p_239423_2_) -> {
          return ElytraItem.isFlyEnabled(p_239423_0_) ? 0.0F : 1.0F;

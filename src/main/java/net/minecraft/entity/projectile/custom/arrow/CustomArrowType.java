@@ -26,11 +26,12 @@ public class CustomArrowType {
 
     public static final CustomArrowType NULL = new CustomArrowType("null", -1, 0.0D);
     public static final CustomArrowType FROZEN = new CustomArrowType("frozen", 0, 2.5D);
-    public static final CustomArrowType BURNING = new CustomArrowType("burning", 1, 3.0D);
-    public static final CustomArrowType POISON = new CustomArrowType("poison", 2, 1.0D);
-    public static final CustomArrowType TELEPORTATION = new CustomArrowType("teleportation", 3, 0.5D);
+    public static final CustomArrowType BURNING = new CustomArrowType("burning", 1,  4.0D);
+    public static final CustomArrowType POISON = new CustomArrowType("poison", 2, 2.0D);
+    public static final CustomArrowType TELEPORTATION = new CustomArrowType("teleportation", 3, 2.5D);
     public static final CustomArrowType HEALING = new CustomArrowType("healing", 4, 0D);
-    public static final CustomArrowType[] ALL_TYPES = new CustomArrowType[]{FROZEN, BURNING, POISON, TELEPORTATION, HEALING};
+    public static final CustomArrowType FIREWORK = new CustomArrowType("firework", 5, 4.5D);
+    public static final CustomArrowType[] ALL_TYPES = new CustomArrowType[]{FROZEN, BURNING, POISON, TELEPORTATION, HEALING, FIREWORK};
 
     public static CustomArrowType getCustomArrowTypeByName(String name){
         for(CustomArrowType type : ALL_TYPES){

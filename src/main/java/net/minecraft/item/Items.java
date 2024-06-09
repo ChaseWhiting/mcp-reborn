@@ -198,6 +198,7 @@ public class Items {
    public static final Item DIAMOND_ORE = registerBlock(Blocks.DIAMOND_ORE, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item DIAMOND_BLOCK = registerBlock(Blocks.DIAMOND_BLOCK, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item CRAFTING_TABLE = registerBlock(Blocks.CRAFTING_TABLE, ItemGroup.TAB_DECORATIONS);
+   public static final Item HONEY_EXTRACTOR = registerBlock(Blocks.HONEY_EXTRACTOR, ItemGroup.TAB_DECORATIONS);
    public static final Item FARMLAND = registerBlock(Blocks.FARMLAND, ItemGroup.TAB_DECORATIONS);
    public static final Item FURNACE = registerBlock(Blocks.FURNACE, ItemGroup.TAB_DECORATIONS);
    public static final Item LADDER = registerBlock(Blocks.LADDER, ItemGroup.TAB_DECORATIONS);
@@ -595,6 +596,7 @@ public class Items {
    public static final Item BURNING_ARROW = registerItem("burning_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.BURNING));
    public static final Item TELEPORTATION_ARROW = registerItem("teleportation_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.TELEPORTATION));
    public static final Item HEALING_ARROW = registerItem("healing_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.HEALING));
+   public static final Item FIREWORK_ARROW = registerItem("firework_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.FIREWORK));
    public static final Item POISON_ARROW = registerItem("poison_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.POISON));
    public static final Item COAL = registerItem("coal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item CHARCOAL = registerItem("charcoal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));

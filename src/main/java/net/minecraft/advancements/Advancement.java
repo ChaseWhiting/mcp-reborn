@@ -164,12 +164,12 @@ public class Advancement {
          return this;
       }
 
-      public Advancement.Builder display(ItemStack p_215092_1_, ITextComponent p_215092_2_, ITextComponent p_215092_3_, @Nullable ResourceLocation p_215092_4_, FrameType p_215092_5_, boolean p_215092_6_, boolean p_215092_7_, boolean p_215092_8_) {
-         return this.display(new DisplayInfo(p_215092_1_, p_215092_2_, p_215092_3_, p_215092_4_, p_215092_5_, p_215092_6_, p_215092_7_, p_215092_8_));
+      public Advancement.Builder display(ItemStack itemStack, ITextComponent title, ITextComponent description, @Nullable ResourceLocation background, FrameType frameType, boolean showToast, boolean announceToChat, boolean hidden) {
+         return this.display(new DisplayInfo(itemStack, title, description, background, frameType, showToast, announceToChat, hidden));
       }
 
-      public Advancement.Builder display(IItemProvider p_203902_1_, ITextComponent p_203902_2_, ITextComponent p_203902_3_, @Nullable ResourceLocation p_203902_4_, FrameType p_203902_5_, boolean p_203902_6_, boolean p_203902_7_, boolean p_203902_8_) {
-         return this.display(new DisplayInfo(new ItemStack(p_203902_1_.asItem()), p_203902_2_, p_203902_3_, p_203902_4_, p_203902_5_, p_203902_6_, p_203902_7_, p_203902_8_));
+      public Advancement.Builder display(IItemProvider itemProvider, ITextComponent title, ITextComponent description, @Nullable ResourceLocation background, FrameType frameType, boolean showToast, boolean announceToChat, boolean hidden) {
+         return this.display(new DisplayInfo(new ItemStack(itemProvider.asItem()), title, description, background, frameType, showToast, announceToChat, hidden));
       }
 
       public Advancement.Builder display(DisplayInfo p_203903_1_) {

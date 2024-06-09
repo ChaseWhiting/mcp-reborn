@@ -42,6 +42,12 @@ public class ProcessorLists {
    public static final StructureProcessorList ROOF = register("roof", ImmutableList.of(new RuleStructureProcessor(ImmutableList.of(new RuleEntry(new RandomBlockMatchRuleTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3F), AlwaysTrueRuleTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), new RuleEntry(new RandomBlockMatchRuleTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.15F), AlwaysTrueRuleTest.INSTANCE, Blocks.AIR.defaultBlockState()), new RuleEntry(new RandomBlockMatchRuleTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3F), AlwaysTrueRuleTest.INSTANCE, Blocks.BLACKSTONE.defaultBlockState())))));
    public static final StructureProcessorList HIGH_WALL = register("high_wall", ImmutableList.of(new RuleStructureProcessor(ImmutableList.of(new RuleEntry(new RandomBlockMatchRuleTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.01F), AlwaysTrueRuleTest.INSTANCE, Blocks.AIR.defaultBlockState()), new RuleEntry(new RandomBlockMatchRuleTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.5F), AlwaysTrueRuleTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), new RuleEntry(new RandomBlockMatchRuleTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3F), AlwaysTrueRuleTest.INSTANCE, Blocks.BLACKSTONE.defaultBlockState()), REMOVE_GILDED_BLACKSTONE))));
    public static final StructureProcessorList HIGH_RAMPART = register("high_rampart", ImmutableList.of(new RuleStructureProcessor(ImmutableList.of(new RuleEntry(new RandomBlockMatchRuleTest(Blocks.GOLD_BLOCK, 0.3F), AlwaysTrueRuleTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), new RuleEntry(AlwaysTrueRuleTest.INSTANCE, AlwaysTrueRuleTest.INSTANCE, new AxisAlignedLinearPosTest(0.0F, 0.05F, 0, 100, Direction.Axis.Y), Blocks.AIR.defaultBlockState()), REMOVE_GILDED_BLACKSTONE))));
+   public static final StructureProcessorList BEE_FARM = register("bee_farm", ImmutableList.of(
+           new RuleStructureProcessor(ImmutableList.of(
+                   new RuleEntry(new RandomBlockMatchRuleTest(Blocks.OAK_PLANKS, 1.0F), AlwaysTrueRuleTest.INSTANCE, Blocks.BEEHIVE.defaultBlockState()),
+                   new RuleEntry(new RandomBlockMatchRuleTest(Blocks.OAK_PLANKS, 1.0F), AlwaysTrueRuleTest.INSTANCE, Blocks.HONEY_EXTRACTOR.defaultBlockState())
+           ))
+   ));
 
    private static StructureProcessorList register(String p_244127_0_, ImmutableList<StructureProcessor> p_244127_1_) {
       ResourceLocation resourcelocation = new ResourceLocation(p_244127_0_);

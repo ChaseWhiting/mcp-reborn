@@ -65,7 +65,6 @@ public final class VillagerType {
       p_221172_0_.put(Biomes.TAIGA_MOUNTAINS, TAIGA);
       p_221172_0_.put(Biomes.WOODED_MOUNTAINS, TAIGA);
    });
-
    private VillagerType(String p_i241919_1_) {
       this.name = p_i241919_1_;
    }

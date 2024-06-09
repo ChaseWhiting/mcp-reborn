@@ -41,6 +41,7 @@ public class GiveHeroGiftsTask extends Task<VillagerEntity> {
       p_220395_0_.put(VillagerProfession.SHEPHERD, LootTables.SHEPHERD_GIFT);
       p_220395_0_.put(VillagerProfession.TOOLSMITH, LootTables.TOOLSMITH_GIFT);
       p_220395_0_.put(VillagerProfession.WEAPONSMITH, LootTables.WEAPONSMITH_GIFT);
+      p_220395_0_.put(VillagerProfession.BEEKEEPER, LootTables.BEEKEEPER_GIFT);
    });
    private int timeUntilNextGift = 600;
    private boolean giftGivenDuringThisRun;

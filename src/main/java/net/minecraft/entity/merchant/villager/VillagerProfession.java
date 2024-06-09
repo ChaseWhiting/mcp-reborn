@@ -28,6 +28,7 @@ public class VillagerProfession {
    public static final VillagerProfession SHEPHERD = register("shepherd", PointOfInterestType.SHEPHERD, SoundEvents.VILLAGER_WORK_SHEPHERD);
    public static final VillagerProfession TOOLSMITH = register("toolsmith", PointOfInterestType.TOOLSMITH, SoundEvents.VILLAGER_WORK_TOOLSMITH);
    public static final VillagerProfession WEAPONSMITH = register("weaponsmith", PointOfInterestType.WEAPONSMITH, SoundEvents.VILLAGER_WORK_WEAPONSMITH);
+   public static final VillagerProfession BEEKEEPER = register("beekeeper", PointOfInterestType.BEEKEEPER, SoundEvents.BEEHIVE_WORK);
    private final String name;
    private final PointOfInterestType jobPoiType;
    private final ImmutableSet<Item> requestedItems;

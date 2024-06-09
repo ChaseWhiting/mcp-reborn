@@ -312,12 +312,18 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
    public void restock() {
       this.updateDemand();
 
-      for(MerchantOffer merchantoffer : this.getOffers()) {
-         merchantoffer.resetUses();
+      for (MerchantOffer merchantoffer : this.getOffers()) {
+         if (!isBeeSpawnEggTrade(merchantoffer)) {
+            merchantoffer.resetUses();
+         }
       }
 
       this.lastRestockGameTime = this.level.getGameTime();
       ++this.numberOfRestocksToday;
+   }
+
+   private boolean isBeeSpawnEggTrade(MerchantOffer offer) {
+      return offer.getResult().getItem() == Items.BEE_SPAWN_EGG;
    }
 
    private boolean needsToRestock() {

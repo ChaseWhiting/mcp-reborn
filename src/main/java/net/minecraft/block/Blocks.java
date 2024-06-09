@@ -752,6 +752,7 @@ public class Blocks {
    public static final Block SMOKER = register("smoker", new SmokerBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13))));
    public static final Block BLAST_FURNACE = register("blast_furnace", new BlastFurnaceBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13))));
    public static final Block CARTOGRAPHY_TABLE = register("cartography_table", new CartographyTableBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
+   public static final Block HONEY_EXTRACTOR = register("honey_extractor", new HoneyExtractorBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
    public static final Block FLETCHING_TABLE = register("fletching_table", new FletchingTableBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
    public static final Block GRINDSTONE = register("grindstone", new GrindstoneBlock(AbstractBlock.Properties.of(Material.HEAVY_METAL, MaterialColor.METAL).requiresCorrectToolForDrops().strength(2.0F, 6.0F).sound(SoundType.STONE)));
    public static final Block LECTERN = register("lectern", new LecternBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));

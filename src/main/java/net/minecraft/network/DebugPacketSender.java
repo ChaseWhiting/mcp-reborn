@@ -575,8 +575,8 @@ public class DebugPacketSender {
 
             // Iterate over the gossip entries and format them into strings
             gossipManager.unpack().forEach(entry -> {
-                String name = living.level.getPlayerByUUID(entry.target).getName().getString();
-                gossips.add(entry.type + ": " + entry.value + " (target: " + name + ")");
+                //String name = living.level.getPlayerByUUID(entry.target).getName().getString();
+                gossips.add(entry.type + ": " + entry.value + " (target: "  + ")");
             });
         }
         return gossips;

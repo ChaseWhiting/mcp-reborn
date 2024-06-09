@@ -34,6 +34,7 @@ public class ItemModelProvider {
       this.generateFlatItem(Items.BONE_ARROW, StockModelShapes.FLAT_ITEM);
       this.generateFlatItem(Items.POISON_ARROW, StockModelShapes.FLAT_ITEM);
       this.generateFlatItem(Items.BURNING_ARROW, StockModelShapes.FLAT_ITEM);
+      this.generateFlatItem(Items.FIREWORK_ARROW, StockModelShapes.FLAT_ITEM);
       this.generateFlatItem(Items.TELEPORTATION_ARROW, StockModelShapes.FLAT_ITEM);
       this.generateFlatItem(Items.HEALING_ARROW, StockModelShapes.FLAT_ITEM);
       this.generateFlatItem(Items.BAKED_POTATO, StockModelShapes.FLAT_ITEM);

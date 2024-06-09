@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/safely_harvest_honey",
+  "display": {
+    "icon": {
+      "item": "minecraft:bee_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.husbandry.obtain_bee_spawn_egg.title"
+    },
+    "description": {
+      "translate": "advancements.husbandry.obtain_bee_spawn_egg.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain_bee_spawn_egg": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:bee_spawn_egg"
+          }
+        ]
+      }
+    }
+  }
+}
