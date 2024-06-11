@@ -18,7 +18,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FireworkStarRecipe extends SpecialRecipe {
-   private static final Ingredient SHAPE_INGREDIENT = Ingredient.of(Items.FIRE_CHARGE, Items.FEATHER, Items.GOLD_NUGGET, Items.SKELETON_SKULL, Items.WITHER_SKELETON_SKULL, Items.CREEPER_HEAD, Items.PLAYER_HEAD, Items.DRAGON_HEAD, Items.ZOMBIE_HEAD);
+   private static final Ingredient SHAPE_INGREDIENT = Ingredient.of(Items.FIRE_CHARGE,
+           Items.FEATHER,
+           Items.GOLD_NUGGET,
+           Items.SKELETON_SKULL,
+           Items.WITHER_SKELETON_SKULL,
+           Items.CREEPER_HEAD,
+           Items.PLAYER_HEAD,
+           Items.DRAGON_HEAD,
+           Items.ZOMBIE_HEAD,
+           Items.TNT,
+           Items.ARMOR_STAND
+   );
    private static final Ingredient TRAIL_INGREDIENT = Ingredient.of(Items.DIAMOND);
    private static final Ingredient FLICKER_INGREDIENT = Ingredient.of(Items.GLOWSTONE_DUST);
    private static final Map<Item, FireworkRocketItem.Shape> SHAPE_BY_ITEM = Util.make(Maps.newHashMap(), (p_209352_0_) -> {
@@ -31,6 +42,8 @@ public class FireworkStarRecipe extends SpecialRecipe {
       p_209352_0_.put(Items.PLAYER_HEAD, FireworkRocketItem.Shape.CREEPER);
       p_209352_0_.put(Items.DRAGON_HEAD, FireworkRocketItem.Shape.CREEPER);
       p_209352_0_.put(Items.ZOMBIE_HEAD, FireworkRocketItem.Shape.CREEPER);
+      p_209352_0_.put(Items.QUARTZ_BLOCK, FireworkRocketItem.Shape.SQUARE);
+      p_209352_0_.put(Items.ARMOR_STAND, FireworkRocketItem.Shape.CROSS);
    });
    private static final Ingredient GUNPOWDER_INGREDIENT = Ingredient.of(Items.GUNPOWDER);
 

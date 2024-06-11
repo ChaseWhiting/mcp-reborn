@@ -736,6 +736,10 @@ public class Items {
    public static final Item GREEN_DYE = registerItem("green_dye", new DyeItem(DyeColor.GREEN, (new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item RED_DYE = registerItem("red_dye", new DyeItem(DyeColor.RED, (new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item BLACK_DYE = registerItem("black_dye", new DyeItem(DyeColor.BLACK, (new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
+   public static final Item CORAL_DYE = registerItem("coral_dye", new DyeItem(DyeColor.CORAL, (new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
+
+
+
    public static final Item BONE_MEAL = registerItem("bone_meal", new BoneMealItem((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item BONE = registerItem("bone", new Item((new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SUGAR = registerItem("sugar", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
@@ -756,6 +760,7 @@ public class Items {
    public static final Item GREEN_BED = registerBlock(new BedItem(Blocks.GREEN_BED, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_DECORATIONS)));
    public static final Item RED_BED = registerBlock(new BedItem(Blocks.RED_BED, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_DECORATIONS)));
    public static final Item BLACK_BED = registerBlock(new BedItem(Blocks.BLACK_BED, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_DECORATIONS)));
+   public static final Item CORAL_BED = registerBlock(new BedItem(Blocks.CORAL_BED, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_DECORATIONS)));
    public static final Item COOKIE = registerItem("cookie", new Item((new Item.Properties()).tab(ItemGroup.TAB_FOOD).food(Foods.COOKIE)));
    public static final Item FILLED_MAP = registerItem("filled_map", new FilledMapItem(new Item.Properties()));
    public static final Item SHEARS = registerItem("shears", new ShearsItem((new Item.Properties()).durability(238).tab(ItemGroup.TAB_TOOLS)));

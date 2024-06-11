@@ -42,6 +42,7 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
    private int life;
    private int lifetime;
    private LivingEntity attachedToEntity;
+   private boolean fromFireworkArrow;
 
    public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> p_i50164_1_, World p_i50164_2_) {
       super(p_i50164_1_, p_i50164_2_);
@@ -96,6 +97,14 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
    @OnlyIn(Dist.CLIENT)
    public boolean shouldRender(double p_145770_1_, double p_145770_3_, double p_145770_5_) {
       return super.shouldRender(p_145770_1_, p_145770_3_, p_145770_5_) && !this.isAttachedToEntity();
+   }
+
+   public void setFromFireworkArrow(Boolean value) {
+      this.fromFireworkArrow = value;
+   }
+
+   public boolean isFromFireworkArrow() {
+      return fromFireworkArrow;
    }
 
    public void tick() {
@@ -203,7 +212,7 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
          double d0 = 5.0D;
          Vector3d vector3d = this.position();
 
-         for(LivingEntity livingentity : this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(5.0D))) {
+         for(LivingEntity livingentity : this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(8.0D))) {
             if (livingentity != this.attachedToEntity && !(this.distanceToSqr(livingentity) > 25.0D)) {
                boolean flag = false;
 
@@ -218,7 +227,12 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
 
                if (flag) {
                   float f1 = f * (float)Math.sqrt((5.0D - (double)this.distanceTo(livingentity)) / 5.0D);
-                  livingentity.hurt(DamageSource.fireworks(this, this.getOwner()), f1);
+                  if (isFromFireworkArrow()) {
+                     // Increase damage for firework arrows, for example, by a factor of 2
+                     livingentity.hurt(DamageSource.fireworks(this, this.getOwner()), f1 * 2);
+                  } else {
+                     livingentity.hurt(DamageSource.fireworks(this, this.getOwner()), f1);
+                  }
                }
             }
          }

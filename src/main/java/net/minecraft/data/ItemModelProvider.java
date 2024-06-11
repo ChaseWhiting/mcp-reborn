@@ -44,6 +44,7 @@ public class ItemModelProvider {
       this.generateFlatItem(Items.BEETROOT_SOUP, StockModelShapes.FLAT_ITEM);
       this.generateFlatItem(Items.BIRCH_BOAT, StockModelShapes.FLAT_ITEM);
       this.generateFlatItem(Items.BLACK_DYE, StockModelShapes.FLAT_ITEM);
+
       this.generateFlatItem(Items.BLAZE_POWDER, StockModelShapes.FLAT_ITEM);
       this.generateFlatItem(Items.BLAZE_ROD, StockModelShapes.FLAT_HANDHELD_ITEM);
       this.generateFlatItem(Items.BLUE_DYE, StockModelShapes.FLAT_ITEM);

@@ -202,22 +202,47 @@ public class FireworkParticle {
             }
 
             switch(fireworkrocketitem$shape) {
-            case SMALL_BALL:
-            default:
-               this.createParticleBall(0.25D, 2, aint, aint1, flag4, flag2);
-               break;
-            case LARGE_BALL:
-               this.createParticleBall(0.5D, 4, aint, aint1, flag4, flag2);
-               break;
-            case STAR:
-               this.createParticleShape(0.5D, new double[][]{{0.0D, 1.0D}, {0.3455D, 0.309D}, {0.9511D, 0.309D}, {0.3795918367346939D, -0.12653061224489795D}, {0.6122448979591837D, -0.8040816326530612D}, {0.0D, -0.35918367346938773D}}, aint, aint1, flag4, flag2, false);
-               break;
-            case CREEPER:
-               this.createParticleShape(0.5D, new double[][]{{0.0D, 0.2D}, {0.2D, 0.2D}, {0.2D, 0.6D}, {0.6D, 0.6D}, {0.6D, 0.2D}, {0.2D, 0.2D}, {0.2D, 0.0D}, {0.4D, 0.0D}, {0.4D, -0.6D}, {0.2D, -0.6D}, {0.2D, -0.4D}, {0.0D, -0.4D}}, aint, aint1, flag4, flag2, true);
-               break;
-            case BURST:
-               this.createParticleBurst(aint, aint1, flag4, flag2);
+               case SMALL_BALL:
+               default:
+                  this.createParticleBall(0.25D, 2, aint, aint1, flag4, flag2);
+                  break;
+               case LARGE_BALL:
+                  this.createParticleBall(0.5D, 4, aint, aint1, flag4, flag2);
+                  break;
+               case STAR:
+                  this.createParticleShape(0.5D, new double[][]{
+                                  {0.0D, 1.0D}, {0.3455D, 0.309D}, {0.9511D, 0.309D},
+                                  {0.3795918367346939D, -0.12653061224489795D},
+                                  {0.6122448979591837D, -0.8040816326530612D},
+                                  {0.0D, -0.35918367346938773D}},
+                          aint, aint1, flag4, flag2, false);
+                  break;
+               case CREEPER:
+                  this.createParticleShape(0.5D, new double[][]{
+                                  {0.0D, 0.2D}, {0.2D, 0.2D}, {0.2D, 0.6D}, {0.6D, 0.6D},
+                                  {0.6D, 0.2D}, {0.2D, 0.2D}, {0.2D, 0.0D}, {0.4D, 0.0D},
+                                  {0.4D, -0.6D}, {0.2D, -0.6D}, {0.2D, -0.4D}, {0.0D, -0.4D}},
+                          aint, aint1, flag4, flag2, true);
+                  break;
+               case BURST:
+                  this.createParticleBurst(aint, aint1, flag4, flag2);
+                  break;
+               case SQUARE:
+                  this.createParticleShape(1.2D, new double[][]{
+                                  {0.0D, 1.0D}, {0.5D, 0.5D}, {1.0D, 0.0D}, {0.5D, -0.5D},
+                                  {0.0D, -1.0D}, {-0.5D, -0.5D}, {-1.0D, 0.0D}, {-0.5D, 0.5D}},
+                          aint, aint1, flag4, flag2, true);
+                  break;
+               case CROSS:
+                  this.createParticleShape(1.0D, new double[][]{
+                                  {0.0D, 1.07D}, {5.0D, 10.0D}, {0.0D, 11.0D}},
+                          aint, aint1, flag4, flag2, true);
+                    break;
+
             }
+
+
+
 
             int j = aint[0];
             float f = (float)((j & 16711680) >> 16) / 255.0F;

@@ -180,6 +180,7 @@ public class SheepEntity extends AnimalEntity implements IShearable {
          case BLACK:
             return LootTables.SHEEP_BLACK;
          }
+
       }
    }
 

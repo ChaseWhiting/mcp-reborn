@@ -285,6 +285,7 @@ public class RecipeProvider implements IDataProvider {
       carpetFromWool(p_200404_0_, Blocks.RED_CARPET, Blocks.RED_WOOL);
       coloredCarpetFromWhiteCarpetAndDye(p_200404_0_, Blocks.RED_CARPET, Items.RED_DYE);
       bedFromPlanksAndWool(p_200404_0_, Items.RED_BED, Blocks.RED_WOOL);
+      
       bedFromWhiteBedAndDye(p_200404_0_, Items.RED_BED, Items.RED_DYE);
       banner(p_200404_0_, Items.RED_BANNER, Blocks.RED_WOOL);
       carpetFromWool(p_200404_0_, Blocks.WHITE_CARPET, Blocks.WHITE_WOOL);

@@ -119,6 +119,7 @@ public class Blocks {
    public static final Block GREEN_BED = register("green_bed", bed(DyeColor.GREEN));
    public static final Block RED_BED = register("red_bed", bed(DyeColor.RED));
    public static final Block BLACK_BED = register("black_bed", bed(DyeColor.BLACK));
+   public static final Block CORAL_BED = register("coral_bed", bed(DyeColor.CORAL));
    public static final Block POWERED_RAIL = register("powered_rail", new PoweredRailBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().strength(0.7F).sound(SoundType.METAL)));
    public static final Block DETECTOR_RAIL = register("detector_rail", new DetectorRailBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().strength(0.7F).sound(SoundType.METAL)));
    public static final Block STICKY_PISTON = register("sticky_piston", pistonBase(true));

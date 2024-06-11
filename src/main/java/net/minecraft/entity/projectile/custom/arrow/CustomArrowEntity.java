@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -34,6 +35,8 @@ public class CustomArrowEntity extends AbstractArrowEntity {
 
     private static final DataParameter<CustomArrowType> ARROW_TYPE = EntityDataManager.defineId(CustomArrowEntity.class, DataSerializers.CUSTOM_ARROW_TYPE);
     private static final Map<CustomArrowType, Item> ARROW_ITEM_MAP = new HashMap<>();
+
+
 
     static {
         ARROW_ITEM_MAP.put(CustomArrowType.BURNING, Items.BURNING_ARROW);
@@ -106,23 +109,24 @@ public class CustomArrowEntity extends AbstractArrowEntity {
                 entity.addEffect(new EffectInstance(Effects.HEAL, 1, 1));
                 break;
             case 5:
-                ItemStack item = createCustomFirework();
-                ItemStack item2 = createCustomFirework();
-                ItemStack item3 = createCustomFirework();
-                ItemStack item4 = createCustomFirework();
-                ItemStack item5 = createCustomFirework();
-                FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level,this.getOwner(),entity.getX(),entity.getY() + 0.5,entity.getZ(), item);
-                FireworkRocketEntity fireworkRocket2 = new FireworkRocketEntity(this.level,this.getOwner(),entity.getX() + 0.8,entity.getY() - 0.4,entity.getZ(), item2);
-                FireworkRocketEntity fireworkRocket3 = new FireworkRocketEntity(this.level,this.getOwner(),entity.getX() - 0.8,entity.getY() - 0.4,entity.getZ(), item3);
-                FireworkRocketEntity fireworkRocket4 = new FireworkRocketEntity(this.level,this.getOwner(),entity.getX(),entity.getY() - 0.4,entity.getZ() - 0.8, item4);
-                FireworkRocketEntity fireworkRocket5 = new FireworkRocketEntity(this.level,this.getOwner(),entity.getX(),entity.getY() - 0.4,entity.getZ() + 0.8, item5);
-
-
-                this.level.addFreshEntity(fireworkRocket);
-                this.level.addFreshEntity(fireworkRocket2);
-                this.level.addFreshEntity(fireworkRocket3);
-                this.level.addFreshEntity(fireworkRocket4);
-                this.level.addFreshEntity(fireworkRocket5);
+                Random random = new Random();
+                final int[] fireworks = new int[random.nextInt(8) + 1];
+                for (int i = 0; i < fireworks.length; i++) {
+                    ItemStack item = createCustomFirework();
+                    double randomX = random.nextDouble();
+                    double randomZ = random.nextDouble();
+                    FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level, this.getOwner(), entity.getX() + randomX, entity.getY() + 0.5, entity.getZ() + randomZ, item);
+                    fireworkRocket.setFromFireworkArrow(true);
+                    double deltaX = random.nextDouble() * 0.2 - 0.1;
+                    double deltaY = random.nextDouble() * 0.2 - 0.1;
+                    double deltaZ = random.nextDouble() * 0.2 - 0.1;
+                    if (random.nextFloat() < 0.4F) {
+                        fireworkRocket.setDeltaMovement(deltaX, deltaY + 0.2, deltaZ);
+                    } else {
+                        fireworkRocket.setDeltaMovement(deltaX, deltaY - 0.4, deltaZ);
+                    }
+                    this.level.addFreshEntity(fireworkRocket);
+                }
                 break;
         }
     }
@@ -135,7 +139,8 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         switch (id) {
             case 5:
                 ItemStack item = createCustomFirework();
-                FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level,this.getOwner(),this.getX(),this.getY(),this.getZ(), item);
+                FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level,this.getOwner(),this.getX(),this.getY() - 0.2,this.getZ(), item);
+                fireworkRocket.setFromFireworkArrow(true);
                 this.level.addFreshEntity(fireworkRocket);
                 this.remove();
                 break;
@@ -148,6 +153,11 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         CustomArrowType type = this.getArrowType();
         return new ItemStack(ARROW_ITEM_MAP.getOrDefault(type, Items.ARROW));
     }
+
+    public double randomDelta() {
+        return random.nextDouble() * 0.2 - 0.1;
+    }
+
 
 
     @OnlyIn(Dist.CLIENT)
@@ -195,7 +205,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         // Create the explosions
         ListNBT explosions = new ListNBT();
         CompoundNBT explosion = new CompoundNBT();
-        explosion.putByte("Type", (byte) random.nextInt(5)); // Random type of explosion (0-4)
+        explosion.putByte("Type", (byte) random.nextInt(6)); // Random type of explosion (0-4)
         // Generate random colors
         int[] colors = generateRandomColors(random);
         explosion.putIntArray("Colors", colors);

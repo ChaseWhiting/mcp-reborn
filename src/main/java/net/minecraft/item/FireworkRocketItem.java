@@ -90,7 +90,9 @@ public class FireworkRocketItem extends Item {
       LARGE_BALL(1, "large_ball"),
       STAR(2, "star"),
       CREEPER(3, "creeper"),
-      BURST(4, "burst");
+      BURST(4, "burst"),
+      SQUARE(5, "square"),
+      CROSS(6, "cross");
 
       private static final FireworkRocketItem.Shape[] BY_ID = Arrays.stream(values()).sorted(Comparator.comparingInt((p_199796_0_) -> {
          return p_199796_0_.id;
