@@ -50,4 +50,5 @@ public class CustomArrowType {
         }
         return NULL;
     }
+
 }

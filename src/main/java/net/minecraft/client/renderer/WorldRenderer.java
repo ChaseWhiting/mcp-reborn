@@ -127,6 +127,7 @@ public class WorldRenderer implements IResourceManagerReloadListener, AutoClosea
    public static final Direction[] DIRECTIONS = Direction.values();
    private final Minecraft minecraft;
    private final TextureManager textureManager;
+   private boolean isBloodMoonActive;
    private final EntityRendererManager entityRenderDispatcher;
    private final RenderTypeBuffers renderBuffers;
    private ClientWorld level;

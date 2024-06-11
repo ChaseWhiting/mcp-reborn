@@ -1,12 +1,17 @@
 package net.minecraft.entity.projectile.custom.arrow;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ICrossbowUser;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.PillagerEntity;
 import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
+import net.minecraft.item.CustomArrowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -17,19 +22,21 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
+import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.*;
 
 public class CustomArrowEntity extends AbstractArrowEntity {
 
@@ -75,13 +82,13 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         return this.baseDamage;
     }
 
-
+    @ParametersAreNonnullByDefault
     @Override
     public void addAdditionalSaveData(CompoundNBT compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("ArrowType", getArrowType().getType()); // Save the type of the arrow
     }
-
+    @ParametersAreNonnullByDefault
     @Override
     public void readAdditionalSaveData(CompoundNBT compound) {
         super.readAdditionalSaveData(compound);
@@ -90,7 +97,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
             customArrowType = CustomArrowType.NULL; // Default to NULL type when not found
         setArrowType(customArrowType);
     }
-
+    @ParametersAreNonnullByDefault
     protected void doPostHurtEffects(LivingEntity entity) {
         super.doPostHurtEffects(entity);
         CustomArrowType type = this.getArrowType();
@@ -131,19 +138,64 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         }
     }
 
+    @Nullable
+    public Entity getEntityByUUID(UUID uuid) {
+        if (uuid == null) {
+            return null;
+        }
+        return ((ServerWorld) this.level).getEntity(uuid);
+    }
+
     protected void onHitBlock(BlockRayTraceResult result) {
         BlockState blockstate = this.level.getBlockState(result.getBlockPos());
         blockstate.onProjectileHit(this.level, blockstate, result, this);
         CustomArrowType type = this.getArrowType();
         int id = type.getType();
         switch (id) {
+            case 3:
+                this.remove();
+                if (this.getOwner() != null) {
+                    LivingEntity owner = (LivingEntity) this.getOwner();
+                    double targetX = this.blockPosition().getX() + 0.5;
+                    double targetY = this.blockPosition().getY() + 1;
+                    double targetZ = this.blockPosition().getZ() + 0.5;
+
+                    useTeleportation(this.level, owner, targetX, targetY, targetZ);
+
+                    if (owner instanceof PlayerEntity && !this.level.isClientSide()) {
+                        PlayerEntity player = (PlayerEntity) owner;
+                        player.getCooldowns().addCooldown(Items.TELEPORTATION_ARROW, 120);
+                    }
+                }
+                break;
             case 5:
                 ItemStack item = createCustomFirework();
                 FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level,this.getOwner(),this.getX(),this.getY() - 0.2,this.getZ(), item);
                 fireworkRocket.setFromFireworkArrow(true);
+                List<MonsterEntity> targets = this.level.getEntitiesOfClass(MonsterEntity.class, this.getBoundingBox().inflate(8D, 6D, 8D));
+                if (!targets.isEmpty()) {
+                    fireworkRocket.setDeltaMovement(this.getDeltaMovement().x,-0.3,this.getDeltaMovement().z);
+                }
+                if(this.getOwner() != null) {
+                    if (this.getOwner() instanceof ICrossbowUser) {
+                        if (this.getOwner() instanceof PillagerEntity) {
+                            PillagerEntity pillager = (PillagerEntity) this.getOwner();
+                        }
+                    }
+                }
                 this.level.addFreshEntity(fireworkRocket);
                 this.remove();
                 break;
+
+        }
+    }
+    @ParametersAreNonnullByDefault
+    @Override
+    protected void onHitEntity(EntityRayTraceResult result) {
+        super.onHitEntity(result);
+        Entity entity = result.getEntity();
+        if (entity instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) entity;
 
         }
     }
@@ -168,6 +220,24 @@ public class CustomArrowEntity extends AbstractArrowEntity {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ARROW_TYPE, CustomArrowType.NULL);
+    }
+
+    public void useTeleportation(World world, LivingEntity living, double targetX, double targetY, double targetZ) {
+        if (!world.isClientSide) {
+            double d0 = living.getX();
+            double d1 = living.getY();
+            double d2 = living.getZ();
+
+            if (living.isPassenger()) {
+                living.stopRiding();
+            }
+
+            if (living.randomTeleport(targetX, targetY, targetZ, true)) {
+                SoundEvent soundevent = living instanceof FoxEntity ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
+                world.playSound(null, d0, d1, d2, soundevent, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                living.playSound(soundevent, 1.0F, 1.0F);
+            }
+        }
     }
 
     public void useTeleportation(World world, LivingEntity living) {

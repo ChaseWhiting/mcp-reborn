@@ -257,6 +257,15 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
          map.put(Enchantments.MULTISHOT, 1);
          EnchantmentHelper.setEnchantments(map, itemstack);
          this.setItemSlot(EquipmentSlotType.MAINHAND, itemstack);
+         ItemStack itemstack2 = new ItemStack(Items.FIREWORK_ARROW, 13);
+         ItemStack itemstack3 = new ItemStack(Items.BONE_ARROW, 18);
+         if (this.random.nextBoolean()) {
+            if (this.random.nextBoolean()) {
+               this.setItemSlot(EquipmentSlotType.OFFHAND, itemstack3);
+            } else {
+               this.setItemSlot(EquipmentSlotType.OFFHAND, itemstack2);
+            }
+         }
       }
 
    }

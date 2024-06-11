@@ -453,43 +453,44 @@ public class Raid {
 
    }
 
-   private void spawnGroup(BlockPos p_221294_1_) {
-      boolean flag = false;
-      int i = this.groupsSpawned + 1;
+   private void spawnGroup(BlockPos spawnPosition) {
+      boolean hasLeader = false;
+      int nextGroupIndex = this.groupsSpawned + 1;
       this.totalHealth = 0.0F;
-      DifficultyInstance difficultyinstance = this.level.getCurrentDifficultyAt(p_221294_1_);
-      boolean flag1 = this.shouldSpawnBonusGroup();
+      DifficultyInstance currentDifficulty = this.level.getCurrentDifficultyAt(spawnPosition);
+      boolean shouldSpawnBonus = this.shouldSpawnBonusGroup();
 
-      for(Raid.WaveMember raid$wavemember : Raid.WaveMember.VALUES) {
-         int j = this.getDefaultNumSpawns(raid$wavemember, i, flag1) + this.getPotentialBonusSpawns(raid$wavemember, this.random, i, difficultyinstance, flag1);
-         int k = 0;
+      for(Raid.WaveMember waveMember : Raid.WaveMember.VALUES) {
+         int numSpawns = this.getDefaultNumSpawns(waveMember, nextGroupIndex, shouldSpawnBonus)
+                 + this.getPotentialBonusSpawns(waveMember, this.random, nextGroupIndex, currentDifficulty, shouldSpawnBonus);
+         int ravagerSpawnCount = 0;
 
-         for(int l = 0; l < j; ++l) {
-            AbstractRaiderEntity abstractraiderentity = raid$wavemember.entityType.create(this.level);
-            if (!flag && abstractraiderentity.canBeLeader()) {
-               abstractraiderentity.setPatrolLeader(true);
-               this.setLeader(i, abstractraiderentity);
-               flag = true;
+         for(int spawnIndex = 0; spawnIndex < numSpawns; ++spawnIndex) {
+            AbstractRaiderEntity raider = waveMember.entityType.create(this.level);
+            if (!hasLeader && raider.canBeLeader()) {
+               raider.setPatrolLeader(true);
+               this.setLeader(nextGroupIndex, raider);
+               hasLeader = true;
             }
 
-            this.joinRaid(i, abstractraiderentity, p_221294_1_, false);
-            if (raid$wavemember.entityType == EntityType.RAVAGER) {
-               AbstractRaiderEntity abstractraiderentity1 = null;
-               if (i == this.getNumGroups(Difficulty.NORMAL)) {
-                  abstractraiderentity1 = EntityType.PILLAGER.create(this.level);
-               } else if (i >= this.getNumGroups(Difficulty.HARD)) {
-                  if (k == 0) {
-                     abstractraiderentity1 = EntityType.EVOKER.create(this.level);
+            this.joinRaid(nextGroupIndex, raider, spawnPosition, false);
+            if (waveMember.entityType == EntityType.RAVAGER) {
+               AbstractRaiderEntity rider = null;
+               if (nextGroupIndex == this.getNumGroups(Difficulty.NORMAL)) {
+                  rider = EntityType.PILLAGER.create(this.level);
+               } else if (nextGroupIndex >= this.getNumGroups(Difficulty.HARD)) {
+                  if (ravagerSpawnCount == 0) {
+                     rider = EntityType.EVOKER.create(this.level);
                   } else {
-                     abstractraiderentity1 = EntityType.VINDICATOR.create(this.level);
+                     rider = EntityType.VINDICATOR.create(this.level);
                   }
                }
 
-               ++k;
-               if (abstractraiderentity1 != null) {
-                  this.joinRaid(i, abstractraiderentity1, p_221294_1_, false);
-                  abstractraiderentity1.moveTo(p_221294_1_, 0.0F, 0.0F);
-                  abstractraiderentity1.startRiding(abstractraiderentity);
+               ++ravagerSpawnCount;
+               if (rider != null) {
+                  this.joinRaid(nextGroupIndex, rider, spawnPosition, false);
+                  rider.moveTo(spawnPosition, 0.0F, 0.0F);
+                  rider.startRiding(raider);
                }
             }
          }
@@ -661,37 +662,36 @@ public class Raid {
       return p_221330_3_ ? p_221330_1_.spawnsPerWaveBeforeBonus[this.numGroups] : p_221330_1_.spawnsPerWaveBeforeBonus[p_221330_2_];
    }
 
-   private int getPotentialBonusSpawns(Raid.WaveMember p_221335_1_, Random p_221335_2_, int p_221335_3_, DifficultyInstance p_221335_4_, boolean p_221335_5_) {
-      Difficulty difficulty = p_221335_4_.getDifficulty();
-      boolean flag = difficulty == Difficulty.EASY;
-      boolean flag1 = difficulty == Difficulty.NORMAL;
-      int i;
-      switch(p_221335_1_) {
-      case WITCH:
-         if (flag || p_221335_3_ <= 2 || p_221335_3_ == 4) {
+   private int getPotentialBonusSpawns(Raid.WaveMember waveMember, Random randomGenerator, int waveNumber, DifficultyInstance difficultyInstance, boolean specialCondition) {
+      Difficulty difficulty = difficultyInstance.getDifficulty();
+      boolean isEasyDifficulty = difficulty == Difficulty.EASY;
+      boolean isNormalDifficulty = difficulty == Difficulty.NORMAL;
+      int potentialSpawns;
+      switch(waveMember) {
+         case WITCH:
+            if (isEasyDifficulty || waveNumber <= 2 || waveNumber == 4) {
+               return 0;
+            }
+            potentialSpawns = 1;
+            break;
+         case PILLAGER:
+         case VINDICATOR:
+            if (isEasyDifficulty) {
+               potentialSpawns = randomGenerator.nextInt(2);
+            } else if (isNormalDifficulty) {
+               potentialSpawns = 1;
+            } else {
+               potentialSpawns = 2;
+            }
+            break;
+         case RAVAGER:
+            potentialSpawns = !isEasyDifficulty && specialCondition ? 1 : 0;
+            break;
+         default:
             return 0;
-         }
-
-         i = 1;
-         break;
-      case PILLAGER:
-      case VINDICATOR:
-         if (flag) {
-            i = p_221335_2_.nextInt(2);
-         } else if (flag1) {
-            i = 1;
-         } else {
-            i = 2;
-         }
-         break;
-      case RAVAGER:
-         i = !flag && p_221335_5_ ? 1 : 0;
-         break;
-      default:
-         return 0;
       }
 
-      return i > 0 ? p_221335_2_.nextInt(i + 1) : 0;
+      return potentialSpawns > 0 ? randomGenerator.nextInt(potentialSpawns + 1) : 0;
    }
 
    public boolean isActive() {

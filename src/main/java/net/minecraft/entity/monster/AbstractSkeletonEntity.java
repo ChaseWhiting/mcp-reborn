@@ -127,7 +127,17 @@ public abstract class AbstractSkeletonEntity extends MonsterEntity implements IR
 
    protected void populateDefaultEquipmentSlots(DifficultyInstance p_180481_1_) {
       super.populateDefaultEquipmentSlots(p_180481_1_);
-      this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.BOW));
+         this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.BOW));
+
+
+      // For SkeletonEntity, randomly decide whether to give BONE_ARROW in the OFFHAND
+      if (this instanceof SkeletonEntity) {
+         if (this.random.nextBoolean()) {
+            this.setItemSlot(EquipmentSlotType.OFFHAND, new ItemStack(Items.BONE_ARROW, this.random.nextInt(6) + 1));
+         } else {
+            this.setItemSlot(EquipmentSlotType.OFFHAND, ItemStack.EMPTY);
+         }
+      }
    }
 
    @Nullable
@@ -187,7 +197,7 @@ public abstract class AbstractSkeletonEntity extends MonsterEntity implements IR
    }
 
    public boolean canFireProjectileWeapon(ShootableItem p_230280_1_) {
-      return p_230280_1_ == Items.BOW;
+      return p_230280_1_ == Items.BOW || p_230280_1_ == Items.BONE_BOW;
    }
 
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {

@@ -13,6 +13,7 @@ import net.minecraft.enchantment.IVanishable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.monster.CreeperEntity;
+import net.minecraft.entity.monster.SkeletonEntity;
 import net.minecraft.entity.monster.SpiderEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -54,7 +55,7 @@ public class BoneBowItem extends BowItem implements IVanishable {
                         abstractarrowentity = arrowitem.createArrow(world, itemstack, playerentity);
                         abstractarrowentity.shootFromRotation(playerentity, playerentity.xRot, playerentity.yRot, 0.0F, f * 3.0F, 1.0F);
                         if (f >= 1F) {
-                            if (itemstack.getItem() == Items.BONE_ARROW) {
+                            if (itemstack.getItem() == Items.BONE_ARROW && !(entity instanceof SkeletonEntity)) {
                                 AxisAlignedBB area = new AxisAlignedBB(playerentity.blockPosition()).inflate(12D, 5D, 12D);
                                 List<MobEntity> mobs = world.getEntitiesOfClass(MobEntity.class, area, e -> e instanceof CreeperEntity || e instanceof SpiderEntity);
                                 world.playSound(null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), SoundEvents.SKELETON_AMBIENT, SoundCategory.PLAYERS, 1.0F, 1.0F);

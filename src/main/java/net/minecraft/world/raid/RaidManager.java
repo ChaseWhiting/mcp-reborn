@@ -45,12 +45,15 @@ public class RaidManager extends WorldSavedData {
 
    public Raid getRaidAt(BlockPos pos) {
       for (Raid raid : this.raidMap.values()) {
-         if (raid.getCenter().equals(pos)) {
+         BlockPos center = raid.getCenter();
+         double distance = Math.sqrt(center.distSqr(pos));
+         if (distance <= 60) {
             return raid;
          }
       }
       return null;
    }
+
 
    public void tick() {
       ++this.tick;

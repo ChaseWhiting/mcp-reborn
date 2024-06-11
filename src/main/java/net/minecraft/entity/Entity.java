@@ -2311,6 +2311,22 @@ public abstract class Entity implements INameable, ICommandSource {
       }
    }
 
+   public void teleportTo(BlockPos pos) {
+      if (this.level instanceof ServerWorld) {
+         ServerWorld serverworld = (ServerWorld)this.level;
+         this.moveTo(pos.getX(), pos.getY(), pos.getZ(), this.yRot, this.xRot);
+         this.getSelfAndPassengers().forEach((passengers) -> {
+            serverworld.updateChunkPos(passengers);
+            passengers.forceChunkAddition = true;
+
+            for(Entity entity : passengers.passengers) {
+               passengers.positionRider(entity, Entity::moveTo);
+            }
+
+         });
+      }
+   }
+
    @OnlyIn(Dist.CLIENT)
    public boolean shouldShowName() {
       return this.isCustomNameVisible();
