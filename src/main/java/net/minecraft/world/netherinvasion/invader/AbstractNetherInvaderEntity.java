@@ -239,7 +239,7 @@ public abstract class AbstractNetherInvaderEntity extends MonsterEntity {
         p_213281_1_.putInt("Wave", this.wave);
         p_213281_1_.putBoolean("CanJoinRaid", this.canJoinRaid);
         if (this.netherInvasion != null) {
-            p_213281_1_.putInt("invasions", this.netherInvasion.getId());
+            p_213281_1_.putInt("Invasions", this.netherInvasion.getId());
         }
 
     }
@@ -248,9 +248,9 @@ public abstract class AbstractNetherInvaderEntity extends MonsterEntity {
         super.readAdditionalSaveData(p_70037_1_);
         this.wave = p_70037_1_.getInt("Wave");
         this.canJoinRaid = p_70037_1_.getBoolean("CanJoinRaid");
-        if (p_70037_1_.contains("invasions", 3)) {
+        if (p_70037_1_.contains("Invasions", 3)) {
             if (this.level instanceof ServerWorld) {
-                this.netherInvasion = ((ServerWorld)this.level).getInvasions().get(p_70037_1_.getInt("invasions"));
+                this.netherInvasion = ((ServerWorld)this.level).getInvasions().get(p_70037_1_.getInt("Invasions"));
             }
 
             if (this.netherInvasion != null) {

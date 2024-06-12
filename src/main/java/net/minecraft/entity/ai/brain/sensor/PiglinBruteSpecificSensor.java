@@ -11,8 +11,10 @@ import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.WitherSkeletonEntity;
 import net.minecraft.entity.monster.piglin.AbstractPiglinEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.world.server.ServerWorld;
 
 public class PiglinBruteSpecificSensor extends Sensor<LivingEntity> {
@@ -26,7 +28,7 @@ public class PiglinBruteSpecificSensor extends Sensor<LivingEntity> {
       List<AbstractPiglinEntity> list = Lists.newArrayList();
 
       for(LivingEntity livingentity : brain.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).orElse(ImmutableList.of())) {
-         if (livingentity instanceof WitherSkeletonEntity || livingentity instanceof WitherEntity) {
+         if (livingentity instanceof WitherSkeletonEntity || livingentity instanceof WitherEntity || livingentity instanceof VillagerEntity || livingentity instanceof IronGolemEntity) {
             optional = Optional.of((MobEntity)livingentity);
             break;
          }

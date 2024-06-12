@@ -17,35 +17,11 @@ import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.BrainUtil;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.schedule.Activity;
-import net.minecraft.entity.ai.brain.task.AttackStrafingTask;
-import net.minecraft.entity.ai.brain.task.AttackTargetTask;
-import net.minecraft.entity.ai.brain.task.DummyTask;
-import net.minecraft.entity.ai.brain.task.EndAttackTask;
-import net.minecraft.entity.ai.brain.task.FindInteractionAndLookTargetTask;
-import net.minecraft.entity.ai.brain.task.FindNewAttackTargetTask;
-import net.minecraft.entity.ai.brain.task.FirstShuffledTask;
-import net.minecraft.entity.ai.brain.task.ForgetAttackTargetTask;
-import net.minecraft.entity.ai.brain.task.GetAngryTask;
-import net.minecraft.entity.ai.brain.task.HuntCelebrationTask;
-import net.minecraft.entity.ai.brain.task.InteractWithDoorTask;
-import net.minecraft.entity.ai.brain.task.InteractWithEntityTask;
-import net.minecraft.entity.ai.brain.task.LookAtEntityTask;
-import net.minecraft.entity.ai.brain.task.LookTask;
-import net.minecraft.entity.ai.brain.task.MoveToTargetTask;
-import net.minecraft.entity.ai.brain.task.PickupWantedItemTask;
-import net.minecraft.entity.ai.brain.task.PiglinIdleActivityTask;
-import net.minecraft.entity.ai.brain.task.PredicateTask;
-import net.minecraft.entity.ai.brain.task.RideEntityTask;
-import net.minecraft.entity.ai.brain.task.RunAwayTask;
-import net.minecraft.entity.ai.brain.task.RunSometimesTask;
-import net.minecraft.entity.ai.brain.task.ShootTargetTask;
-import net.minecraft.entity.ai.brain.task.StopRidingEntityTask;
-import net.minecraft.entity.ai.brain.task.SupplementedTask;
-import net.minecraft.entity.ai.brain.task.WalkRandomlyTask;
-import net.minecraft.entity.ai.brain.task.WalkToTargetTask;
-import net.minecraft.entity.ai.brain.task.WalkTowardsLookTargetTask;
+import net.minecraft.entity.ai.brain.task.*;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.monster.HoglinEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterial;
@@ -110,7 +86,7 @@ public class PiglinTasks {
    private static void initFightActivity(PiglinEntity p_234488_0_, Brain<PiglinEntity> p_234488_1_) {
       p_234488_1_.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.<net.minecraft.entity.ai.brain.task.Task<? super PiglinEntity>>of(new FindNewAttackTargetTask<>((p_234523_1_) -> {
          return !isNearestValidAttackTarget(p_234488_0_, p_234523_1_);
-      }), new SupplementedTask<>(PiglinTasks::hasCrossbow, new AttackStrafingTask<>(5, 0.75F)), new MoveToTargetTask(1.0F), new AttackTargetTask(20), new ShootTargetTask(), new FinishedHuntTask(), new PredicateTask<>(PiglinTasks::isNearZombified, MemoryModuleType.ATTACK_TARGET)), MemoryModuleType.ATTACK_TARGET);
+      }), new SupplementedTask<>(PiglinTasks::hasCrossbow, new AttackStrafingTask<>(5, 0.75F)), new MoveToTargetTask(1.0F), new AttackTargetTask(20), new MoveTowardsInvasionTask(1.0F), new ShootTargetTask(), new FinishedHuntTask(), new PredicateTask<>(PiglinTasks::isNearZombified, MemoryModuleType.ATTACK_TARGET)), MemoryModuleType.ATTACK_TARGET);
    }
 
    private static void initCelebrateActivity(Brain<PiglinEntity> p_234495_0_) {
@@ -377,6 +353,15 @@ public class PiglinTasks {
                if (optional1.isPresent()) {
                   return optional1;
                }
+            }
+            Optional<AbstractVillagerEntity> optional4 = brain.getMemory(MemoryModuleType.ATTACKABLE_VILLAGER);
+            if (optional4.isPresent()) {
+               System.out.println(optional4 + " " + optional4.get().position());
+               return optional4;
+            }
+            Optional<IronGolemEntity> optional5 = brain.getMemory(MemoryModuleType.ATTACKABLE_GOLEM);
+            if (optional5.isPresent()) {
+               return optional5;
             }
 
             Optional<MobEntity> optional3 = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_NEMESIS);

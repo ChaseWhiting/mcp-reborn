@@ -31,6 +31,11 @@ public class MoveTowardsInvasionGoal<T extends AbstractNetherInvaderEntity> exte
         return this.mob.hasActiveRaid() && !this.mob.getCurrentInvasion().isOver() && this.mob.level instanceof ServerWorld && !((ServerWorld)this.mob.level).isVillage(this.mob.blockPosition());
     }
 
+    @Override
+    public boolean isInterruptable() {
+        return false;
+    }
+
     public void tick() {
         if (this.mob.hasActiveRaid()) {
             NetherInvasion raid = this.mob.getCurrentInvasion();

@@ -14,7 +14,10 @@ import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
+import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -75,6 +78,8 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
       this.goalSelector.addGoal(3, new MoveTowardsInvasionGoal<>(this));
       this.goalSelector.addGoal(2, new AbstractNetherInvaderEntity.FindTargetGoal(this, 10.0F));
       this.goalSelector.addGoal(2, new AbstractNetherInvaderEntity.PromoteLeaderGoal<>(this));
+      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, VillagerEntity.class, true));
+      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, true));
 
    }
 
@@ -99,6 +104,31 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
 
    }
 
+   public void dealWithItems() {
+      if (this.getTarget() != null) {
+         List<AbstractPiglinEntity> piglins2 = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getBoundingBox().inflate(1D,1D,1D), e -> e != this);
+         List<AbstractPiglinEntity> piglins = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getTarget().getBoundingBox().inflate(4.5D, 5D, 4.5D), e -> e != this);
+         if (this.distanceTo(this.getTarget()) < 2.5F) {
+            if (this.storedAxe != null) {
+               this.setItemSlot(EquipmentSlotType.MAINHAND, this.storedAxe);
+            } else {
+               this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.GOLDEN_AXE));
+            }
+         } else if (piglins.isEmpty() && piglins2.isEmpty()){
+            if (this.storedCrossbow == null) {
+               this.storedCrossbow = this.getItemBySlot(EquipmentSlotType.MAINHAND).copy();
+            }
+            this.maybeUseCrossbow();
+         } else {
+            if (this.storedAxe != null) {
+               this.setItemSlot(EquipmentSlotType.MAINHAND, this.storedAxe);
+            } else {
+               this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.GOLDEN_AXE));
+            }
+         }
+      }
+   }
+
 
    private void maybeUseCrossbow() {
       if (this.level.random.nextFloat() < 0.06F) {
@@ -115,21 +145,7 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
    @Override
    public void tick() {
       super.tick();
-
-      if (this.getTarget() != null) {
-         if (this.distanceTo(this.getTarget()) < 2.5F) {
-            if (this.storedAxe != null) {
-               this.setItemSlot(EquipmentSlotType.MAINHAND, this.storedAxe);
-            } else {
-               this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.GOLDEN_AXE));
-            }
-         } else {
-            if (this.storedCrossbow == null) {
-               this.storedCrossbow = this.getItemBySlot(EquipmentSlotType.MAINHAND).copy();
-            }
-            this.maybeUseCrossbow();
-         }
-      }
+      dealWithItems();
    }
 
    @Override

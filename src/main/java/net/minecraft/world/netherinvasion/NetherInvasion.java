@@ -40,6 +40,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.SectionPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.BossInfo;
@@ -577,12 +578,28 @@ public class NetherInvasion {
     }
 
     public static ItemStack getLeaderBannerInstance() {
-        ItemStack itemstack = new ItemStack(Items.WHITE_BANNER);
+        ItemStack itemstack = new ItemStack(Items.BROWN_BANNER); // Start with a brown banner
         CompoundNBT compoundnbt = itemstack.getOrCreateTagElement("BlockEntityTag");
-        ListNBT listnbt = (new BannerPattern.Builder()).addPattern(BannerPattern.RHOMBUS_MIDDLE, DyeColor.CYAN).addPattern(BannerPattern.STRIPE_BOTTOM, DyeColor.LIGHT_GRAY).addPattern(BannerPattern.STRIPE_CENTER, DyeColor.GRAY).addPattern(BannerPattern.BORDER, DyeColor.LIGHT_GRAY).addPattern(BannerPattern.STRIPE_MIDDLE, DyeColor.BLACK).addPattern(BannerPattern.HALF_HORIZONTAL, DyeColor.LIGHT_GRAY).addPattern(BannerPattern.CIRCLE_MIDDLE, DyeColor.LIGHT_GRAY).addPattern(BannerPattern.BORDER, DyeColor.BLACK).toListTag();
+
+        ListNBT listnbt = (new BannerPattern.Builder())
+                .addPattern(BannerPattern.PIGLIN, DyeColor.BLACK)  // Black Snout
+                .addPattern(BannerPattern.GRADIENT, DyeColor.BROWN)  // Brown Gradient
+                .addPattern(BannerPattern.STRIPE_LEFT, DyeColor.YELLOW)  // Yellow Per Bend Sinister
+                .addPattern(BannerPattern.STRIPE_LEFT, DyeColor.RED)  // Red Per Bend Sinister (1st)
+                .addPattern(BannerPattern.STRIPE_LEFT, DyeColor.RED)  // Red Per Bend Sinister (2nd)
+                .addPattern(BannerPattern.STRIPE_LEFT, DyeColor.RED)  // Red Per Bend Sinister (3rd)
+                .addPattern(BannerPattern.GRADIENT_UP, DyeColor.YELLOW)  // Yellow Base Gradient
+                .addPattern(BannerPattern.BASE, DyeColor.BROWN)  // Brown Banner base (if needed)
+                .addPattern(BannerPattern.BORDER, DyeColor.BLACK)  // Black Border
+                .addPattern(BannerPattern.BORDER, DyeColor.ORANGE)  // Orange Border
+                .addPattern(BannerPattern.BORDER, DyeColor.BLACK)  // Black Border (again for indented effect)
+                .addPattern(BannerPattern.BORDER, DyeColor.ORANGE)  // Orange Border (again for indented effect)
+                .toListTag();
+
         compoundnbt.put("Patterns", listnbt);
         itemstack.hideTooltipPart(ItemStack.TooltipDisplayFlags.ADDITIONAL);
-        itemstack.setHoverName((new TranslationTextComponent("block.minecraft.ominous_banner")).withStyle(TextFormatting.GOLD));
+        itemstack.setHoverName((new StringTextComponent("Piglin Banner")).withStyle(TextFormatting.GOLD));
+
         return itemstack;
     }
 

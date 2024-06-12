@@ -26,9 +26,12 @@ import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
+import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractRaiderEntity;
 import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -77,10 +80,10 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
    }
 
    public void registerGoals() {
-
       this.goalSelector.addGoal(3, new MoveTowardsInvasionGoal<>(this));
       this.goalSelector.addGoal(2, new AbstractNetherInvaderEntity.FindTargetGoal(this, 10.0F));
-
+      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, VillagerEntity.class, true));
+      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, true));
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {

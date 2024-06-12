@@ -12,6 +12,8 @@ import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.SmallFireballEntity;
 import net.minecraft.network.datasync.DataParameter;
@@ -53,6 +55,7 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
       this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers());
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
+
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {

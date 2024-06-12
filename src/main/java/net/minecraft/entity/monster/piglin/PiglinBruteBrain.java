@@ -45,7 +45,8 @@ public class PiglinBruteBrain {
               new SupplementedTask<>(PiglinBruteBrain::hasCrossbow, new AttackStrafingTask<>(12, 1.05F)),
               new MoveToTargetTask(1.0F),
               new AttackTargetTask(20),
-              new ShootTargetTask()
+              new ShootTargetTask(),
+              new MoveTowardsInvasionTask(1.0F)
       ), MemoryModuleType.ATTACK_TARGET);
    }
 

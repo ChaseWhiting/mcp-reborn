@@ -14,12 +14,15 @@ import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.HoglinEntity;
 import net.minecraft.entity.monster.WitherSkeletonEntity;
 import net.minecraft.entity.monster.piglin.AbstractPiglinEntity;
 import net.minecraft.entity.monster.piglin.PiglinBruteEntity;
 import net.minecraft.entity.monster.piglin.PiglinEntity;
 import net.minecraft.entity.monster.piglin.PiglinTasks;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.EntityPredicates;
@@ -28,7 +31,20 @@ import net.minecraft.world.server.ServerWorld;
 
 public class PiglinMobsSensor extends Sensor<LivingEntity> {
    public Set<MemoryModuleType<?>> requires() {
-      return ImmutableSet.of(MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryModuleType.LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD, MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM, MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN, MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, MemoryModuleType.NEARBY_ADULT_PIGLINS, MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, MemoryModuleType.NEAREST_REPELLENT);
+      return ImmutableSet.of(MemoryModuleType.VISIBLE_LIVING_ENTITIES,
+              MemoryModuleType.LIVING_ENTITIES,
+              MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
+              MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD,
+              MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM,
+              MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN,
+              MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
+              MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
+              MemoryModuleType.NEARBY_ADULT_PIGLINS,
+              MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
+              MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
+              MemoryModuleType.NEAREST_REPELLENT,
+              MemoryModuleType.ATTACKABLE_VILLAGER,
+              MemoryModuleType.ATTACKABLE_GOLEM);
    }
 
    protected void doTick(ServerWorld p_212872_1_, LivingEntity p_212872_2_) {
@@ -41,6 +57,8 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
       Optional<LivingEntity> optional4 = Optional.empty();
       Optional<PlayerEntity> optional5 = Optional.empty();
       Optional<PlayerEntity> optional6 = Optional.empty();
+      Optional<AbstractVillagerEntity> optionalVillager = Optional.empty();
+      Optional<IronGolemEntity> optionalGolem = Optional.empty();
       int i = 0;
       List<AbstractPiglinEntity> list = Lists.newArrayList();
       List<AbstractPiglinEntity> list1 = Lists.newArrayList();
@@ -78,6 +96,16 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
             if (!optional4.isPresent() && PiglinTasks.isZombified(livingentity.getType())) {
                optional4 = Optional.of(livingentity);
             }
+         } else if (livingentity instanceof AbstractVillagerEntity){
+            AbstractVillagerEntity villager = (AbstractVillagerEntity) livingentity;
+            if (!optional5.isPresent() && EntityPredicates.ATTACK_ALLOWED.test(livingentity)) {
+               optionalVillager = Optional.of(villager);
+            }
+         } else if (livingentity instanceof IronGolemEntity) {
+            IronGolemEntity golem = (IronGolemEntity) livingentity;
+            if (!optional5.isPresent() && EntityPredicates.ATTACK_ALLOWED.test(livingentity)) {
+               optionalGolem = Optional.of(golem);
+            }
          } else {
             optional = Optional.of((MobEntity)livingentity);
          }
@@ -99,6 +127,8 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
       brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, list);
       brain.setMemory(MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, list.size());
       brain.setMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, i);
+      brain.setMemory(MemoryModuleType.ATTACKABLE_VILLAGER, optionalVillager);
+      brain.setMemory(MemoryModuleType.ATTACKABLE_GOLEM, optionalGolem);
    }
 
    private static Optional<BlockPos> findNearestRepellent(ServerWorld p_234126_0_, LivingEntity p_234126_1_) {
