@@ -1,6 +1,9 @@
 package net.minecraft.entity;
 
 import javax.annotation.Nullable;
+
+import net.minecraft.entity.monster.piglin.PiglinBruteEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.CrossbowItem;
@@ -39,7 +42,16 @@ public interface ICrossbowUser extends IRangedAttackMob {
       double d2 = (double)MathHelper.sqrt(d0 * d0 + d1 * d1);
       double d3 = p_234279_2_.getY(0.3333333333333333D) - p_234279_3_.getY() + d2 * (double)0.2F;
       Vector3f vector3f = this.getProjectileShotVector(p_234279_1_, new Vector3d(d0, d3, d1), p_234279_4_);
-      p_234279_3_.shoot((double)vector3f.x(), (double)vector3f.y(), (double)vector3f.z(), p_234279_5_, (float)(14 - p_234279_1_.level.getDifficulty().getId() * 4));
+      if (p_234279_1_ instanceof PiglinBruteEntity) {
+         if (p_234279_3_ instanceof AbstractArrowEntity) {
+            AbstractArrowEntity arrow = (AbstractArrowEntity) p_234279_3_;
+            arrow.setBaseDamage(arrow.getBaseDamage() + 3.5D);
+            arrow.setCritArrow(true);
+            arrow.shoot((double)vector3f.x(), (double)vector3f.y(), (double)vector3f.z(), p_234279_5_, (float)(14 - p_234279_1_.level.getDifficulty().getId() * 4));
+         }
+      } else {
+         p_234279_3_.shoot((double) vector3f.x(), (double) vector3f.y(), (double) vector3f.z(), p_234279_5_, (float) (14 - p_234279_1_.level.getDifficulty().getId() * 4));
+      }
       p_234279_1_.playSound(SoundEvents.CROSSBOW_SHOOT, 1.0F, 1.0F / (p_234279_1_.getRandom().nextFloat() * 0.4F + 0.8F));
    }
 

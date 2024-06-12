@@ -82,14 +82,26 @@ public class CrossbowItem extends ShootableItem implements IVanishable {
 
    }
 
-   private static boolean tryLoadProjectiles(LivingEntity p_220021_0_, ItemStack p_220021_1_) {
-      int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MULTISHOT, p_220021_1_);
-      int j = i == 0 ? 1 : 3;
-      boolean flag = p_220021_0_ instanceof PlayerEntity && ((PlayerEntity)p_220021_0_).abilities.instabuild;
-      ItemStack itemstack = p_220021_0_.getProjectile(p_220021_1_);
+   private static boolean tryLoadProjectiles(LivingEntity shooter, ItemStack crossbow) {
+      int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MULTISHOT, crossbow);
+      int j;
+
+      switch (i) {
+         case 2:
+            j = 4;
+            break;
+         case 3:
+            j = 5;
+            break;
+         default:
+            j = (i == 0) ? 1 : 3;
+            break;
+      }
+      boolean flag = shooter instanceof PlayerEntity && ((PlayerEntity)shooter).abilities.instabuild;
+      ItemStack itemstack = shooter.getProjectile(crossbow);
       ItemStack itemstack1 = itemstack.copy();
 
-      for(int k = 0; k < j; ++k) {
+      for (int k = 0; k < j; ++k) {
          if (k > 0) {
             itemstack = itemstack1.copy();
          }
@@ -99,7 +111,7 @@ public class CrossbowItem extends ShootableItem implements IVanishable {
             itemstack1 = itemstack.copy();
          }
 
-         if (!loadProjectile(p_220021_0_, p_220021_1_, itemstack, k > 0, flag)) {
+         if (!loadProjectile(shooter, crossbow, itemstack, k > 0, flag)) {
             return false;
          }
       }
@@ -212,6 +224,7 @@ public class CrossbowItem extends ShootableItem implements IVanishable {
          p_220016_3_.hurtAndBreak(flag ? 3 : 1, p_220016_1_, (p_220017_1_) -> {
             p_220017_1_.broadcastBreakEvent(p_220016_2_);
          });
+
          p_220016_0_.addFreshEntity(projectileentity);
          p_220016_0_.playSound((PlayerEntity)null, p_220016_1_.getX(), p_220016_1_.getY(), p_220016_1_.getZ(), SoundEvents.CROSSBOW_SHOOT, SoundCategory.PLAYERS, 1.0F, p_220016_5_);
       }
@@ -234,35 +247,55 @@ public class CrossbowItem extends ShootableItem implements IVanishable {
       return abstractarrowentity;
    }
 
-   public static void performShooting(World p_220014_0_, LivingEntity p_220014_1_, Hand p_220014_2_, ItemStack p_220014_3_, float p_220014_4_, float p_220014_5_) {
-      List<ItemStack> list = getChargedProjectiles(p_220014_3_);
-      float[] afloat = getShotPitches(p_220014_1_.getRandom());
+   public static void performShooting(World world, LivingEntity shooter, Hand hand, ItemStack crossbow, float velocity, float inaccuracy) {
+      List<ItemStack> projectiles = getChargedProjectiles(crossbow);
+      float[] shotPitches = getShotPitches(shooter.getRandom());
 
-      for(int i = 0; i < list.size(); ++i) {
-         ItemStack itemstack = list.get(i);
-         boolean flag = p_220014_1_ instanceof PlayerEntity && ((PlayerEntity)p_220014_1_).abilities.instabuild;
-         if (!itemstack.isEmpty()) {
-            if (i == 0) {
-               shootProjectile(p_220014_0_, p_220014_1_, p_220014_2_, p_220014_3_, itemstack, afloat[i], flag, p_220014_4_, p_220014_5_, 0.0F);
-            } else if (i == 1) {
-               shootProjectile(p_220014_0_, p_220014_1_, p_220014_2_, p_220014_3_, itemstack, afloat[i], flag, p_220014_4_, p_220014_5_, -10.0F);
-            } else if (i == 2) {
-               shootProjectile(p_220014_0_, p_220014_1_, p_220014_2_, p_220014_3_, itemstack, afloat[i], flag, p_220014_4_, p_220014_5_, 10.0F);
+      for (int i = 0; i < projectiles.size(); ++i) {
+         ItemStack projectile = projectiles.get(i);
+         boolean isCreativeMode = shooter instanceof PlayerEntity && ((PlayerEntity)shooter).abilities.instabuild;
+         if (!projectile.isEmpty()) {
+            float inaccuracyOffset = 0.0F;
+            switch (i) {
+               case 1:
+                  inaccuracyOffset = -10.0F;
+                  break;
+               case 2:
+                  inaccuracyOffset = 10.0F;
+                  break;
+               case 3:
+                  inaccuracyOffset = 5.0F;
+                  break;
+               case 4:
+                  inaccuracyOffset = -5.0F;
+                  break;
+               default:
+                  break;
             }
+            shootProjectile(world, shooter, hand, crossbow, projectile, shotPitches[i], isCreativeMode, velocity, inaccuracy, inaccuracyOffset);
          }
       }
 
-      onCrossbowShot(p_220014_0_, p_220014_1_, p_220014_3_);
+      onCrossbowShot(world, shooter, crossbow);
    }
 
-   private static float[] getShotPitches(Random p_220028_0_) {
-      boolean flag = p_220028_0_.nextBoolean();
-      return new float[]{1.0F, getRandomShotPitch(flag), getRandomShotPitch(!flag)};
+   private static float[] getShotPitches(Random random) {
+      // Ensure this array has enough elements for all possible projectiles
+      boolean flag = random.nextBoolean();
+      return new float[]{
+              1.0F,
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag)
+      };
    }
 
-   private static float getRandomShotPitch(boolean p_220032_0_) {
-      float f = p_220032_0_ ? 0.63F : 0.43F;
-      return 1.0F / (random.nextFloat() * 0.5F + 1.8F) + f;
+   private static float getRandomShotPitch(boolean flag) {
+      float base = flag ? 0.63F : 0.43F;
+      return 1.0F / (random.nextFloat() * 0.5F + 1.8F) + base;
    }
 
    private static void onCrossbowShot(World p_220015_0_, LivingEntity p_220015_1_, ItemStack p_220015_2_) {

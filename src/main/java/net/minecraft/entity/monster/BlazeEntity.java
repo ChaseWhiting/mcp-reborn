@@ -25,8 +25,10 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.netherinvasion.invader.AbstractNetherInvaderEntity;
+import net.minecraft.world.netherinvasion.invader.MoveTowardsInvasionGoal;
 
-public class BlazeEntity extends MonsterEntity {
+public class BlazeEntity extends AbstractNetherInvaderEntity {
    private float allowedHeightOffset = 0.5F;
    private int nextHeightOffsetChangeTick;
    private static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(BlazeEntity.class, DataSerializers.BYTE);
@@ -45,6 +47,9 @@ public class BlazeEntity extends MonsterEntity {
       this.goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0D));
       this.goalSelector.addGoal(7, new WaterAvoidingRandomWalkingGoal(this, 1.0D, 0.0F));
       this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F));
+      this.goalSelector.addGoal(3, new MoveTowardsInvasionGoal<>(this));
+      this.goalSelector.addGoal(2, new AbstractNetherInvaderEntity.FindTargetGoal(this, 10.0F));
+
       this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers());
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
@@ -57,6 +62,11 @@ public class BlazeEntity extends MonsterEntity {
    protected void defineSynchedData() {
       super.defineSynchedData();
       this.entityData.define(DATA_FLAGS_ID, (byte)0);
+   }
+
+   @Override
+   public void applyRaidBuffs(int p_213660_1_, boolean p_213660_2_) {
+
    }
 
    protected SoundEvent getAmbientSound() {
@@ -91,6 +101,11 @@ public class BlazeEntity extends MonsterEntity {
       }
 
       super.aiStep();
+   }
+
+   @Override
+   public SoundEvent getCelebrateSound() {
+      return null;
    }
 
    public boolean isSensitiveToWater() {

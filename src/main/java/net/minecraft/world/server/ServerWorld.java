@@ -129,6 +129,8 @@ import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.world.gen.feature.structure.StructureStart;
 import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.netherinvasion.NetherInvasion;
+import net.minecraft.world.netherinvasion.NetherInvasionManager;
 import net.minecraft.world.raid.Raid;
 import net.minecraft.world.raid.RaidManager;
 import net.minecraft.world.spawner.ISpecialSpawner;
@@ -166,6 +168,7 @@ public class ServerWorld extends World implements ISeedReader {
    }, Registry.FLUID::getKey, this::tickLiquid);
    private final Set<PathNavigator> navigations = Sets.newHashSet();
    protected final RaidManager raids;
+   protected final NetherInvasionManager invasions;
    private final ObjectLinkedOpenHashSet<BlockEventData> blockEvents = new ObjectLinkedOpenHashSet<>();
    private boolean handlingTick;
    private final List<ISpecialSpawner> customSpawners;
@@ -190,6 +193,9 @@ public class ServerWorld extends World implements ISeedReader {
       this.raids = this.getDataStorage().computeIfAbsent(() -> {
          return new RaidManager(this);
       }, RaidManager.getFileId(this.dimensionType()));
+      this.invasions = this.getDataStorage().computeIfAbsent(() -> {
+         return new NetherInvasionManager(this);
+      }, NetherInvasionManager.getFileId(this.dimensionType()));
       if (!p_i241885_1_.isSingleplayer()) {
          p_i241885_4_.setGameType(p_i241885_1_.getDefaultGameType());
       }
@@ -334,6 +340,8 @@ public class ServerWorld extends World implements ISeedReader {
 
       iprofiler.popPush("raid");
       this.raids.tick();
+      iprofiler.popPush("invasion");
+      this.invasions.tick();
       iprofiler.popPush("blockEvents");
       this.runBlockEvents();
       this.handlingTick = false;
@@ -1243,9 +1251,18 @@ public class ServerWorld extends World implements ISeedReader {
       return this.raids;
    }
 
+   public NetherInvasionManager getInvasions() {
+      return this.invasions;
+   }
+
    @Nullable
    public Raid getRaidAt(BlockPos p_217475_1_) {
       return this.raids.getNearbyRaid(p_217475_1_, 9216);
+   }
+
+   @Nullable
+   public NetherInvasion getInvasionAt(BlockPos pos) {
+      return this.invasions.getNearbyInvasions(pos, 9216);
    }
 
    public boolean isRaided(BlockPos p_217455_1_) {

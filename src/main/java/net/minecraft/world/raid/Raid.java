@@ -739,13 +739,13 @@ public class Raid {
    public float getEnchantOdds() {
       int i = this.getBadOmenLevel();
       if (i == 2) {
-         return 0.1F;
+         return 0.4F;
       } else if (i == 3) {
-         return 0.25F;
-      } else if (i == 4) {
          return 0.5F;
+      } else if (i == 4) {
+         return 0.8F;
       } else {
-         return i == 5 ? 0.75F : 0.0F;
+         return i == 5 ? 1F : 0.0F;
       }
    }
 

@@ -73,7 +73,7 @@ public class PiglinModel<T extends MobEntity> extends PlayerModel<T> {
             this.body.y = MathHelper.sin(f3 * 40.0F) * 0.35F;
          } else if (piglinaction == PiglinAction.ATTACKING_WITH_MELEE_WEAPON && this.attackTime == 0.0F) {
             this.holdWeaponHigh(p_225597_1_);
-         } else if (piglinaction == PiglinAction.CROSSBOW_HOLD) {
+         } else if (piglinaction == PiglinAction.CROSSBOW_HOLD || piglinaction == PiglinAction.HOLDING_WEAPON) {
             ModelHelper.animateCrossbowHold(this.rightArm, this.leftArm, this.head, !p_225597_1_.isLeftHanded());
          } else if (piglinaction == PiglinAction.CROSSBOW_CHARGE) {
             ModelHelper.animateCrossbowCharge(this.rightArm, this.leftArm, p_225597_1_, !p_225597_1_.isLeftHanded());

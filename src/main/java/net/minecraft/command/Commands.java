@@ -103,6 +103,7 @@ public class Commands {
       FindBlockCommand.register(this.dispatcher);
       HealCommand.register(this.dispatcher);
       FleeCommand.register(this.dispatcher);
+      InvasionCommand.register(this.dispatcher);
 //      if (SharedConstants.IS_RUNNING_IN_IDE) {
 //         TestCommand.register(this.dispatcher);
 //      }

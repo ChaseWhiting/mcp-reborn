@@ -18,11 +18,13 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.GroundPathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.netherinvasion.invader.AbstractNetherInvaderEntity;
+import net.minecraft.world.netherinvasion.invader.MoveTowardsInvasionGoal;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AbstractPiglinEntity extends MonsterEntity {
+public abstract class AbstractPiglinEntity extends AbstractNetherInvaderEntity {
    protected static final DataParameter<Boolean> DATA_IMMUNE_TO_ZOMBIFICATION = EntityDataManager.defineId(AbstractPiglinEntity.class, DataSerializers.BOOLEAN);
    protected int timeInOverworld = 0;
 
@@ -73,6 +75,12 @@ public abstract class AbstractPiglinEntity extends MonsterEntity {
       super.readAdditionalSaveData(p_70037_1_);
       this.setImmuneToZombification(p_70037_1_.getBoolean("IsImmuneToZombification"));
       this.timeInOverworld = p_70037_1_.getInt("TimeInOverworld");
+   }
+
+   public void registerGoals() {
+      super.registerGoals();
+      this.goalSelector.addGoal(3, new MoveTowardsInvasionGoal<>(this));
+      this.goalSelector.addGoal(2, new AbstractNetherInvaderEntity.PromoteLeaderGoal<>(this));
    }
 
    protected void customServerAiStep() {

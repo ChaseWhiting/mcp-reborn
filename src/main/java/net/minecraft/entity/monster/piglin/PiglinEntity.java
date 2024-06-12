@@ -27,6 +27,7 @@ import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.monster.AbstractRaiderEntity;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -50,6 +51,8 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.netherinvasion.invader.AbstractNetherInvaderEntity;
+import net.minecraft.world.netherinvasion.invader.MoveTowardsInvasionGoal;
 import net.minecraft.world.server.ServerWorld;
 
 public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser {
@@ -66,6 +69,18 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
    public PiglinEntity(EntityType<? extends AbstractPiglinEntity> p_i231570_1_, World p_i231570_2_) {
       super(p_i231570_1_, p_i231570_2_);
       this.xpReward = 5;
+   }
+
+   @Override
+   public SoundEvent getCelebrateSound() {
+      return null;
+   }
+
+   public void registerGoals() {
+
+      this.goalSelector.addGoal(3, new MoveTowardsInvasionGoal<>(this));
+      this.goalSelector.addGoal(2, new AbstractNetherInvaderEntity.FindTargetGoal(this, 10.0F));
+
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
@@ -106,6 +121,11 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
       this.entityData.define(DATA_BABY_ID, false);
       this.entityData.define(DATA_IS_CHARGING_CROSSBOW, false);
       this.entityData.define(DATA_IS_DANCING, false);
+   }
+
+   @Override
+   public void applyRaidBuffs(int p_213660_1_, boolean p_213660_2_) {
+
    }
 
    public void onSyncedDataUpdated(DataParameter<?> p_184206_1_) {
@@ -164,6 +184,8 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
       }
 
    }
+
+
 
    protected Brain.BrainCodec<PiglinEntity> brainProvider() {
       return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);

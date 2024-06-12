@@ -10,22 +10,8 @@ import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.BrainUtil;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.schedule.Activity;
-import net.minecraft.entity.ai.brain.task.AttackTargetTask;
-import net.minecraft.entity.ai.brain.task.DummyTask;
-import net.minecraft.entity.ai.brain.task.FindInteractionAndLookTargetTask;
-import net.minecraft.entity.ai.brain.task.FindNewAttackTargetTask;
-import net.minecraft.entity.ai.brain.task.FirstShuffledTask;
-import net.minecraft.entity.ai.brain.task.ForgetAttackTargetTask;
-import net.minecraft.entity.ai.brain.task.GetAngryTask;
-import net.minecraft.entity.ai.brain.task.InteractWithDoorTask;
-import net.minecraft.entity.ai.brain.task.InteractWithEntityTask;
-import net.minecraft.entity.ai.brain.task.LookAtEntityTask;
-import net.minecraft.entity.ai.brain.task.LookTask;
-import net.minecraft.entity.ai.brain.task.MoveToTargetTask;
-import net.minecraft.entity.ai.brain.task.WalkRandomlyTask;
-import net.minecraft.entity.ai.brain.task.WalkToTargetTask;
-import net.minecraft.entity.ai.brain.task.WalkTowardsPosTask;
-import net.minecraft.entity.ai.brain.task.WorkTask;
+import net.minecraft.entity.ai.brain.task.*;
+import net.minecraft.item.Items;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.GlobalPos;
 
@@ -53,10 +39,14 @@ public class PiglinBruteBrain {
       p_242362_1_.addActivity(Activity.IDLE, 10, ImmutableList.of(new ForgetAttackTargetTask<>(PiglinBruteBrain::findNearestValidAttackTarget), createIdleLookBehaviors(), createIdleMovementBehaviors(), new FindInteractionAndLookTargetTask(EntityType.PLAYER, 4)));
    }
 
-   private static void initFightActivity(PiglinBruteEntity p_242364_0_, Brain<PiglinBruteEntity> p_242364_1_) {
-      p_242364_1_.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.of(new FindNewAttackTargetTask<>((p_242361_1_) -> {
-         return !isNearestValidAttackTarget(p_242364_0_, p_242361_1_);
-      }), new MoveToTargetTask(1.0F), new AttackTargetTask(20)), MemoryModuleType.ATTACK_TARGET);
+   private static void initFightActivity(PiglinBruteEntity piglinBrute, Brain<PiglinBruteEntity> brain) {
+      brain.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.<Task<? super PiglinBruteEntity>>of(
+              new FindNewAttackTargetTask<>((target) -> !isNearestValidAttackTarget(piglinBrute, target)),
+              new SupplementedTask<>(PiglinBruteBrain::hasCrossbow, new AttackStrafingTask<>(12, 1.05F)),
+              new MoveToTargetTask(1.0F),
+              new AttackTargetTask(20),
+              new ShootTargetTask()
+      ), MemoryModuleType.ATTACK_TARGET);
    }
 
    private static FirstShuffledTask<PiglinBruteEntity> createIdleLookBehaviors() {
@@ -65,6 +55,10 @@ public class PiglinBruteBrain {
 
    private static FirstShuffledTask<PiglinBruteEntity> createIdleMovementBehaviors() {
       return new FirstShuffledTask<>(ImmutableList.of(Pair.of(new WalkRandomlyTask(0.6F), 2), Pair.of(InteractWithEntityTask.of(EntityType.PIGLIN, 8, MemoryModuleType.INTERACTION_TARGET, 0.6F, 2), 2), Pair.of(InteractWithEntityTask.of(EntityType.PIGLIN_BRUTE, 8, MemoryModuleType.INTERACTION_TARGET, 0.6F, 2), 2), Pair.of(new WalkTowardsPosTask(MemoryModuleType.HOME, 0.6F, 2, 100), 2), Pair.of(new WorkTask(MemoryModuleType.HOME, 0.6F, 5), 2), Pair.of(new DummyTask(30, 60), 1)));
+   }
+
+   private static boolean hasCrossbow(LivingEntity p_234494_0_) {
+      return p_234494_0_.isHolding(Items.CROSSBOW);
    }
 
    protected static void updateActivity(PiglinBruteEntity p_242358_0_) {

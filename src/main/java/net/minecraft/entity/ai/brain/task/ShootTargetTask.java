@@ -7,6 +7,7 @@ import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.brain.BrainUtil;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.monster.piglin.PiglinBruteEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
@@ -70,6 +71,11 @@ public class ShootTargetTask<E extends MobEntity & ICrossbowUser, T extends Livi
       } else if (this.crossbowState == ShootTargetTask.Status.CHARGED) {
          --this.attackDelay;
          if (this.attackDelay == 0) {
+            if (p_233888_1_ instanceof PiglinBruteEntity) {
+               this.attackDelay = 10;
+            } else {
+               this.attackDelay = 20 + p_233888_1_.getRandom().nextInt(20);
+            }
             this.crossbowState = ShootTargetTask.Status.READY_TO_ATTACK;
          }
       } else if (this.crossbowState == ShootTargetTask.Status.READY_TO_ATTACK) {

@@ -11,7 +11,6 @@ import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.CustomArrowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -42,8 +41,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
 
     private static final DataParameter<CustomArrowType> ARROW_TYPE = EntityDataManager.defineId(CustomArrowEntity.class, DataSerializers.CUSTOM_ARROW_TYPE);
     private static final Map<CustomArrowType, Item> ARROW_ITEM_MAP = new HashMap<>();
-
-
+    private static final Random RANDOM = new Random();
 
     static {
         ARROW_ITEM_MAP.put(CustomArrowType.BURNING, Items.BURNING_ARROW);
@@ -88,21 +86,26 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         super.addAdditionalSaveData(compound);
         compound.putInt("ArrowType", getArrowType().getType()); // Save the type of the arrow
     }
+
     @ParametersAreNonnullByDefault
     @Override
     public void readAdditionalSaveData(CompoundNBT compound) {
         super.readAdditionalSaveData(compound);
-        CustomArrowType customArrowType = CustomArrowType.getCustomArrowTypeByType(compound.getInt("ArrowType")); //get arrow type by saved type
+        CustomArrowType customArrowType = CustomArrowType.getCustomArrowTypeByType(compound.getInt("ArrowType")); // get arrow type by saved type
         if (customArrowType == null)
             customArrowType = CustomArrowType.NULL; // Default to NULL type when not found
         setArrowType(customArrowType);
     }
+
     @ParametersAreNonnullByDefault
     protected void doPostHurtEffects(LivingEntity entity) {
         super.doPostHurtEffects(entity);
         CustomArrowType type = this.getArrowType();
-        int id = type.getType();
-        switch (id) {
+        applyArrowEffects(entity, type);
+    }
+
+    private void applyArrowEffects(LivingEntity entity, CustomArrowType type) {
+        switch (type.getType()) {
             case 1:
                 entity.setSecondsOnFire(6);
                 break;
@@ -116,25 +119,28 @@ public class CustomArrowEntity extends AbstractArrowEntity {
                 entity.addEffect(new EffectInstance(Effects.HEAL, 1, 1));
                 break;
             case 5:
-                Random random = new Random();
-                final int[] fireworks = new int[random.nextInt(8) + 1];
-                for (int i = 0; i < fireworks.length; i++) {
-                    ItemStack item = createCustomFirework();
-                    double randomX = random.nextDouble();
-                    double randomZ = random.nextDouble();
-                    FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level, this.getOwner(), entity.getX() + randomX, entity.getY() + 0.5, entity.getZ() + randomZ, item);
-                    fireworkRocket.setFromFireworkArrow(true);
-                    double deltaX = random.nextDouble() * 0.2 - 0.1;
-                    double deltaY = random.nextDouble() * 0.2 - 0.1;
-                    double deltaZ = random.nextDouble() * 0.2 - 0.1;
-                    if (random.nextFloat() < 0.4F) {
-                        fireworkRocket.setDeltaMovement(deltaX, deltaY + 0.2, deltaZ);
-                    } else {
-                        fireworkRocket.setDeltaMovement(deltaX, deltaY - 0.4, deltaZ);
-                    }
-                    this.level.addFreshEntity(fireworkRocket);
-                }
+                spawnFireworks(entity);
                 break;
+        }
+    }
+
+    private void spawnFireworks(LivingEntity entity) {
+        int numFireworks = RANDOM.nextInt(8) + 1;
+        for (int i = 0; i < numFireworks; i++) {
+            ItemStack item = createCustomFirework();
+            double randomX = RANDOM.nextDouble();
+            double randomZ = RANDOM.nextDouble();
+            FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level, this.getOwner(), entity.getX() + randomX, entity.getY() + 0.5, entity.getZ() + randomZ, item);
+            fireworkRocket.setFromFireworkArrow(true);
+            double deltaX = randomDelta();
+            double deltaY = randomDelta();
+            double deltaZ = randomDelta();
+            if (RANDOM.nextFloat() < 0.4F) {
+                fireworkRocket.setDeltaMovement(deltaX, deltaY + 0.2, deltaZ);
+            } else {
+                fireworkRocket.setDeltaMovement(deltaX, deltaY - 0.4, deltaZ);
+            }
+            this.level.addFreshEntity(fireworkRocket);
         }
     }
 
@@ -150,45 +156,47 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         BlockState blockstate = this.level.getBlockState(result.getBlockPos());
         blockstate.onProjectileHit(this.level, blockstate, result, this);
         CustomArrowType type = this.getArrowType();
-        int id = type.getType();
-        switch (id) {
+        handleBlockHitEffects(type);
+    }
+
+    private void handleBlockHitEffects(CustomArrowType type) {
+        switch (type.getType()) {
             case 3:
-                this.remove();
-                if (this.getOwner() != null) {
-                    LivingEntity owner = (LivingEntity) this.getOwner();
-                    double targetX = this.blockPosition().getX() + 0.5;
-                    double targetY = this.blockPosition().getY() + 1;
-                    double targetZ = this.blockPosition().getZ() + 0.5;
-
-                    useTeleportation(this.level, owner, targetX, targetY, targetZ);
-
-                    if (owner instanceof PlayerEntity && !this.level.isClientSide()) {
-                        PlayerEntity player = (PlayerEntity) owner;
-                        player.getCooldowns().addCooldown(Items.TELEPORTATION_ARROW, 120);
-                    }
-                }
+                handleTeleportationHit();
                 break;
             case 5:
-                ItemStack item = createCustomFirework();
-                FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level,this.getOwner(),this.getX(),this.getY() - 0.2,this.getZ(), item);
-                fireworkRocket.setFromFireworkArrow(true);
-                List<MonsterEntity> targets = this.level.getEntitiesOfClass(MonsterEntity.class, this.getBoundingBox().inflate(8D, 6D, 8D));
-                if (!targets.isEmpty()) {
-                    fireworkRocket.setDeltaMovement(this.getDeltaMovement().x,-0.3,this.getDeltaMovement().z);
-                }
-                if(this.getOwner() != null) {
-                    if (this.getOwner() instanceof ICrossbowUser) {
-                        if (this.getOwner() instanceof PillagerEntity) {
-                            PillagerEntity pillager = (PillagerEntity) this.getOwner();
-                        }
-                    }
-                }
-                this.level.addFreshEntity(fireworkRocket);
-                this.remove();
+                spawnFireworkOnBlockHit();
                 break;
-
         }
     }
+
+    private void handleTeleportationHit() {
+        this.remove();
+        if (this.getOwner() != null) {
+            LivingEntity owner = (LivingEntity) this.getOwner();
+            double targetX = this.blockPosition().getX() + 0.5;
+            double targetY = this.blockPosition().getY() + 1;
+            double targetZ = this.blockPosition().getZ() + 0.5;
+            useTeleportation(this.level, owner, targetX, targetY, targetZ);
+            if (owner instanceof PlayerEntity && !this.level.isClientSide()) {
+                PlayerEntity player = (PlayerEntity) owner;
+                player.getCooldowns().addCooldown(Items.TELEPORTATION_ARROW, 120);
+            }
+        }
+    }
+
+    private void spawnFireworkOnBlockHit() {
+        ItemStack item = createCustomFirework();
+        FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level, this.getOwner(), this.getX(), this.getY() - 0.2, this.getZ(), item);
+        fireworkRocket.setFromFireworkArrow(true);
+        List<MonsterEntity> targets = this.level.getEntitiesOfClass(MonsterEntity.class, this.getBoundingBox().inflate(8D, 6D, 8D));
+        if (!targets.isEmpty()) {
+            fireworkRocket.setDeltaMovement(this.getDeltaMovement().x, -0.3, this.getDeltaMovement().z);
+        }
+        this.level.addFreshEntity(fireworkRocket);
+        this.remove();
+    }
+
     @ParametersAreNonnullByDefault
     @Override
     protected void onHitEntity(EntityRayTraceResult result) {
@@ -196,7 +204,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         Entity entity = result.getEntity();
         if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
-
+            // Handle additional logic for hitting an entity if needed
         }
     }
 
@@ -207,13 +215,11 @@ public class CustomArrowEntity extends AbstractArrowEntity {
     }
 
     public double randomDelta() {
-        return random.nextDouble() * 0.2 - 0.1;
+        return RANDOM.nextDouble() * 0.2 - 0.1;
     }
 
-
-
     @OnlyIn(Dist.CLIENT)
-    public void handleEntityEvent(byte b) { //specify what particle effects to show etc
+    public void handleEntityEvent(byte b) { // specify what particle effects to show etc.
         super.handleEntityEvent(b);
     }
 
@@ -227,15 +233,11 @@ public class CustomArrowEntity extends AbstractArrowEntity {
             double d0 = living.getX();
             double d1 = living.getY();
             double d2 = living.getZ();
-
             if (living.isPassenger()) {
                 living.stopRiding();
             }
-
             if (living.randomTeleport(targetX, targetY, targetZ, true)) {
-                SoundEvent soundevent = living instanceof FoxEntity ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
-                world.playSound(null, d0, d1, d2, soundevent, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                living.playSound(soundevent, 1.0F, 1.0F);
+                playTeleportSound(world, living, d0, d1, d2);
             }
         }
     }
@@ -245,67 +247,60 @@ public class CustomArrowEntity extends AbstractArrowEntity {
             double d0 = living.getX();
             double d1 = living.getY();
             double d2 = living.getZ();
-
-            for(int i = 0; i < 16; ++i) {
+            for (int i = 0; i < 16; ++i) {
                 double d3 = living.getX() + (living.getRandom().nextDouble() - 0.5D) * 16.0D;
                 double d4 = MathHelper.clamp(living.getY() + (double)(living.getRandom().nextInt(16) - 8), 0.0D, (double)(world.getHeight() - 1));
                 double d5 = living.getZ() + (living.getRandom().nextDouble() - 0.5D) * 16.0D;
                 if (living.isPassenger()) {
                     living.stopRiding();
                 }
-
                 if (living.randomTeleport(d3, d4, d5, true)) {
-                    SoundEvent soundevent = living instanceof FoxEntity ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
-                    world.playSound((PlayerEntity)null, d0, d1, d2, soundevent, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                    living.playSound(soundevent, 1.0F, 1.0F);
+                    playTeleportSound(world, living, d0, d1, d2);
                     break;
                 }
             }
         }
     }
 
+    private void playTeleportSound(World world, LivingEntity living, double d0, double d1, double d2) {
+        SoundEvent soundevent = living instanceof FoxEntity ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
+        world.playSound(null, d0, d1, d2, soundevent, SoundCategory.PLAYERS, 1.0F, 1.0F);
+        living.playSound(soundevent, 1.0F, 1.0F);
+    }
+
     public ItemStack createCustomFirework() {
-        Random random = new Random();
         ItemStack fireworkStack = new ItemStack(Items.FIREWORK_ROCKET, 1);
         CompoundNBT fireworkTag = new CompoundNBT();
-
         // Set the flight duration
-        fireworkTag.putByte("Flight", (byte) random.nextInt(2));
-
+        fireworkTag.putByte("Flight", (byte) RANDOM.nextInt(2));
         // Create the explosions
         ListNBT explosions = new ListNBT();
         CompoundNBT explosion = new CompoundNBT();
-        explosion.putByte("Type", (byte) random.nextInt(6)); // Random type of explosion (0-4)
+        explosion.putByte("Type", (byte) RANDOM.nextInt(6)); // Random type of explosion (0-4)
         // Generate random colors
-        int[] colors = generateRandomColors(random);
+        int[] colors = generateRandomColors();
         explosion.putIntArray("Colors", colors);
-
         // Generate random fade colors
-        int[] fadeColors = generateRandomColors(random);
+        int[] fadeColors = generateRandomColors();
         explosion.putIntArray("FadeColors", fadeColors);
-
         // Random trail and flicker
-        explosion.putBoolean("Trail", random.nextBoolean());
-        explosion.putBoolean("Flicker", random.nextBoolean());
+        explosion.putBoolean("Trail", RANDOM.nextBoolean());
+        explosion.putBoolean("Flicker", RANDOM.nextBoolean());
         explosions.add(explosion);
-
         fireworkTag.put("Explosions", explosions);
-
         // Set the Firework tag to the ItemStack
         CompoundNBT itemTag = new CompoundNBT();
         itemTag.put("Fireworks", fireworkTag);
         fireworkStack.setTag(itemTag);
-
         return fireworkStack;
     }
 
-    private int[] generateRandomColors(Random random) {
-        int numColors = random.nextInt(3) + 1; // Random number of colors (1-3)
+    private int[] generateRandomColors() {
+        int numColors = RANDOM.nextInt(3) + 1; // Random number of colors (1-3)
         int[] colors = new int[numColors];
         for (int i = 0; i < numColors; i++) {
-            colors[i] = random.nextInt(0xFFFFFF + 1); // Random color (0x000000 to 0xFFFFFF)
+            colors[i] = RANDOM.nextInt(0xFFFFFF + 1); // Random color (0x000000 to 0xFFFFFF)
         }
         return colors;
     }
-
 }

@@ -16,7 +16,7 @@ public class MultishotEnchantment extends Enchantment {
    }
 
    public int getMaxLevel() {
-      return 1;
+      return 3;
    }
 
    public boolean checkCompatibility(Enchantment p_77326_1_) {

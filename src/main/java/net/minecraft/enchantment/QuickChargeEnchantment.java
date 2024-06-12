@@ -16,6 +16,6 @@ public class QuickChargeEnchantment extends Enchantment {
    }
 
    public int getMaxLevel() {
-      return 3;
+      return 4;
    }
 }

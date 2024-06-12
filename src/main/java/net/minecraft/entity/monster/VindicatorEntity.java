@@ -8,29 +8,22 @@ import javax.annotation.Nullable;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.RandomWalkingGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.TieredItem;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.GroundPathHelper;
@@ -46,7 +39,8 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class VindicatorEntity extends AbstractIllagerEntity {
+public class VindicatorEntity extends AbstractIllagerEntity implements ICrossbowUser {
+   private static final DataParameter<Boolean> IS_CHARGING_CROSSBOW = EntityDataManager.defineId(PillagerEntity.class, DataSerializers.BOOLEAN);
    private static final Predicate<Difficulty> DOOR_BREAKING_PREDICATE = (p_213678_0_) -> {
       return p_213678_0_ == Difficulty.NORMAL || p_213678_0_ == Difficulty.HARD;
    };
@@ -56,10 +50,48 @@ public class VindicatorEntity extends AbstractIllagerEntity {
       super(p_i50189_1_, p_i50189_2_);
    }
 
+   protected void defineSynchedData() {
+      super.defineSynchedData();
+      this.entityData.define(IS_CHARGING_CROSSBOW, false);
+   }
+
+   @OnlyIn(Dist.CLIENT)
+   public boolean isChargingCrossbow() {
+      return this.entityData.get(IS_CHARGING_CROSSBOW);
+   }
+
+   public void setChargingCrossbow(boolean value) {
+      this.entityData.set(IS_CHARGING_CROSSBOW, value);
+   }
+
+   public void onCrossbowAttackPerformed() {
+      this.noActionTime = 0;
+   }
+
+   public void performRangedAttack(LivingEntity entity, float v) {
+      this.performCrossbowAttack(this, 1.6F);
+   }
+
+   public void shootCrossbowProjectile(LivingEntity entity, ItemStack stack, ProjectileEntity projectileEntity, float v) {
+      this.shootCrossbowProjectile(this, entity, projectileEntity, v, 1.6F);
+   }
+
+   @Override
+   public void tick() {
+      super.tick();
+      if(this.isHolding(Items.CROSSBOW)) {
+         this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(27D);
+      } else {
+         this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(12D);
+
+      }
+   }
+
    protected void registerGoals() {
       super.registerGoals();
       this.goalSelector.addGoal(0, new SwimGoal(this));
       this.goalSelector.addGoal(1, new VindicatorEntity.BreakDoorGoal(this));
+      this.goalSelector.addGoal(3, new RangedCrossbowAttackGoal<>(this, 1.0D, 8.0F));
       this.goalSelector.addGoal(2, new AbstractIllagerEntity.RaidOpenDoorGoal(this));
       this.goalSelector.addGoal(3, new AbstractRaiderEntity.FindTargetGoal(this, 10.0F));
       this.goalSelector.addGoal(4, new VindicatorEntity.AttackGoal(this));
@@ -94,12 +126,23 @@ public class VindicatorEntity extends AbstractIllagerEntity {
 
    }
 
+   protected boolean isHoldingMeleeWeapon() {
+      return this.getMainHandItem().getItem() instanceof TieredItem;
+   }
+
    @OnlyIn(Dist.CLIENT)
    public AbstractIllagerEntity.ArmPose getArmPose() {
-      if (this.isAggressive()) {
+      if (this.isChargingCrossbow()) {
+         return AbstractIllagerEntity.ArmPose.CROSSBOW_CHARGE;
+      } else if (this.isHolding(Items.CROSSBOW)) {
+         return AbstractIllagerEntity.ArmPose.CROSSBOW_HOLD;
+      } else if (this.isAggressive() && this.isHoldingMeleeWeapon()) {
+         return AbstractIllagerEntity.ArmPose.ATTACKING;
+      } else if (this.isAggressive()){
          return AbstractIllagerEntity.ArmPose.ATTACKING;
       } else {
          return this.isCelebrating() ? AbstractIllagerEntity.ArmPose.CELEBRATING : AbstractIllagerEntity.ArmPose.CROSSED;
+
       }
    }
 
