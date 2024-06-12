@@ -107,14 +107,14 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
    public void dealWithItems() {
       if (this.getTarget() != null) {
          List<AbstractPiglinEntity> piglins2 = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getBoundingBox().inflate(1D,1D,1D), e -> e != this);
-         List<AbstractPiglinEntity> piglins = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getTarget().getBoundingBox().inflate(4.5D, 5D, 4.5D), e -> e != this);
+         List<AbstractPiglinEntity> piglins = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getTarget().getBoundingBox().inflate(1.1D, 3D, 1.1D), e -> e != this);
          if (this.distanceTo(this.getTarget()) < 2.5F) {
             if (this.storedAxe != null) {
                this.setItemSlot(EquipmentSlotType.MAINHAND, this.storedAxe);
             } else {
                this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.GOLDEN_AXE));
             }
-         } else if (piglins.isEmpty() && piglins2.isEmpty()){
+         } else if (piglins.isEmpty()){
             if (this.storedCrossbow == null) {
                this.storedCrossbow = this.getItemBySlot(EquipmentSlotType.MAINHAND).copy();
             }

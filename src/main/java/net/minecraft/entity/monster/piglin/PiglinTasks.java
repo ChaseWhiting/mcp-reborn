@@ -86,7 +86,7 @@ public class PiglinTasks {
    private static void initFightActivity(PiglinEntity p_234488_0_, Brain<PiglinEntity> p_234488_1_) {
       p_234488_1_.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.<net.minecraft.entity.ai.brain.task.Task<? super PiglinEntity>>of(new FindNewAttackTargetTask<>((p_234523_1_) -> {
          return !isNearestValidAttackTarget(p_234488_0_, p_234523_1_);
-      }), new SupplementedTask<>(PiglinTasks::hasCrossbow, new AttackStrafingTask<>(5, 0.75F)), new MoveToTargetTask(1.0F), new AttackTargetTask(20), new MoveTowardsInvasionTask(1.0F), new ShootTargetTask(), new FinishedHuntTask(), new PredicateTask<>(PiglinTasks::isNearZombified, MemoryModuleType.ATTACK_TARGET)), MemoryModuleType.ATTACK_TARGET);
+      }), new SupplementedTask<>(PiglinTasks::hasCrossbow, new AttackStrafingTask<>(5, 0.75F, 1)), new MoveToTargetTask(1.0F), new AttackTargetTask(20), new MoveTowardsInvasionTask(1.0F), new ShootTargetTask(), new FinishedHuntTask(), new PredicateTask<>(PiglinTasks::isNearZombified, MemoryModuleType.ATTACK_TARGET)), MemoryModuleType.ATTACK_TARGET);
    }
 
    private static void initCelebrateActivity(Brain<PiglinEntity> p_234495_0_) {

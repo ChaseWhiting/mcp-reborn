@@ -7,5 +7,6 @@ public enum PiglinAction {
    CROSSBOW_CHARGE,
    ADMIRING_ITEM,
    DANCING,
+   BOW,
    DEFAULT;
 }

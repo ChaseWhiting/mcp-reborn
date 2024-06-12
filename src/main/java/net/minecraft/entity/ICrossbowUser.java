@@ -15,6 +15,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.Difficulty;
+
+import java.util.Random;
 
 public interface ICrossbowUser extends IRangedAttackMob {
    void setChargingCrossbow(boolean p_213671_1_);
@@ -45,8 +48,18 @@ public interface ICrossbowUser extends IRangedAttackMob {
       if (p_234279_1_ instanceof PiglinBruteEntity) {
          if (p_234279_3_ instanceof AbstractArrowEntity) {
             AbstractArrowEntity arrow = (AbstractArrowEntity) p_234279_3_;
-            arrow.setBaseDamage(arrow.getBaseDamage() + 3.5D);
-            arrow.setCritArrow(true);
+            double Damage = arrow.getBaseDamage();
+            Difficulty difficulty = p_234279_1_.level.getDifficulty();
+            switch (difficulty) {
+               case EASY:
+                  arrow.setBaseDamage(arrow.getBaseDamage());
+               case NORMAL:
+                  arrow.setBaseDamage(arrow.getBaseDamage() + 1.5D);
+               case HARD:
+                  arrow.setBaseDamage(arrow.getBaseDamage() + 3.5D);
+                  if (new Random().nextBoolean())
+                     arrow.setCritArrow(true);
+            }
             arrow.shoot((double)vector3f.x(), (double)vector3f.y(), (double)vector3f.z(), p_234279_5_, (float)(14 - p_234279_1_.level.getDifficulty().getId() * 4));
          }
       } else {

@@ -42,7 +42,7 @@ public class PiglinBruteBrain {
    private static void initFightActivity(PiglinBruteEntity piglinBrute, Brain<PiglinBruteEntity> brain) {
       brain.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.<Task<? super PiglinBruteEntity>>of(
               new FindNewAttackTargetTask<>((target) -> !isNearestValidAttackTarget(piglinBrute, target)),
-              new SupplementedTask<>(PiglinBruteBrain::hasCrossbow, new AttackStrafingTask<>(12, 1.05F)),
+              new SupplementedTask<>(PiglinBruteBrain::hasCrossbow, new AttackStrafingTask<>(12, 1.05F, 1)),
               new MoveToTargetTask(1.0F),
               new AttackTargetTask(20),
               new ShootTargetTask(),

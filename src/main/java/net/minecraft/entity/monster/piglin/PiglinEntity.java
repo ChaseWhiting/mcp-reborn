@@ -66,6 +66,9 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
    private static final AttributeModifier SPEED_MODIFIER_BABY = new AttributeModifier(SPEED_MODIFIER_BABY_UUID, "Baby speed boost", (double)0.2F, AttributeModifier.Operation.MULTIPLY_BASE);
    private final Inventory inventory = new Inventory(8);
    private boolean cannotHunt = false;
+   private ItemStack storedCrossbow = new ItemStack(Items.CROSSBOW);
+
+   private ItemStack storedSword = new ItemStack(Items.GOLDEN_SWORD);
    protected static final ImmutableList<SensorType<? extends Sensor<? super PiglinEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_SPECIFIC_SENSOR);
    protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.DOORS_TO_CLOSE, MemoryModuleType.LIVING_ENTITIES, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, MemoryModuleType.NEARBY_ADULT_PIGLINS, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.PATH, MemoryModuleType.ANGRY_AT, MemoryModuleType.UNIVERSAL_ANGER, MemoryModuleType.AVOID_TARGET, MemoryModuleType.ADMIRING_ITEM, MemoryModuleType.TIME_TRYING_TO_REACH_ADMIRE_ITEM, MemoryModuleType.ADMIRING_DISABLED, MemoryModuleType.DISABLE_WALK_TO_ADMIRE_ITEM, MemoryModuleType.CELEBRATE_LOCATION, MemoryModuleType.DANCING, MemoryModuleType.HUNTED_RECENTLY, MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED, MemoryModuleType.RIDE_TARGET, MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN, MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD, MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM, MemoryModuleType.ATE_RECENTLY, MemoryModuleType.NEAREST_REPELLENT);
 
@@ -86,24 +89,46 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, true));
    }
 
-   public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
-      super.addAdditionalSaveData(p_213281_1_);
+   public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+      super.addAdditionalSaveData(compoundNBT);
+
+      if (this.storedCrossbow != null) {
+         CompoundNBT crossbowNBT = new CompoundNBT();
+         this.storedCrossbow.save(crossbowNBT);
+         compoundNBT.put("StoredCrossbow", crossbowNBT);
+      }
+
+      if (this.storedSword != null) {
+         CompoundNBT axeNBT = new CompoundNBT();
+         this.storedSword.save(axeNBT);
+         compoundNBT.put("StoredSword", axeNBT);
+      }
+
       if (this.isBaby()) {
-         p_213281_1_.putBoolean("IsBaby", true);
+         compoundNBT.putBoolean("IsBaby", true);
       }
 
       if (this.cannotHunt) {
-         p_213281_1_.putBoolean("CannotHunt", true);
+         compoundNBT.putBoolean("CannotHunt", true);
       }
 
-      p_213281_1_.put("Inventory", this.inventory.createTag());
+      compoundNBT.put("Inventory", this.inventory.createTag());
    }
 
-   public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
-      super.readAdditionalSaveData(p_70037_1_);
-      this.setBaby(p_70037_1_.getBoolean("IsBaby"));
-      this.setCannotHunt(p_70037_1_.getBoolean("CannotHunt"));
-      this.inventory.fromTag(p_70037_1_.getList("Inventory", 10));
+   public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+      super.readAdditionalSaveData(compoundNBT);
+
+      if (compoundNBT.contains("StoredCrossbow")) {
+         this.storedCrossbow = ItemStack.of(compoundNBT.getCompound("StoredCrossbow"));
+      }
+
+      if (compoundNBT.contains("StoredSword")) {
+         this.storedSword = ItemStack.of(compoundNBT.getCompound("StoredSword"));
+      }
+
+      this.setBaby(compoundNBT.getBoolean("IsBaby"));
+      this.setCannotHunt(compoundNBT.getBoolean("CannotHunt"));
+      this.inventory.fromTag(compoundNBT.getList("Inventory", 10));
    }
 
    protected void dropCustomDeathLoot(DamageSource p_213333_1_, int p_213333_2_, boolean p_213333_3_) {
@@ -137,6 +162,50 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
          this.refreshDimensions();
       }
 
+   }
+
+   public void dealWithItems() {
+      if (this.getTarget() != null) {
+         List<AbstractPiglinEntity> piglins2 = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getBoundingBox().inflate(1D,1D,1D), e -> e != this);
+         List<AbstractPiglinEntity> piglins = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getTarget().getBoundingBox().inflate(1.1D, 3D, 1.1D), e -> e != this);
+         if (this.distanceTo(this.getTarget()) < 2.5F) {
+            if (this.storedSword != null) {
+               this.setItemSlot(EquipmentSlotType.MAINHAND, this.storedSword);
+            } else {
+               this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.GOLDEN_AXE));
+            }
+         } else if (piglins.isEmpty()){
+            if (this.storedCrossbow == null) {
+               this.storedCrossbow = this.getItemBySlot(EquipmentSlotType.MAINHAND).copy();
+            }
+            this.maybeUseCrossbow();
+         } else {
+            if (this.storedSword != null) {
+               this.setItemSlot(EquipmentSlotType.MAINHAND, this.storedSword);
+            } else {
+               this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.GOLDEN_AXE));
+            }
+         }
+      }
+   }
+
+
+   private void maybeUseCrossbow() {
+      if (this.level.random.nextFloat() < 0.06F) {
+         if (this.storedSword == null) {
+            this.storedSword = this.getItemBySlot(EquipmentSlotType.MAINHAND).copy();
+         }
+         if (this.storedCrossbow == null) {
+            this.storedCrossbow = new ItemStack(Items.CROSSBOW);
+         }
+         this.setItemSlot(EquipmentSlotType.MAINHAND, this.storedCrossbow);
+      }
+   }
+
+   @Override
+   public void tick() {
+      super.tick();
+      dealWithItems();
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
@@ -265,7 +334,7 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
    }
 
    private ItemStack createSpawnWeapon() {
-      return (double)this.random.nextFloat() < 0.5D ? new ItemStack(Items.CROSSBOW) : new ItemStack(Items.GOLDEN_SWORD);
+      return (double)this.random.nextFloat() < 0.5D ? storedCrossbow : storedSword;
    }
 
    private boolean isChargingCrossbow() {
