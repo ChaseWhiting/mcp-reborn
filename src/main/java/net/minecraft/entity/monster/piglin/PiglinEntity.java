@@ -166,6 +166,9 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
 
    public void dealWithItems() {
       if (this.getTarget() != null) {
+         if (this.getTarget() instanceof AbstractNetherInvaderEntity) {
+            this.setTarget(null);
+         }
          List<AbstractPiglinEntity> piglins2 = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getBoundingBox().inflate(1D,1D,1D), e -> e != this);
          List<AbstractPiglinEntity> piglins = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getTarget().getBoundingBox().inflate(1.1D, 3D, 1.1D), e -> e != this);
          if (this.distanceTo(this.getTarget()) < 2.5F) {

@@ -829,7 +829,7 @@ public abstract class PlayerEntity extends LivingEntity {
    }
 
    protected void hurtCurrentlyUsedShield(float p_184590_1_) {
-      if (this.useItem.getItem() == Items.SHIELD) {
+      if (this.useItem.getItem() == Items.SHIELD || this.useItem.getItem() == Items.NETHERITE_SHIELD) {
          if (!this.level.isClientSide) {
             this.awardStat(Stats.ITEM_USED.get(this.useItem.getItem()));
          }
@@ -1181,6 +1181,7 @@ public abstract class PlayerEntity extends LivingEntity {
 
       if (this.random.nextFloat() < f) {
          this.getCooldowns().addCooldown(Items.SHIELD, 100);
+         this.getCooldowns().addCooldown(Items.NETHERITE_SHIELD, 30);
          this.stopUsingItem();
          this.level.broadcastEntityEvent(this, (byte)30);
       }

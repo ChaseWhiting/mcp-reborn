@@ -178,6 +178,7 @@ public class EntityRendererManager {
       this.register(EntityType.ZOGLIN, new ZoglinRenderer(this));
       this.register(EntityType.ZOMBIE_HORSE, new UndeadHorseRenderer(this));
       this.register(EntityType.ZOMBIE, new ZombieRenderer(this));
+      this.register(EntityType.CROSSBONE_SKELETON, new CrossboneSkeletonRenderer(this));
       this.register(EntityType.ZOMBIFIED_PIGLIN, new PiglinRenderer(this, true));
       this.register(EntityType.ZOMBIE_VILLAGER, new ZombieVillagerRenderer(this, p_229097_2_));
       this.register(EntityType.STRIDER, new StriderRenderer(this));

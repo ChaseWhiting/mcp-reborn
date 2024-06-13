@@ -76,6 +76,8 @@ public class ModelBakery {
    public static final RenderMaterial BANNER_BASE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("entity/banner_base"));
    public static final RenderMaterial SHIELD_BASE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("entity/shield_base"));
    public static final RenderMaterial NO_PATTERN_SHIELD = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("entity/shield_base_nopattern"));
+   public static final RenderMaterial NETHERITE_SHIELD = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("entity/netherite_shield"));
+
    public static final List<ResourceLocation> DESTROY_STAGES = IntStream.range(0, 10).mapToObj((p_229323_0_) -> {
       return new ResourceLocation("block/destroy_stage_" + p_229323_0_);
    }).collect(Collectors.toList());
@@ -100,6 +102,7 @@ public class ModelBakery {
       p_229337_0_.add(BANNER_BASE);
       p_229337_0_.add(SHIELD_BASE);
       p_229337_0_.add(NO_PATTERN_SHIELD);
+      p_229337_0_.add(NETHERITE_SHIELD);
 
       for(ResourceLocation resourcelocation : DESTROY_STAGES) {
          p_229337_0_.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, resourcelocation));

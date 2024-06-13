@@ -903,7 +903,7 @@ public abstract class MobEntity extends LivingEntity {
          } else if (item == Items.ELYTRA) {
             return EquipmentSlotType.CHEST;
          } else {
-            return item == Items.SHIELD ? EquipmentSlotType.OFFHAND : EquipmentSlotType.MAINHAND;
+            return item == Items.SHIELD || item == Items.NETHERITE_SHIELD ? EquipmentSlotType.OFFHAND : EquipmentSlotType.MAINHAND;
          }
       } else {
          return EquipmentSlotType.HEAD;
@@ -1126,46 +1126,46 @@ public abstract class MobEntity extends LivingEntity {
    }
 
    @Nullable
-   public <T extends MobEntity> T convertTo(EntityType<T> p_233656_1_, boolean p_233656_2_) {
+   public <T extends MobEntity> T convertTo(EntityType<T> targetType, boolean keepEquipment) {
       if (this.removed) {
-         return (T)null;
+         return null;
       } else {
-         T t = p_233656_1_.create(this.level);
-         t.copyPosition(this);
-         t.setBaby(this.isBaby());
-         t.setNoAi(this.isNoAi());
+         T newEntity = targetType.create(this.level);
+         newEntity.copyPosition(this);
+         newEntity.setBaby(this.isBaby());
+         newEntity.setNoAi(this.isNoAi());
          if (this.hasCustomName()) {
-            t.setCustomName(this.getCustomName());
-            t.setCustomNameVisible(this.isCustomNameVisible());
+            newEntity.setCustomName(this.getCustomName());
+            newEntity.setCustomNameVisible(this.isCustomNameVisible());
          }
 
          if (this.isPersistenceRequired()) {
-            t.setPersistenceRequired();
+            newEntity.setPersistenceRequired();
          }
 
-         t.setInvulnerable(this.isInvulnerable());
-         if (p_233656_2_) {
-            t.setCanPickUpLoot(this.canPickUpLoot());
+         newEntity.setInvulnerable(this.isInvulnerable());
+         if (keepEquipment) {
+            newEntity.setCanPickUpLoot(this.canPickUpLoot());
 
-            for(EquipmentSlotType equipmentslottype : EquipmentSlotType.values()) {
-               ItemStack itemstack = this.getItemBySlot(equipmentslottype);
-               if (!itemstack.isEmpty()) {
-                  t.setItemSlot(equipmentslottype, itemstack.copy());
-                  t.setDropChance(equipmentslottype, this.getEquipmentDropChance(equipmentslottype));
-                  itemstack.setCount(0);
+            for (EquipmentSlotType slotType : EquipmentSlotType.values()) {
+               ItemStack itemStack = this.getItemBySlot(slotType);
+               if (!itemStack.isEmpty()) {
+                  newEntity.setItemSlot(slotType, itemStack.copy());
+                  newEntity.setDropChance(slotType, this.getEquipmentDropChance(slotType));
+                  itemStack.setCount(0);
                }
             }
          }
 
-         this.level.addFreshEntity(t);
+         this.level.addFreshEntity(newEntity);
          if (this.isPassenger()) {
-            Entity entity = this.getVehicle();
+            Entity vehicle = this.getVehicle();
             this.stopRiding();
-            t.startRiding(entity, true);
+            newEntity.startRiding(vehicle, true);
          }
 
          this.remove();
-         return t;
+         return newEntity;
       }
    }
 
@@ -1386,15 +1386,22 @@ public abstract class MobEntity extends LivingEntity {
       return flag;
    }
 
-   private void maybeDisableShield(PlayerEntity p_233655_1_, ItemStack p_233655_2_, ItemStack p_233655_3_) {
-      if (!p_233655_2_.isEmpty() && !p_233655_3_.isEmpty() && p_233655_2_.getItem() instanceof AxeItem && p_233655_3_.getItem() == Items.SHIELD) {
-         float f = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(this) * 0.05F;
-         if (this.random.nextFloat() < f) {
-            p_233655_1_.getCooldowns().addCooldown(Items.SHIELD, 100);
-            this.level.broadcastEntityEvent(p_233655_1_, (byte)30);
+   private void maybeDisableShield(PlayerEntity player, ItemStack axeItemStack, ItemStack shieldItemStack) {
+      if (!axeItemStack.isEmpty() && !shieldItemStack.isEmpty() && axeItemStack.getItem() instanceof AxeItem) {
+         if (shieldItemStack.getItem() == Items.SHIELD) {
+            float chance = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(player) * 0.05F;
+            if (this.random.nextFloat() < chance) {
+               player.getCooldowns().addCooldown(Items.SHIELD, 100);
+               this.level.broadcastEntityEvent(player, (byte)30);
+            }
+         } else if (shieldItemStack.getItem() == Items.NETHERITE_SHIELD) { // Replace MyModItems with your actual mod item registry class
+            float chance = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(player) * 0.05F;
+            if (this.random.nextFloat() < chance) {
+               player.getCooldowns().addCooldown(Items.NETHERITE_SHIELD, 20); // Cooldown for 30 ticks for netherite shield
+               this.level.broadcastEntityEvent(player, (byte)30);
+            }
          }
       }
-
    }
 
    protected boolean isSunBurnTick() {

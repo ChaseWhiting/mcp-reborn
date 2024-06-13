@@ -40,6 +40,7 @@ import net.minecraft.tileentity.SkullTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TrappedChestTileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
@@ -60,14 +61,14 @@ public class ItemStackTileEntityRenderer {
    private final ShieldModel shieldModel = new ShieldModel();
    private final TridentModel tridentModel = new TridentModel();
 
-   public void renderByItem(ItemStack p_239207_1_, ItemCameraTransforms.TransformType p_239207_2_, MatrixStack p_239207_3_, IRenderTypeBuffer p_239207_4_, int p_239207_5_, int p_239207_6_) {
-      Item item = p_239207_1_.getItem();
+   public void renderByItem(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStack, IRenderTypeBuffer buffer, int i, int i2) {
+      Item item = itemStack.getItem();
       if (item instanceof BlockItem) {
          Block block = ((BlockItem)item).getBlock();
          if (block instanceof AbstractSkullBlock) {
             GameProfile gameprofile = null;
-            if (p_239207_1_.hasTag()) {
-               CompoundNBT compoundnbt = p_239207_1_.getTag();
+            if (itemStack.hasTag()) {
+               CompoundNBT compoundnbt = itemStack.getTag();
                if (compoundnbt.contains("SkullOwner", 10)) {
                   gameprofile = NBTUtil.readGameProfile(compoundnbt.getCompound("SkullOwner"));
                } else if (compoundnbt.contains("SkullOwner", 8) && !StringUtils.isBlank(compoundnbt.getString("SkullOwner"))) {
@@ -78,11 +79,11 @@ public class ItemStackTileEntityRenderer {
                }
             }
 
-            SkullTileEntityRenderer.renderSkull((Direction)null, 180.0F, ((AbstractSkullBlock)block).getType(), gameprofile, 0.0F, p_239207_3_, p_239207_4_, p_239207_5_);
+            SkullTileEntityRenderer.renderSkull((Direction)null, 180.0F, ((AbstractSkullBlock)block).getType(), gameprofile, 0.0F, matrixStack, buffer, i);
          } else {
             TileEntity tileentity;
             if (block instanceof AbstractBannerBlock) {
-               this.banner.fromItem(p_239207_1_, ((AbstractBannerBlock)block).getColor());
+               this.banner.fromItem(itemStack, ((AbstractBannerBlock)block).getColor());
                tileentity = this.banner;
             } else if (block instanceof BedBlock) {
                this.bed.setColor(((BedBlock)block).getColor());
@@ -108,32 +109,45 @@ public class ItemStackTileEntityRenderer {
                }
             }
 
-            TileEntityRendererDispatcher.instance.renderItem(tileentity, p_239207_3_, p_239207_4_, p_239207_5_, p_239207_6_);
+            TileEntityRendererDispatcher.instance.renderItem(tileentity, matrixStack, buffer, i, i2);
          }
       } else {
          if (item == Items.SHIELD) {
-            boolean flag = p_239207_1_.getTagElement("BlockEntityTag") != null;
-            p_239207_3_.pushPose();
-            p_239207_3_.scale(1.0F, -1.0F, -1.0F);
+            boolean flag = itemStack.getTagElement("BlockEntityTag") != null;
+            matrixStack.pushPose();
+            matrixStack.scale(1.0F, -1.0F, -1.0F);
             RenderMaterial rendermaterial = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
-            IVertexBuilder ivertexbuilder = rendermaterial.sprite().wrap(ItemRenderer.getFoilBufferDirect(p_239207_4_, this.shieldModel.renderType(rendermaterial.atlasLocation()), true, p_239207_1_.hasFoil()));
-            this.shieldModel.handle().render(p_239207_3_, ivertexbuilder, p_239207_5_, p_239207_6_, 1.0F, 1.0F, 1.0F, 1.0F);
+            IVertexBuilder ivertexbuilder = rendermaterial.sprite().wrap(ItemRenderer.getFoilBufferDirect(buffer, this.shieldModel.renderType(rendermaterial.atlasLocation()), true, itemStack.hasFoil()));
+            this.shieldModel.handle().render(matrixStack, ivertexbuilder, i, i2, 1.0F, 1.0F, 1.0F, 1.0F);
             if (flag) {
-               List<Pair<BannerPattern, DyeColor>> list = BannerTileEntity.createPatterns(ShieldItem.getColor(p_239207_1_), BannerTileEntity.getItemPatterns(p_239207_1_));
-               BannerTileEntityRenderer.renderPatterns(p_239207_3_, p_239207_4_, p_239207_5_, p_239207_6_, this.shieldModel.plate(), rendermaterial, false, list, p_239207_1_.hasFoil());
+               List<Pair<BannerPattern, DyeColor>> list = BannerTileEntity.createPatterns(ShieldItem.getColor(itemStack), BannerTileEntity.getItemPatterns(itemStack));
+               BannerTileEntityRenderer.renderPatterns(matrixStack, buffer, i, i2, this.shieldModel.plate(), rendermaterial, false, list, itemStack.hasFoil());
             } else {
-               this.shieldModel.plate().render(p_239207_3_, ivertexbuilder, p_239207_5_, p_239207_6_, 1.0F, 1.0F, 1.0F, 1.0F);
+               this.shieldModel.plate().render(matrixStack, ivertexbuilder, i, i2, 1.0F, 1.0F, 1.0F, 1.0F);
             }
 
-            p_239207_3_.popPose();
+            matrixStack.popPose();
          } else if (item == Items.TRIDENT) {
-            p_239207_3_.pushPose();
-            p_239207_3_.scale(1.0F, -1.0F, -1.0F);
-            IVertexBuilder ivertexbuilder1 = ItemRenderer.getFoilBufferDirect(p_239207_4_, this.tridentModel.renderType(TridentModel.TEXTURE), false, p_239207_1_.hasFoil());
-            this.tridentModel.renderToBuffer(p_239207_3_, ivertexbuilder1, p_239207_5_, p_239207_6_, 1.0F, 1.0F, 1.0F, 1.0F);
-            p_239207_3_.popPose();
-         }
+            matrixStack.pushPose();
+            matrixStack.scale(1.0F, -1.0F, -1.0F);
+            IVertexBuilder ivertexbuilder1 = ItemRenderer.getFoilBufferDirect(buffer, this.tridentModel.renderType(TridentModel.TEXTURE), false, itemStack.hasFoil());
+            this.tridentModel.renderToBuffer(matrixStack, ivertexbuilder1, i, i2, 1.0F, 1.0F, 1.0F, 1.0F);
+            matrixStack.popPose();
+         } else if (item == Items.NETHERITE_SHIELD) {
+            matrixStack.pushPose();
+            matrixStack.scale(1.0F, -1.0F, -1.0F);
 
+            // Use your custom material for the netherite shield
+            RenderMaterial rendermaterial = ModelBakery.NETHERITE_SHIELD; // Replace with your actual render material
+
+            IVertexBuilder ivertexbuilder = rendermaterial.sprite().wrap(ItemRenderer.getFoilBufferDirect(buffer, this.shieldModel.renderType(rendermaterial.atlasLocation()), true, itemStack.hasFoil()));
+            this.shieldModel.handle().render(matrixStack, ivertexbuilder, i, i2, 1.0F, 1.0F, 1.0F, 1.0F);
+
+            // Since the netherite shield has no patterns, we render the plate directly
+            this.shieldModel.plate().render(matrixStack, ivertexbuilder, i, i2, 1.0F, 1.0F, 1.0F, 1.0F);
+
+            matrixStack.popPose();
+         }
       }
    }
 }

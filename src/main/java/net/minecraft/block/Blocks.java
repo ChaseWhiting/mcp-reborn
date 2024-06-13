@@ -186,7 +186,7 @@ public class Blocks {
    }).sound(SoundType.WOOL)));
    public static final Block SPAWNER = register("spawner", new SpawnerBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(5.0F).sound(SoundType.METAL).noOcclusion()));
    public static final Block OAK_STAIRS = register("oak_stairs", new StairsBlock(OAK_PLANKS.defaultBlockState(), AbstractBlock.Properties.copy(OAK_PLANKS)));
-   public static final Block CHEST = register("chest", new ChestBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD), () -> {
+   public static final Block CHEST = register("chest", new ChestBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F ).sound(SoundType.WOOD), () -> {
       return TileEntityType.CHEST;
    }));
    public static final Block REDSTONE_WIRE = register("redstone_wire", new RedstoneWireBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().instabreak()));

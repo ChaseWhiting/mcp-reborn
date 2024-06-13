@@ -102,6 +102,16 @@ public class BrainUtil {
       }
    }
 
+   public static boolean isWithinAttackRange(MobEntity mob, LivingEntity ta) {
+      Item item = mob.getMainHandItem().getItem();
+      if (item instanceof ShootableItem && mob.canFireProjectileWeapon((ShootableItem)item)) {
+         int i = 15;
+         return mob.closerThan(ta, (double)i);
+      } else {
+         return isWithinMeleeAttackRange(mob, ta);
+      }
+   }
+
    public static boolean isWithinMeleeAttackRange(LivingEntity p_233874_0_, LivingEntity p_233874_1_) {
       double d0 = p_233874_0_.distanceToSqr(p_233874_1_.getX(), p_233874_1_.getY(), p_233874_1_.getZ());
       double d1 = (double)(p_233874_0_.getBbWidth() * 2.0F * p_233874_0_.getBbWidth() * 2.0F + p_233874_1_.getBbWidth());

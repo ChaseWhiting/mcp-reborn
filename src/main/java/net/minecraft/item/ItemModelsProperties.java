@@ -274,6 +274,9 @@ public class ItemModelsProperties {
       register(Items.SHIELD, new ResourceLocation("blocking"), (p_239421_0_, p_239421_1_, p_239421_2_) -> {
          return p_239421_2_ != null && p_239421_2_.isUsingItem() && p_239421_2_.getUseItem() == p_239421_0_ ? 1.0F : 0.0F;
       });
+      register(Items.NETHERITE_SHIELD, new ResourceLocation("blocking"), (item, world, entity) -> {
+         return entity != null && entity.isUsingItem() && entity.getUseItem() == item ? 1.0F : 0.0F;
+      });
       register(Items.TRIDENT, new ResourceLocation("throwing"), (p_239419_0_, p_239419_1_, p_239419_2_) -> {
          return p_239419_2_ != null && p_239419_2_.isUsingItem() && p_239419_2_.getUseItem() == p_239419_0_ ? 1.0F : 0.0F;
       });

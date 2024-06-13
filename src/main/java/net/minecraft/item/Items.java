@@ -833,6 +833,7 @@ public class Items {
    public static final Item SHEEP_SPAWN_EGG = registerItem("sheep_spawn_egg", new SpawnEggItem(EntityType.SHEEP, 15198183, 16758197, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SHULKER_SPAWN_EGG = registerItem("shulker_spawn_egg", new SpawnEggItem(EntityType.SHULKER, 9725844, 5060690, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SILVERFISH_SPAWN_EGG = registerItem("silverfish_spawn_egg", new SpawnEggItem(EntityType.SILVERFISH, 7237230, 3158064, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+   public static final Item CROSSBONE_SKELETON_SPAWN_EGG = registerItem("crossbone_skeleton_spawn_egg", new SpawnEggItem(EntityType.CROSSBONE_SKELETON, 12698049, 4802889, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SKELETON_SPAWN_EGG = registerItem("skeleton_spawn_egg", new SpawnEggItem(EntityType.SKELETON, 12698049, 4802889, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SKELETON_HORSE_SPAWN_EGG = registerItem("skeleton_horse_spawn_egg", new SpawnEggItem(EntityType.SKELETON_HORSE, 6842447, 15066584, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SLIME_SPAWN_EGG = registerItem("slime_spawn_egg", new SpawnEggItem(EntityType.SLIME, 5349438, 8306542, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
@@ -930,6 +931,8 @@ public class Items {
    public static final Item TIPPED_ARROW = registerItem("tipped_arrow", new TippedArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT)));
    public static final Item LINGERING_POTION = registerItem("lingering_potion", new LingeringPotionItem((new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_BREWING)));
    public static final Item SHIELD = registerItem("shield", new ShieldItem((new Item.Properties()).durability(336).tab(ItemGroup.TAB_COMBAT)));
+   public static final Item NETHERITE_SHIELD = registerItem("netherite_shield", new AbstractShieldItem((new Item.Properties()).durability(504).tab(ItemGroup.TAB_COMBAT), AbstractShieldItem.ShieldType.NETHERITE));
+
    public static final Item ELYTRA = registerItem("elytra", new ElytraItem((new Item.Properties()).durability(432).tab(ItemGroup.TAB_TRANSPORTATION).rarity(Rarity.UNCOMMON)));
    public static final Item SPRUCE_BOAT = registerItem("spruce_boat", new BoatItem(BoatEntity.Type.SPRUCE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
    public static final Item BIRCH_BOAT = registerItem("birch_boat", new BoatItem(BoatEntity.Type.BIRCH, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));

@@ -7,220 +7,424 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+/**
+ * Represents a 3D vector with double precision.
+ */
 public class Vector3d implements IPosition {
    public static final Vector3d ZERO = new Vector3d(0.0D, 0.0D, 0.0D);
    public final double x;
    public final double y;
    public final double z;
 
+   /**
+    * Creates a Vector3d from an RGB color represented as an integer.
+    *
+    * @param rgb the RGB color
+    * @return a new Vector3d with x, y, and z components corresponding to the RGB color
+    */
    @OnlyIn(Dist.CLIENT)
-   public static Vector3d fromRGB24(int p_237487_0_) {
-      double d0 = (double)(p_237487_0_ >> 16 & 255) / 255.0D;
-      double d1 = (double)(p_237487_0_ >> 8 & 255) / 255.0D;
-      double d2 = (double)(p_237487_0_ & 255) / 255.0D;
+   public static Vector3d fromRGB24(int rgb) {
+      double d0 = (double)(rgb >> 16 & 255) / 255.0D;
+      double d1 = (double)(rgb >> 8 & 255) / 255.0D;
+      double d2 = (double)(rgb & 255) / 255.0D;
       return new Vector3d(d0, d1, d2);
    }
 
-   public static Vector3d atCenterOf(Vector3i p_237489_0_) {
-      return new Vector3d((double)p_237489_0_.getX() + 0.5D, (double)p_237489_0_.getY() + 0.5D, (double)p_237489_0_.getZ() + 0.5D);
+   /**
+    * Creates a Vector3d at the center of a given block position.
+    *
+    * @param position the block position
+    * @return a new Vector3d at the center of the given block position
+    */
+   public static Vector3d atCenterOf(Vector3i position) {
+      return new Vector3d((double)position.getX() + 0.5D, (double)position.getY() + 0.5D, (double)position.getZ() + 0.5D);
    }
 
-   public static Vector3d atLowerCornerOf(Vector3i p_237491_0_) {
-      return new Vector3d((double)p_237491_0_.getX(), (double)p_237491_0_.getY(), (double)p_237491_0_.getZ());
+   /**
+    * Creates a Vector3d at the lower corner of a given block position.
+    *
+    * @param position the block position
+    * @return a new Vector3d at the lower corner of the given block position
+    */
+   public static Vector3d atLowerCornerOf(Vector3i position) {
+      return new Vector3d((double)position.getX(), (double)position.getY(), (double)position.getZ());
    }
 
-   public static Vector3d atBottomCenterOf(Vector3i p_237492_0_) {
-      return new Vector3d((double)p_237492_0_.getX() + 0.5D, (double)p_237492_0_.getY(), (double)p_237492_0_.getZ() + 0.5D);
+   /**
+    * Creates a Vector3d at the bottom center of a given block position.
+    *
+    * @param position the block position
+    * @return a new Vector3d at the bottom center of the given block position
+    */
+   public static Vector3d atBottomCenterOf(Vector3i position) {
+      return new Vector3d((double)position.getX() + 0.5D, (double)position.getY(), (double)position.getZ() + 0.5D);
    }
 
-   public static Vector3d upFromBottomCenterOf(Vector3i p_237490_0_, double p_237490_1_) {
-      return new Vector3d((double)p_237490_0_.getX() + 0.5D, (double)p_237490_0_.getY() + p_237490_1_, (double)p_237490_0_.getZ() + 0.5D);
+   /**
+    * Creates a Vector3d at the bottom center of a given block position, offset by a specified height.
+    *
+    * @param position the block position
+    * @param yOffset the height offset
+    * @return a new Vector3d at the bottom center of the given block position, offset by the specified height
+    */
+   public static Vector3d upFromBottomCenterOf(Vector3i position, double yOffset) {
+      return new Vector3d((double)position.getX() + 0.5D, (double)position.getY() + yOffset, (double)position.getZ() + 0.5D);
    }
 
-   public Vector3d(double p_i47092_1_, double p_i47092_3_, double p_i47092_5_) {
-      this.x = p_i47092_1_;
-      this.y = p_i47092_3_;
-      this.z = p_i47092_5_;
+   /**
+    * Constructs a Vector3d with the specified x, y, and z components.
+    *
+    * @param x the x component
+    * @param y the y component
+    * @param z the z component
+    */
+   public Vector3d(double x, double y, double z) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
    }
 
-   public Vector3d(Vector3f p_i225900_1_) {
-      this((double)p_i225900_1_.x(), (double)p_i225900_1_.y(), (double)p_i225900_1_.z());
+   /**
+    * Constructs a Vector3d from a Vector3f.
+    *
+    * @param vector the Vector3f to copy from
+    */
+   public Vector3d(Vector3f vector) {
+      this((double)vector.x(), (double)vector.y(), (double)vector.z());
    }
 
-   public Vector3d vectorTo(Vector3d p_72444_1_) {
-      return new Vector3d(p_72444_1_.x - this.x, p_72444_1_.y - this.y, p_72444_1_.z - this.z);
+   /**
+    * Returns a new vector pointing from this vector to the given vector.
+    *
+    * @param target the target vector
+    * @return a new Vector3d pointing from this vector to the target vector
+    */
+   public Vector3d vectorTo(Vector3d target) {
+      return new Vector3d(target.x - this.x, target.y - this.y, target.z - this.z);
    }
 
+   /**
+    * Normalizes this vector to have a length of 1.
+    *
+    * @return a new normalized Vector3d
+    */
    public Vector3d normalize() {
-      double d0 = (double)MathHelper.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-      return d0 < 1.0E-4D ? ZERO : new Vector3d(this.x / d0, this.y / d0, this.z / d0);
+      double length = (double)MathHelper.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+      return length < 1.0E-4D ? ZERO : new Vector3d(this.x / length, this.y / length, this.z / length);
    }
 
-   public double dot(Vector3d p_72430_1_) {
-      return this.x * p_72430_1_.x + this.y * p_72430_1_.y + this.z * p_72430_1_.z;
+   /**
+    * Computes the dot product of this vector with another vector.
+    *
+    * @param vector the other vector
+    * @return the dot product
+    */
+   public double dot(Vector3d vector) {
+      return this.x * vector.x + this.y * vector.y + this.z * vector.z;
    }
 
-   public Vector3d cross(Vector3d p_72431_1_) {
-      return new Vector3d(this.y * p_72431_1_.z - this.z * p_72431_1_.y, this.z * p_72431_1_.x - this.x * p_72431_1_.z, this.x * p_72431_1_.y - this.y * p_72431_1_.x);
+   /**
+    * Computes the cross product of this vector with another vector.
+    *
+    * @param vector the other vector
+    * @return the cross product as a new Vector3d
+    */
+   public Vector3d cross(Vector3d vector) {
+      return new Vector3d(this.y * vector.z - this.z * vector.y, this.z * vector.x - this.x * vector.z, this.x * vector.y - this.y * vector.x);
    }
 
-   public Vector3d subtract(Vector3d p_178788_1_) {
-      return this.subtract(p_178788_1_.x, p_178788_1_.y, p_178788_1_.z);
+   /**
+    * Subtracts the given vector from this vector.
+    *
+    * @param vector the vector to subtract
+    * @return a new Vector3d representing the result
+    */
+   public Vector3d subtract(Vector3d vector) {
+      return this.subtract(vector.x, vector.y, vector.z);
    }
 
-   public Vector3d subtract(double p_178786_1_, double p_178786_3_, double p_178786_5_) {
-      return this.add(-p_178786_1_, -p_178786_3_, -p_178786_5_);
+   /**
+    * Subtracts the given components from this vector.
+    *
+    * @param x the x component to subtract
+    * @param y the y component to subtract
+    * @param z the z component to subtract
+    * @return a new Vector3d representing the result
+    */
+   public Vector3d subtract(double x, double y, double z) {
+      return this.add(-x, -y, -z);
    }
 
-   public Vector3d add(Vector3d p_178787_1_) {
-      return this.add(p_178787_1_.x, p_178787_1_.y, p_178787_1_.z);
+   /**
+    * Adds the given vector to this vector.
+    *
+    * @param vector the vector to add
+    * @return a new Vector3d representing the result
+    */
+   public Vector3d add(Vector3d vector) {
+      return this.add(vector.x, vector.y, vector.z);
    }
 
-   public Vector3d add(double p_72441_1_, double p_72441_3_, double p_72441_5_) {
-      return new Vector3d(this.x + p_72441_1_, this.y + p_72441_3_, this.z + p_72441_5_);
+   /**
+    * Adds the given components to this vector.
+    *
+    * @param x the x component to add
+    * @param y the y component to add
+    * @param z the z component to add
+    * @return a new Vector3d representing the result
+    */
+   public Vector3d add(double x, double y, double z) {
+      return new Vector3d(this.x + x, this.y + y, this.z + z);
    }
 
-   public boolean closerThan(IPosition p_237488_1_, double p_237488_2_) {
-      return this.distanceToSqr(p_237488_1_.x(), p_237488_1_.y(), p_237488_1_.z()) < p_237488_2_ * p_237488_2_;
+   /**
+    * Checks if this vector is closer than a specified distance to a given position.
+    *
+    * @param position the position to check against
+    * @param distance the distance to check
+    * @return true if this vector is closer than the specified distance to the position, false otherwise
+    */
+   public boolean closerThan(IPosition position, double distance) {
+      return this.distanceToSqr(position.x(), position.y(), position.z()) < distance * distance;
    }
 
-   public double distanceTo(Vector3d p_72438_1_) {
-      double d0 = p_72438_1_.x - this.x;
-      double d1 = p_72438_1_.y - this.y;
-      double d2 = p_72438_1_.z - this.z;
-      return (double)MathHelper.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+   /**
+    * Computes the Euclidean distance to another vector.
+    *
+    * @param vector the other vector
+    * @return the distance
+    */
+   public double distanceTo(Vector3d vector) {
+      double dx = vector.x - this.x;
+      double dy = vector.y - this.y;
+      double dz = vector.z - this.z;
+      return (double)MathHelper.sqrt(dx * dx + dy * dy + dz * dz);
    }
 
-   public double distanceToSqr(Vector3d p_72436_1_) {
-      double d0 = p_72436_1_.x - this.x;
-      double d1 = p_72436_1_.y - this.y;
-      double d2 = p_72436_1_.z - this.z;
-      return d0 * d0 + d1 * d1 + d2 * d2;
+   /**
+    * Computes the squared Euclidean distance to another vector.
+    *
+    * @param vector the other vector
+    * @return the squared distance
+    */
+   public double distanceToSqr(Vector3d vector) {
+      double dx = vector.x - this.x;
+      double dy = vector.y - this.y;
+      double dz = vector.z - this.z;
+      return dx * dx + dy * dy + dz * dz;
    }
 
-   public double distanceToSqr(double p_186679_1_, double p_186679_3_, double p_186679_5_) {
-      double d0 = p_186679_1_ - this.x;
-      double d1 = p_186679_3_ - this.y;
-      double d2 = p_186679_5_ - this.z;
-      return d0 * d0 + d1 * d1 + d2 * d2;
+   /**
+    * Computes the squared Euclidean distance to specified coordinates.
+    *
+    * @param x the x coordinate
+    * @param y the y coordinate
+    * @param z the z coordinate
+    * @return the squared distance
+    */
+   public double distanceToSqr(double x, double y, double z) {
+      double dx = x - this.x;
+      double dy = y - this.y;
+      double dz = z - this.z;
+      return dx * dx + dy * dy + dz * dz;
    }
 
-   public Vector3d scale(double p_186678_1_) {
-      return this.multiply(p_186678_1_, p_186678_1_, p_186678_1_);
+   /**
+    * Scales this vector by a given factor.
+    *
+    * @param factor the factor to scale by
+    * @return a new scaled Vector3d
+    */
+   public Vector3d scale(double factor) {
+      return this.multiply(factor, factor, factor);
    }
 
+   /**
+    * Reverses the direction of this vector.
+    *
+    * @return a new reversed Vector3d
+    */
    @OnlyIn(Dist.CLIENT)
    public Vector3d reverse() {
       return this.scale(-1.0D);
    }
 
-   public Vector3d multiply(Vector3d p_216369_1_) {
-      return this.multiply(p_216369_1_.x, p_216369_1_.y, p_216369_1_.z);
+   /**
+    * Multiplies this vector by another vector component-wise.
+    *
+    * @param vector the other vector
+    * @return a new Vector3d representing the result
+    */
+   public Vector3d multiply(Vector3d vector) {
+      return this.multiply(vector.x, vector.y, vector.z);
    }
 
-   public Vector3d multiply(double p_216372_1_, double p_216372_3_, double p_216372_5_) {
-      return new Vector3d(this.x * p_216372_1_, this.y * p_216372_3_, this.z * p_216372_5_);
+   /**
+    * Multiplies this vector by specified components.
+    *
+    * @param x the x component to multiply by
+    * @param y the y component to multiply by
+    * @param z the z component to multiply by
+    * @return a new Vector3d representing the result
+    */
+   public Vector3d multiply(double x, double y, double z) {
+      return new Vector3d(this.x * x, this.y * y, this.z * z);
    }
 
+   /**
+    * Computes the length (magnitude) of this vector.
+    *
+    * @return the length of the vector
+    */
    public double length() {
       return (double)MathHelper.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
    }
 
+   /**
+    * Computes the squared length (magnitude) of this vector.
+    *
+    * @return the squared length of the vector
+    */
    public double lengthSqr() {
       return this.x * this.x + this.y * this.y + this.z * this.z;
    }
 
-   public boolean equals(Object p_equals_1_) {
-      if (this == p_equals_1_) {
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      } else if (!(p_equals_1_ instanceof Vector3d)) {
+      } else if (!(obj instanceof Vector3d)) {
          return false;
       } else {
-         Vector3d vector3d = (Vector3d)p_equals_1_;
-         if (Double.compare(vector3d.x, this.x) != 0) {
-            return false;
-         } else if (Double.compare(vector3d.y, this.y) != 0) {
-            return false;
-         } else {
-            return Double.compare(vector3d.z, this.z) == 0;
-         }
+         Vector3d vector = (Vector3d) obj;
+         return Double.compare(vector.x, this.x) == 0 &&
+                 Double.compare(vector.y, this.y) == 0 &&
+                 Double.compare(vector.z, this.z) == 0;
       }
    }
 
+   @Override
    public int hashCode() {
       long j = Double.doubleToLongBits(this.x);
-      int i = (int)(j ^ j >>> 32);
+      int result = (int)(j ^ j >>> 32);
       j = Double.doubleToLongBits(this.y);
-      i = 31 * i + (int)(j ^ j >>> 32);
+      result = 31 * result + (int)(j ^ j >>> 32);
       j = Double.doubleToLongBits(this.z);
-      return 31 * i + (int)(j ^ j >>> 32);
+      return 31 * result + (int)(j ^ j >>> 32);
    }
 
+   @Override
    public String toString() {
       return "(" + this.x + ", " + this.y + ", " + this.z + ")";
    }
 
-   public Vector3d xRot(float p_178789_1_) {
-      float f = MathHelper.cos(p_178789_1_);
-      float f1 = MathHelper.sin(p_178789_1_);
+   /**
+    * Rotates this vector around the x-axis.
+    *
+    * @param angle the angle to rotate by in radians
+    * @return a new Vector3d representing the result
+    */
+   public Vector3d xRot(float angle) {
+      float cosAngle = MathHelper.cos(angle);
+      float sinAngle = MathHelper.sin(angle);
       double d0 = this.x;
-      double d1 = this.y * (double)f + this.z * (double)f1;
-      double d2 = this.z * (double)f - this.y * (double)f1;
+      double d1 = this.y * cosAngle + this.z * sinAngle;
+      double d2 = this.z * cosAngle - this.y * sinAngle;
       return new Vector3d(d0, d1, d2);
    }
 
-   public Vector3d yRot(float p_178785_1_) {
-      float f = MathHelper.cos(p_178785_1_);
-      float f1 = MathHelper.sin(p_178785_1_);
-      double d0 = this.x * (double)f + this.z * (double)f1;
+   /**
+    * Rotates this vector around the y-axis.
+    *
+    * @param angle the angle to rotate by in radians
+    * @return a new Vector3d representing the result
+    */
+   public Vector3d yRot(float angle) {
+      float cosAngle = MathHelper.cos(angle);
+      float sinAngle = MathHelper.sin(angle);
+      double d0 = this.x * cosAngle + this.z * sinAngle;
       double d1 = this.y;
-      double d2 = this.z * (double)f - this.x * (double)f1;
+      double d2 = this.z * cosAngle - this.x * sinAngle;
       return new Vector3d(d0, d1, d2);
    }
 
+   /**
+    * Rotates this vector around the z-axis.
+    *
+    * @param angle the angle to rotate by in radians
+    * @return a new Vector3d representing the result
+    */
    @OnlyIn(Dist.CLIENT)
-   public Vector3d zRot(float p_242988_1_) {
-      float f = MathHelper.cos(p_242988_1_);
-      float f1 = MathHelper.sin(p_242988_1_);
-      double d0 = this.x * (double)f + this.y * (double)f1;
-      double d1 = this.y * (double)f - this.x * (double)f1;
+   public Vector3d zRot(float angle) {
+      float cosAngle = MathHelper.cos(angle);
+      float sinAngle = MathHelper.sin(angle);
+      double d0 = this.x * cosAngle + this.y * sinAngle;
+      double d1 = this.y * cosAngle - this.x * sinAngle;
       double d2 = this.z;
       return new Vector3d(d0, d1, d2);
    }
 
+   /**
+    * Computes the direction vector from rotation angles.
+    *
+    * @param rotation the rotation angles
+    * @return a new Vector3d representing the direction
+    */
    @OnlyIn(Dist.CLIENT)
-   public static Vector3d directionFromRotation(Vector2f p_189984_0_) {
-      return directionFromRotation(p_189984_0_.x, p_189984_0_.y);
+   public static Vector3d directionFromRotation(Vector2f rotation) {
+      return directionFromRotation(rotation.x, rotation.y);
    }
 
+   /**
+    * Computes the direction vector from rotation angles.
+    *
+    * @param pitch the pitch angle in degrees
+    * @param yaw the yaw angle in degrees
+    * @return a new Vector3d representing the direction
+    */
    @OnlyIn(Dist.CLIENT)
-   public static Vector3d directionFromRotation(float p_189986_0_, float p_189986_1_) {
-      float f = MathHelper.cos(-p_189986_1_ * ((float)Math.PI / 180F) - (float)Math.PI);
-      float f1 = MathHelper.sin(-p_189986_1_ * ((float)Math.PI / 180F) - (float)Math.PI);
-      float f2 = -MathHelper.cos(-p_189986_0_ * ((float)Math.PI / 180F));
-      float f3 = MathHelper.sin(-p_189986_0_ * ((float)Math.PI / 180F));
-      return new Vector3d((double)(f1 * f2), (double)f3, (double)(f * f2));
+   public static Vector3d directionFromRotation(float pitch, float yaw) {
+      float cosYaw = MathHelper.cos(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
+      float sinYaw = MathHelper.sin(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
+      float cosPitch = -MathHelper.cos(-pitch * ((float)Math.PI / 180F));
+      float sinPitch = MathHelper.sin(-pitch * ((float)Math.PI / 180F));
+      return new Vector3d((double)(sinYaw * cosPitch), (double)sinPitch, (double)(cosYaw * cosPitch));
    }
 
-   public Vector3d align(EnumSet<Direction.Axis> p_197746_1_) {
-      double d0 = p_197746_1_.contains(Direction.Axis.X) ? (double)MathHelper.floor(this.x) : this.x;
-      double d1 = p_197746_1_.contains(Direction.Axis.Y) ? (double)MathHelper.floor(this.y) : this.y;
-      double d2 = p_197746_1_.contains(Direction.Axis.Z) ? (double)MathHelper.floor(this.z) : this.z;
+   /**
+    * Aligns this vector to the nearest lower integer values for the specified axes.
+    *
+    * @param axes the axes to align
+    * @return a new Vector3d representing the aligned vector
+    */
+   public Vector3d align(EnumSet<Direction.Axis> axes) {
+      double d0 = axes.contains(Direction.Axis.X) ? (double)MathHelper.floor(this.x) : this.x;
+      double d1 = axes.contains(Direction.Axis.Y) ? (double)MathHelper.floor(this.y) : this.y;
+      double d2 = axes.contains(Direction.Axis.Z) ? (double)MathHelper.floor(this.z) : this.z;
       return new Vector3d(d0, d1, d2);
    }
 
-   public double get(Direction.Axis p_216370_1_) {
-      return p_216370_1_.choose(this.x, this.y, this.z);
+   /**
+    * Gets the value of this vector along the specified axis.
+    *
+    * @param axis the axis
+    * @return the value along the specified axis
+    */
+   public double get(Direction.Axis axis) {
+      return axis.choose(this.x, this.y, this.z);
    }
 
+   @Override
    public final double x() {
       return this.x;
    }
 
+   @Override
    public final double y() {
       return this.y;
    }
 
+   @Override
    public final double z() {
       return this.z;
    }

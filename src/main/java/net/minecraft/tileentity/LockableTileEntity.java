@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.INameable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.LockCode;
@@ -64,6 +65,7 @@ public abstract class LockableTileEntity extends TileEntity implements IInventor
    public boolean canOpen(PlayerEntity p_213904_1_) {
       return canUnlock(p_213904_1_, this.lockKey, this.getDisplayName());
    }
+
 
    public static boolean canUnlock(PlayerEntity p_213905_0_, LockCode p_213905_1_, ITextComponent p_213905_2_) {
       if (!p_213905_0_.isSpectator() && !p_213905_1_.unlocksWith(p_213905_0_.getMainHandItem())) {

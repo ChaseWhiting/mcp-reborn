@@ -16,89 +16,94 @@ import net.minecraft.util.math.EntityPosWrapper;
 import net.minecraft.world.server.ServerWorld;
 
 public class ShootTargetTask<E extends MobEntity & ICrossbowUser, T extends LivingEntity> extends Task<E> {
-   private int attackDelay;
-   private ShootTargetTask.Status crossbowState = ShootTargetTask.Status.UNCHARGED;
+    private int attackDelay;
+    private ShootTargetTask.Status crossbowState = ShootTargetTask.Status.UNCHARGED;
+    private final int shootingRangeDistance = 16;
 
-   public ShootTargetTask() {
-      super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleStatus.REGISTERED, MemoryModuleType.ATTACK_TARGET, MemoryModuleStatus.VALUE_PRESENT), 1200);
-   }
+    public ShootTargetTask() {
+        super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleStatus.REGISTERED,
+                MemoryModuleType.ATTACK_TARGET, MemoryModuleStatus.VALUE_PRESENT), 1200);
+    }
 
-   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, E p_212832_2_) {
-      LivingEntity livingentity = getAttackTarget(p_212832_2_);
-      return p_212832_2_.isHolding(Items.CROSSBOW) && BrainUtil.canSee(p_212832_2_, livingentity) && BrainUtil.isWithinAttackRange(p_212832_2_, livingentity, 0);
-   }
+    protected boolean checkExtraStartConditions(ServerWorld world, E entity) {
+        LivingEntity target = getAttackTarget(entity);
+        return entity.isHolding(Items.CROSSBOW) && BrainUtil.canSee(entity, target) && isWithinShootingRange(entity, target);
+    }
 
-   protected boolean canStillUse(ServerWorld p_212834_1_, E p_212834_2_, long p_212834_3_) {
-      return p_212834_2_.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && this.checkExtraStartConditions(p_212834_1_, p_212834_2_);
-   }
+    protected boolean canStillUse(ServerWorld world, E entity, long gameTime) {
+        return entity.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && this.checkExtraStartConditions(world, entity);
+    }
 
-   protected void tick(ServerWorld p_212833_1_, E p_212833_2_, long p_212833_3_) {
-      LivingEntity livingentity = getAttackTarget(p_212833_2_);
-      this.lookAtTarget(p_212833_2_, livingentity);
-      this.crossbowAttack(p_212833_2_, livingentity);
-   }
+    protected void tick(ServerWorld world, E entity, long gameTime) {
+        LivingEntity target = getAttackTarget(entity);
+        this.lookAtTarget(entity, target);
+        this.crossbowAttack(entity, target);
+    }
 
-   protected void stop(ServerWorld p_212835_1_, E p_212835_2_, long p_212835_3_) {
-      if (p_212835_2_.isUsingItem()) {
-         p_212835_2_.stopUsingItem();
-      }
+    protected void stop(ServerWorld world, E entity, long gameTime) {
+        if (entity.isUsingItem()) {
+            entity.stopUsingItem();
+        }
 
-      if (p_212835_2_.isHolding(Items.CROSSBOW)) {
-         p_212835_2_.setChargingCrossbow(false);
-         CrossbowItem.setCharged(p_212835_2_.getUseItem(), false);
-      }
+        if (entity.isHolding(Items.CROSSBOW)) {
+            entity.setChargingCrossbow(false);
+            CrossbowItem.setCharged(entity.getUseItem(), false);
+        }
+    }
 
-   }
-
-   private void crossbowAttack(E p_233888_1_, LivingEntity p_233888_2_) {
-      if (this.crossbowState == ShootTargetTask.Status.UNCHARGED) {
-         p_233888_1_.startUsingItem(ProjectileHelper.getWeaponHoldingHand(p_233888_1_, Items.CROSSBOW));
-         this.crossbowState = ShootTargetTask.Status.CHARGING;
-         p_233888_1_.setChargingCrossbow(true);
-      } else if (this.crossbowState == ShootTargetTask.Status.CHARGING) {
-         if (!p_233888_1_.isUsingItem()) {
-            this.crossbowState = ShootTargetTask.Status.UNCHARGED;
-         }
-
-         int i = p_233888_1_.getTicksUsingItem();
-         ItemStack itemstack = p_233888_1_.getUseItem();
-         if (i >= CrossbowItem.getChargeDuration(itemstack)) {
-            p_233888_1_.releaseUsingItem();
-            this.crossbowState = ShootTargetTask.Status.CHARGED;
-            this.attackDelay = 20 + p_233888_1_.getRandom().nextInt(20);
-            p_233888_1_.setChargingCrossbow(false);
-         }
-      } else if (this.crossbowState == ShootTargetTask.Status.CHARGED) {
-         --this.attackDelay;
-         if (this.attackDelay == 0) {
-            if (p_233888_1_ instanceof PiglinBruteEntity) {
-               this.attackDelay = 10;
-            } else {
-               this.attackDelay = 20 + p_233888_1_.getRandom().nextInt(20);
+    private void crossbowAttack(E entity, LivingEntity target) {
+        if (this.crossbowState == ShootTargetTask.Status.UNCHARGED) {
+            entity.startUsingItem(ProjectileHelper.getWeaponHoldingHand(entity, Items.CROSSBOW));
+            this.crossbowState = ShootTargetTask.Status.CHARGING;
+            entity.setChargingCrossbow(true);
+        } else if (this.crossbowState == ShootTargetTask.Status.CHARGING) {
+            if (!entity.isUsingItem()) {
+                this.crossbowState = ShootTargetTask.Status.UNCHARGED;
             }
-            this.crossbowState = ShootTargetTask.Status.READY_TO_ATTACK;
-         }
-      } else if (this.crossbowState == ShootTargetTask.Status.READY_TO_ATTACK) {
-         p_233888_1_.performRangedAttack(p_233888_2_, 1.0F);
-         ItemStack itemstack1 = p_233888_1_.getItemInHand(ProjectileHelper.getWeaponHoldingHand(p_233888_1_, Items.CROSSBOW));
-         CrossbowItem.setCharged(itemstack1, false);
-         this.crossbowState = ShootTargetTask.Status.UNCHARGED;
-      }
 
-   }
+            int i = entity.getTicksUsingItem();
+            ItemStack itemstack = entity.getUseItem();
+            if (i >= CrossbowItem.getChargeDuration(itemstack)) {
+                entity.releaseUsingItem();
+                this.crossbowState = ShootTargetTask.Status.CHARGED;
+                this.attackDelay = 20 + entity.getRandom().nextInt(20);
+                entity.setChargingCrossbow(false);
+            }
+        } else if (this.crossbowState == ShootTargetTask.Status.CHARGED) {
+            --this.attackDelay;
+            if (this.attackDelay == 0) {
+                if (entity instanceof PiglinBruteEntity) {
+                    this.attackDelay = 10;
+                } else {
+                    this.attackDelay = 20 + entity.getRandom().nextInt(20);
+                }
+                this.crossbowState = ShootTargetTask.Status.READY_TO_ATTACK;
+            }
+        } else if (this.crossbowState == ShootTargetTask.Status.READY_TO_ATTACK) {
+            entity.performRangedAttack(target, 1.0F);
+            ItemStack itemstack1 = entity.getItemInHand(ProjectileHelper.getWeaponHoldingHand(entity, Items.CROSSBOW));
+            CrossbowItem.setCharged(itemstack1, false);
+            this.crossbowState = ShootTargetTask.Status.UNCHARGED;
+        }
+    }
 
-   private void lookAtTarget(MobEntity p_233889_1_, LivingEntity p_233889_2_) {
-      p_233889_1_.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityPosWrapper(p_233889_2_, true));
-   }
+    private void lookAtTarget(MobEntity entity, LivingEntity target) {
+        entity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityPosWrapper(target, true));
+    }
 
-   private static LivingEntity getAttackTarget(LivingEntity p_233887_0_) {
-      return p_233887_0_.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
-   }
+    private static LivingEntity getAttackTarget(LivingEntity entity) {
+        return entity.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
+    }
 
-   static enum Status {
-      UNCHARGED,
-      CHARGING,
-      CHARGED,
-      READY_TO_ATTACK;
-   }
+    private boolean isWithinShootingRange(E entity, LivingEntity target) {
+        double distance = target.distanceToSqr(entity);
+        return distance <= (double) this.shootingRangeDistance * this.shootingRangeDistance;
+    }
+
+    static enum Status {
+        UNCHARGED,
+        CHARGING,
+        CHARGED,
+        READY_TO_ATTACK;
+    }
 }
