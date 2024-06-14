@@ -70,7 +70,7 @@ public class AttributeModifierMap {
       private final Map<Attribute, ModifiableAttributeInstance> builder = Maps.newHashMap();
       private boolean instanceFrozen;
 
-      private ModifiableAttributeInstance create(Attribute p_233817_1_) {
+      public ModifiableAttributeInstance create(Attribute p_233817_1_) {
          ModifiableAttributeInstance modifiableattributeinstance = new ModifiableAttributeInstance(p_233817_1_, (p_233816_2_) -> {
             if (this.instanceFrozen) {
                throw new UnsupportedOperationException("Tried to change value for default attribute instance: " + Registry.ATTRIBUTE.getKey(p_233817_1_));

@@ -221,7 +221,7 @@ public class EntityType<T extends Entity> {
    private ResourceLocation lootTable;
    private final EntitySize dimensions;
 
-   private static <T extends Entity> EntityType<T> register(String p_200712_0_, EntityType.Builder<T> p_200712_1_) {
+   public static <T extends Entity> EntityType<T> register(String p_200712_0_, EntityType.Builder<T> p_200712_1_) {
       return Registry.register(Registry.ENTITY_TYPE, p_200712_0_, p_200712_1_.build(p_200712_0_));
    }
 

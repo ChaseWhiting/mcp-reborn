@@ -47,7 +47,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class EntityRendererManager {
    private static final RenderType SHADOW_RENDER_TYPE = RenderType.entityShadow(new ResourceLocation("textures/misc/shadow.png"));
-   private final Map<EntityType<?>, EntityRenderer<?>> renderers = Maps.newHashMap();
+   public final Map<EntityType<?>, EntityRenderer<?>> renderers = Maps.newHashMap();
    private final Map<String, PlayerRenderer> playerRenderers = Maps.newHashMap();
    private final PlayerRenderer defaultPlayerRenderer;
    private final FontRenderer font;
@@ -64,7 +64,7 @@ public class EntityRendererManager {
       return this.getRenderer(p_229085_1_).getPackedLightCoords(p_229085_1_, p_229085_2_);
    }
 
-   private <T extends Entity> void register(EntityType<T> p_229087_1_, EntityRenderer<? super T> p_229087_2_) {
+   public <T extends Entity> void register(EntityType<T> p_229087_1_, EntityRenderer<? super T> p_229087_2_) {
       this.renderers.put(p_229087_1_, p_229087_2_);
    }
 
