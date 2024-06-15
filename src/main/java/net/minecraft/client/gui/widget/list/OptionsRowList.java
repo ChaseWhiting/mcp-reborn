@@ -16,22 +16,22 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class OptionsRowList extends AbstractOptionList<OptionsRowList.Row> {
-   public OptionsRowList(Minecraft p_i51130_1_, int p_i51130_2_, int p_i51130_3_, int p_i51130_4_, int p_i51130_5_, int p_i51130_6_) {
-      super(p_i51130_1_, p_i51130_2_, p_i51130_3_, p_i51130_4_, p_i51130_5_, p_i51130_6_);
+   public OptionsRowList(Minecraft minecraft, int width, int height, int topMargin, int bottomMargin, int slotHeight) {
+      super(minecraft, width, height, topMargin, bottomMargin, slotHeight);
       this.centerListVertically = false;
    }
 
-   public int addBig(AbstractOption p_214333_1_) {
-      return this.addEntry(OptionsRowList.Row.big(this.minecraft.options, this.width, p_214333_1_));
+   public int addBig(AbstractOption option) {
+      return this.addEntry(OptionsRowList.Row.big(this.minecraft.options, this.width, option));
    }
 
-   public void addSmall(AbstractOption p_214334_1_, @Nullable AbstractOption p_214334_2_) {
-      this.addEntry(OptionsRowList.Row.small(this.minecraft.options, this.width, p_214334_1_, p_214334_2_));
+   public void addSmall(AbstractOption option, @Nullable AbstractOption p_214334_2_) {
+      this.addEntry(OptionsRowList.Row.small(this.minecraft.options, this.width, option, p_214334_2_));
    }
 
-   public void addSmall(AbstractOption[] p_214335_1_) {
-      for(int i = 0; i < p_214335_1_.length; i += 2) {
-         this.addSmall(p_214335_1_[i], i < p_214335_1_.length - 1 ? p_214335_1_[i + 1] : null);
+   public void addSmall(AbstractOption[] options) {
+      for(int i = 0; i < options.length; i += 2) {
+         this.addSmall(options[i], i < options.length - 1 ? options[i + 1] : null);
       }
 
    }

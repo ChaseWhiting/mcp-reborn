@@ -5,7 +5,9 @@ import com.mojang.serialization.Dynamic;
 
 import javax.annotation.Nullable;
 
+import groovy.lang.Script;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.main.GroovyScriptLoader;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -44,12 +46,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbowUser {
     private static final DataParameter<Boolean> DATA_IS_CHARGING_CROSSBOW = EntityDataManager.defineId(PiglinBruteEntity.class, DataSerializers.BOOLEAN);
     protected static final ImmutableList<SensorType<? extends Sensor<? super PiglinBruteEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_BRUTE_SPECIFIC_SENSOR);
     protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.DOORS_TO_CLOSE, MemoryModuleType.LIVING_ENTITIES, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, MemoryModuleType.NEARBY_ADULT_PIGLINS, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.PATH, MemoryModuleType.ANGRY_AT, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.HOME);
-
+    private static final Logger LOGGER = Logger.getLogger(PiglinBruteEntity.class.getName());
     public PiglinBruteEntity(EntityType<? extends PiglinBruteEntity> p_i241917_1_, World p_i241917_2_) {
         super(p_i241917_1_, p_i241917_2_);
         this.xpReward = 20;
@@ -70,7 +74,7 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
     private ItemStack storedAxe = new ItemStack(Items.GOLDEN_AXE);
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 50.0D).add(Attributes.MOVEMENT_SPEED, (double) 0.35F).add(Attributes.ATTACK_DAMAGE, 7.0D).add(Attributes.FOLLOW_RANGE, 20D);
+        return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 50.0D).add(Attributes.MOVEMENT_SPEED, (double) 0.35F).add(Attributes.ATTACK_DAMAGE, 7.0D).add(Attributes.FOLLOW_RANGE, 16D);
     }
 
     @Override
@@ -89,20 +93,19 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
     }
 
     @Nullable
+    @Override
     public ILivingEntityData finalizeSpawn(IServerWorld world, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData iLivingEntityData, @Nullable CompoundNBT compoundNBT) {
         PiglinBruteBrain.initMemories(this);
         this.populateDefaultEquipmentSlots(difficultyInstance);
-        Enchantment enchantment = getRandomCrossbowEnchant();
-        int enchantmentLevel = Math.max(1, RANDOM_CROSSBOW_ENCHANT.get(enchantment));
         this.setImmuneToZombification(true);
-        storedCrossbow.enchant(enchantment, enchantmentLevel);
-        return super.finalizeSpawn(world, difficultyInstance, spawnReason, iLivingEntityData, compoundNBT);
-    }
+        List<Object> enchantmentData = GroovyScriptLoader.getList("enchantCrossbow.groovy");
+        if (enchantmentData != null && enchantmentData.size() == 2) {
+            Enchantment enchantment = (Enchantment) enchantmentData.get(0);
+            int enchantmentLevel = (Integer) enchantmentData.get(1);
 
-    public Enchantment getRandomCrossbowEnchant() {
-        List<Enchantment> enchantments = new ArrayList<>(RANDOM_CROSSBOW_ENCHANT.keySet());
-        Random random = new Random();
-        return enchantments.get(random.nextInt(enchantments.size()));
+            storedCrossbow.enchant(enchantment, enchantmentLevel);
+        }
+        return super.finalizeSpawn(world, difficultyInstance, spawnReason, iLivingEntityData, compoundNBT);
     }
 
     protected void populateDefaultEquipmentSlots(DifficultyInstance p_180481_1_) {

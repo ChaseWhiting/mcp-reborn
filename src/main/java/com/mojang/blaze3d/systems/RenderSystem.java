@@ -31,6 +31,7 @@ public class RenderSystem {
    private static final Tessellator RENDER_THREAD_TESSELATOR = new Tessellator();
    public static final float DEFAULTALPHACUTOFF = 0.1F;
    private static final int MINIMUM_ATLAS_TEXTURE_SIZE = 1024;
+  // private static final Minecraft minecraft = Minecraft.getInstance();
    private static boolean isReplayingQueue;
    private static Thread gameThread;
    private static Thread renderThread;
@@ -525,9 +526,9 @@ public class RenderSystem {
    }
 
    @Deprecated
-   public static void color4f(float p_color4f_0_, float p_color4f_1_, float p_color4f_2_, float p_color4f_3_) {
+   public static void color4f(float red, float green, float blue, float alpha) {
       assertThread(RenderSystem::isOnGameThread);
-      GlStateManager._color4f(p_color4f_0_, p_color4f_1_, p_color4f_2_, p_color4f_3_);
+      GlStateManager._color4f(red, green, blue, alpha);
    }
 
    @Deprecated

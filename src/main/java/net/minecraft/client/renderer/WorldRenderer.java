@@ -910,6 +910,7 @@ public class WorldRenderer implements IResourceManagerReloadListener, AutoClosea
          this.captureFrustum = false;
       }
 
+
       iprofiler.popPush("clear");
       FogRenderer.setupColor(p_228426_6_, p_228426_2_, this.minecraft.level, this.minecraft.options.renderDistance, p_228426_7_.getDarkenWorldAmount(p_228426_2_));
       RenderSystem.clear(16640, Minecraft.ON_OSX);

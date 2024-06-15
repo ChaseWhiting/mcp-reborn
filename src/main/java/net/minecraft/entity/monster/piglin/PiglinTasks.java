@@ -378,7 +378,7 @@ public class PiglinTasks {
     }
 
     public static void angerNearbyPiglins(PlayerEntity p_234478_0_, boolean p_234478_1_) {
-        List<PiglinEntity> list = p_234478_0_.level.getEntitiesOfClass(PiglinEntity.class, p_234478_0_.getBoundingBox().inflate(16.0D));
+        List<PiglinEntity> list = p_234478_0_.level.getEntitiesOfClass(PiglinEntity.class, p_234478_0_.getBoundingBox().inflate(30.0D));
         list.stream().filter(PiglinTasks::isIdle).filter((p_234491_2_) -> {
             return !p_234478_1_ || BrainUtil.canSee(p_234491_2_, p_234478_0_);
         }).forEach((p_234479_1_) -> {

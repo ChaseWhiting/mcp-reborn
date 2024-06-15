@@ -92,7 +92,7 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
             if (!optional6.isPresent() && !playerentity.isSpectator() && PiglinTasks.isPlayerHoldingLovedItem(playerentity)) {
                optional6 = Optional.of(playerentity);
             }
-         } else if (optional.isPresent() || !(livingentity instanceof WitherSkeletonEntity) && !(livingentity instanceof WitherEntity)) {
+         } else if (optional.isPresent() || !(livingentity instanceof WitherSkeletonEntity) && !(livingentity instanceof WitherEntity) || !(livingentity instanceof VillagerEntity) || !(livingentity instanceof IronGolemEntity)) {
             if (!optional4.isPresent() && PiglinTasks.isZombified(livingentity.getType())) {
                optional4 = Optional.of(livingentity);
             }

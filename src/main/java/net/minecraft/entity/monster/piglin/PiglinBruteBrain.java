@@ -96,7 +96,7 @@ public class PiglinBruteBrain {
 
    private static Optional<? extends LivingEntity> getTargetIfWithinRange(AbstractPiglinEntity p_242351_0_, MemoryModuleType<? extends LivingEntity> p_242351_1_) {
       return p_242351_0_.getBrain().getMemory(p_242351_1_).filter((p_242357_1_) -> {
-         return p_242357_1_.closerThan(p_242351_0_, 12.0D);
+         return p_242357_1_.closerThan(p_242351_0_, 25.0D);
       });
    }
 

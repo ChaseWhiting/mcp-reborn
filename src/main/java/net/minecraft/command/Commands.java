@@ -21,6 +21,7 @@ import net.minecraft.command.arguments.SuggestionProviders;
 import net.minecraft.command.impl.*;
 import net.minecraft.command.impl.data.DataCommand;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.groovy.GroovyCommand;
 import net.minecraft.network.play.server.SCommandListPacket;
 import net.minecraft.test.TestCommand;
 import net.minecraft.util.SharedConstants;
@@ -33,7 +34,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.world.raid.Raid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -104,6 +104,7 @@ public class Commands {
       HealCommand.register(this.dispatcher);
       FleeCommand.register(this.dispatcher);
       InvasionCommand.register(this.dispatcher);
+      GroovyCommand.register(this.dispatcher);
 //      if (SharedConstants.IS_RUNNING_IN_IDE) {
 //         TestCommand.register(this.dispatcher);
 //      }

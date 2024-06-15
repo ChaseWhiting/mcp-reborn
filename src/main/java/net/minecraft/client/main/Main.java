@@ -43,7 +43,7 @@ public class Main {
    private static final Logger LOGGER = LogManager.getLogger();
 
    public static void main(String[] p_main_0_) {
-
+      GroovyScriptLoader.loadGroovyScripts("debug", false);
 
       OptionParser optionparser = new OptionParser();
       optionparser.allowsUnrecognizedOptions();

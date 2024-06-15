@@ -21,14 +21,14 @@ public class SliderPercentageOption extends AbstractOption {
    private final BiConsumer<GameSettings, Double> setter;
    private final BiFunction<GameSettings, SliderPercentageOption, ITextComponent> toString;
 
-   public SliderPercentageOption(String p_i51155_1_, double p_i51155_2_, double p_i51155_4_, float p_i51155_6_, Function<GameSettings, Double> p_i51155_7_, BiConsumer<GameSettings, Double> p_i51155_8_, BiFunction<GameSettings, SliderPercentageOption, ITextComponent> p_i51155_9_) {
-      super(p_i51155_1_);
-      this.minValue = p_i51155_2_;
-      this.maxValue = p_i51155_4_;
-      this.steps = p_i51155_6_;
-      this.getter = p_i51155_7_;
-      this.setter = p_i51155_8_;
-      this.toString = p_i51155_9_;
+   public SliderPercentageOption(String name, double minValue, double maxValue, float steps, Function<GameSettings, Double> getter, BiConsumer<GameSettings, Double> setter, BiFunction<GameSettings, SliderPercentageOption, ITextComponent> toString) {
+      super(name);
+      this.minValue = minValue;
+      this.maxValue = maxValue;
+      this.steps = steps;
+      this.getter = getter;
+      this.setter = setter;
+      this.toString = toString;
    }
 
    public Widget createButton(GameSettings p_216586_1_, int p_216586_2_, int p_216586_3_, int p_216586_4_) {

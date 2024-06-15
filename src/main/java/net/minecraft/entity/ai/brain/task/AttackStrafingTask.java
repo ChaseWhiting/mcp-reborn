@@ -31,24 +31,31 @@ public class AttackStrafingTask<E extends MobEntity> extends Task<E> {
    }
 
    protected boolean checkExtraStartConditions(ServerWorld world, E entity) {
-      return /*this.isTargetVisible(entity) && this.isTargetTooClose(entity) ||*/ this.isTargetVisible(entity) && this.getTarget(entity).closerThan(entity,shootingRangeDistance);
+      LivingEntity target = this.getTarget(entity);
+      double distance = target.distanceToSqr(entity);
+      return this.isTargetVisible(entity) && distance <= (double) this.shootingRangeDistance * this.shootingRangeDistance;
    }
 
    protected boolean canStillUse(ServerWorld world, E entity, long gameTime) {
-      return entity.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && this.getTarget(entity).closerThan(entity, shootingRangeDistance);
+      LivingEntity target = this.getTarget(entity);
+      double distance = target.distanceToSqr(entity);
+      return entity.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && distance <= (double) this.shootingRangeDistance * this.shootingRangeDistance;
    }
 
    protected void start(ServerWorld world, E entity, long gameTime) {
-      if (isTargetTooClose(entity)) {
+      LivingEntity target = this.getTarget(entity);
+      double distance = target.distanceToSqr(entity);
+
+      if (distance < (double) this.tooCloseDistance * this.tooCloseDistance) {
          float strafeDirection = this.determineStrafeDirection(entity);
          entity.getMoveControl().strafe(-this.strafeSpeed, strafeDirection); // Strafe backward and to the side
+      } else {
+         // Set walk target to maintain a position within shooting range
+         WalkTarget walkTarget = new WalkTarget(new EntityPosWrapper(target, false), this.strafeSpeed, 0);
+         entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET, walkTarget);
       }
-      entity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityPosWrapper(this.getTarget(entity), true));
+      entity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityPosWrapper(target, true));
       entity.yRot = MathHelper.rotateIfNecessary(entity.yRot, entity.yHeadRot, 0.0F);
-
-      // Set strafing walk target to maintain strafing memory
-      WalkTarget walkTarget = new WalkTarget(new EntityPosWrapper(this.getTarget(entity), false), this.strafeSpeed, 0);
-      entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET, walkTarget);
    }
 
    protected void stop(ServerWorld world, E entity, long gameTime) {
@@ -59,18 +66,11 @@ public class AttackStrafingTask<E extends MobEntity> extends Task<E> {
       return entity.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get().contains(this.getTarget(entity));
    }
 
-   private boolean isTargetTooClose(E entity) {
-      LivingEntity target = this.getTarget(entity);
-      double distance = target.distanceToSqr(entity);
-      return distance < (double) this.tooCloseDistance * this.tooCloseDistance;
-   }
-
    private float determineStrafeDirection(E entity) {
       List<MobEntity> nearbyMobs = entity.level.getEntitiesOfClass(MobEntity.class, entity.getBoundingBox().inflate(this.mobCloseDistance));
       for (MobEntity mob : nearbyMobs) {
          if (mob != entity && mob instanceof AbstractPiglinEntity) {
             // Determine strafe direction to avoid the nearby mob
-            // If the nearby mob is on the left side, strafe to the right (+0.4F), and vice versa
             double deltaX = mob.getX() - entity.getX();
             return deltaX > 0 ? 0.4F : -0.4F;
          }

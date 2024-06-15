@@ -6,6 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.+'
+
     }
 }
 
@@ -13,6 +14,7 @@ import net.minecraftforge.forge.tasks.*
 
 apply plugin: 'eclipse'
 apply plugin: 'net.minecraftforge.gradle.patcher'
+apply plugin: 'groovy'
 
 configurations {
     shade
@@ -36,6 +38,7 @@ repositories {
 
 dependencies {
     shade 'net.minecraftforge:forgespi:' + spi_version
+    implementation 'org.codehaus.groovy:groovy:3.0.9'
 //    Use the shade to add the lib to the jar
 //    or use compile if you want to load the lib from the version.json
 //    from a maven repo

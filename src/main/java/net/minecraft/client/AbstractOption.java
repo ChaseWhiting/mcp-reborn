@@ -181,7 +181,7 @@ public abstract class AbstractOption {
       }
 
    });
-   public static final SliderPercentageOption RENDER_DISTANCE = new SliderPercentageOption("options.renderDistance", 2.0D, 16.0D, 1.0F, (p_216658_0_) -> {
+   public static final SliderPercentageOption RENDER_DISTANCE = new SliderPercentageOption("options.renderDistance", 1D, 16.0D, 1.0F, (p_216658_0_) -> {
       return (double)p_216658_0_.renderDistance;
    }, (p_216579_0_, p_216579_1_) -> {
       p_216579_0_.renderDistance = (int)p_216579_1_.doubleValue();
