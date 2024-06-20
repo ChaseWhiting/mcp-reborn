@@ -105,7 +105,7 @@ public class DebugPacketSender {
    public static void sendHiveInfo(BeehiveTileEntity p_229750_0_) {
    }
 
-   private static void sendPacketToAllPlayers(ServerWorld p_229753_0_, PacketBuffer p_229753_1_, ResourceLocation p_229753_2_) {
+   public static void sendPacketToAllPlayers(ServerWorld p_229753_0_, PacketBuffer p_229753_1_, ResourceLocation p_229753_2_) {
       IPacket<?> ipacket = new SCustomPayloadPlayPacket(p_229753_2_, p_229753_1_);
 
       for(PlayerEntity playerentity : p_229753_0_.getLevel().players()) {

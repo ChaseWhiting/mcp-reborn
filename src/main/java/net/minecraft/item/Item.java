@@ -339,11 +339,11 @@ public class Item implements IItemProvider {
          return this;
       }
 
-      public Item.Properties stacksTo(int p_200917_1_) {
+      public Item.Properties stacksTo(int count) {
          if (this.maxDamage > 0) {
             throw new RuntimeException("Unable to have damage AND stack.");
          } else {
-            this.maxStackSize = p_200917_1_;
+            this.maxStackSize = count;
             return this;
          }
       }

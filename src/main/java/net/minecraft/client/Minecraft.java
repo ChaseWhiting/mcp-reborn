@@ -370,35 +370,35 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
    private IProfileResult fpsPieResults;
    private String debugPath = "root";
 
-   public Minecraft(GameConfiguration p_i45547_1_) {
+   public Minecraft(GameConfiguration configuration) {
       super("Client");
       instance = this;
-      this.gameDirectory = p_i45547_1_.location.gameDirectory;
-      File file1 = p_i45547_1_.location.assetDirectory;
-      this.resourcePackDirectory = p_i45547_1_.location.resourcePackDirectory;
-      this.launchedVersion = p_i45547_1_.game.launchVersion;
-      this.versionType = p_i45547_1_.game.versionType;
-      this.profileProperties = p_i45547_1_.user.profileProperties;
-      this.clientPackSource = new DownloadingPackFinder(new File(this.gameDirectory, "server-resource-packs"), p_i45547_1_.location.getAssetIndex());
+      this.gameDirectory = configuration.location.gameDirectory;
+      File file1 = configuration.location.assetDirectory;
+      this.resourcePackDirectory = configuration.location.resourcePackDirectory;
+      this.launchedVersion = configuration.game.launchVersion;
+      this.versionType = configuration.game.versionType;
+      this.profileProperties = configuration.user.profileProperties;
+      this.clientPackSource = new DownloadingPackFinder(new File(this.gameDirectory, "server-resource-packs"), configuration.location.getAssetIndex());
       this.resourcePackRepository = new ResourcePackList(Minecraft::createClientPackAdapter, this.clientPackSource, new FolderPackFinder(this.resourcePackDirectory, IPackNameDecorator.DEFAULT));
-      this.proxy = p_i45547_1_.user.proxy;
+      this.proxy = configuration.user.proxy;
       YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(this.proxy);
       this.minecraftSessionService = yggdrasilauthenticationservice.createMinecraftSessionService();
-      this.socialInteractionsService = this.createSocialInteractions(yggdrasilauthenticationservice, p_i45547_1_);
-      this.user = p_i45547_1_.user.user;
+      this.socialInteractionsService = this.createSocialInteractions(yggdrasilauthenticationservice, configuration);
+      this.user = configuration.user.user;
       LOGGER.info("Setting user: {}", (Object)this.user.getName());
       LOGGER.debug("(Session ID is {})", (Object)this.user.getSessionId());
       System.out.println("JVM is " + (isDebugging() ? "debugging." : "not debugging."));
-      this.demo = p_i45547_1_.game.demo;
-      this.allowsMultiplayer = !p_i45547_1_.game.disableMultiplayer;
-      this.allowsChat = !p_i45547_1_.game.disableChat;
+      this.demo = configuration.game.demo;
+      this.allowsMultiplayer = !configuration.game.disableMultiplayer;
+      this.allowsChat = !configuration.game.disableChat;
       this.is64bit = checkIs64Bit();
       this.singleplayerServer = null;
       String s;
       int i;
-      if (this.allowsMultiplayer() && p_i45547_1_.server.hostname != null) {
-         s = p_i45547_1_.server.hostname;
-         i = p_i45547_1_.server.port;
+      if (this.allowsMultiplayer() && configuration.server.hostname != null) {
+         s = configuration.server.hostname;
+         i = configuration.server.port;
       } else {
          s = null;
          i = 0;
@@ -414,9 +414,9 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
       LOGGER.info("Backend library: {}", (Object)RenderSystem.getBackendDescription());
       ScreenSize screensize;
       if (this.options.overrideHeight > 0 && this.options.overrideWidth > 0) {
-         screensize = new ScreenSize(this.options.overrideWidth, this.options.overrideHeight, p_i45547_1_.display.fullscreenWidth, p_i45547_1_.display.fullscreenHeight, p_i45547_1_.display.isFullscreen);
+         screensize = new ScreenSize(this.options.overrideWidth, this.options.overrideHeight, configuration.display.fullscreenWidth, configuration.display.fullscreenHeight, configuration.display.isFullscreen);
       } else {
-         screensize = p_i45547_1_.display;
+         screensize = configuration.display;
       }
 
       Util.timeSource = RenderSystem.initBackendSystem();
@@ -558,7 +558,8 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
    }
 
    public boolean isProbablyModded() {
-      return !"vanilla".equals(ClientBrandRetriever.getClientModName()) || Minecraft.class.getSigners() == null;
+      return false;
+     // return !"vanilla".equals(ClientBrandRetriever.getClientModName()) || Minecraft.class.getSigners() == null;
    }
 
    private void rollbackResourcePacks(Throwable p_229988_1_) {

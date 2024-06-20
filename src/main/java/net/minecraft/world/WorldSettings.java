@@ -12,14 +12,14 @@ public final class WorldSettings {
    private final GameRules gameRules;
    private final DatapackCodec dataPackConfig;
 
-   public WorldSettings(String p_i231620_1_, GameType p_i231620_2_, boolean p_i231620_3_, Difficulty p_i231620_4_, boolean p_i231620_5_, GameRules p_i231620_6_, DatapackCodec p_i231620_7_) {
+   public WorldSettings(String p_i231620_1_, GameType gameType, boolean hardcore, Difficulty difficulty, boolean allowCommands, GameRules gamerules, DatapackCodec codec) {
       this.levelName = p_i231620_1_;
-      this.gameType = p_i231620_2_;
-      this.hardcore = p_i231620_3_;
-      this.difficulty = p_i231620_4_;
-      this.allowCommands = p_i231620_5_;
-      this.gameRules = p_i231620_6_;
-      this.dataPackConfig = p_i231620_7_;
+      this.gameType = gameType;
+      this.hardcore = hardcore;
+      this.difficulty = difficulty;
+      this.allowCommands = allowCommands;
+      this.gameRules = gamerules;
+      this.dataPackConfig = codec;
    }
 
    public static WorldSettings parse(Dynamic<?> p_234951_0_, DatapackCodec p_234951_1_) {

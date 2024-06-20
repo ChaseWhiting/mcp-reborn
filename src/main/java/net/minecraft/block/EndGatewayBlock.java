@@ -49,10 +49,10 @@ public class EndGatewayBlock extends ContainerBlock {
       }
    }
 
-   @OnlyIn(Dist.CLIENT)
-   public ItemStack getCloneItemStack(IBlockReader p_185473_1_, BlockPos p_185473_2_, BlockState p_185473_3_) {
-      return ItemStack.EMPTY;
-   }
+//   @OnlyIn(Dist.CLIENT)
+//   public ItemStack getCloneItemStack(IBlockReader p_185473_1_, BlockPos p_185473_2_, BlockState p_185473_3_) {
+//      return ItemStack.EMPTY;
+//   }
 
    public boolean canBeReplaced(BlockState p_225541_1_, Fluid p_225541_2_) {
       return false;

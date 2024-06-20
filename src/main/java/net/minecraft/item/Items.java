@@ -192,6 +192,7 @@ public class Items {
    public static final Item PURPUR_BLOCK = registerBlock(Blocks.PURPUR_BLOCK, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item PURPUR_PILLAR = registerBlock(Blocks.PURPUR_PILLAR, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item PURPUR_STAIRS = registerBlock(Blocks.PURPUR_STAIRS, ItemGroup.TAB_BUILDING_BLOCKS);
+   public static final Item END_GATEWAY = registerBlock(Blocks.END_GATEWAY, ItemGroup.TAB_DECORATIONS);
    public static final Item SPAWNER = registerBlock(Blocks.SPAWNER);
    public static final Item OAK_STAIRS = registerBlock(Blocks.OAK_STAIRS, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item CHEST = registerBlock(Blocks.CHEST, ItemGroup.TAB_DECORATIONS);
@@ -673,8 +674,8 @@ public class Items {
    public static final Item PORKCHOP = registerItem("porkchop", new Item((new Item.Properties()).tab(ItemGroup.TAB_FOOD).food(Foods.PORKCHOP)));
    public static final Item COOKED_PORKCHOP = registerItem("cooked_porkchop", new Item((new Item.Properties()).tab(ItemGroup.TAB_FOOD).food(Foods.COOKED_PORKCHOP)));
    public static final Item PAINTING = registerItem("painting", new HangingEntityItem(EntityType.PAINTING, (new Item.Properties()).tab(ItemGroup.TAB_DECORATIONS)));
-   public static final Item GOLDEN_APPLE = registerItem("golden_apple", new Item((new Item.Properties()).tab(ItemGroup.TAB_FOOD).rarity(Rarity.RARE).food(Foods.GOLDEN_APPLE)));
-   public static final Item ENCHANTED_GOLDEN_APPLE = registerItem("enchanted_golden_apple", new EnchantedGoldenAppleItem((new Item.Properties()).tab(ItemGroup.TAB_FOOD).rarity(Rarity.EPIC).food(Foods.ENCHANTED_GOLDEN_APPLE)));
+   public static final Item GOLDEN_APPLE = registerItem("golden_apple", new Item((new Item.Properties()).tab(ItemGroup.TAB_FOOD).rarity(Rarity.EPIC).food(Foods.GOLDEN_APPLE)));
+   public static final Item ENCHANTED_GOLDEN_APPLE = registerItem("enchanted_golden_apple", new EnchantedGoldenAppleItem((new Item.Properties()).tab(ItemGroup.TAB_FOOD).rarity(Rarity.LEGENDARY).food(Foods.ENCHANTED_GOLDEN_APPLE)));
    public static final Item OAK_SIGN = registerItem("oak_sign", new SignItem((new Item.Properties()).stacksTo(16).tab(ItemGroup.TAB_DECORATIONS), Blocks.OAK_SIGN, Blocks.OAK_WALL_SIGN));
    public static final Item SPRUCE_SIGN = registerItem("spruce_sign", new SignItem((new Item.Properties()).stacksTo(16).tab(ItemGroup.TAB_DECORATIONS), Blocks.SPRUCE_SIGN, Blocks.SPRUCE_WALL_SIGN));
    public static final Item BIRCH_SIGN = registerItem("birch_sign", new SignItem((new Item.Properties()).stacksTo(16).tab(ItemGroup.TAB_DECORATIONS), Blocks.BIRCH_SIGN, Blocks.BIRCH_WALL_SIGN));
@@ -778,7 +779,7 @@ public class Items {
    public static final Item GHAST_TEAR = registerItem("ghast_tear", new Item((new Item.Properties()).tab(ItemGroup.TAB_BREWING)));
    public static final Item GOLD_NUGGET = registerItem("gold_nugget", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item NETHER_WART = registerItem("nether_wart", new BlockNamedItem(Blocks.NETHER_WART, (new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
-   public static final Item POTION = registerItem("potion", new PotionItem((new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_BREWING)));
+   public static final Item POTION = registerItem("potion", new PotionItem((new Item.Properties()).stacksTo(3).tab(ItemGroup.TAB_BREWING)));
    public static final Item GLASS_BOTTLE = registerItem("glass_bottle", new GlassBottleItem((new Item.Properties()).tab(ItemGroup.TAB_BREWING)));
    public static final Item SPIDER_EYE = registerItem("spider_eye", new Item((new Item.Properties()).tab(ItemGroup.TAB_FOOD).food(Foods.SPIDER_EYE)));
    public static final Item FERMENTED_SPIDER_EYE = registerItem("fermented_spider_eye", new Item((new Item.Properties()).tab(ItemGroup.TAB_BREWING)));
@@ -934,6 +935,20 @@ public class Items {
    public static final Item NETHERITE_SHIELD = registerItem("netherite_shield", new AbstractShieldItem((new Item.Properties()).durability(504).tab(ItemGroup.TAB_COMBAT), AbstractShieldItem.ShieldType.NETHERITE));
 
    public static final Item ELYTRA = registerItem("elytra", new ElytraItem((new Item.Properties()).durability(432).tab(ItemGroup.TAB_TRANSPORTATION).rarity(Rarity.UNCOMMON)));
+
+   // capes
+   public static final Item BLACK_CAPE = registerItem("black_cape", new AbstractCapeItem(new Item.Properties().tab(ItemGroup.TAB_COMBAT).rarity(Rarity.RARE).stacksTo(1), "black_cape", "black_cape"));
+   public static final Item MOJANG_CAPE = registerItem("mojang_cape", new AbstractCapeItem(new Item.Properties().tab(ItemGroup.TAB_COMBAT).rarity(Rarity.RED).stacksTo(1), "mojang_cape", "mojang_cape"));
+
+
+
+
+
+
+
+
+
+
    public static final Item SPRUCE_BOAT = registerItem("spruce_boat", new BoatItem(BoatEntity.Type.SPRUCE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
    public static final Item BIRCH_BOAT = registerItem("birch_boat", new BoatItem(BoatEntity.Type.BIRCH, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
    public static final Item JUNGLE_BOAT = registerItem("jungle_boat", new BoatItem(BoatEntity.Type.JUNGLE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));

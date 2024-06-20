@@ -113,6 +113,7 @@ public class ModelBakery {
       p_229337_0_.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS));
       p_229337_0_.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS));
       p_229337_0_.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD));
+      p_229337_0_.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PlayerContainer.EMPTY_ARMOR_SLOT_CAPE));
       Atlases.getAllMaterials(p_229337_0_::add);
    });
    private static final Logger LOGGER = LogManager.getLogger();

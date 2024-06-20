@@ -105,6 +105,8 @@ public class Commands {
       FleeCommand.register(this.dispatcher);
       InvasionCommand.register(this.dispatcher);
       GroovyCommand.register(this.dispatcher);
+      FakePlayerCommand.register(this.dispatcher);
+      QuestCommand.register(this.dispatcher);
 //      if (SharedConstants.IS_RUNNING_IN_IDE) {
 //         TestCommand.register(this.dispatcher);
 //      }

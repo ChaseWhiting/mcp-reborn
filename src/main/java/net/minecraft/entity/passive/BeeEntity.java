@@ -17,16 +17,7 @@ import net.minecraft.block.CropsBlock;
 import net.minecraft.block.DoublePlantBlock;
 import net.minecraft.block.StemBlock;
 import net.minecraft.block.SweetBerryBushBlock;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.CreatureEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IAngerable;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.Pose;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -82,7 +73,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal {
+public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal, IBee {
    private static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(BeeEntity.class, DataSerializers.BYTE);
    private static final DataParameter<Integer> DATA_REMAINING_ANGER_TIME = EntityDataManager.defineId(BeeEntity.class, DataSerializers.INT);
    private static final RangedInteger PERSISTENT_ANGER_TIME = TickRangeConverter.rangeOfSeconds(20, 39);
@@ -91,7 +82,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
    private float rollAmountO;
    private int timeSinceSting;
    private int ticksWithoutNectarSinceExitingHive;
-   private int stayOutOfHiveCountdown;
+   public int stayOutOfHiveCountdown;
    private int numCropsGrownSincePollination;
    private int remainingCooldownBeforeLocatingNewHive = 0;
    private int remainingCooldownBeforeLocatingNewFlower = 0;
@@ -433,7 +424,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
       return this.getFlag(8);
    }
 
-   private void setHasNectar(boolean p_226447_1_) {
+   public void setHasNectar(boolean p_226447_1_) {
       if (p_226447_1_) {
          this.resetTicksWithoutNectarSinceExitingHive();
       }
@@ -502,7 +493,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
       return p_70877_1_.getItem().is(ItemTags.FLOWERS);
    }
 
-   private boolean isFlowerValid(BlockPos p_226439_1_) {
+   public boolean isFlowerValid(BlockPos p_226439_1_) {
       return this.level.isLoaded(p_226439_1_) && this.level.getBlockState(p_226439_1_).getBlock().is(BlockTags.FLOWERS);
    }
 
@@ -584,13 +575,17 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
          super(p_i225726_2_);
       }
 
+      public boolean isBee(LivingEntity entity) {
+         return entity instanceof IBee;
+      }
+
       public boolean canContinueToUse() {
          return BeeEntity.this.isAngry() && super.canContinueToUse();
       }
 
-      protected void alertOther(MobEntity p_220793_1_, LivingEntity p_220793_2_) {
-         if (p_220793_1_ instanceof BeeEntity && this.mob.canSee(p_220793_2_)) {
-            p_220793_1_.setTarget(p_220793_2_);
+      protected void alertOther(MobEntity bee, LivingEntity target) {
+         if (isBee(bee) && this.mob.canSee(target)) {
+            bee.setTarget(target);
          }
 
       }
@@ -638,7 +633,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
    }
 
    class EnterBeehiveGoal extends BeeEntity.PassiveGoal {
-      private EnterBeehiveGoal() {
+      public EnterBeehiveGoal() {
       }
 
       public boolean canBeeUse() {
@@ -827,7 +822,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
    }
 
    class FindPollinationTargetGoal extends BeeEntity.PassiveGoal {
-      private FindPollinationTargetGoal() {
+      public FindPollinationTargetGoal() {
       }
 
       public boolean canBeeUse() {
@@ -886,7 +881,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
    }
 
    abstract class PassiveGoal extends Goal {
-      private PassiveGoal() {
+      public PassiveGoal() {
       }
 
       public abstract boolean canBeeUse();
@@ -902,7 +897,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
       }
    }
 
-   class PollinateGoal extends BeeEntity.PassiveGoal {
+   private class PollinateGoal extends BeeEntity.PassiveGoal {
       private final Predicate<BlockState> VALID_POLLINATION_BLOCKS = (p_226499_0_) -> {
          if (p_226499_0_.is(BlockTags.TALL_FLOWERS)) {
             if (p_226499_0_.is(Blocks.SUNFLOWER)) {
@@ -1086,7 +1081,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
    }
 
    class UpdateBeehiveGoal extends BeeEntity.PassiveGoal {
-      private UpdateBeehiveGoal() {
+      public UpdateBeehiveGoal() {
       }
 
       public boolean canBeeUse() {

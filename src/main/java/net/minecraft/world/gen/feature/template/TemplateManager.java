@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -29,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 public class TemplateManager {
    private static final Logger LOGGER = LogManager.getLogger();
-   private final Map<ResourceLocation, Template> structureRepository = Maps.newHashMap();
+   private final Map<ResourceLocation, Template> structureRepository = new ConcurrentHashMap<>();
    private final DataFixer fixerUpper;
    private IResourceManager resourceManager;
    private final Path generatedDir;

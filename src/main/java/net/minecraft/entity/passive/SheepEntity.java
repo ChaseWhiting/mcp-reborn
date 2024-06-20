@@ -235,7 +235,7 @@ public class SheepEntity extends AnimalEntity implements IShearable {
    public void shear(SoundCategory p_230263_1_) {
       this.level.playSound((PlayerEntity)null, this, SoundEvents.SHEEP_SHEAR, p_230263_1_, 1.0F, 1.0F);
       this.setSheared(true);
-      int i = 1 + this.random.nextInt(3);
+      int i = 1 + this.random.nextInt(4);
 
       for(int j = 0; j < i; ++j) {
          ItemEntity itementity = this.spawnAtLocation(ITEM_BY_DYE.get(this.getColor()), 1);

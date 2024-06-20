@@ -7,6 +7,7 @@ public enum EquipmentSlotType {
    LEGS(EquipmentSlotType.Group.ARMOR, 1, 2, "legs"),
    CHEST(EquipmentSlotType.Group.ARMOR, 2, 3, "chest"),
    HEAD(EquipmentSlotType.Group.ARMOR, 3, 4, "head");
+   //CAPE(EquipmentSlotType.Group.ARMOR, 4, 5, "cape");
 
    private final EquipmentSlotType.Group type;
    private final int index;

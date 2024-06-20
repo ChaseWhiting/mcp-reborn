@@ -76,6 +76,7 @@ public class EntityRendererManager {
       this.register(EntityType.CUSTOM_ARROW, new CustomArrowRenderer(this));
       this.register(EntityType.BAT, new BatRenderer(this));
       this.register(EntityType.BEE, new BeeRenderer(this));
+      this.register(EntityType.QUEEN_BEE, new QueenBeeRenderer(this));
       this.register(EntityType.BLAZE, new BlazeRenderer(this));
       this.register(EntityType.BOAT, new BoatRenderer(this));
       this.register(EntityType.CAT, new CatRenderer(this));

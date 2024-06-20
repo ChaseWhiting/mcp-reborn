@@ -31,6 +31,7 @@ public class PlayerInventory implements IInventory, INameable {
    public final NonNullList<ItemStack> items = NonNullList.withSize(36, ItemStack.EMPTY);
    public final NonNullList<ItemStack> armor = NonNullList.withSize(4, ItemStack.EMPTY);
    public final NonNullList<ItemStack> offhand = NonNullList.withSize(1, ItemStack.EMPTY);
+   private final NonNullList<ItemStack> cape = NonNullList.withSize(1, ItemStack.EMPTY);
    private final List<NonNullList<ItemStack>> compartments = ImmutableList.of(this.items, this.armor, this.offhand);
    public int selected;
    public final PlayerEntity player;
@@ -573,6 +574,23 @@ public class PlayerInventory implements IInventory, INameable {
       }
 
       return false;
+   }
+
+   public boolean containsAll(List<ItemStack> requiredItems) {
+      for (ItemStack requiredItem : requiredItems) {
+         boolean found = false;
+         for (List<ItemStack> list : this.compartments) {
+            for (ItemStack itemstack : list) {
+               if (!itemstack.isEmpty() && itemstack.sameItem(requiredItem)) {
+                  found = true;
+                  break;
+               }
+            }
+            if (found) break;
+         }
+         if (!found) return false;
+      }
+      return true;
    }
 
    public void replaceWith(PlayerInventory p_70455_1_) {

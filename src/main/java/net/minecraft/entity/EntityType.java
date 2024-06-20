@@ -88,6 +88,8 @@ public class EntityType<T extends Entity> {
    public static final EntityType<ArrowEntity> ARROW = register("arrow", EntityType.Builder.<ArrowEntity>of(ArrowEntity::new, EntityClassification.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20));
    public static final EntityType<BatEntity> BAT = register("bat", EntityType.Builder.<BatEntity>of(BatEntity::new, EntityClassification.AMBIENT).sized(0.5F, 0.9F).clientTrackingRange(5));
    public static final EntityType<OwlEntity> OWL = register("owl", Builder.<OwlEntity>of(OwlEntity::new, EntityClassification.CREATURE).sized(0.7F, 0.8F).clientTrackingRange(12));
+   public static final EntityType<QueenBeeEntity> QUEEN_BEE = register("queen_bee", EntityType.Builder.<QueenBeeEntity>of(QueenBeeEntity::new, EntityClassification.CREATURE).sized(0.9F, 0.79F).clientTrackingRange(10));
+
    public static final EntityType<BeeEntity> BEE = register("bee", EntityType.Builder.<BeeEntity>of(BeeEntity::new, EntityClassification.CREATURE).sized(0.7F, 0.6F).clientTrackingRange(8));
    public static final EntityType<BlazeEntity> BLAZE = register("blaze", EntityType.Builder.<BlazeEntity>of(BlazeEntity::new, EntityClassification.MONSTER).fireImmune().sized(0.6F, 1.8F).clientTrackingRange(8));
    public static final EntityType<BoatEntity> BOAT = register("boat", EntityType.Builder.<BoatEntity>of(BoatEntity::new, EntityClassification.MISC).sized(1.375F, 0.5625F).clientTrackingRange(10));

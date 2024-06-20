@@ -7,6 +7,7 @@ public enum Rarity {
    UNCOMMON(TextFormatting.YELLOW),
    RARE(TextFormatting.AQUA),
    EPIC(TextFormatting.LIGHT_PURPLE),
+   RED(TextFormatting.DARK_RED),
    LEGENDARY(TextFormatting.GOLD);
 
    public final TextFormatting color;

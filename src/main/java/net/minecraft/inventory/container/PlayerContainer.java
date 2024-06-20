@@ -24,6 +24,7 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
    public static final ResourceLocation EMPTY_ARMOR_SLOT_LEGGINGS = new ResourceLocation("item/empty_armor_slot_leggings");
    public static final ResourceLocation EMPTY_ARMOR_SLOT_BOOTS = new ResourceLocation("item/empty_armor_slot_boots");
    public static final ResourceLocation EMPTY_ARMOR_SLOT_SHIELD = new ResourceLocation("item/empty_armor_slot_shield");
+   public static final ResourceLocation EMPTY_ARMOR_SLOT_CAPE = new ResourceLocation("item/empty_armor_slot_cape");
    private static final ResourceLocation[] TEXTURE_EMPTY_SLOTS = new ResourceLocation[]{EMPTY_ARMOR_SLOT_BOOTS, EMPTY_ARMOR_SLOT_LEGGINGS, EMPTY_ARMOR_SLOT_CHESTPLATE, EMPTY_ARMOR_SLOT_HELMET};
    private static final EquipmentSlotType[] SLOT_IDS = new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET};
    private final CraftingInventory craftSlots = new CraftingInventory(this, 2, 2);
@@ -31,11 +32,11 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
    public final boolean active;
    private final PlayerEntity owner;
 
-   public PlayerContainer(PlayerInventory p_i1819_1_, boolean p_i1819_2_, PlayerEntity p_i1819_3_) {
+   public PlayerContainer(PlayerInventory inventory, boolean p_i1819_2_, PlayerEntity p_i1819_3_) {
       super((ContainerType<?>)null, 0);
       this.active = p_i1819_2_;
       this.owner = p_i1819_3_;
-      this.addSlot(new CraftingResultSlot(p_i1819_1_.player, this.craftSlots, this.resultSlots, 0, 154, 28));
+      this.addSlot(new CraftingResultSlot(inventory.player, this.craftSlots, this.resultSlots, 0, 154, 28));
 
       for(int i = 0; i < 2; ++i) {
          for(int j = 0; j < 2; ++j) {
@@ -45,7 +46,7 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
 
       for(int k = 0; k < 4; ++k) {
          final EquipmentSlotType equipmentslottype = SLOT_IDS[k];
-         this.addSlot(new Slot(p_i1819_1_, 39 - k, 8, 8 + k * 18) {
+         this.addSlot(new Slot(inventory, 39 - k, 8, 8 + k * 18) {
             public int getMaxStackSize() {
                return 1;
             }
@@ -68,15 +69,15 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
 
       for(int l = 0; l < 3; ++l) {
          for(int j1 = 0; j1 < 9; ++j1) {
-            this.addSlot(new Slot(p_i1819_1_, j1 + (l + 1) * 9, 8 + j1 * 18, 84 + l * 18));
+            this.addSlot(new Slot(inventory, j1 + (l + 1) * 9, 8 + j1 * 18, 84 + l * 18));
          }
       }
 
       for(int i1 = 0; i1 < 9; ++i1) {
-         this.addSlot(new Slot(p_i1819_1_, i1, 8 + i1 * 18, 142));
+         this.addSlot(new Slot(inventory, i1, 8 + i1 * 18, 142));
       }
 
-      this.addSlot(new Slot(p_i1819_1_, 40, 77, 62) {
+      this.addSlot(new Slot(inventory, 40, 77, 62) {
          @OnlyIn(Dist.CLIENT)
          public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
             return Pair.of(PlayerContainer.BLOCK_ATLAS, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);

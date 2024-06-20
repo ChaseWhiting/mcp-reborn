@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.AbstractCapeItem;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -96,7 +97,7 @@ public class PlayerModel<T extends LivingEntity> extends BipedModel<T> {
       this.leftSleeve.copyFrom(this.leftArm);
       this.rightSleeve.copyFrom(this.rightArm);
       this.jacket.copyFrom(this.body);
-      if (p_225597_1_.getItemBySlot(EquipmentSlotType.CHEST).isEmpty()) {
+      if (p_225597_1_.getItemBySlot(EquipmentSlotType.CHEST).isEmpty() || p_225597_1_.getItemBySlot(EquipmentSlotType.CHEST).getItem() instanceof AbstractCapeItem) {
          if (p_225597_1_.isCrouching()) {
             this.cloak.z = 1.4F;
             this.cloak.y = 1.85F;

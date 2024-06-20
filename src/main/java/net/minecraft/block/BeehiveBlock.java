@@ -7,12 +7,14 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.IBee;
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.TNTEntity;
 import net.minecraft.entity.item.minecart.TNTMinecartEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.passive.BeeEntity;
+import net.minecraft.entity.passive.QueenBeeEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.WitherSkullEntity;
@@ -66,34 +68,41 @@ public class BeehiveBlock extends ContainerBlock {
       return p_180641_1_.getValue(HONEY_LEVEL);
    }
 
-   public void playerDestroy(World p_180657_1_, PlayerEntity p_180657_2_, BlockPos p_180657_3_, BlockState p_180657_4_, @Nullable TileEntity p_180657_5_, ItemStack p_180657_6_) {
-      super.playerDestroy(p_180657_1_, p_180657_2_, p_180657_3_, p_180657_4_, p_180657_5_, p_180657_6_);
-      if (!p_180657_1_.isClientSide && p_180657_5_ instanceof BeehiveTileEntity) {
-         BeehiveTileEntity beehivetileentity = (BeehiveTileEntity)p_180657_5_;
-         if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, p_180657_6_) == 0) {
-            beehivetileentity.emptyAllLivingFromHive(p_180657_2_, p_180657_4_, BeehiveTileEntity.State.EMERGENCY);
-            p_180657_1_.updateNeighbourForOutputSignal(p_180657_3_, this);
-            this.angerNearbyBees(p_180657_1_, p_180657_3_);
+   public void playerDestroy(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity tileEntity, ItemStack itemStack) {
+      super.playerDestroy(world, player, pos, state, tileEntity, itemStack);
+      if (!world.isClientSide && tileEntity instanceof BeehiveTileEntity) {
+         BeehiveTileEntity beehiveTileEntity = (BeehiveTileEntity) tileEntity;
+         if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, itemStack) == 0) {
+            beehiveTileEntity.emptyAllLivingFromHive(player, state, BeehiveTileEntity.State.EMERGENCY);
+            world.updateNeighbourForOutputSignal(pos, this);
+            this.angerNearbyBees(world, pos);
          }
 
-         CriteriaTriggers.BEE_NEST_DESTROYED.trigger((ServerPlayerEntity)p_180657_2_, p_180657_4_.getBlock(), p_180657_6_, beehivetileentity.getOccupantCount());
+         CriteriaTriggers.BEE_NEST_DESTROYED.trigger((ServerPlayerEntity) player, state.getBlock(), itemStack, beehiveTileEntity.getOccupantCount());
       }
-
    }
 
-   private void angerNearbyBees(World p_226881_1_, BlockPos p_226881_2_) {
-      List<BeeEntity> list = p_226881_1_.getEntitiesOfClass(BeeEntity.class, (new AxisAlignedBB(p_226881_2_)).inflate(8.0D, 6.0D, 8.0D));
-      if (!list.isEmpty()) {
-         List<PlayerEntity> list1 = p_226881_1_.getEntitiesOfClass(PlayerEntity.class, (new AxisAlignedBB(p_226881_2_)).inflate(8.0D, 6.0D, 8.0D));
-         int i = list1.size();
 
-         for(BeeEntity beeentity : list) {
-            if (beeentity.getTarget() == null) {
-               beeentity.setTarget(list1.get(p_226881_1_.random.nextInt(i)));
+   private void angerNearbyBees(World world, BlockPos pos) {
+      List<Entity> bees = world.getEntitiesOfClass(Entity.class, new AxisAlignedBB(pos).inflate(8.0D, 6.0D, 8.0D), entity -> entity instanceof IBee);
+      if (!bees.isEmpty()) {
+         List<PlayerEntity> players = world.getEntitiesOfClass(PlayerEntity.class, new AxisAlignedBB(pos).inflate(8.0D, 6.0D, 8.0D));
+         int playerCount = players.size();
+
+         for (Entity entity : bees) {
+            if (entity instanceof BeeEntity) {
+               BeeEntity bee = (BeeEntity) entity;
+               if (bee.getTarget() == null) {
+                  bee.setTarget(players.get(world.random.nextInt(playerCount)));
+               }
+            } else if (entity instanceof QueenBeeEntity) {
+               QueenBeeEntity queenBee = (QueenBeeEntity) entity;
+               if (queenBee.getTarget() == null) {
+                  queenBee.setTarget(players.get(world.random.nextInt(playerCount)));
+               }
             }
          }
       }
-
    }
 
    public static void dropHoneycomb(World p_226878_0_, BlockPos p_226878_1_) {

@@ -29,18 +29,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.ShootableItem;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.item.SwordItem;
-import net.minecraft.item.ToolItem;
+import net.minecraft.item.*;
 import net.minecraft.loot.LootContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.FloatNBT;
@@ -900,10 +889,11 @@ public abstract class MobEntity extends LivingEntity {
       if (item != Blocks.CARVED_PUMPKIN.asItem() && (!(item instanceof BlockItem) || !(((BlockItem)item).getBlock() instanceof AbstractSkullBlock))) {
          if (item instanceof ArmorItem) {
             return ((ArmorItem)item).getSlot();
-         } else if (item == Items.ELYTRA) {
+         } else if (item == Items.ELYTRA || item instanceof AbstractCapeItem) {
             return EquipmentSlotType.CHEST;
-         } else {
+         }  else {
             return item == Items.SHIELD || item == Items.NETHERITE_SHIELD ? EquipmentSlotType.OFFHAND : EquipmentSlotType.MAINHAND;
+
          }
       } else {
          return EquipmentSlotType.HEAD;

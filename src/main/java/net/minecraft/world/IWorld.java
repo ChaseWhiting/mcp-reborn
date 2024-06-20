@@ -44,13 +44,13 @@ public interface IWorld extends IBiomeReader, IDayTimeReader {
 
    void addParticle(IParticleData p_195594_1_, double p_195594_2_, double p_195594_4_, double p_195594_6_, double p_195594_8_, double p_195594_10_, double p_195594_12_);
 
-   void levelEvent(@Nullable PlayerEntity p_217378_1_, int p_217378_2_, BlockPos p_217378_3_, int p_217378_4_);
+   void levelEvent(@Nullable PlayerEntity player, int eventId, BlockPos position, int eventData);
 
    default int getHeight() {
       return this.dimensionType().logicalHeight();
    }
 
-   default void levelEvent(int p_217379_1_, BlockPos p_217379_2_, int p_217379_3_) {
-      this.levelEvent((PlayerEntity)null, p_217379_1_, p_217379_2_, p_217379_3_);
+   default void levelEvent(int eventId, BlockPos position, int eventData) {
+      this.levelEvent((PlayerEntity)null, eventId, position, eventData);
    }
 }

@@ -80,7 +80,7 @@ public class LightningBoltEntity extends Entity {
             this.level.setSkyFlashTime(2);
          } else if (!this.visualOnly) {
             double d0 = 3.0D;
-            List<Entity> list = this.level.getEntities(this, new AxisAlignedBB(this.getX() - 3.0D, this.getY() - 3.0D, this.getZ() - 3.0D, this.getX() + 3.0D, this.getY() + 6.0D + 3.0D, this.getZ() + 3.0D), Entity::isAlive);
+            List<Entity> list = this.level.getEntities(this, new AxisAlignedBB(this.getX() - 3.0D, this.getY() - 3.0D, this.getZ() - 3.0D, this.getX() + 3.0D, this.getY() + 6.0D + 3.0D, this.getZ() + 3.0D).inflate(12D), Entity::isAlive);
 
             for(Entity entity : list) {
                entity.thunderHit((ServerWorld)this.level, this);

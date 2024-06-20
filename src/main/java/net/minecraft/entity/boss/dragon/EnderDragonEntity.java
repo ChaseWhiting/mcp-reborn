@@ -19,6 +19,7 @@ import net.minecraft.entity.boss.dragon.phase.PhaseManager;
 import net.minecraft.entity.boss.dragon.phase.PhaseType;
 import net.minecraft.entity.item.EnderCrystalEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
+import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -30,6 +31,7 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathHeap;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
@@ -336,8 +338,15 @@ public class EnderDragonEntity extends MobEntity implements IMob {
       if (this.nearestCrystal != null) {
          if (this.nearestCrystal.removed) {
             this.nearestCrystal = null;
-         } else if (this.tickCount % 10 == 0 && this.getHealth() < this.getMaxHealth()) {
-            this.setHealth(this.getHealth() + 1.0F);
+         } else {
+            // Health regeneration
+            if (this.tickCount % 10 == 0 && this.getHealth() < this.getMaxHealth()) {
+               this.setHealth(this.getHealth() + 2.0F); // Increase health regeneration rate
+            }
+            // Boost dragon's abilities
+            this.addEffect(new EffectInstance(Effects.DAMAGE_BOOST, 20, 1)); // Increase attack damage
+            this.addEffect(new EffectInstance(Effects.DAMAGE_RESISTANCE, 20, 1)); // Increase resistance
+            this.addEffect(new EffectInstance(Effects.MOVEMENT_SPEED, 20, 1)); // Increase speed
          }
       }
 
@@ -346,7 +355,7 @@ public class EnderDragonEntity extends MobEntity implements IMob {
          EnderCrystalEntity endercrystalentity = null;
          double d0 = Double.MAX_VALUE;
 
-         for(EnderCrystalEntity endercrystalentity1 : list) {
+         for (EnderCrystalEntity endercrystalentity1 : list) {
             double d1 = endercrystalentity1.distanceToSqr(this);
             if (d1 < d0) {
                d0 = d1;
@@ -356,8 +365,8 @@ public class EnderDragonEntity extends MobEntity implements IMob {
 
          this.nearestCrystal = endercrystalentity;
       }
-
    }
+
 
    private void knockBack(List<Entity> p_70970_1_) {
       double d0 = (this.body.getBoundingBox().minX + this.body.getBoundingBox().maxX) / 2.0D;
@@ -808,7 +817,32 @@ public class EnderDragonEntity extends MobEntity implements IMob {
       }
 
       if (p_184672_1_ == this.nearestCrystal) {
-         this.hurt(this.head, DamageSource.explosion(playerentity), 10.0F);
+         this.hurt(this.head, DamageSource.explosion(playerentity), 5.0F); // Reduce damage taken by the dragon
+      }
+
+      // Apply debuffs to the player who destroyed the crystal
+      if (playerentity != null) {
+         playerentity.addEffect(new EffectInstance(Effects.WEAKNESS, 200, 1)); // Weakness for 10 seconds
+         playerentity.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 200, 1)); // Slowness for 10 seconds
+         playerentity.addEffect(new EffectInstance(Effects.POISON, 100, 1)); // Poison for 5 seconds
+      }
+
+      // Summon hostile entities to attack the player
+      for (int i = 0; i < 3; i++) {
+         EndermanEntity enderman = EntityType.ENDERMAN.create(this.level);
+         if (enderman != null) {
+            enderman.setTarget(playerentity);
+            enderman.moveTo(p_184672_2_.getX() + this.random.nextDouble() * 5, p_184672_2_.getY(), p_184672_2_.getZ() + this.random.nextDouble() * 5, this.random.nextFloat() * 360.0F, 0.0F);
+            this.level.addFreshEntity(enderman);
+         }
+      }
+
+      // Inflict area damage around the destroyed crystal's position
+      List<LivingEntity> entities = this.level.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(p_184672_2_).inflate(10));
+      for (LivingEntity entity : entities) {
+         if (entity != this) {
+            entity.hurt(DamageSource.explosion(playerentity), 6.0F); // Deal 6 damage to nearby entities
+         }
       }
 
       this.phaseManager.getCurrentPhase().onCrystalDestroyed(p_184672_1_, p_184672_2_, p_184672_3_, playerentity);

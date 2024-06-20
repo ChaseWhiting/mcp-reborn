@@ -54,45 +54,45 @@ public class EndSpikeFeature extends Feature<EndSpikeFeatureConfig> {
 
    private void placeSpike(IServerWorld p_214553_1_, Random p_214553_2_, EndSpikeFeatureConfig p_214553_3_, EndSpikeFeature.EndSpike p_214553_4_) {
       int i = p_214553_4_.getRadius();
+      int fixedHeight = p_214553_4_.getHeight() + 15; // Adding a fixed height of 15 blocks
 
-      for(BlockPos blockpos : BlockPos.betweenClosed(new BlockPos(p_214553_4_.getCenterX() - i, 0, p_214553_4_.getCenterZ() - i), new BlockPos(p_214553_4_.getCenterX() + i, p_214553_4_.getHeight() + 10, p_214553_4_.getCenterZ() + i))) {
-         if (blockpos.distSqr((double)p_214553_4_.getCenterX(), (double)blockpos.getY(), (double)p_214553_4_.getCenterZ(), false) <= (double)(i * i + 1) && blockpos.getY() < p_214553_4_.getHeight()) {
+      for(BlockPos blockpos : BlockPos.betweenClosed(new BlockPos(p_214553_4_.getCenterX() - i, 0, p_214553_4_.getCenterZ() - i), new BlockPos(p_214553_4_.getCenterX() + i, fixedHeight + 10, p_214553_4_.getCenterZ() + i))) {
+         if (blockpos.distSqr((double)p_214553_4_.getCenterX(), (double)blockpos.getY(), (double)p_214553_4_.getCenterZ(), false) <= (double)(i * i + 1) && blockpos.getY() < fixedHeight) {
             this.setBlock(p_214553_1_, blockpos, Blocks.OBSIDIAN.defaultBlockState());
          } else if (blockpos.getY() > 65) {
             this.setBlock(p_214553_1_, blockpos, Blocks.AIR.defaultBlockState());
          }
       }
 
-      if (p_214553_4_.isGuarded()) {
-         int j1 = -2;
-         int k1 = 2;
-         int j = 3;
-         BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
+       int j1 = -2;
+       int k1 = 2;
+       int j = 3;
+       BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
 
-         for(int k = -2; k <= 2; ++k) {
-            for(int l = -2; l <= 2; ++l) {
-               for(int i1 = 0; i1 <= 3; ++i1) {
-                  boolean flag = MathHelper.abs(k) == 2;
-                  boolean flag1 = MathHelper.abs(l) == 2;
-                  boolean flag2 = i1 == 3;
-                  if (flag || flag1 || flag2) {
-                     boolean flag3 = k == -2 || k == 2 || flag2;
-                     boolean flag4 = l == -2 || l == 2 || flag2;
-                     BlockState blockstate = Blocks.IRON_BARS.defaultBlockState().setValue(PaneBlock.NORTH, Boolean.valueOf(flag3 && l != -2)).setValue(PaneBlock.SOUTH, Boolean.valueOf(flag3 && l != 2)).setValue(PaneBlock.WEST, Boolean.valueOf(flag4 && k != -2)).setValue(PaneBlock.EAST, Boolean.valueOf(flag4 && k != 2));
-                     this.setBlock(p_214553_1_, blockpos$mutable.set(p_214553_4_.getCenterX() + k, p_214553_4_.getHeight() + i1, p_214553_4_.getCenterZ() + l), blockstate);
-                  }
-               }
-            }
-         }
-      }
+       for(int k = -2; k <= 2; ++k) {
+          for(int l = -2; l <= 2; ++l) {
+             for(int i1 = 0; i1 <= 3; ++i1) {
+                boolean flag = MathHelper.abs(k) == 2;
+                boolean flag1 = MathHelper.abs(l) == 2;
+                boolean flag2 = i1 == 3;
+                if (flag || flag1 || flag2) {
+                   boolean flag3 = k == -2 || k == 2 || flag2;
+                   boolean flag4 = l == -2 || l == 2 || flag2;
+                   BlockState blockstate = Blocks.IRON_BARS.defaultBlockState().setValue(PaneBlock.NORTH, Boolean.valueOf(flag3 && l != -2)).setValue(PaneBlock.SOUTH, Boolean.valueOf(flag3 && l != 2)).setValue(PaneBlock.WEST, Boolean.valueOf(flag4 && k != -2)).setValue(PaneBlock.EAST, Boolean.valueOf(flag4 && k != 2));
+                   this.setBlock(p_214553_1_, blockpos$mutable.set(p_214553_4_.getCenterX() + k, fixedHeight + i1, p_214553_4_.getCenterZ() + l), blockstate);
+                }
+             }
+          }
+       }
 
-      EnderCrystalEntity endercrystalentity = EntityType.END_CRYSTAL.create(p_214553_1_.getLevel());
+       EnderCrystalEntity endercrystalentity = EntityType.END_CRYSTAL.create(p_214553_1_.getLevel());
       endercrystalentity.setBeamTarget(p_214553_3_.getCrystalBeamTarget());
       endercrystalentity.setInvulnerable(p_214553_3_.isCrystalInvulnerable());
-      endercrystalentity.moveTo((double)p_214553_4_.getCenterX() + 0.5D, (double)(p_214553_4_.getHeight() + 1), (double)p_214553_4_.getCenterZ() + 0.5D, p_214553_2_.nextFloat() * 360.0F, 0.0F);
+      endercrystalentity.moveTo((double)p_214553_4_.getCenterX() + 0.5D, (double)(fixedHeight + 1), (double)p_214553_4_.getCenterZ() + 0.5D, p_214553_2_.nextFloat() * 360.0F, 0.0F);
       p_214553_1_.addFreshEntity(endercrystalentity);
-      this.setBlock(p_214553_1_, new BlockPos(p_214553_4_.getCenterX(), p_214553_4_.getHeight(), p_214553_4_.getCenterZ()), Blocks.BEDROCK.defaultBlockState());
+      this.setBlock(p_214553_1_, new BlockPos(p_214553_4_.getCenterX(), fixedHeight, p_214553_4_.getCenterZ()), Blocks.BEDROCK.defaultBlockState());
    }
+
 
    public static class EndSpike {
       public static final Codec<EndSpikeFeature.EndSpike> CODEC = RecordCodecBuilder.create((p_236359_0_) -> {
