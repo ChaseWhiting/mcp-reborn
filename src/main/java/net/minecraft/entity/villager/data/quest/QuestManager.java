@@ -1,6 +1,8 @@
 package net.minecraft.entity.villager.data.quest;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.QuestOffer;
 import net.minecraft.nbt.CompoundNBT;
 
 import java.util.ArrayList;
@@ -55,6 +57,15 @@ public class QuestManager {
     public void removeQuest(Quest quest) {
         activeQuests.remove(quest);
         completedQuests.remove(quest);
+    }
+
+    public QuestOffer getActiveQuestOffer(ItemStack primaryPayment, ItemStack secondaryPayment, int selectionHint) {
+        for (Quest quest : activeQuests) {
+            if (quest.getRequiredItems().contains(primaryPayment) || quest.getRequiredItems().contains(secondaryPayment)) {
+                return new QuestOffer(quest);
+            }
+        }
+        return null;
     }
 
 

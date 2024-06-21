@@ -1,6 +1,7 @@
 package net.minecraft.inventory.container;
 
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.villager.data.quest.QuestManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,6 +28,7 @@ public class ContainerType<T extends Container> {
    });
    public static final ContainerType<LoomContainer> LOOM = register("loom", LoomContainer::new);
    public static final ContainerType<MerchantContainer> MERCHANT = register("merchant", MerchantContainer::new);
+   public static final ContainerType<QuestContainer> QUEST = register("quest", ContainerType::createQuestContainer);
    public static final ContainerType<ShulkerBoxContainer> SHULKER_BOX = register("shulker_box", ShulkerBoxContainer::new);
    public static final ContainerType<SmithingTableContainer> SMITHING = register("smithing", SmithingTableContainer::new);
    public static final ContainerType<SmokerContainer> SMOKER = register("smoker", SmokerContainer::new);
@@ -45,6 +47,12 @@ public class ContainerType<T extends Container> {
    @OnlyIn(Dist.CLIENT)
    public T create(int p_221506_1_, PlayerInventory p_221506_2_) {
       return this.constructor.create(p_221506_1_, p_221506_2_);
+   }
+
+   private static QuestContainer createQuestContainer(int containerId, PlayerInventory playerInventory) {
+      // Provide a default or context-specific QuestManager
+      QuestManager defaultQuestManager = new QuestManager(playerInventory.player);
+      return new QuestContainer(containerId, playerInventory, defaultQuestManager);
    }
 
    interface IFactory<T extends Container> {

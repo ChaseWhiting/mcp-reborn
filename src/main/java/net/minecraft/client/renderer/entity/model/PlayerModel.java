@@ -28,50 +28,50 @@ public class PlayerModel<T extends LivingEntity> extends BipedModel<T> {
    private final ModelRenderer ear;
    private final boolean slim;
 
-   public PlayerModel(float p_i46304_1_, boolean p_i46304_2_) {
-      super(RenderType::entityTranslucent, p_i46304_1_, 0.0F, 64, 64);
-      this.slim = p_i46304_2_;
+   public PlayerModel(float shadow, boolean slim) {
+      super(RenderType::entityTranslucent, shadow, 0.0F, 64, 64);
+      this.slim = slim;
       this.ear = new ModelRenderer(this, 24, 0);
-      this.ear.addBox(-3.0F, -6.0F, -1.0F, 6.0F, 6.0F, 1.0F, p_i46304_1_);
+      this.ear.addBox(-3.0F, -6.0F, -1.0F, 6.0F, 6.0F, 1.0F, shadow);
       this.cloak = new ModelRenderer(this, 0, 0);
       this.cloak.setTexSize(64, 32);
-      this.cloak.addBox(-5.0F, 0.0F, -1.0F, 10.0F, 16.0F, 1.0F, p_i46304_1_);
-      if (p_i46304_2_) {
+      this.cloak.addBox(-5.0F, 0.0F, -1.0F, 10.0F, 16.0F, 1.0F, shadow);
+      if (slim) {
          this.leftArm = new ModelRenderer(this, 32, 48);
-         this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, p_i46304_1_);
+         this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, shadow);
          this.leftArm.setPos(5.0F, 2.5F, 0.0F);
          this.rightArm = new ModelRenderer(this, 40, 16);
-         this.rightArm.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, p_i46304_1_);
+         this.rightArm.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, shadow);
          this.rightArm.setPos(-5.0F, 2.5F, 0.0F);
          this.leftSleeve = new ModelRenderer(this, 48, 48);
-         this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, p_i46304_1_ + 0.25F);
+         this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, shadow + 0.25F);
          this.leftSleeve.setPos(5.0F, 2.5F, 0.0F);
          this.rightSleeve = new ModelRenderer(this, 40, 32);
-         this.rightSleeve.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, p_i46304_1_ + 0.25F);
+         this.rightSleeve.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, shadow + 0.25F);
          this.rightSleeve.setPos(-5.0F, 2.5F, 10.0F);
       } else {
          this.leftArm = new ModelRenderer(this, 32, 48);
-         this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i46304_1_);
+         this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, shadow);
          this.leftArm.setPos(5.0F, 2.0F, 0.0F);
          this.leftSleeve = new ModelRenderer(this, 48, 48);
-         this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i46304_1_ + 0.25F);
+         this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, shadow + 0.25F);
          this.leftSleeve.setPos(5.0F, 2.0F, 0.0F);
          this.rightSleeve = new ModelRenderer(this, 40, 32);
-         this.rightSleeve.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i46304_1_ + 0.25F);
+         this.rightSleeve.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, shadow + 0.25F);
          this.rightSleeve.setPos(-5.0F, 2.0F, 10.0F);
       }
 
       this.leftLeg = new ModelRenderer(this, 16, 48);
-      this.leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i46304_1_);
+      this.leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, shadow);
       this.leftLeg.setPos(1.9F, 12.0F, 0.0F);
       this.leftPants = new ModelRenderer(this, 0, 48);
-      this.leftPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i46304_1_ + 0.25F);
+      this.leftPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, shadow + 0.25F);
       this.leftPants.setPos(1.9F, 12.0F, 0.0F);
       this.rightPants = new ModelRenderer(this, 0, 32);
-      this.rightPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i46304_1_ + 0.25F);
+      this.rightPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, shadow + 0.25F);
       this.rightPants.setPos(-1.9F, 12.0F, 0.0F);
       this.jacket = new ModelRenderer(this, 16, 32);
-      this.jacket.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, p_i46304_1_ + 0.25F);
+      this.jacket.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, shadow + 0.25F);
       this.jacket.setPos(0.0F, 0.0F, 0.0F);
    }
 

@@ -7,6 +7,7 @@ import net.minecraft.inventory.MerchantInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MerchantOffer;
 import net.minecraft.item.MerchantOffers;
+import net.minecraft.item.QuestOffers;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.World;
@@ -17,6 +18,7 @@ public class NPCMerchant implements IMerchant {
    private final MerchantInventory container;
    private final PlayerEntity source;
    private MerchantOffers offers = new MerchantOffers();
+   private QuestOffers questOffers = new QuestOffers();
    private int xp;
 
    public NPCMerchant(PlayerEntity p_i50184_1_) {
@@ -36,9 +38,18 @@ public class NPCMerchant implements IMerchant {
       return this.offers;
    }
 
+   public QuestOffers getQuestOffers() {
+      return this.questOffers;
+   }
+
    @OnlyIn(Dist.CLIENT)
    public void overrideOffers(@Nullable MerchantOffers p_213703_1_) {
       this.offers = p_213703_1_;
+   }
+
+   @OnlyIn(Dist.CLIENT)
+   public void overrideQuestOffers(@Nullable QuestOffers questOffers) {
+      this.questOffers = questOffers;
    }
 
    public void notifyTrade(MerchantOffer p_213704_1_) {

@@ -2,10 +2,8 @@ package net.minecraft.entity.monster;
 
 import java.util.Random;
 import java.util.function.Predicate;
-import net.minecraft.entity.CreatureEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SpawnReason;
+
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -122,4 +120,5 @@ public abstract class MonsterEntity extends CreatureEntity implements IMob {
          return ItemStack.EMPTY;
       }
    }
+
 }

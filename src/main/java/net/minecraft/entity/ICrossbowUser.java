@@ -2,6 +2,7 @@ package net.minecraft.entity;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.entity.herobrine.HerobrineEntity;
 import net.minecraft.entity.monster.piglin.PiglinBruteEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -45,11 +46,13 @@ public interface ICrossbowUser extends IRangedAttackMob {
       double d2 = (double)MathHelper.sqrt(d0 * d0 + d1 * d1);
       double d3 = target.getY(0.3333333333333333D) - projectileEntity.getY() + d2 * (double)0.2F;
       Vector3f vector3f = this.getProjectileShotVector(shooter, new Vector3d(d0, d3, d1), inaccuracy);
-      if (shooter instanceof PiglinBruteEntity) {
+      if (shooter instanceof PiglinBruteEntity || shooter instanceof HerobrineEntity) {
          if (projectileEntity instanceof AbstractArrowEntity) {
             AbstractArrowEntity arrow = (AbstractArrowEntity) projectileEntity;
             double Damage = arrow.getBaseDamage();
             Difficulty difficulty = shooter.level.getDifficulty();
+            int arrowLevel = arrow.getPierceLevel();
+            arrow.setPierceLevel((byte) (arrow.getPierceLevel() + 2));
             switch (difficulty) {
                case EASY:
                   arrow.setBaseDamage(arrow.getBaseDamage());

@@ -4,10 +4,12 @@ import java.util.OptionalInt;
 import javax.annotation.Nullable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.MerchantContainer;
+import net.minecraft.inventory.container.QuestContainer;
 import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MerchantOffer;
 import net.minecraft.item.MerchantOffers;
+import net.minecraft.item.QuestOffers;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -22,8 +24,13 @@ public interface IMerchant {
 
    MerchantOffers getOffers();
 
+   QuestOffers getQuestOffers();
+
    @OnlyIn(Dist.CLIENT)
    void overrideOffers(@Nullable MerchantOffers p_213703_1_);
+
+   @OnlyIn(Dist.CLIENT)
+   void overrideQuestOffers(@Nullable QuestOffers offers);
 
    void notifyTrade(MerchantOffer p_213704_1_);
 
@@ -43,16 +50,29 @@ public interface IMerchant {
       return false;
    }
 
-   default void openTradingScreen(PlayerEntity p_213707_1_, ITextComponent p_213707_2_, int p_213707_3_) {
-      OptionalInt optionalint = p_213707_1_.openMenu(new SimpleNamedContainerProvider((p_213701_1_, p_213701_2_, p_213701_3_) -> {
-         return new MerchantContainer(p_213701_1_, p_213701_2_, this);
-      }, p_213707_2_));
-      if (optionalint.isPresent()) {
-         MerchantOffers merchantoffers = this.getOffers();
-         if (!merchantoffers.isEmpty()) {
-            p_213707_1_.sendMerchantOffers(optionalint.getAsInt(), merchantoffers, p_213707_3_, this.getVillagerXp(), this.showProgressBar(), this.canRestock());
+   default void openTradingScreen(PlayerEntity player, ITextComponent displayName, int villagerLevel) {
+      OptionalInt containerId = player.openMenu(new SimpleNamedContainerProvider((id, playerInventory, playerEntity) -> {
+         return new MerchantContainer(id, playerInventory, this);
+      }, displayName));
+
+      if (containerId.isPresent()) {
+         MerchantOffers offers = this.getOffers();
+         if (!offers.isEmpty()) {
+            player.sendMerchantOffers(containerId.getAsInt(), offers, villagerLevel, this.getVillagerXp(), this.showProgressBar(), this.canRestock());
          }
       }
-
    }
+
+   // Now, modify the method to open the QuestScreen
+   default void openQuestScreen(PlayerEntity player, ITextComponent displayName) {
+      OptionalInt containerId = player.openMenu(new SimpleNamedContainerProvider((id, playerInventory, playerEntity) -> {
+         return new QuestContainer(id, playerInventory, this, player.getQuestManager());
+      }, displayName));
+      if (containerId.isPresent()) {
+         // Send quest data to the client, if necessary
+         // player.sendQuestData(containerId.getAsInt(), questData);
+      }
+   }
+
+
 }

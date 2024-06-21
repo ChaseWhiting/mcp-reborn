@@ -25,11 +25,7 @@ import net.minecraft.entity.monster.VindicatorEntity;
 import net.minecraft.entity.monster.ZoglinEntity;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.MerchantOffer;
-import net.minecraft.item.MerchantOffers;
+import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.potion.PotionUtils;
@@ -85,6 +81,11 @@ public class WanderingTraderEntity extends AbstractVillagerEntity {
       return null;
    }
 
+   @Override
+   public void overrideQuestOffers(@Nullable QuestOffers offers) {
+
+   }
+
    public boolean showProgressBar() {
       return false;
    }
@@ -125,6 +126,11 @@ public class WanderingTraderEntity extends AbstractVillagerEntity {
          }
 
       }
+   }
+
+   @Override
+   protected void updateQuest() {
+
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {

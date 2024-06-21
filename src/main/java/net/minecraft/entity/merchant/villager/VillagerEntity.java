@@ -43,12 +43,11 @@ import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.villager.IVillagerDataHolder;
 import net.minecraft.entity.villager.VillagerType;
+import net.minecraft.entity.villager.data.quest.Quest;
+import net.minecraft.entity.villager.data.quest.QuestManager;
+import net.minecraft.entity.villager.data.quest.QuestTypes;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.MerchantOffer;
-import net.minecraft.item.MerchantOffers;
+import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -126,7 +125,43 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
       ((GroundPathNavigator)this.getNavigation()).setCanOpenDoors(true);
       this.getNavigation().setCanFloat(true);
       this.setCanPickUpLoot(true);
+      this.questOffers = new QuestOffers();
+      initializeQuests();
       this.setVillagerData(this.getVillagerData().setType(p_i50183_3_).setProfession(VillagerProfession.NONE));
+   }
+
+   private void initializeQuests() {
+      // Example of adding quests to the villager
+      Quest quest1 = QuestTypes.killCows;
+      this.questOffers.add(new QuestOffer(quest1));
+
+      Quest quest2 = new Quest("Quest 2", "Slay 5 zombies");
+      quest2.addRequiredKill(EntityType.ZOMBIE, 5);
+      quest2.addReward(new ItemStack(Items.GOLD_INGOT, 5));
+      this.questOffers.add(new QuestOffer(quest2));
+   }
+
+   private QuestOffers createNewOffers() {
+      QuestOffers questoffers = new QuestOffers();
+      Optional<Quest> optionalQuest = QuestTypes.quests.stream()
+              .findFirst()
+              .map(Quest::clone); // Use the clone method
+
+      if (optionalQuest.isPresent()) {
+         Quest quest = optionalQuest.get();
+         questoffers.add(new QuestOffer(quest));
+      }
+
+      return questoffers;
+   }
+   @Override
+   public QuestOffers getQuestOffers() {
+      if (this.questOffers == null) {
+         this.questOffers = createNewOffers();
+         this.updateQuest();
+      }
+
+      return this.questOffers;
    }
 
    public Brain<VillagerEntity> getBrain() {
@@ -150,28 +185,28 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
       this.registerBrainGoals(this.getBrain());
    }
 
-   private void registerBrainGoals(Brain<VillagerEntity> p_213744_1_) {
+   private void registerBrainGoals(Brain<VillagerEntity> brain) {
       VillagerProfession villagerprofession = this.getVillagerData().getProfession();
       if (this.isBaby()) {
-         p_213744_1_.setSchedule(Schedule.VILLAGER_BABY);
-         p_213744_1_.addActivity(Activity.PLAY, VillagerTasks.getPlayPackage(0.5F));
+         brain.setSchedule(Schedule.VILLAGER_BABY);
+         brain.addActivity(Activity.PLAY, VillagerTasks.getPlayPackage(0.5F));
       } else {
-         p_213744_1_.setSchedule(Schedule.VILLAGER_DEFAULT);
-         p_213744_1_.addActivityWithConditions(Activity.WORK, VillagerTasks.getWorkPackage(villagerprofession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleStatus.VALUE_PRESENT)));
+         brain.setSchedule(Schedule.VILLAGER_DEFAULT);
+         brain.addActivityWithConditions(Activity.WORK, VillagerTasks.getWorkPackage(villagerprofession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleStatus.VALUE_PRESENT)));
       }
 
-      p_213744_1_.addActivity(Activity.CORE, VillagerTasks.getCorePackage(villagerprofession, 0.5F));
-      p_213744_1_.addActivityWithConditions(Activity.MEET, VillagerTasks.getMeetPackage(villagerprofession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryModuleStatus.VALUE_PRESENT)));
-      p_213744_1_.addActivity(Activity.REST, VillagerTasks.getRestPackage(villagerprofession, 0.5F));
-      p_213744_1_.addActivity(Activity.IDLE, VillagerTasks.getIdlePackage(villagerprofession, 0.5F));
-      p_213744_1_.addActivity(Activity.PANIC, VillagerTasks.getPanicPackage(villagerprofession, 0.5F));
-      p_213744_1_.addActivity(Activity.PRE_RAID, VillagerTasks.getPreRaidPackage(villagerprofession, 0.5F));
-      p_213744_1_.addActivity(Activity.RAID, VillagerTasks.getRaidPackage(villagerprofession, 0.5F));
-      p_213744_1_.addActivity(Activity.HIDE, VillagerTasks.getHidePackage(villagerprofession, 0.5F));
-      p_213744_1_.setCoreActivities(ImmutableSet.of(Activity.CORE));
-      p_213744_1_.setDefaultActivity(Activity.IDLE);
-      p_213744_1_.setActiveActivityIfPossible(Activity.IDLE);
-      p_213744_1_.updateActivityFromSchedule(this.level.getDayTime(), this.level.getGameTime());
+      brain.addActivity(Activity.CORE, VillagerTasks.getCorePackage(villagerprofession, 0.5F));
+      brain.addActivityWithConditions(Activity.MEET, VillagerTasks.getMeetPackage(villagerprofession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryModuleStatus.VALUE_PRESENT)));
+      brain.addActivity(Activity.REST, VillagerTasks.getRestPackage(villagerprofession, 0.5F));
+      brain.addActivity(Activity.IDLE, VillagerTasks.getIdlePackage(villagerprofession, 0.5F));
+      brain.addActivity(Activity.PANIC, VillagerTasks.getPanicPackage(villagerprofession, 0.5F));
+      brain.addActivity(Activity.PRE_RAID, VillagerTasks.getPreRaidPackage(villagerprofession, 0.5F));
+      brain.addActivity(Activity.RAID, VillagerTasks.getRaidPackage(villagerprofession, 0.5F));
+      brain.addActivity(Activity.HIDE, VillagerTasks.getHidePackage(villagerprofession, 0.5F));
+      brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
+      brain.setDefaultActivity(Activity.IDLE);
+      brain.setActiveActivityIfPossible(Activity.IDLE);
+      brain.updateActivityFromSchedule(this.level.getDayTime(), this.level.getGameTime());
    }
 
    protected void ageBoundaryReached() {
@@ -239,34 +274,35 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
       this.maybeDecayGossip();
    }
 
-   public ActionResultType mobInteract(PlayerEntity p_230254_1_, Hand p_230254_2_) {
-      ItemStack itemstack = p_230254_1_.getItemInHand(p_230254_2_);
+   public ActionResultType mobInteract(PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
       if (itemstack.getItem() != Items.VILLAGER_SPAWN_EGG && this.isAlive() && !this.isTrading() && !this.isSleeping()) {
          if (this.isBaby()) {
             this.setUnhappy();
             return ActionResultType.sidedSuccess(this.level.isClientSide);
          } else {
             boolean flag = this.getOffers().isEmpty();
-            if (p_230254_2_ == Hand.MAIN_HAND) {
+            if (hand == Hand.MAIN_HAND) {
                if (flag && !this.level.isClientSide) {
-                  this.setUnhappy();
+                  this.startQuests(player);
+                  //this.setUnhappy();
                }
 
-               p_230254_1_.awardStat(Stats.TALKED_TO_VILLAGER);
+               player.awardStat(Stats.TALKED_TO_VILLAGER);
             }
 
             if (flag) {
                return ActionResultType.sidedSuccess(this.level.isClientSide);
             } else {
                if (!this.level.isClientSide && !this.offers.isEmpty()) {
-                  this.startTrading(p_230254_1_);
+                  this.startTrading(player);
                }
 
                return ActionResultType.sidedSuccess(this.level.isClientSide);
             }
          }
       } else {
-         return super.mobInteract(p_230254_1_, p_230254_2_);
+         return super.mobInteract(player, hand);
       }
    }
 
@@ -278,10 +314,16 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
 
    }
 
-   private void startTrading(PlayerEntity p_213740_1_) {
-      this.updateSpecialPrices(p_213740_1_);
-      this.setTradingPlayer(p_213740_1_);
-      this.openTradingScreen(p_213740_1_, this.getDisplayName(), this.getVillagerData().getLevel());
+   private void startTrading(PlayerEntity player) {
+      this.updateSpecialPrices(player);
+      this.setTradingPlayer(player);
+      this.openTradingScreen(player, this.getDisplayName(), this.getVillagerData().getLevel());
+   }
+
+
+   private void startQuests(PlayerEntity player) {
+      this.setTradingPlayer(player);
+      this.openQuestScreen(player, this.getDisplayName());
    }
 
    public void setTradingPlayer(@Nullable PlayerEntity p_70932_1_) {
@@ -291,6 +333,11 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
          this.stopTrading();
       }
 
+   }
+
+   @Override
+   public void overrideQuestOffers(@Nullable QuestOffers offers) {
+      this.questOffers = offers;
    }
 
    protected void stopTrading() {
@@ -433,6 +480,10 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
 
       if (p_70037_1_.contains("Offers", 10)) {
          this.offers = new MerchantOffers(p_70037_1_.getCompound("Offers"));
+      }
+
+      if  (p_70037_1_.contains("Quests", 10)) {
+         this.questOffers = new QuestOffers(p_70037_1_.getCompound("Quests"));
       }
 
       if (p_70037_1_.contains("FoodLevel", 1)) {
@@ -768,6 +819,29 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
             MerchantOffers merchantoffers = this.getOffers();
             this.addOffersFromItemListings(merchantoffers, avillagertrades$itrade, 2);
          }
+      }
+   }
+
+   protected void updateQuests() {
+      QuestOffers questOffers = this.getQuestOffers();
+      if (questOffers != null && !questOffers.isEmpty()) {
+         questOffers.clear();
+         Optional<Quest> optionalQuest = QuestTypes.quests.stream()
+                 .findFirst()
+                 .map(Quest::clone);
+         if (optionalQuest.isPresent()) {
+            Quest quest = optionalQuest.get();
+            questOffers.add(new QuestOffer(quest));
+         }
+      }
+   }
+
+   protected void updateQuest() {
+      VillagerData villagerdata = this.getVillagerData();
+      VillagerTrades.IQuest[] quests = VillagerTrades.QUESTS.get(1);
+      if (quests != null && quests.length > 0) {
+         QuestOffers questOffers = this.getQuestOffers();
+         this.addQuestOffersFromItemListings(questOffers, quests, 2);
       }
    }
 

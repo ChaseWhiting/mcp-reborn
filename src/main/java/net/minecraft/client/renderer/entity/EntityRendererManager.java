@@ -70,6 +70,7 @@ public class EntityRendererManager {
 
    private void registerRenderers(net.minecraft.client.renderer.ItemRenderer p_229097_1_, IReloadableResourceManager p_229097_2_) {
       this.register(EntityType.AREA_EFFECT_CLOUD, new AreaEffectCloudRenderer(this));
+      this.register(EntityType.HEROBRINE, new HerobrineRenderer(this));
       this.register(EntityType.ARMOR_STAND, new ArmorStandRenderer(this));
       this.register(EntityType.ARROW, new TippedArrowRenderer(this));
       this.register(EntityType.BONE_ARROW, new BoneArrowRenderer(this));

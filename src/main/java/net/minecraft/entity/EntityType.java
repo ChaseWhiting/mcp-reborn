@@ -13,6 +13,7 @@ import net.minecraft.block.CampfireBlock;
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
+import net.minecraft.entity.herobrine.HerobrineEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.EnderCrystalEntity;
@@ -205,6 +206,8 @@ public class EntityType<T extends Entity> {
                    .updateInterval(5)
 
    );
+   public static final EntityType<HerobrineEntity> HEROBRINE = register("herobrine", EntityType.Builder.<HerobrineEntity>of(HerobrineEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.8F).clientTrackingRange(32).updateInterval(2));
+
 
    private final EntityType.IFactory<T> factory;
    private final EntityClassification category;

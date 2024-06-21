@@ -16,9 +16,7 @@ import net.minecraft.entity.merchant.IMerchant;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.MerchantOffer;
-import net.minecraft.item.MerchantOffers;
+import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -43,6 +41,7 @@ public abstract class AbstractVillagerEntity extends AgeableEntity implements IN
    private PlayerEntity tradingPlayer;
    @Nullable
    protected MerchantOffers offers;
+   protected QuestOffers questOffers;
    private final Inventory inventory = new Inventory(8);
 
    public AbstractVillagerEntity(EntityType<? extends AbstractVillagerEntity> p_i50185_1_, World p_i50185_2_) {
@@ -102,6 +101,15 @@ public abstract class AbstractVillagerEntity extends AgeableEntity implements IN
       return this.offers;
    }
 
+   public QuestOffers getQuestOffers() {
+      if (this.questOffers == null) {
+         this.questOffers = new QuestOffers();
+         this.updateQuest();
+      }
+
+      return this.questOffers;
+   }
+
    @OnlyIn(Dist.CLIENT)
    public void overrideOffers(@Nullable MerchantOffers p_213703_1_) {
    }
@@ -148,8 +156,13 @@ public abstract class AbstractVillagerEntity extends AgeableEntity implements IN
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
       MerchantOffers merchantoffers = this.getOffers();
+      QuestOffers questOffers1 = this.getQuestOffers();
       if (!merchantoffers.isEmpty()) {
          p_213281_1_.put("Offers", merchantoffers.createTag());
+      }
+
+      if (!questOffers1.isEmpty()) {
+         p_213281_1_.put("Quests", questOffers1.createTag());
       }
 
       p_213281_1_.put("Inventory", this.inventory.createTag());
@@ -159,6 +172,9 @@ public abstract class AbstractVillagerEntity extends AgeableEntity implements IN
       super.readAdditionalSaveData(p_70037_1_);
       if (p_70037_1_.contains("Offers", 10)) {
          this.offers = new MerchantOffers(p_70037_1_.getCompound("Offers"));
+      }
+      if (p_70037_1_.contains("Quests", 10)) {
+         this.questOffers = new QuestOffers(p_70037_1_.getCompound("Quests"));
       }
 
       this.inventory.fromTag(p_70037_1_.getList("Inventory", 10));
@@ -218,6 +234,8 @@ public abstract class AbstractVillagerEntity extends AgeableEntity implements IN
 
    protected abstract void updateTrades();
 
+   protected abstract void updateQuest();
+
    protected void addOffersFromItemListings(MerchantOffers p_213717_1_, VillagerTrades.ITrade[] p_213717_2_, int p_213717_3_) {
       Set<Integer> set = Sets.newHashSet();
       if (p_213717_2_.length > p_213717_3_) {
@@ -235,6 +253,28 @@ public abstract class AbstractVillagerEntity extends AgeableEntity implements IN
          MerchantOffer merchantoffer = villagertrades$itrade.getOffer(this, this.random);
          if (merchantoffer != null) {
             p_213717_1_.add(merchantoffer);
+         }
+      }
+
+   }
+
+   protected void addQuestOffersFromItemListings(QuestOffers questOffers, VillagerTrades.IQuest[] iQuests, int p_213717_3_) {
+      Set<Integer> set = Sets.newHashSet();
+      if (iQuests.length > p_213717_3_) {
+         while(set.size() < p_213717_3_) {
+            set.add(this.random.nextInt(iQuests.length));
+         }
+      } else {
+         for(int i = 0; i < iQuests.length; ++i) {
+            set.add(i);
+         }
+      }
+
+      for(Integer integer : set) {
+         VillagerTrades.IQuest villagertrades$itrade = iQuests[integer];
+         QuestOffer merchantoffer = villagertrades$itrade.getQuest(this, this.random);
+         if (merchantoffer != null) {
+            questOffers.add(merchantoffer);
          }
       }
 

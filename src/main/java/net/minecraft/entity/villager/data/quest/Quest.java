@@ -136,7 +136,7 @@ public class Quest {
     }
 
     @Override
-    protected Quest clone() {
+    public Quest clone() {
         Quest clone = new Quest(this.name, this.description);
         clone.requiredKills = this.requiredKills;
         clone.requiredItems = this.requiredItems;

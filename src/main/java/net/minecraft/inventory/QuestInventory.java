@@ -1,25 +1,28 @@
 package net.minecraft.inventory;
 
-import javax.annotation.Nullable;
 import net.minecraft.entity.merchant.IMerchant;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.villager.data.quest.QuestManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MerchantOffer;
-import net.minecraft.item.MerchantOffers;
+import net.minecraft.item.QuestOffer;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class MerchantInventory implements IInventory {
+import javax.annotation.Nullable;
+
+public class QuestInventory implements IInventory {
    private final IMerchant merchant;
    private final NonNullList<ItemStack> itemStacks = NonNullList.withSize(3, ItemStack.EMPTY);
    @Nullable
-   private MerchantOffer activeOffer;
+   private QuestOffer activeOffer;
    private int selectionHint;
    private int futureXp;
+   private final QuestManager questManager;
 
-   public MerchantInventory(IMerchant merchant) {
+   public QuestInventory(IMerchant merchant, QuestManager questManager) {
       this.merchant = merchant;
+      this.questManager = questManager;
    }
 
    @Override
@@ -29,7 +32,7 @@ public class MerchantInventory implements IInventory {
 
    @Override
    public boolean isEmpty() {
-      for(ItemStack itemStack : this.itemStacks) {
+      for (ItemStack itemStack : this.itemStacks) {
          if (!itemStack.isEmpty()) {
             return false;
          }
@@ -104,22 +107,18 @@ public class MerchantInventory implements IInventory {
          setItem(2, ItemStack.EMPTY);
          this.futureXp = 0;
       } else {
-         MerchantOffers offers = this.merchant.getOffers();
-         if (!offers.isEmpty()) {
-            MerchantOffer offer = offers.getRecipeFor(primaryPayment, secondaryPayment, this.selectionHint);
-            if (offer == null || offer.isOutOfStock()) {
-               this.activeOffer = offer;
-               offer = offers.getRecipeFor(secondaryPayment, primaryPayment, this.selectionHint);
-            }
+         QuestOffer offer = questManager.getActiveQuestOffer(primaryPayment, secondaryPayment, this.selectionHint);
+         if (offer == null || offer.isOutOfStock()) {
+            offer = questManager.getActiveQuestOffer(secondaryPayment, primaryPayment, this.selectionHint);
+         }
 
-            if (offer != null && !offer.isOutOfStock()) {
-               this.activeOffer = offer;
-               setItem(2, offer.assemble());
-               this.futureXp = offer.getXp();
-            } else {
-               setItem(2, ItemStack.EMPTY);
-               this.futureXp = 0;
-            }
+         if (offer != null && !offer.isOutOfStock()) {
+            this.activeOffer = offer;
+            setItem(2, offer.getQuest().getRewards().get(0).copy()); // Assuming only one reward for simplicity
+            this.futureXp = offer.getQuest().getXp();
+         } else {
+            setItem(2, ItemStack.EMPTY);
+            this.futureXp = 0;
          }
 
          this.merchant.notifyTradeUpdated(this.getItem(2));
@@ -127,7 +126,7 @@ public class MerchantInventory implements IInventory {
    }
 
    @Nullable
-   public MerchantOffer getActiveOffer() {
+   public QuestOffer getActiveOffer() {
       return this.activeOffer;
    }
 
