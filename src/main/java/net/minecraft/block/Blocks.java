@@ -99,6 +99,7 @@ public class Blocks {
    public static final Block LAPIS_ORE = register("lapis_ore", new OreBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
    public static final Block LAPIS_BLOCK = register("lapis_block", new Block(AbstractBlock.Properties.of(Material.METAL, MaterialColor.LAPIS).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
    public static final Block DISPENSER = register("dispenser", new DispenserBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F)));
+   public static final Block FAN_BLOCK = register("fan_block", new FanBlock(AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.METAL)));
    public static final Block SANDSTONE = register("sandstone", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.SAND).requiresCorrectToolForDrops().strength(0.8F)));
    public static final Block CHISELED_SANDSTONE = register("chiseled_sandstone", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.SAND).requiresCorrectToolForDrops().strength(0.8F)));
    public static final Block CUT_SANDSTONE = register("cut_sandstone", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.SAND).requiresCorrectToolForDrops().strength(0.8F)));
@@ -763,7 +764,7 @@ public class Blocks {
    public static final Block LANTERN = register("lantern", new LanternBlock(AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.LANTERN).lightLevel((p_235447_0_) -> {
       return 15;
    }).noOcclusion()));
-   public static final Block SOUL_LANTERN = register("soul_lantern", new LanternBlock(AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.LANTERN).lightLevel((p_235443_0_) -> {
+   public static final Block SOUL_LANTERN = register("soul_lantern", new LanternBlock(AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.LANTERN).lightLevel((state) -> {
       return 10;
    }).noOcclusion()));
    public static final Block CAMPFIRE = register("campfire", new CampfireBlock(true, 1, AbstractBlock.Properties.of(Material.WOOD, MaterialColor.PODZOL).strength(2.0F).sound(SoundType.WOOD).lightLevel(litBlockEmission(15)).noOcclusion()));

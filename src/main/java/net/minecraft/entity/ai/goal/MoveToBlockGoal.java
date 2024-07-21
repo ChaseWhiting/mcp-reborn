@@ -1,12 +1,12 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReader;
 
 public abstract class MoveToBlockGoal extends Goal {
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    public final double speedModifier;
    protected int nextStartTick;
    protected int tryTicks;
@@ -17,11 +17,11 @@ public abstract class MoveToBlockGoal extends Goal {
    private final int verticalSearchRange;
    protected int verticalSearchStart;
 
-   public MoveToBlockGoal(CreatureEntity p_i45888_1_, double p_i45888_2_, int p_i45888_4_) {
+   public MoveToBlockGoal(Creature p_i45888_1_, double p_i45888_2_, int p_i45888_4_) {
       this(p_i45888_1_, p_i45888_2_, p_i45888_4_, 1);
    }
 
-   public MoveToBlockGoal(CreatureEntity p_i48796_1_, double p_i48796_2_, int p_i48796_4_, int p_i48796_5_) {
+   public MoveToBlockGoal(Creature p_i48796_1_, double p_i48796_2_, int p_i48796_4_, int p_i48796_5_) {
       this.mob = p_i48796_1_;
       this.speedModifier = p_i48796_2_;
       this.searchRange = p_i48796_4_;
@@ -40,7 +40,7 @@ public abstract class MoveToBlockGoal extends Goal {
       }
    }
 
-   protected int nextStartTick(CreatureEntity p_203109_1_) {
+   protected int nextStartTick(Creature p_203109_1_) {
       return 200 + p_203109_1_.getRandom().nextInt(200);
    }
 

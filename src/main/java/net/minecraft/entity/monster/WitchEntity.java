@@ -98,7 +98,7 @@ public class WitchEntity extends AbstractRaiderEntity implements IRangedAttackMo
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 26.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
+      return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 26.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
    }
 
    public void aiStep() {
@@ -132,7 +132,7 @@ public class WitchEntity extends AbstractRaiderEntity implements IRangedAttackMo
                potion = Potions.WATER_BREATHING;
             } else if (this.random.nextFloat() < 0.15F && (this.isOnFire() || this.getLastDamageSource() != null && this.getLastDamageSource().isFire()) && !this.hasEffect(Effects.FIRE_RESISTANCE)) {
                potion = Potions.FIRE_RESISTANCE;
-            } else if (this.random.nextFloat() < 0.05F && this.getHealth() < this.getMaxHealth()) {
+            } else if (this.random.nextFloat() < 0.05F && this.getHealth() < this.getMaxHealth() && !this.isNoAi()) {
                potion = Potions.HEALING;
             } else if (this.random.nextFloat() < 0.5F && this.getTarget() != null && !this.hasEffect(Effects.MOVEMENT_SPEED) && this.getTarget().distanceToSqr(this) > 121.0D) {
                potion = Potions.SWIFTNESS;

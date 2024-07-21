@@ -3,7 +3,7 @@ package net.minecraft.entity.ai.goal;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
@@ -12,7 +12,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class WaterAvoidingRandomFlyingGoal extends WaterAvoidingRandomWalkingGoal {
-   public WaterAvoidingRandomFlyingGoal(CreatureEntity p_i47413_1_, double p_i47413_2_) {
+   public WaterAvoidingRandomFlyingGoal(Creature p_i47413_1_, double p_i47413_2_) {
       super(p_i47413_1_, p_i47413_2_);
    }
 

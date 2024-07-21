@@ -39,8 +39,8 @@ public interface IAngerable {
          this.setPersistentAngerTarget(uuid);
          Entity entity = p_241358_1_.getEntity(uuid);
          if (entity != null) {
-            if (entity instanceof MobEntity) {
-               this.setLastHurtByMob((MobEntity)entity);
+            if (entity instanceof Mob) {
+               this.setLastHurtByMob((Mob)entity);
             }
 
             if (entity.getType() == EntityType.PLAYER) {
@@ -54,7 +54,7 @@ public interface IAngerable {
    default void updatePersistentAnger(ServerWorld p_241359_1_, boolean p_241359_2_) {
       LivingEntity livingentity = this.getTarget();
       UUID uuid = this.getPersistentAngerTarget();
-      if ((livingentity == null || livingentity.isDeadOrDying()) && uuid != null && p_241359_1_.getEntity(uuid) instanceof MobEntity) {
+      if ((livingentity == null || livingentity.isDeadOrDying()) && uuid != null && p_241359_1_.getEntity(uuid) instanceof Mob) {
          this.stopBeingAngry();
       } else {
          if (livingentity != null && !Objects.equals(uuid, livingentity.getUUID())) {

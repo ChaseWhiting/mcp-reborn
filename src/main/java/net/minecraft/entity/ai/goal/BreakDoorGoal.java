@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.goal;
 
 import java.util.function.Predicate;
 import net.minecraft.block.Block;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 
@@ -12,12 +12,12 @@ public class BreakDoorGoal extends InteractDoorGoal {
    protected int lastBreakProgress = -1;
    protected int doorBreakTime = -1;
 
-   public BreakDoorGoal(MobEntity p_i50332_1_, Predicate<Difficulty> p_i50332_2_) {
+   public BreakDoorGoal(Mob p_i50332_1_, Predicate<Difficulty> p_i50332_2_) {
       super(p_i50332_1_);
       this.validDifficulties = p_i50332_2_;
    }
 
-   public BreakDoorGoal(MobEntity p_i50333_1_, int p_i50333_2_, Predicate<Difficulty> p_i50333_3_) {
+   public BreakDoorGoal(Mob p_i50333_1_, int p_i50333_2_, Predicate<Difficulty> p_i50333_3_) {
       this(p_i50333_1_, p_i50333_3_);
       this.doorBreakTime = p_i50333_2_;
    }

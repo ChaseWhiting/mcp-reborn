@@ -27,6 +27,7 @@ import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.client.util.UndeclaredException;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.groovy.GroovyCommand;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.DefaultUncaughtExceptionHandler;
 import net.minecraft.util.JSONUtils;
@@ -43,7 +44,7 @@ public class Main {
    private static final Logger LOGGER = LogManager.getLogger();
 
    public static void main(String[] p_main_0_) {
-      GroovyScriptLoader.loadGroovyScripts("debug", false);
+      GroovyScriptLoader.loadGroovyScripts(GroovyCommand.PATH, false);
 
       OptionParser optionparser = new OptionParser();
       optionparser.allowsUnrecognizedOptions();
@@ -126,7 +127,13 @@ public class Main {
       Bootstrap.validate();
       Util.startTimerHackThread();
       Session session = new Session(optionspec10.value(optionset), s5, optionspec12.value(optionset), optionspec21.value(optionset));
-      GameConfiguration gameconfiguration = new GameConfiguration(new GameConfiguration.UserInformation(session, propertymap, propertymap1, proxy), new ScreenSize(i, j, optionalint, optionalint1, flag), new GameConfiguration.FolderInformation(file1, file3, file2, s6), new GameConfiguration.GameInformation(flag1, s3, s4, flag2, flag3), new GameConfiguration.ServerInformation(s7, integer));
+      GameConfiguration gameconfiguration = new GameConfiguration(
+              new GameConfiguration.UserInformation(session, propertymap, propertymap1, proxy),
+              new ScreenSize(i, j, optionalint, optionalint1, flag),
+              new GameConfiguration.FolderInformation(file1, file3, file2, s6),
+              new GameConfiguration.GameInformation(flag1, s3, s4, false, flag3), // Set disableMultiplayer to false
+              new GameConfiguration.ServerInformation(s7, integer)
+      );
       Thread thread = new Thread("Client Shutdown Thread") {
          public void run() {
             Minecraft minecraft1 = Minecraft.getInstance();

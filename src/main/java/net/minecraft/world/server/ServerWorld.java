@@ -45,13 +45,13 @@ import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.INPC;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.merchant.IReputationTracking;
 import net.minecraft.entity.merchant.IReputationType;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.passive.horse.SkeletonHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -378,7 +378,7 @@ public class ServerWorld extends World implements ISeedReader {
                Entry<Entity> entry = objectiterator.next();
                entity1 = entry.getValue();
                Entity entity2 = entity1.getVehicle();
-               if (!this.server.isSpawningAnimals() && (entity1 instanceof AnimalEntity || entity1 instanceof WaterMobEntity)) {
+               if (!this.server.isSpawningAnimals() && (entity1 instanceof Animal || entity1 instanceof WaterMobEntity)) {
                   entity1.remove();
                }
 
@@ -902,8 +902,8 @@ public class ServerWorld extends World implements ISeedReader {
       }
 
       this.getScoreboard().entityRemoved(p_217484_1_);
-      if (p_217484_1_ instanceof MobEntity) {
-         this.navigations.remove(((MobEntity)p_217484_1_).getNavigation());
+      if (p_217484_1_ instanceof Mob) {
+         this.navigations.remove(((Mob)p_217484_1_).getNavigation());
       }
 
    }
@@ -921,8 +921,8 @@ public class ServerWorld extends World implements ISeedReader {
 
          this.entitiesByUuid.put(p_217465_1_.getUUID(), p_217465_1_);
          this.getChunkSource().addEntity(p_217465_1_);
-         if (p_217465_1_ instanceof MobEntity) {
-            this.navigations.add(((MobEntity)p_217465_1_).getNavigation());
+         if (p_217465_1_ instanceof Mob) {
+            this.navigations.add(((Mob)p_217465_1_).getNavigation());
          }
       }
 
@@ -1004,17 +1004,17 @@ public class ServerWorld extends World implements ISeedReader {
       return this.chunkSource;
    }
 
-   public Explosion explode(@Nullable Entity p_230546_1_, @Nullable DamageSource p_230546_2_, @Nullable ExplosionContext p_230546_3_, double p_230546_4_, double p_230546_6_, double p_230546_8_, float p_230546_10_, boolean p_230546_11_, Explosion.Mode p_230546_12_) {
-      Explosion explosion = new Explosion(this, p_230546_1_, p_230546_2_, p_230546_3_, p_230546_4_, p_230546_6_, p_230546_8_, p_230546_10_, p_230546_11_, p_230546_12_);
+   public Explosion explode(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionContext context, double x, double y, double z, float strength, boolean causesFire, Explosion.Mode mode) {
+      Explosion explosion = new Explosion(this, entity, damageSource, context, x, y, z, strength, causesFire, mode);
       explosion.explode();
       explosion.finalizeExplosion(false);
-      if (p_230546_12_ == Explosion.Mode.NONE) {
+      if (mode == Explosion.Mode.NONE) {
          explosion.clearToBlow();
       }
 
-      for(ServerPlayerEntity serverplayerentity : this.players) {
-         if (serverplayerentity.distanceToSqr(p_230546_4_, p_230546_6_, p_230546_8_) < 4096.0D) {
-            serverplayerentity.connection.send(new SExplosionPacket(p_230546_4_, p_230546_6_, p_230546_8_, p_230546_10_, explosion.getToBlow(), explosion.getHitPlayers().get(serverplayerentity)));
+      for (ServerPlayerEntity player : this.players) {
+         if (player.distanceToSqr(x, y, z) < 4096.0D) {
+            player.connection.send(new SExplosionPacket(x, y, z, strength, explosion.getToBlow(), explosion.getHitPlayers().get(player)));
          }
       }
 

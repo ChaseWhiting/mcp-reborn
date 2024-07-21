@@ -29,11 +29,11 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AnimalEntity extends AgeableEntity {
+public abstract class Animal extends AgeableEntity {
    private int inLove;
    private UUID loveCause;
 
-   protected AnimalEntity(EntityType<? extends AnimalEntity> p_i48568_1_, World p_i48568_2_) {
+   protected Animal(EntityType<? extends Animal> p_i48568_1_, World p_i48568_2_) {
       super(p_i48568_1_, p_i48568_2_);
       this.setPathfindingMalus(PathNodeType.DANGER_FIRE, 16.0F);
       this.setPathfindingMalus(PathNodeType.DAMAGE_FIRE, -1.0F);
@@ -97,7 +97,7 @@ public abstract class AnimalEntity extends AgeableEntity {
       this.loveCause = p_70037_1_.hasUUID("LoveCause") ? p_70037_1_.getUUID("LoveCause") : null;
    }
 
-   public static boolean checkAnimalSpawnRules(EntityType<? extends AnimalEntity> p_223316_0_, IWorld p_223316_1_, SpawnReason p_223316_2_, BlockPos p_223316_3_, Random p_223316_4_) {
+   public static boolean checkAnimalSpawnRules(EntityType<? extends Animal> p_223316_0_, IWorld p_223316_1_, SpawnReason p_223316_2_, BlockPos p_223316_3_, Random p_223316_4_) {
       return p_223316_1_.getBlockState(p_223316_3_.below()).is(Blocks.GRASS_BLOCK) && p_223316_1_.getRawBrightness(p_223316_3_, 0) > 8;
    }
 
@@ -187,7 +187,7 @@ public abstract class AnimalEntity extends AgeableEntity {
       this.inLove = 0;
    }
 
-   public boolean canMate(AnimalEntity p_70878_1_) {
+   public boolean canMate(Animal p_70878_1_) {
       if (p_70878_1_ == this) {
          return false;
       } else if (p_70878_1_.getClass() != this.getClass()) {
@@ -197,7 +197,7 @@ public abstract class AnimalEntity extends AgeableEntity {
       }
    }
 
-   public void spawnChildFromBreeding(ServerWorld p_234177_1_, AnimalEntity p_234177_2_) {
+   public void spawnChildFromBreeding(ServerWorld p_234177_1_, Animal p_234177_2_) {
       AgeableEntity ageableentity = this.getBreedOffspring(p_234177_1_, p_234177_2_);
       if (ageableentity != null) {
          ServerPlayerEntity serverplayerentity = this.getLoveCause();

@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
 import java.util.function.Predicate;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
@@ -12,7 +12,7 @@ import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class AvoidEntityGoal<T extends LivingEntity> extends Goal {
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    private final double walkSpeedModifier;
    private final double sprintSpeedModifier;
    protected T toAvoid;
@@ -24,26 +24,24 @@ public class AvoidEntityGoal<T extends LivingEntity> extends Goal {
    protected final Predicate<LivingEntity> predicateOnAvoidEntity;
    private final EntityPredicate avoidEntityTargeting;
 
-   public AvoidEntityGoal(CreatureEntity p_i46404_1_, Class<T> p_i46404_2_, float p_i46404_3_, double p_i46404_4_, double p_i46404_6_) {
-      this(p_i46404_1_, p_i46404_2_, (p_200828_0_) -> {
-         return true;
-      }, p_i46404_3_, p_i46404_4_, p_i46404_6_, EntityPredicates.NO_CREATIVE_OR_SPECTATOR::test);
+   public AvoidEntityGoal(Creature creature, Class<T> avoidClass, float maxDistance, double walkSpeedModifier, double sprintSpeedModifier) {
+      this(creature, avoidClass, (entity) -> true, maxDistance, walkSpeedModifier, sprintSpeedModifier, EntityPredicates.NO_CREATIVE_OR_SPECTATOR::test);
    }
 
-   public AvoidEntityGoal(CreatureEntity p_i48859_1_, Class<T> p_i48859_2_, Predicate<LivingEntity> p_i48859_3_, float p_i48859_4_, double p_i48859_5_, double p_i48859_7_, Predicate<LivingEntity> p_i48859_9_) {
-      this.mob = p_i48859_1_;
-      this.avoidClass = p_i48859_2_;
-      this.avoidPredicate = p_i48859_3_;
-      this.maxDist = p_i48859_4_;
-      this.walkSpeedModifier = p_i48859_5_;
-      this.sprintSpeedModifier = p_i48859_7_;
-      this.predicateOnAvoidEntity = p_i48859_9_;
-      this.pathNav = p_i48859_1_.getNavigation();
+   public AvoidEntityGoal(Creature creature, Class<T> avoidClass, Predicate<LivingEntity> avoidPredicate, float maxDistance, double walkSpeedModifier, double sprintSpeedModifier, Predicate<LivingEntity> additionalPredicate) {
+      this.mob = creature;
+      this.avoidClass = avoidClass;
+      this.avoidPredicate = avoidPredicate;
+      this.maxDist = maxDistance;
+      this.walkSpeedModifier = walkSpeedModifier;
+      this.sprintSpeedModifier = sprintSpeedModifier;
+      this.predicateOnAvoidEntity = additionalPredicate;
+      this.pathNav = creature.getNavigation();
       this.setFlags(EnumSet.of(Goal.Flag.MOVE));
-      this.avoidEntityTargeting = (new EntityPredicate()).range((double)p_i48859_4_).selector(p_i48859_9_.and(p_i48859_3_));
+      this.avoidEntityTargeting = (new EntityPredicate()).range((double) maxDistance).selector(additionalPredicate.and(avoidPredicate));
    }
 
-   public AvoidEntityGoal(CreatureEntity p_i48860_1_, Class<T> p_i48860_2_, float p_i48860_3_, double p_i48860_4_, double p_i48860_6_, Predicate<LivingEntity> p_i48860_8_) {
+   public AvoidEntityGoal(Creature p_i48860_1_, Class<T> p_i48860_2_, float p_i48860_3_, double p_i48860_4_, double p_i48860_6_, Predicate<LivingEntity> p_i48860_8_) {
       this(p_i48860_1_, p_i48860_2_, (p_203782_0_) -> {
          return true;
       }, p_i48860_3_, p_i48860_4_, p_i48860_6_, p_i48860_8_);

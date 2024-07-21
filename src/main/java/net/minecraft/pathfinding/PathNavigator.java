@@ -2,22 +2,18 @@ package net.minecraft.pathfinding;
 
 import com.google.common.collect.ImmutableSet;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
-import io.netty.buffer.Unpooled;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.DebugPacketSender;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraft.util.DebugUtils;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +24,7 @@ import net.minecraft.world.Region;
 import net.minecraft.world.World;
 
 public abstract class PathNavigator {
-   protected final MobEntity mob;
+   protected final Mob mob;
    protected final World level;
    @Nullable
    protected Path path;
@@ -54,7 +50,7 @@ public abstract class PathNavigator {
 
 
 
-   public PathNavigator(MobEntity p_i1671_1_, World p_i1671_2_) {
+   public PathNavigator(Mob p_i1671_1_, World p_i1671_2_) {
       this.mob = p_i1671_1_;
       this.level = p_i1671_2_;
       this.player = DebugUtils.findLocalPlayer(p_i1671_2_);
@@ -72,6 +68,10 @@ public abstract class PathNavigator {
 
    public BlockPos getTargetPos() {
       return this.targetPos;
+   }
+
+   public void setTargetPos(BlockPos blockpos) {
+      this.targetPos = blockpos;
    }
 
    protected abstract PathFinder createPathFinder(int p_179679_1_);

@@ -5,6 +5,7 @@ import net.minecraft.potion.Effects;
 
 public class Foods {
    public static final Food APPLE = (new Food.Builder()).nutrition(4).saturationMod(0.3F).build();
+   public static final Food BLUEBERRIES = (new Food.Builder().nutrition(3).saturationMod(0.25F).fast()).build();
    public static final Food BAKED_POTATO = (new Food.Builder()).nutrition(5).saturationMod(0.6F).build();
    public static final Food BEEF = (new Food.Builder()).nutrition(3).saturationMod(0.3F).meat().build();
    public static final Food BEETROOT = (new Food.Builder()).nutrition(1).saturationMod(0.6F).build();

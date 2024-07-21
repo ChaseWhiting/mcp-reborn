@@ -6,7 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
@@ -52,7 +52,7 @@ public abstract class AbstractFishEntity extends WaterMobEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 3.0D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 3.0D);
    }
 
    public boolean requiresCustomPersistence() {

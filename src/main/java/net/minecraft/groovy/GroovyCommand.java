@@ -1,5 +1,6 @@
 package net.minecraft.groovy;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -26,7 +27,10 @@ import java.util.logging.Logger;
 public class GroovyCommand {
     private static final Logger LOGGER = Logger.getLogger(GroovyCommand.class.getName());
     private static final SimpleCommandExceptionType ERROR_EXECUTION_FAILED = new SimpleCommandExceptionType(new TranslationTextComponent("commands.groovy.failed"));
+    private static final SimpleCommandExceptionType ERROR_NO_PATH = new SimpleCommandExceptionType(new StringTextComponent("You need to start code input with /groovy start first."));
     private static final Map<UUID, Path> playerFileMap = new ConcurrentHashMap<>();
+
+    public static final String PATH = "debug";
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("groovy")
@@ -38,8 +42,9 @@ public class GroovyCommand {
                 .then(Commands.literal("run")
                         .then(Commands.argument("filename", StringArgumentType.string())
                                 .executes((context) -> runScript(context.getSource(), StringArgumentType.getString(context, "filename")))))
-                .then(Commands.argument("code", StringArgumentType.greedyString())
-                        .executes((context) -> addCodeLine(context, StringArgumentType.getString(context, "code"))))
+                .then(Commands.literal("code")
+                        .then(Commands.argument("code", StringArgumentType.greedyString())
+                                .executes((context) -> addCodeLine(context, StringArgumentType.getString(context, "code")))))
                 .then(Commands.literal("reload")
                         .executes((context) -> reloadScripts(context.getSource())))
                 .then(Commands.literal("edit")
@@ -48,20 +53,63 @@ public class GroovyCommand {
                 .then(Commands.literal("line")
                         .then(Commands.argument("lineNumber", IntegerArgumentType.integer(1))
                                 .then(Commands.argument("code", StringArgumentType.greedyString())
-                                        .executes((context) -> editLine(context, IntegerArgumentType.getInteger(context, "lineNumber"), StringArgumentType.getString(context, "code")))))));
+                                        .executes((context) -> editLine(context, IntegerArgumentType.getInteger(context, "lineNumber"), StringArgumentType.getString(context, "code"))))))
+                .then(Commands.literal("template")
+                        .then(Commands.argument("packages", StringArgumentType.greedyString())
+                                .executes((context) -> createTemplate(context.getSource(), StringArgumentType.getString(context, "packages"))))));
     }
 
     private static int reloadScripts(CommandSource source) {
-        GroovyScriptLoader.reloadGroovyScripts("debug");
+        GroovyScriptLoader.reloadGroovyScripts(PATH);
         source.sendSuccess(new StringTextComponent("Groovy scripts reloaded successfully."), true);
         return 1;
     }
+
+
+
+    private static void executeMinecraftCommand(CommandSource source, String command) {
+        CommandExecutor commandExecutor = new CommandExecutor(source.getServer());
+        commandExecutor.executeCommand(source, command);
+    }
+
+    private static int createTemplate(CommandSource source, String packages) {
+        MinecraftServer minecraftserver = source.getServer();
+        assert source.getEntity() != null;
+        UUID playerUUID = source.getEntity().getUUID();
+        Path debugPath = minecraftserver.getFile(PATH).toPath();
+        String filename = getUniqueFilename(debugPath, "template", "groovy");
+
+        Path filePath = debugPath.resolve(filename + ".groovy");
+        playerFileMap.put(playerUUID, filePath);
+
+        try {
+            Files.createDirectories(debugPath);
+            Files.createFile(filePath);
+
+            // Generate the import lines
+            String[] imports = packages.split(",");
+            StringBuilder importLines = new StringBuilder();
+            for (String imp : imports) {
+                importLines.append("import ").append(imp.trim()).append("\n");
+            }
+
+            // Write the imports to the file
+            Files.write(filePath, importLines.toString().getBytes(), StandardOpenOption.WRITE);
+            source.sendSuccess(new StringTextComponent("Template created. Use /groovy <code> to add lines and /groovy end to execute. Script is saved as " + filename + ".groovy"), false);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error creating Groovy template file", e);
+            source.sendFailure(new StringTextComponent("Error creating Groovy template file"));
+        }
+        return 1;
+    }
+
+
 
     private static int startCodeInput(CommandSource source) {
         MinecraftServer minecraftserver = source.getServer();
         assert source.getEntity() != null;
         UUID playerUUID = source.getEntity().getUUID();
-        Path debugPath = minecraftserver.getFile("debug").toPath();
+        Path debugPath = minecraftserver.getFile(PATH).toPath();
         String filename = getUniqueFilename(debugPath, "groovy", "groovy");
 
         Path filePath = debugPath.resolve(filename + ".groovy");
@@ -95,11 +143,11 @@ public class GroovyCommand {
                 Files.write(filePath, (code + "\n").getBytes(), StandardOpenOption.APPEND);
                 context.getSource().sendSuccess(new StringTextComponent("Added line (" + (Files.lines(filePath).count()) + "): " + code), false);
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Error writing to Groovy script file", e);
+                LOGGER.log(Level.SEVERE, "Error writing to Groovy script file!", e);
                 context.getSource().sendFailure(new StringTextComponent("Error writing to Groovy script file"));
             }
         } else {
-            context.getSource().sendFailure(new StringTextComponent("You need to start code input with /groovy start first."));
+            context.getSource().sendFailure(new StringTextComponent(ERROR_NO_PATH.toString()));
         }
         return 1;
     }
@@ -122,7 +170,7 @@ public class GroovyCommand {
                 context.getSource().sendFailure(new StringTextComponent("Error editing Groovy script file"));
             }
         } else {
-            context.getSource().sendFailure(new StringTextComponent("You need to start code input with /groovy start first."));
+            context.getSource().sendFailure(new StringTextComponent(ERROR_NO_PATH.toString()));
         }
         return 1;
     }
@@ -141,14 +189,14 @@ public class GroovyCommand {
                 return 0;
             }
         } else {
-            source.sendFailure(new StringTextComponent("You need to start code input with /groovy start first."));
+            source.sendFailure(new StringTextComponent(ERROR_NO_PATH.toString()));
             return 0;
         }
     }
 
     private static int runScript(CommandSource source, String filename) throws CommandSyntaxException {
         MinecraftServer minecraftserver = source.getServer();
-        Path debugPath = minecraftserver.getFile("debug").toPath();
+        Path debugPath = minecraftserver.getFile(PATH).toPath();
         Path filePath = debugPath.resolve(filename + ".groovy");
         if (Files.exists(filePath)) {
             try {
@@ -166,7 +214,7 @@ public class GroovyCommand {
 
     private static int editScript(CommandSource source, String filename) throws CommandSyntaxException {
         MinecraftServer minecraftserver = source.getServer();
-        Path debugPath = minecraftserver.getFile("debug").toPath();
+        Path debugPath = minecraftserver.getFile(PATH).toPath();
         Path filePath = debugPath.resolve(filename + ".groovy");
         if (Files.exists(filePath)) {
             playerFileMap.put(source.getEntity().getUUID(), filePath);
@@ -180,26 +228,30 @@ public class GroovyCommand {
 
     private static int executeGroovy(CommandSource source, String code) throws CommandSyntaxException {
         GroovyShell shell = new GroovyShell();
+        MinecraftHelper helper = new MinecraftHelper(source.getServer());
+        shell.setProperty("helper", helper);
+
         StringWriter outputWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(outputWriter);
-        shell.setProperty("out", printWriter); // Redirect Groovy's `out` to capture output
+        shell.setProperty("out", printWriter);
 
         try {
             Object result = shell.evaluate(code);
-            printWriter.flush(); // Ensure all output is captured
-            String output = outputWriter.toString().replace("\r\n", "\n").replace("\r", "\n"); // Normalize newlines
+            printWriter.flush();
+            String output = outputWriter.toString().replace("\r\n", "\n").replace("\r", "\n");
 
-            // If the result is null, use the captured output, otherwise use the result
-            String message = (result != null ? result.toString() : output.isEmpty() ? "null" : output);
+            String message = (result != null ? result.toString() : output);
 
-            // Split output by newlines and send each line separately for better chat formatting
-            for (String line : message.split("\n")) {
-                source.sendSuccess(new StringTextComponent(line), false);
+            // Only send output if there is something to send
+            if (message != null && !message.trim().isEmpty()) {
+                for (String line : message.split("\n")) {
+                    source.sendSuccess(new StringTextComponent(line), false);
+                }
             }
 
             return 1;
         } catch (Exception e) {
-            String errorMessage = e.getMessage().replace("\r\n", "\n").replace("\r", "\n"); // Normalize newlines
+            String errorMessage = e.getMessage().replace("\r\n", "\n").replace("\r", "\n");
             for (String line : errorMessage.split("\n")) {
                 source.sendFailure(new StringTextComponent(line));
             }
@@ -207,4 +259,7 @@ public class GroovyCommand {
             throw ERROR_EXECUTION_FAILED.create();
         }
     }
+
+
+
 }

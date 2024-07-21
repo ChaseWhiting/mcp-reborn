@@ -144,6 +144,7 @@ public abstract class AbstractFurnaceTileEntity extends LockableTileEntity imple
       add(map, ItemTags.CARPETS, 67);
       add(map, Blocks.DRIED_KELP_BLOCK, 4001);
       add(map, Items.CROSSBOW, 300);
+      add(map, Items.GILDED_CROSSBOW, 250);
       add(map, Blocks.BAMBOO, 50);
       add(map, Blocks.DEAD_BUSH, 100);
       add(map, Blocks.SCAFFOLDING, 400);

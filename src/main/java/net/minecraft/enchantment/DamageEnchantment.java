@@ -10,10 +10,10 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 
 public class DamageEnchantment extends Enchantment {
-   private static final String[] NAMES = new String[]{"all", "undead", "arthropods"};
-   private static final int[] MIN_COST = new int[]{1, 5, 5};
-   private static final int[] LEVEL_COST = new int[]{11, 8, 8};
-   private static final int[] LEVEL_COST_SPAN = new int[]{20, 20, 20};
+   private static final String[] NAMES = new String[]{"all", "undead", "arthropods", "pillaging"};
+   private static final int[] MIN_COST = new int[]{1, 5, 5, 8};
+   private static final int[] LEVEL_COST = new int[]{11, 8, 8, 8};
+   private static final int[] LEVEL_COST_SPAN = new int[]{20, 20, 20, 20};
    public final int type;
 
    public DamageEnchantment(Enchantment.Rarity p_i46734_1_, int p_i46734_2_, EquipmentSlotType... p_i46734_3_) {
@@ -38,7 +38,9 @@ public class DamageEnchantment extends Enchantment {
          return 1.0F + (float)Math.max(0, p_152376_1_ - 1) * 0.5F;
       } else if (this.type == 1 && p_152376_2_ == CreatureAttribute.UNDEAD) {
          return (float)p_152376_1_ * 2.5F;
-      } else {
+      } else if (this.type == 3 && p_152376_2_ == CreatureAttribute.ILLAGER) {
+         return (float)p_152376_1_ * 2.5F;
+      }else {
          return this.type == 2 && p_152376_2_ == CreatureAttribute.ARTHROPOD ? (float)p_152376_1_ * 2.5F : 0.0F;
       }
    }

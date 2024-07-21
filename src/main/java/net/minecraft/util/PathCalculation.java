@@ -1,13 +1,8 @@
 package net.minecraft.util;
 
-import net.minecraft.block.AirBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.FenceBlock;
-import net.minecraft.block.FenceGateBlock;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.pathfinding.NodeProcessor;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
@@ -21,10 +16,10 @@ public class PathCalculation {
 
     private NodeProcessor nodeProcessor;
     private PathNavigator navigator;
-    private MobEntity mob;
+    private Mob mob;
     private MovementController controller;
 
-    public PathCalculation(NodeProcessor nodeProcessor, PathNavigator pathNavigator, MobEntity mob) {
+    public PathCalculation(NodeProcessor nodeProcessor, PathNavigator pathNavigator, Mob mob) {
         this.navigator = pathNavigator;
         this.nodeProcessor = nodeProcessor;
         this.mob = mob;
@@ -38,7 +33,7 @@ public class PathCalculation {
 
 
     // Methods for MobEntity
-    public static List<PathPoint> calculateOptimalNodes(MobEntity mob, World world, int radius) {
+    public static List<PathPoint> calculateOptimalNodes(Mob mob, World world, int radius) {
         List<PathPoint> nodes = new ArrayList<>();
         BlockPos mobPos = mob.blockPosition();
 
@@ -52,7 +47,7 @@ public class PathCalculation {
         return nodes;
     }
 
-    private static boolean isAccessible(BlockPos pos, World world, MobEntity mob) {
+    private static boolean isAccessible(BlockPos pos, World world, Mob mob) {
         BlockPos belowPos = pos.below();
         if (world.getBlockState(pos).isSolidRender(world, pos)) {
             return false; // Block is solid, so not accessible
@@ -103,7 +98,7 @@ public class PathCalculation {
         // Implementation of connecting nodes based on accessibility and movement cost
     }
 
-    public static Path findPath(MobEntity mob, BlockPos target, List<PathPoint> nodes) {
+    public static Path findPath(Mob mob, BlockPos target, List<PathPoint> nodes) {
         if (nodes == null || nodes.isEmpty()) {
             return null;
         }
@@ -114,13 +109,13 @@ public class PathCalculation {
         return new Path(pathPoints, target, true);
     }
 
-    public static void updateMobPath(MobEntity mob, Path path, float speed) {
+    public static void updateMobPath(Mob mob, Path path, float speed) {
         if (path != null) {
             mob.getNavigation().moveTo(path, speed); // Set the mob's navigation to the new path with a speed of 1.0
         }
     }
 
-    public static Path findZigZagPath(MobEntity mob, BlockPos target, List<PathPoint> nodes) {
+    public static Path findZigZagPath(Mob mob, BlockPos target, List<PathPoint> nodes) {
         if (nodes == null || nodes.isEmpty()) {
             return null;
         }

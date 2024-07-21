@@ -235,9 +235,15 @@ public class FireworkParticle {
                   break;
                case CROSS:
                   this.createParticleShape(1.0D, new double[][]{
-                                  {0.0D, 1.07D}, {5.0D, 10.0D}, {0.0D, 11.0D}},
-                          aint, aint1, flag4, flag2, true);
-                    break;
+                          {0.0D, 1.0D}, // Top
+                          {0.0D, 0.5D}, // Middle top
+                          {0.0D, 0.0D}, // Center
+                          {0.0D, -0.5D}, // Middle bottom
+                          {0.0D, -1.0D}, // Bottom
+                          {-0.5D, 0.0D}, // Middle left
+                          {0.5D, 0.0D}  // Middle right
+                  }, aint, aint1, flag4, flag2, true);
+                  break;
 
             }
 

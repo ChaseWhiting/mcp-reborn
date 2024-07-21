@@ -17,7 +17,7 @@ import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.RandomPositionGenerator;
@@ -62,7 +62,7 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
-public class TurtleEntity extends AnimalEntity {
+public class TurtleEntity extends Animal {
    private static final DataParameter<BlockPos> HOME_POS = EntityDataManager.defineId(TurtleEntity.class, DataSerializers.BLOCK_POS);
    private static final DataParameter<Boolean> HAS_EGG = EntityDataManager.defineId(TurtleEntity.class, DataSerializers.BOOLEAN);
    private static final DataParameter<Boolean> LAYING_EGG = EntityDataManager.defineId(TurtleEntity.class, DataSerializers.BOOLEAN);
@@ -188,7 +188,7 @@ public class TurtleEntity extends AnimalEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 30.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 30.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
    }
 
    public boolean isPushedByFluid() {

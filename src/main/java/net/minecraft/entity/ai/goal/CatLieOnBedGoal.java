@@ -1,7 +1,7 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.math.BlockPos;
@@ -26,7 +26,7 @@ public class CatLieOnBedGoal extends MoveToBlockGoal {
       this.cat.setInSittingPose(false);
    }
 
-   protected int nextStartTick(CreatureEntity p_203109_1_) {
+   protected int nextStartTick(Creature p_203109_1_) {
       return 40;
    }
 

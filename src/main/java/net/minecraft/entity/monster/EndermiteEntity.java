@@ -26,7 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-public class EndermiteEntity extends MonsterEntity {
+public class EndermiteEntity extends Monster {
    private int life;
    private boolean playerSpawned;
 
@@ -50,7 +50,7 @@ public class EndermiteEntity extends MonsterEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 2.0D);
+      return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 2.0D);
    }
 
    protected boolean isMovementNoisy() {

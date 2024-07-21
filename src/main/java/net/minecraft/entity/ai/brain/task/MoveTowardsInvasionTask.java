@@ -1,9 +1,8 @@
 package net.minecraft.entity.ai.brain.task;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.RandomPositionGenerator;
-import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.memory.WalkTarget;
@@ -13,7 +12,7 @@ import net.minecraft.world.netherinvasion.NetherInvasion;
 import net.minecraft.world.netherinvasion.invader.AbstractNetherInvaderEntity;
 import net.minecraft.world.server.ServerWorld;
 
-public class MoveTowardsInvasionTask extends Task<MobEntity> {
+public class MoveTowardsInvasionTask extends Task<Mob> {
    private final double speedModifier;
 
    public MoveTowardsInvasionTask(double speed) {
@@ -26,7 +25,7 @@ public class MoveTowardsInvasionTask extends Task<MobEntity> {
    }
 
    @Override
-   protected boolean checkExtraStartConditions(ServerWorld world, MobEntity mob) {
+   protected boolean checkExtraStartConditions(ServerWorld world, Mob mob) {
       if (mob instanceof AbstractNetherInvaderEntity) {
          AbstractNetherInvaderEntity mob2 = (AbstractNetherInvaderEntity) mob;
          if (mob2.hasActiveRaid() && mob2.getCurrentInvasion() != null) {
@@ -37,7 +36,7 @@ public class MoveTowardsInvasionTask extends Task<MobEntity> {
    }
 
    @Override
-   protected void start(ServerWorld world, MobEntity mob, long gameTime) {
+   protected void start(ServerWorld world, Mob mob, long gameTime) {
       if (mob instanceof AbstractNetherInvaderEntity) {
          AbstractNetherInvaderEntity mob2 = (AbstractNetherInvaderEntity) mob;
          NetherInvasion invasion = mob2.getCurrentInvasion();

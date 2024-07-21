@@ -13,7 +13,6 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.ClippingHelper;
-import net.minecraft.client.renderer.debug.PathfindingDebugRenderer;
 import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -24,7 +23,7 @@ import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowRenderer;
@@ -70,6 +69,7 @@ public class EntityRendererManager {
 
    private void registerRenderers(net.minecraft.client.renderer.ItemRenderer p_229097_1_, IReloadableResourceManager p_229097_2_) {
       this.register(EntityType.AREA_EFFECT_CLOUD, new AreaEffectCloudRenderer(this));
+     // this.register(EntityType.BLACKHOLE, new BlackholeRenderer(this));
       this.register(EntityType.HEROBRINE, new HerobrineRenderer(this));
       this.register(EntityType.ARMOR_STAND, new ArmorStandRenderer(this));
       this.register(EntityType.ARROW, new TippedArrowRenderer(this));
@@ -99,8 +99,10 @@ public class EntityRendererManager {
       this.register(EntityType.ENDERMAN, new EndermanRenderer(this));
       this.register(EntityType.ENDERMITE, new EndermiteRenderer(this));
       this.register(EntityType.ENDER_PEARL, new SpriteRenderer<>(this, p_229097_1_));
+      this.register(EntityType.BLACKHOLE, new SpriteRenderer<>(this, p_229097_1_));
       this.register(EntityType.EVOKER_FANGS, new EvokerFangsRenderer(this));
       this.register(EntityType.EVOKER, new EvokerRenderer<>(this));
+      this.register(EntityType.SHAMAN, new ShamanRenderer<>(this));
       this.register(EntityType.EXPERIENCE_BOTTLE, new SpriteRenderer<>(this, p_229097_1_));
       this.register(EntityType.EXPERIENCE_ORB, new ExperienceOrbRenderer(this));
       this.register(EntityType.EYE_OF_ENDER, new SpriteRenderer<>(this, p_229097_1_, 1.0F, true));
@@ -141,11 +143,13 @@ public class EntityRendererManager {
       this.register(EntityType.PIGLIN, new PiglinRenderer(this, false));
       this.register(EntityType.PIGLIN_BRUTE, new PiglinRenderer(this, false));
       this.register(EntityType.PILLAGER, new PillagerRenderer(this));
+      this.register(EntityType.PILLAGER_CAPTAIN, new PillagerCaptainRenderer(this));
       this.register(EntityType.POLAR_BEAR, new PolarBearRenderer(this));
       this.register(EntityType.POTION, new SpriteRenderer<>(this, p_229097_1_));
       this.register(EntityType.PUFFERFISH, new PufferfishRenderer(this));
       this.register(EntityType.RABBIT, new RabbitRenderer(this));
       this.register(EntityType.RAVAGER, new RavagerRenderer(this));
+      this.register(EntityType.GILDED_RAVAGER, new GildedRavagerRenderer(this));
       this.register(EntityType.SALMON, new SalmonRenderer(this));
       this.register(EntityType.SHEEP, new SheepRenderer(this));
       this.register(EntityType.SHULKER_BULLET, new ShulkerBulletRenderer(this));
@@ -171,6 +175,7 @@ public class EntityRendererManager {
       this.register(EntityType.VEX, new VexRenderer(this));
       this.register(EntityType.VILLAGER, new VillagerRenderer(this, p_229097_2_));
       this.register(EntityType.VINDICATOR, new VindicatorRenderer(this));
+      this.register(EntityType.MARAUDER, new MarauderRenderer(this));
       this.register(EntityType.WANDERING_TRADER, new WanderingTraderRenderer(this));
       this.register(EntityType.WITCH, new WitchRenderer(this));
       this.register(EntityType.WITHER, new WitherRenderer(this));
@@ -366,8 +371,8 @@ public class EntityRendererManager {
 
    private static void renderShadow(MatrixStack p_229096_0_, IRenderTypeBuffer p_229096_1_, Entity p_229096_2_, float p_229096_3_, float p_229096_4_, IWorldReader p_229096_5_, float p_229096_6_) {
       float f = p_229096_6_;
-      if (p_229096_2_ instanceof MobEntity) {
-         MobEntity mobentity = (MobEntity)p_229096_2_;
+      if (p_229096_2_ instanceof Mob) {
+         Mob mobentity = (Mob)p_229096_2_;
          if (mobentity.isBaby()) {
             f = p_229096_6_ * 0.5F;
          }

@@ -1,14 +1,14 @@
 package net.minecraft.entity.ai.controller;
 
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.MathHelper;
 
 public class BodyController {
-   private final MobEntity mob;
+   private final Mob mob;
    private int headStableTime;
    private float lastStableYHeadRot;
 
-   public BodyController(MobEntity p_i50334_1_) {
+   public BodyController(Mob p_i50334_1_) {
       this.mob = p_i50334_1_;
    }
 
@@ -51,7 +51,7 @@ public class BodyController {
    }
 
    private boolean notCarryingMobPassengers() {
-      return this.mob.getPassengers().isEmpty() || !(this.mob.getPassengers().get(0) instanceof MobEntity);
+      return this.mob.getPassengers().isEmpty() || !(this.mob.getPassengers().get(0) instanceof Mob);
    }
 
    private boolean isMoving() {

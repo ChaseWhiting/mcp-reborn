@@ -17,7 +17,7 @@ import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
@@ -67,18 +67,18 @@ public final class WorldEntitySpawner {
 
       while(true) {
          Entity entity;
-         MobEntity mobentity;
+         Mob mobentity;
          do {
             if (!iterator.hasNext()) {
                return new WorldEntitySpawner.EntityDensityManager(p_234964_0_, object2intopenhashmap, mobdensitytracker);
             }
 
             entity = (Entity)iterator.next();
-            if (!(entity instanceof MobEntity)) {
+            if (!(entity instanceof Mob)) {
                break;
             }
 
-            mobentity = (MobEntity)entity;
+            mobentity = (Mob)entity;
          } while(mobentity.isPersistenceRequired() || mobentity.requiresCustomPersistence());
 
          final Entity entity_f = entity;
@@ -163,7 +163,7 @@ public final class WorldEntitySpawner {
                      }
 
                      if (isValidSpawnPostitionForType(p_234966_1_, p_234966_0_, structuremanager, chunkgenerator, mobspawninfo$spawners, blockpos$mutable, d2) && p_234966_4_.test(mobspawninfo$spawners.type, blockpos$mutable, p_234966_2_)) {
-                        MobEntity mobentity = getMobForSpawn(p_234966_1_, mobspawninfo$spawners.type);
+                        Mob mobentity = getMobForSpawn(p_234966_1_, mobspawninfo$spawners.type);
                         if (mobentity == null) {
                            return;
                         }
@@ -224,13 +224,13 @@ public final class WorldEntitySpawner {
    }
 
    @Nullable
-   private static MobEntity getMobForSpawn(ServerWorld p_234973_0_, EntityType<?> p_234973_1_) {
+   private static Mob getMobForSpawn(ServerWorld p_234973_0_, EntityType<?> p_234973_1_) {
       try {
          Entity entity = p_234973_1_.create(p_234973_0_);
-         if (!(entity instanceof MobEntity)) {
+         if (!(entity instanceof Mob)) {
             throw new IllegalStateException("Trying to spawn a non-mob: " + Registry.ENTITY_TYPE.getKey(p_234973_1_));
          } else {
-            return (MobEntity)entity;
+            return (Mob)entity;
          }
       } catch (Exception exception) {
          LOGGER.warn("Failed to create mob", (Throwable)exception);
@@ -238,7 +238,7 @@ public final class WorldEntitySpawner {
       }
    }
 
-   private static boolean isValidPositionForMob(ServerWorld p_234974_0_, MobEntity p_234974_1_, double p_234974_2_) {
+   private static boolean isValidPositionForMob(ServerWorld p_234974_0_, Mob p_234974_1_, double p_234974_2_) {
       if (p_234974_2_ > (double)(p_234974_1_.getType().getCategory().getDespawnDistance() * p_234974_1_.getType().getCategory().getDespawnDistance()) && p_234974_1_.removeWhenFarAway(p_234974_2_)) {
          return false;
       } else {
@@ -353,8 +353,8 @@ public final class WorldEntitySpawner {
                      }
 
                      entity.moveTo(d0, (double)blockpos.getY(), d1, p_77191_4_.nextFloat() * 360.0F, 0.0F);
-                     if (entity instanceof MobEntity) {
-                        MobEntity mobentity = (MobEntity)entity;
+                     if (entity instanceof Mob) {
+                        Mob mobentity = (Mob)entity;
                         if (mobentity.checkSpawnRules(p_77191_0_, SpawnReason.CHUNK_GENERATION) && mobentity.checkSpawnObstruction(p_77191_0_)) {
                            ilivingentitydata = mobentity.finalizeSpawn(p_77191_0_, p_77191_0_.getCurrentDifficultyAt(mobentity.blockPosition()), SpawnReason.CHUNK_GENERATION, ilivingentitydata, (CompoundNBT)null);
                            p_77191_0_.addFreshEntityWithPassengers(mobentity);
@@ -431,7 +431,7 @@ public final class WorldEntitySpawner {
          }
       }
 
-      private void afterSpawn(MobEntity p_234990_1_, IChunk p_234990_2_) {
+      private void afterSpawn(Mob p_234990_1_, IChunk p_234990_2_) {
          EntityType<?> entitytype = p_234990_1_.getType();
          BlockPos blockpos = p_234990_1_.blockPosition();
          double d0;
@@ -477,6 +477,6 @@ public final class WorldEntitySpawner {
 
    @FunctionalInterface
    public interface IOnSpawnDensityAdder {
-      void run(MobEntity p_run_1_, IChunk p_run_2_);
+      void run(Mob p_run_1_, IChunk p_run_2_);
    }
 }

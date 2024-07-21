@@ -13,20 +13,12 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.IShearable;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.goal.BreedGoal;
-import net.minecraft.entity.ai.goal.EatGrassGoal;
-import net.minecraft.entity.ai.goal.FollowParentGoal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.PanicGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.TemptGoal;
-import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -61,7 +53,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class SheepEntity extends AnimalEntity implements IShearable {
+public class SheepEntity extends Animal implements IShearable {
    private static final DataParameter<Byte> DATA_WOOL_ID = EntityDataManager.defineId(SheepEntity.class, DataSerializers.BYTE);
    private static final Map<DyeColor, IItemProvider> ITEM_BY_DYE = Util.make(Maps.newEnumMap(DyeColor.class), (p_203402_0_) -> {
       p_203402_0_.put(DyeColor.WHITE, Blocks.WHITE_WOOL);
@@ -112,6 +104,7 @@ public class SheepEntity extends AnimalEntity implements IShearable {
       this.goalSelector.addGoal(1, new PanicGoal(this, 1.25D));
       this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D));
       this.goalSelector.addGoal(3, new TemptGoal(this, 1.1D, Ingredient.of(Items.WHEAT), false));
+      this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, WolfEntity.class, 5.0F, 1.12D, 1.14D));
       this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.1D));
       this.goalSelector.addGoal(5, this.eatBlockGoal);
       this.goalSelector.addGoal(6, new WaterAvoidingRandomWalkingGoal(this, 1.0D));
@@ -133,7 +126,7 @@ public class SheepEntity extends AnimalEntity implements IShearable {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.MOVEMENT_SPEED, (double)0.23F);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.MOVEMENT_SPEED, (double)0.23F);
    }
 
    protected void defineSynchedData() {
@@ -337,7 +330,7 @@ public class SheepEntity extends AnimalEntity implements IShearable {
       return super.finalizeSpawn(p_213386_1_, p_213386_2_, p_213386_3_, p_213386_4_, p_213386_5_);
    }
 
-   private DyeColor getOffspringColor(AnimalEntity p_175511_1_, AnimalEntity p_175511_2_) {
+   private DyeColor getOffspringColor(Animal p_175511_1_, Animal p_175511_2_) {
       DyeColor dyecolor = ((SheepEntity)p_175511_1_).getColor();
       DyeColor dyecolor1 = ((SheepEntity)p_175511_2_).getColor();
       CraftingInventory craftinginventory = makeContainer(dyecolor, dyecolor1);

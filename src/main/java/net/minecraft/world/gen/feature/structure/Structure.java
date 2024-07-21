@@ -217,11 +217,11 @@ public abstract class Structure<C extends IFeatureConfig> {
       return this.getStartFactory().create(this, p_236387_1_, p_236387_2_, p_236387_3_, p_236387_4_, p_236387_5_);
    }
 
-   public StructureStart<?> generate(DynamicRegistries p_242785_1_, ChunkGenerator p_242785_2_, BiomeProvider p_242785_3_, TemplateManager p_242785_4_, long p_242785_5_, ChunkPos p_242785_7_, Biome p_242785_8_, int p_242785_9_, SharedSeedRandom p_242785_10_, StructureSeparationSettings p_242785_11_, C p_242785_12_) {
-      ChunkPos chunkpos = this.getPotentialFeatureChunk(p_242785_11_, p_242785_5_, p_242785_10_, p_242785_7_.x, p_242785_7_.z);
-      if (p_242785_7_.x == chunkpos.x && p_242785_7_.z == chunkpos.z && this.isFeatureChunk(p_242785_2_, p_242785_3_, p_242785_5_, p_242785_10_, p_242785_7_.x, p_242785_7_.z, p_242785_8_, chunkpos, p_242785_12_)) {
-         StructureStart<C> structurestart = this.createStart(p_242785_7_.x, p_242785_7_.z, MutableBoundingBox.getUnknownBox(), p_242785_9_, p_242785_5_);
-         structurestart.generatePieces(p_242785_1_, p_242785_2_, p_242785_4_, p_242785_7_.x, p_242785_7_.z, p_242785_8_, p_242785_12_);
+   public StructureStart<?> generate(DynamicRegistries registry, ChunkGenerator generator, BiomeProvider biomeProvider, TemplateManager templateManager, long l, ChunkPos chunkPos, Biome biome, int i, SharedSeedRandom sharedSeedRandom, StructureSeparationSettings structureSeparationSettings, C IFeatureConfig) {
+      ChunkPos chunkpos = this.getPotentialFeatureChunk(structureSeparationSettings, l, sharedSeedRandom, chunkPos.x, chunkPos.z);
+      if (chunkPos.x == chunkpos.x && chunkPos.z == chunkpos.z && this.isFeatureChunk(generator, biomeProvider, l, sharedSeedRandom, chunkPos.x, chunkPos.z, biome, chunkpos, IFeatureConfig)) {
+         StructureStart<C> structurestart = this.createStart(chunkPos.x, chunkPos.z, MutableBoundingBox.getUnknownBox(), i, l);
+         structurestart.generatePieces(registry, generator, templateManager, chunkPos.x, chunkPos.z, biome, IFeatureConfig);
          if (structurestart.isValid()) {
             return structurestart;
          }

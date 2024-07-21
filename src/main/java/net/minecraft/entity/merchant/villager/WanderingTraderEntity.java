@@ -4,7 +4,7 @@ import java.util.EnumSet;
 import javax.annotation.Nullable;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.LookAtCustomerGoal;
@@ -73,7 +73,7 @@ public class WanderingTraderEntity extends AbstractVillagerEntity {
       this.goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 0.35D));
       this.goalSelector.addGoal(8, new WaterAvoidingRandomWalkingGoal(this, 0.35D));
       this.goalSelector.addGoal(9, new LookAtWithoutMovingGoal(this, PlayerEntity.class, 3.0F, 1.0F));
-      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
+      this.goalSelector.addGoal(10, new LookAtGoal(this, Mob.class, 8.0F));
    }
 
    @Nullable

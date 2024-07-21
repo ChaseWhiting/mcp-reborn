@@ -31,19 +31,19 @@ public interface IFlinging {
       return flag;
    }
 
-   static void throwTarget(LivingEntity p_234404_0_, LivingEntity p_234404_1_) {
-      double d0 = p_234404_0_.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
-      double d1 = p_234404_1_.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
+   static void throwTarget(LivingEntity mob, LivingEntity target) {
+      double d0 = mob.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+      double d1 = target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
       double d2 = d0 - d1;
       if (!(d2 <= 0.0D)) {
-         double d3 = p_234404_1_.getX() - p_234404_0_.getX();
-         double d4 = p_234404_1_.getZ() - p_234404_0_.getZ();
-         float f = (float)(p_234404_0_.level.random.nextInt(21) - 10);
-         double d5 = d2 * (double)(p_234404_0_.level.random.nextFloat() * 0.5F + 0.2F);
+         double d3 = target.getX() - mob.getX();
+         double d4 = target.getZ() - mob.getZ();
+         float f = (float)(mob.level.random.nextInt(21) - 10);
+         double d5 = d2 * (double)(mob.level.random.nextFloat() * 0.5F + 0.2F);
          Vector3d vector3d = (new Vector3d(d3, 0.0D, d4)).normalize().scale(d5).yRot(f);
-         double d6 = d2 * (double)p_234404_0_.level.random.nextFloat() * 0.5D;
-         p_234404_1_.push(vector3d.x, d6, vector3d.z);
-         p_234404_1_.hurtMarked = true;
+         double d6 = d2 * (double)mob.level.random.nextFloat() * 0.5D;
+         target.push(vector3d.x, d6, vector3d.z);
+         target.hurtMarked = true;
       }
    }
 }

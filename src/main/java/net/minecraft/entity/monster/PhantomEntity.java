@@ -12,7 +12,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FlyingEntity;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -235,7 +235,7 @@ public class PhantomEntity extends FlyingEntity implements IMob {
    }
 
    class BodyHelperController extends BodyController {
-      public BodyHelperController(MobEntity p_i49925_2_) {
+      public BodyHelperController(Mob p_i49925_2_) {
          super(p_i49925_2_);
       }
 
@@ -246,7 +246,7 @@ public class PhantomEntity extends FlyingEntity implements IMob {
    }
 
    class LookHelperController extends LookController {
-      public LookHelperController(MobEntity p_i48802_2_) {
+      public LookHelperController(Mob p_i48802_2_) {
          super(p_i48802_2_);
       }
 
@@ -267,7 +267,7 @@ public class PhantomEntity extends FlyingEntity implements IMob {
    class MoveHelperController extends MovementController {
       private float speed = 0.1F;
 
-      public MoveHelperController(MobEntity p_i48801_2_) {
+      public MoveHelperController(Mob p_i48801_2_) {
          super(p_i48801_2_);
       }
 

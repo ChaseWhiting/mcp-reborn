@@ -112,36 +112,6 @@ public class ExperienceOrbEntity extends Entity {
       if (this.age >= 6000) {
          this.remove();
       }
-
-      if (!this.level.isClientSide) {
-         List<ExperienceOrbEntity> nearbyOrbs = this.level.getEntitiesOfClass(ExperienceOrbEntity.class, this.getBoundingBox().inflate(6.0D));
-         if (nearbyOrbs.size() >= 4) {
-            for (ExperienceOrbEntity orb : nearbyOrbs) {
-               if (orb != this && !(orb.getValue() >= this.getValue())) {
-                  Vector3d vectorToOrb = new Vector3d(orb.getX() - this.getX(), orb.getY() - this.getY(), orb.getZ() - this.getZ());
-                  double distanceSq = vectorToOrb.lengthSqr();
-                  if (distanceSq < 6.0D * 6.0D) {
-                     double attractionStrength = 1.0D - Math.sqrt(distanceSq) / 6.0D;
-                     this.setDeltaMovement(this.getDeltaMovement().add(vectorToOrb.normalize().scale(attractionStrength * 0.05D)));
-                  }
-               }
-            }
-
-            // Check for clumping
-            List<ExperienceOrbEntity> veryCloseOrbs = this.level.getEntitiesOfClass(ExperienceOrbEntity.class, this.getBoundingBox().inflate(0.3D));
-            if (veryCloseOrbs.size() >= 4) {
-               int totalValue = this.value;
-               for (ExperienceOrbEntity orb : veryCloseOrbs) {
-                  if (orb != this && !(orb.getValue() >= this.getValue())) {
-                     totalValue += orb.getValue();
-                     orb.remove();
-                  }
-               }
-               this.value = totalValue;
-            }
-         }
-      }
-
    }
 
    private void setUnderwaterMovement() {

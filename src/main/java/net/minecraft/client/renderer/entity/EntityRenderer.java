@@ -7,21 +7,34 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.effect.LightningBoltEntity;
+import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.LightType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class EntityRenderer<T extends Entity> {
    protected final EntityRendererManager entityRenderDispatcher;
    protected float shadowRadius;
    protected float shadowStrength = 1.0F;
+   private Minecraft minecraft = Minecraft.getInstance();
 
    protected EntityRenderer(EntityRendererManager p_i46179_1_) {
       this.entityRenderDispatcher = p_i46179_1_;
@@ -59,43 +72,100 @@ public abstract class EntityRenderer<T extends Entity> {
       return Vector3d.ZERO;
    }
 
-   public void render(T p_225623_1_, float p_225623_2_, float p_225623_3_, MatrixStack p_225623_4_, IRenderTypeBuffer p_225623_5_, int p_225623_6_) {
-      if (this.shouldShowName(p_225623_1_)) {
-         this.renderNameTag(p_225623_1_, p_225623_1_.getDisplayName(), p_225623_4_, p_225623_5_, p_225623_6_);
+   public void render(T entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+      if (this.shouldShowName(entity)) {
+         this.renderNameTag(entity, entity.getDisplayName(), matrixStack, buffer, packedLight);
       }
+      if(entity.isAlive() && entity instanceof LivingEntity)
+         this.renderHealth(entity, entity.getDisplayName(), matrixStack, buffer, packedLight);
    }
 
-   protected boolean shouldShowName(T p_177070_1_) {
-      return p_177070_1_.shouldShowName() && p_177070_1_.hasCustomName();
+   protected boolean shouldShowName(T entity) {
+      return entity.shouldShowName() && entity.hasCustomName();
    }
 
-   public abstract ResourceLocation getTextureLocation(T p_110775_1_);
+   public abstract ResourceLocation getTextureLocation(T entity);
 
    public FontRenderer getFont() {
       return this.entityRenderDispatcher.getFont();
    }
 
-   protected void renderNameTag(T p_225629_1_, ITextComponent p_225629_2_, MatrixStack p_225629_3_, IRenderTypeBuffer p_225629_4_, int p_225629_5_) {
-      double d0 = this.entityRenderDispatcher.distanceToSqr(p_225629_1_);
-      if (!(d0 > 4096.0D)) {
-         boolean flag = !p_225629_1_.isDiscrete();
-         float f = p_225629_1_.getBbHeight() + 0.5F;
-         int i = "deadmau5".equals(p_225629_2_.getString()) ? -10 : 0;
-         p_225629_3_.pushPose();
-         p_225629_3_.translate(0.0D, (double)f, 0.0D);
-         p_225629_3_.mulPose(this.entityRenderDispatcher.cameraOrientation());
-         p_225629_3_.scale(-0.025F, -0.025F, 0.025F);
-         Matrix4f matrix4f = p_225629_3_.last().pose();
-         float f1 = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
-         int j = (int)(f1 * 255.0F) << 24;
-         FontRenderer fontrenderer = this.getFont();
-         float f2 = (float)(-fontrenderer.width(p_225629_2_) / 2);
-         fontrenderer.drawInBatch(p_225629_2_, f2, (float)i, 553648127, false, matrix4f, p_225629_4_, flag, j, p_225629_5_);
-         if (flag) {
-            fontrenderer.drawInBatch(p_225629_2_, f2, (float)i, -1, false, matrix4f, p_225629_4_, false, 0, p_225629_5_);
+   protected void renderNameTag(T entity, ITextComponent displayName, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+      double distanceSquared = this.entityRenderDispatcher.distanceToSqr(entity);
+      if (!(distanceSquared > 4096.0D)) {
+         boolean isDiscrete = !entity.isDiscrete();
+         float yOffset = entity.getBbHeight() + 0.5F;
+         int yOffsetAdjustment = "deadmau5".equals(displayName.getString()) ? -10 : 0;
+         matrixStack.pushPose();
+         matrixStack.translate(0.0D, (double) yOffset, 0.0D);
+         matrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+         matrixStack.scale(-0.025F, -0.025F, 0.025F);
+         Matrix4f matrix4f = matrixStack.last().pose();
+         float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+         int backgroundColor = (int) (backgroundOpacity * 255.0F) << 24;
+         FontRenderer fontRenderer = this.getFont();
+         float textWidth = (float) (-fontRenderer.width(displayName) / 2);
+         fontRenderer.drawInBatch(displayName, textWidth, (float) yOffsetAdjustment, 553648127, false, matrix4f, buffer, isDiscrete, backgroundColor, packedLight);
+         if (isDiscrete) {
+            fontRenderer.drawInBatch(displayName, textWidth, (float) yOffsetAdjustment, -1, false, matrix4f, buffer, false, 0, packedLight);
          }
 
-         p_225629_3_.popPose();
+//         // Displaying health
+//         String healthText = String.format("Health: %.1f / %.1f", entity.getHealth(), entity.getMaxHealth());
+//         int healthYOffset = yOffsetAdjustment + -15; // Adjust as needed
+//         float healthTextWidth = (float) (-fontRenderer.width(healthText) / 2);
+//         fontRenderer.drawInBatch(healthText, healthTextWidth, (float) healthYOffset, 553648127, false, matrix4f, buffer, isDiscrete, backgroundColor, packedLight);
+//         if (isDiscrete) {
+//            fontRenderer.drawInBatch(healthText, healthTextWidth, (float) healthYOffset, -1, false, matrix4f, buffer, false, 0, packedLight);
+//         }
+
+         matrixStack.popPose();
+      }
+   }
+
+   protected void renderHealth(T entity, ITextComponent displayName, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+      double distanceSquared = this.entityRenderDispatcher.distanceToSqr(entity);
+      double distance = Math.sqrt(distanceSquared);
+
+      List<Entity> entities = entity.level.getEntitiesOfClass(
+              Entity.class,
+              entity.getBoundingBox().inflate(1D, 1D, 1D),
+              entity1 -> entity1 != entity
+                      && !(entity1 instanceof PlayerEntity)
+                      && !(entity1 instanceof ItemEntity)
+                      && !(entity1 instanceof AbstractArrowEntity)
+                      && !(entity1 instanceof ArmorStandEntity)
+                      && !(entity1 instanceof AbstractMinecartEntity));
+      ITextComponent maxHealthComponent = new TranslationTextComponent("attribute.name.generic.max_health");
+
+      if (minecraft.options.showEntityHealth() && entities.isEmpty() && !(distance > 6.0D) && !(entity instanceof WitherEntity) && !(entity instanceof EnderDragonEntity) && !displayName.getString().equals(minecraft.getUser().getName())) {
+
+         boolean isDiscrete = !entity.isDiscrete();
+         FontRenderer fontRenderer = this.getFont();
+         float yOffset = entity.getBbHeight() + 0.5F;
+
+
+         matrixStack.pushPose();
+         matrixStack.translate(0.0D, (double) yOffset, 0.0D);
+         matrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+         matrixStack.scale(-0.025F, -0.025F, 0.025F);
+         Matrix4f matrix4f = matrixStack.last().pose();
+
+
+         int yOffsetAdjustment = "deadmau5".equals(displayName.getString()) ? -10 : 0;
+         String healthText = String.format("%s: %.1f / %.1f", maxHealthComponent.getString(), entity.getHealth(), entity.getMaxHealth());
+
+         int healthYOffset = yOffsetAdjustment + (shouldShowName(entity) ? -15 : 0);
+         float healthTextWidth = (float) (-fontRenderer.width(healthText) / 2);
+
+         float backgroundOpacity = minecraft.options.getBackgroundOpacity(0.25F);
+         int backgroundColor = (int) (backgroundOpacity * 255.0F) << 24;
+
+         fontRenderer.drawInBatch(healthText, healthTextWidth, (float) healthYOffset, 553648127, false, matrix4f, buffer, isDiscrete, backgroundColor, packedLight);
+         if (isDiscrete) {
+            fontRenderer.drawInBatch(healthText, healthTextWidth, (float) healthYOffset, -1, false, matrix4f, buffer, false, 0, packedLight);
+         }
+         matrixStack.popPose();
       }
    }
 

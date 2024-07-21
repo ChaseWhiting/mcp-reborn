@@ -2,15 +2,15 @@ package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class LeapAtTargetGoal extends Goal {
-   private final MobEntity mob;
+   private final Mob mob;
    private LivingEntity target;
    private final float yd;
 
-   public LeapAtTargetGoal(MobEntity p_i1630_1_, float p_i1630_2_) {
+   public LeapAtTargetGoal(Mob p_i1630_1_, float p_i1630_2_) {
       this.mob = p_i1630_1_;
       this.yd = p_i1630_2_;
       this.setFlags(EnumSet.of(Goal.Flag.JUMP, Goal.Flag.MOVE));

@@ -46,7 +46,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
    value = Dist.CLIENT,
    _interface = IChargeableMob.class
 )
-public class CreeperEntity extends MonsterEntity implements IChargeableMob {
+public class CreeperEntity extends Monster implements IChargeableMob {
    private static final DataParameter<Integer> DATA_SWELL_DIR = EntityDataManager.defineId(CreeperEntity.class, DataSerializers.INT);
    private static final DataParameter<Boolean> DATA_IS_POWERED = EntityDataManager.defineId(CreeperEntity.class, DataSerializers.BOOLEAN);
    private static final DataParameter<Boolean> DATA_IS_IGNITED = EntityDataManager.defineId(CreeperEntity.class, DataSerializers.BOOLEAN);
@@ -76,7 +76,7 @@ public class CreeperEntity extends MonsterEntity implements IChargeableMob {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D);
+      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D);
    }
 
    public int getMaxFallDistance() {

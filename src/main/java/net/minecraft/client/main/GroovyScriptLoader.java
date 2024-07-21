@@ -2,15 +2,9 @@ package net.minecraft.client.main;
 
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
-import net.minecraft.world.WorldSettings;
-import org.codehaus.groovy.GroovyException;
-import org.codehaus.groovy.control.CompilerConfiguration;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -179,14 +173,4 @@ public class GroovyScriptLoader {
         LOGGER.log(Level.SEVERE, "Cached script not found: " + scriptName);
     }
 
-    @Nullable
-    public static WorldSettings getWorldSettings(String scriptName) {
-        try {
-            Script script = shell.parse(new File(scriptName));
-            return (WorldSettings) script.run();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }

@@ -9,7 +9,7 @@ import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -55,7 +55,7 @@ public class EvokerEntity extends SpellcastingIllagerEntity {
       this.goalSelector.addGoal(6, new EvokerEntity.WololoSpellGoal());
       this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
       this.goalSelector.addGoal(9, new LookAtGoal(this, PlayerEntity.class, 3.0F, 1.0F));
-      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
+      this.goalSelector.addGoal(10, new LookAtGoal(this, Mob.class, 8.0F));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, AbstractRaiderEntity.class)).setAlertOthers());
       this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true)).setUnseenMemoryTicks(300));
       this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, false)).setUnseenMemoryTicks(300));
@@ -63,7 +63,7 @@ public class EvokerEntity extends SpellcastingIllagerEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.5D).add(Attributes.FOLLOW_RANGE, 12.0D).add(Attributes.MAX_HEALTH, 24.0D);
+      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.5D).add(Attributes.FOLLOW_RANGE, 12.0D).add(Attributes.MAX_HEALTH, 24.0D);
    }
 
    protected void defineSynchedData() {

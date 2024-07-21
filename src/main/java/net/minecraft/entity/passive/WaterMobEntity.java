@@ -1,7 +1,7 @@
 package net.minecraft.entity.passive;
 
 import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.pathfinding.PathNodeType;
@@ -9,7 +9,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
-public abstract class WaterMobEntity extends CreatureEntity {
+public abstract class WaterMobEntity extends Creature {
    protected WaterMobEntity(EntityType<? extends WaterMobEntity> p_i48565_1_, World p_i48565_2_) {
       super(p_i48565_1_, p_i48565_2_);
       this.setPathfindingMalus(PathNodeType.WATER, 0.0F);

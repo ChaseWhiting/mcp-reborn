@@ -48,14 +48,14 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
       super(p_i50164_1_, p_i50164_2_);
    }
 
-   public FireworkRocketEntity(World p_i1763_1_, double p_i1763_2_, double p_i1763_4_, double p_i1763_6_, ItemStack p_i1763_8_) {
+   public FireworkRocketEntity(World p_i1763_1_, double p_i1763_2_, double p_i1763_4_, double p_i1763_6_, ItemStack itemStack) {
       super(EntityType.FIREWORK_ROCKET, p_i1763_1_);
       this.life = 0;
       this.setPos(p_i1763_2_, p_i1763_4_, p_i1763_6_);
       int i = 1;
-      if (!p_i1763_8_.isEmpty() && p_i1763_8_.hasTag()) {
-         this.entityData.set(DATA_ID_FIREWORKS_ITEM, p_i1763_8_.copy());
-         i += p_i1763_8_.getOrCreateTagElement("Fireworks").getByte("Flight");
+      if (!itemStack.isEmpty() && itemStack.hasTag()) {
+         this.entityData.set(DATA_ID_FIREWORKS_ITEM, itemStack.copy());
+         i += itemStack.getOrCreateTagElement("Fireworks").getByte("Flight");
       }
 
       this.setDeltaMovement(this.random.nextGaussian() * 0.001D, 0.05D, this.random.nextGaussian() * 0.001D);
@@ -171,6 +171,10 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
       this.remove();
    }
 
+   public void blowUp() {
+      this.explode();
+   }
+
    protected void onHitEntity(EntityRayTraceResult p_213868_1_) {
       super.onHitEntity(p_213868_1_);
       if (!this.level.isClientSide) {
@@ -213,7 +217,7 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
          Vector3d vector3d = this.position();
 
          for(LivingEntity livingentity : this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(8.0D))) {
-            if (livingentity != this.attachedToEntity && !(this.distanceToSqr(livingentity) > 25.0D)) {
+            if (livingentity != this.attachedToEntity && !(this.distanceToSqr(livingentity) > 25D)) {
                boolean flag = false;
 
                for(int i = 0; i < 2; ++i) {

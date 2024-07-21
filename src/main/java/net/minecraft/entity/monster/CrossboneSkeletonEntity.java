@@ -1,13 +1,12 @@
 package net.minecraft.entity.monster;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
@@ -41,7 +40,7 @@ import net.minecraft.entity.ICrossbowUser;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CrossboneSkeletonEntity extends MonsterEntity implements ICrossbowUser {
+public class CrossboneSkeletonEntity extends Monster implements ICrossbowUser {
     private static final DataParameter<Boolean> IS_CHARGING_CROSSBOW = EntityDataManager.defineId(CrossboneSkeletonEntity.class, DataSerializers.BOOLEAN);
     private final MeleeAttackGoal meleeGoal = new MeleeAttackGoal(this, 1.2D, false) {
         public void stop() {
@@ -74,7 +73,7 @@ public class CrossboneSkeletonEntity extends MonsterEntity implements ICrossbowU
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return MonsterEntity.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D);
+        return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D);
     }
 
     protected void playStepSound(BlockPos pos, BlockState state) {
@@ -127,8 +126,8 @@ public class CrossboneSkeletonEntity extends MonsterEntity implements ICrossbowU
 
     public void rideTick() {
         super.rideTick();
-        if (this.getVehicle() instanceof CreatureEntity) {
-            CreatureEntity creatureentity = (CreatureEntity) this.getVehicle();
+        if (this.getVehicle() instanceof Creature) {
+            Creature creatureentity = (Creature) this.getVehicle();
             this.yBodyRot = creatureentity.yBodyRot;
         }
 

@@ -1,6 +1,6 @@
 package net.minecraft.entity.pathfinding.owl;
 
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.util.math.MathHelper;
@@ -9,7 +9,7 @@ public class OwlFlyingMovementController extends MovementController {
     private final int maxTurn;
     private final boolean hoversInPlace;
 
-    public OwlFlyingMovementController(MobEntity mob, int maxTurn, boolean hoversInPlace) {
+    public OwlFlyingMovementController(Mob mob, int maxTurn, boolean hoversInPlace) {
         super(mob);
         this.maxTurn = maxTurn;
         this.hoversInPlace = hoversInPlace;

@@ -12,7 +12,7 @@ import net.minecraft.command.arguments.Vec3Argument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -54,8 +54,8 @@ public class SummonCommand {
          if (entity == null) {
             throw ERROR_FAILED.create();
          } else {
-            if (p_198737_4_ && entity instanceof MobEntity) {
-               ((MobEntity)entity).finalizeSpawn(p_198737_0_.getLevel(), p_198737_0_.getLevel().getCurrentDifficultyAt(entity.blockPosition()), SpawnReason.COMMAND, (ILivingEntityData)null, (CompoundNBT)null);
+            if (p_198737_4_ && entity instanceof Mob) {
+               ((Mob)entity).finalizeSpawn(p_198737_0_.getLevel(), p_198737_0_.getLevel().getCurrentDifficultyAt(entity.blockPosition()), SpawnReason.COMMAND, (ILivingEntityData)null, (CompoundNBT)null);
             }
 
             if (!serverworld.tryAddFreshEntityWithPassengers(entity)) {

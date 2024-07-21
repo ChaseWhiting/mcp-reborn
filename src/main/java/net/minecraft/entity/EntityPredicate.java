@@ -84,7 +84,7 @@ public class EntityPredicate {
                }
             }
 
-            if (!this.allowUnseeable && p_221015_1_ instanceof MobEntity && !((MobEntity)p_221015_1_).getSensing().canSee(p_221015_2_)) {
+            if (!this.allowUnseeable && p_221015_1_ instanceof Mob && !((Mob)p_221015_1_).getSensing().canSee(p_221015_2_)) {
                return false;
             }
          }

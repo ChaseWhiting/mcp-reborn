@@ -1,15 +1,15 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 
 public class LookRandomlyGoal extends Goal {
-   private final MobEntity mob;
+   private final Mob mob;
    private double relX;
    private double relZ;
    private int lookTime;
 
-   public LookRandomlyGoal(MobEntity p_i1647_1_) {
+   public LookRandomlyGoal(Mob p_i1647_1_) {
       this.mob = p_i1647_1_;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
    }

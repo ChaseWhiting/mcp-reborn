@@ -17,6 +17,7 @@ import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.AbstractCrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.TieredItem;
@@ -102,7 +103,7 @@ public class VindicatorEntity extends AbstractIllagerEntity implements ICrossbow
       this.targetSelector.addGoal(4, new VindicatorEntity.JohnnyAttackGoal(this));
       this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
       this.goalSelector.addGoal(9, new LookAtGoal(this, PlayerEntity.class, 3.0F, 1.0F));
-      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
+      this.goalSelector.addGoal(10, new LookAtGoal(this, Mob.class, 8.0F));
    }
 
    protected void customServerAiStep() {
@@ -115,7 +116,7 @@ public class VindicatorEntity extends AbstractIllagerEntity implements ICrossbow
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.35F).add(Attributes.FOLLOW_RANGE, 12.0D).add(Attributes.MAX_HEALTH, 24.0D).add(Attributes.ATTACK_DAMAGE, 5.0D);
+      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.35F).add(Attributes.FOLLOW_RANGE, 12.0D).add(Attributes.MAX_HEALTH, 24.0D).add(Attributes.ATTACK_DAMAGE, 5.0D);
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
@@ -134,7 +135,7 @@ public class VindicatorEntity extends AbstractIllagerEntity implements ICrossbow
    public AbstractIllagerEntity.ArmPose getArmPose() {
       if (this.isChargingCrossbow()) {
          return AbstractIllagerEntity.ArmPose.CROSSBOW_CHARGE;
-      } else if (this.isHolding(Items.CROSSBOW)) {
+      } else if (this.isHolding(Items.CROSSBOW) || this.isHolding(Items.GILDED_CROSSBOW) || AbstractCrossbowItem.isHoldingAbstractCrossbowItem(this)) {
          return AbstractIllagerEntity.ArmPose.CROSSBOW_HOLD;
       } else if (this.isAggressive() && this.isHoldingMeleeWeapon()) {
          return AbstractIllagerEntity.ArmPose.ATTACKING;
@@ -238,7 +239,7 @@ public class VindicatorEntity extends AbstractIllagerEntity implements ICrossbow
    }
 
    static class BreakDoorGoal extends net.minecraft.entity.ai.goal.BreakDoorGoal {
-      public BreakDoorGoal(MobEntity p_i50578_1_) {
+      public BreakDoorGoal(Mob p_i50578_1_) {
          super(p_i50578_1_, 6, VindicatorEntity.DOOR_BREAKING_PREDICATE);
          this.setFlags(EnumSet.of(Goal.Flag.MOVE));
       }

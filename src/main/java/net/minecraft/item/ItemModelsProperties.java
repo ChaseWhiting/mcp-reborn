@@ -9,7 +9,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.entity.monster.MarauderEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.Direction;
@@ -19,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -241,6 +244,63 @@ public class ItemModelsProperties {
          return p_239424_2_ != null && CrossbowItem.isCharged(p_239424_0_) &&
                  (CrossbowItem.containsChargedProjectile(p_239424_0_, Items.FIREWORK_ROCKET) || CrossbowItem.containsChargedProjectile(p_239424_0_, Items.FIREWORK_ARROW)) ? 1.0F : 0.0F;
       });
+
+
+
+      register(Items.GILDED_CROSSBOW, new ResourceLocation("pull"), (p_239427_0_, p_239427_1_, p_239427_2_) -> {
+         if (p_239427_2_ == null) {
+            return 0.0F;
+         } else {
+            return GildedCrossbowItem.isCharged(p_239427_0_) ? 0.0F : (float)(p_239427_0_.getUseDuration() - p_239427_2_.getUseItemRemainingTicks()) / (float)GildedCrossbowItem.getChargeDuration(p_239427_0_);
+         }
+      });
+      register(Items.GILDED_CROSSBOW, new ResourceLocation("pulling"), (p_239426_0_, p_239426_1_, p_239426_2_) -> {
+         return p_239426_2_ != null && p_239426_2_.isUsingItem() && p_239426_2_.getUseItem() == p_239426_0_ && !GildedCrossbowItem.isCharged(p_239426_0_) ? 1.0F : 0.0F;
+      });
+      register(Items.GILDED_CROSSBOW, new ResourceLocation("charged"), (p_239425_0_, p_239425_1_, p_239425_2_) -> {
+         return p_239425_2_ != null && GildedCrossbowItem.isCharged(p_239425_0_) ? 1.0F : 0.0F;
+      });
+      register(Items.GILDED_CROSSBOW, new ResourceLocation("firework"), (p_239424_0_, p_239424_1_, p_239424_2_) -> {
+         return p_239424_2_ != null && GildedCrossbowItem.isCharged(p_239424_0_) &&
+                 (GildedCrossbowItem.containsChargedProjectile(p_239424_0_, Items.FIREWORK_ROCKET) || GildedCrossbowItem.containsChargedProjectile(p_239424_0_, Items.FIREWORK_ARROW)) ? 1.0F : 0.0F;
+      });
+      register(Items.GILDED_CROSSBOW, new ResourceLocation("gilded_arrow"), (p_239424_0_, p_239424_1_, p_239424_2_) -> {
+         return p_239424_2_ != null && GildedCrossbowItem.isCharged(p_239424_0_) &&
+                 (GildedCrossbowItem.containsChargedProjectile(p_239424_0_, Items.GILDED_ARROW)) ? 1.0F : 0.0F;
+      });
+      for(Item item : Registry.ITEM) {
+         if (item instanceof AbstractCrossbowItem) {
+            register(item, new ResourceLocation("pull"), (crossbow, world, mob) -> {
+               if (mob == null) {
+                  return 0.0F;
+               } else {
+                  return AbstractCrossbowItem.isCharged(crossbow) ? 0.0F : (float) (crossbow.getUseDuration() - mob.getUseItemRemainingTicks()) / (float) AbstractCrossbowItem.getChargeDuration(crossbow);
+               }
+            });
+            register(item, new ResourceLocation("pulling"), (crossbow, world, entity) -> {
+               return entity != null && entity.isUsingItem() && entity.getUseItem() == crossbow && !AbstractCrossbowItem.isCharged(crossbow) ? 1.0F : 0.0F;
+            });
+            register(item, new ResourceLocation("charged"), (crossbow, world, entity) -> {
+               return entity != null && AbstractCrossbowItem.isCharged(crossbow) ? 1.0F : 0.0F;
+            });
+            register(item, new ResourceLocation("firework"), (crossbow, world, entity) -> {
+               return entity != null && AbstractCrossbowItem.isCharged(crossbow) &&
+                       (AbstractCrossbowItem.containsChargedProjectile(crossbow, Items.FIREWORK_ROCKET) || AbstractCrossbowItem.containsChargedProjectile(crossbow, Items.FIREWORK_ARROW)) ? 1.0F : 0.0F;
+            });
+
+         }
+      }
+
+
+
+
+
+
+
+
+
+
+
       register(Items.ELYTRA, new ResourceLocation("broken"), (p_239423_0_, p_239423_1_, p_239423_2_) -> {
          return ElytraItem.isFlyEnabled(p_239423_0_) ? 0.0F : 1.0F;
       });
@@ -271,10 +331,16 @@ public class ItemModelsProperties {
             return (flag || flag1) && p_239422_2_ instanceof PlayerEntity && ((PlayerEntity)p_239422_2_).getGrapplingHook() != null ? 1.0F : 0.0F;
          }
       });
-      register(Items.SHIELD, new ResourceLocation("blocking"), (p_239421_0_, p_239421_1_, p_239421_2_) -> {
-         return p_239421_2_ != null && p_239421_2_.isUsingItem() && p_239421_2_.getUseItem() == p_239421_0_ ? 1.0F : 0.0F;
+      register(Items.SHIELD, new ResourceLocation("blocking"), (stack, world, entity) -> {
+         if (entity instanceof MarauderEntity && entity.getItemBySlot(EquipmentSlotType.OFFHAND) == stack) {
+            return 1.0F;
+         }
+         return entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F;
       });
       register(Items.NETHERITE_SHIELD, new ResourceLocation("blocking"), (item, world, entity) -> {
+         if (entity instanceof MarauderEntity && entity.getItemBySlot(EquipmentSlotType.OFFHAND) == item) {
+            return 1.0F;
+         }
          return entity != null && entity.isUsingItem() && entity.getUseItem() == item ? 1.0F : 0.0F;
       });
       register(Items.TRIDENT, new ResourceLocation("throwing"), (p_239419_0_, p_239419_1_, p_239419_2_) -> {

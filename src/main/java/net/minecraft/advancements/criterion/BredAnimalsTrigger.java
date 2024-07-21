@@ -3,7 +3,7 @@ package net.minecraft.advancements.criterion;
 import com.google.gson.JsonObject;
 import javax.annotation.Nullable;
 import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.loot.ConditionArrayParser;
 import net.minecraft.loot.ConditionArraySerializer;
@@ -24,7 +24,7 @@ public class BredAnimalsTrigger extends AbstractCriterionTrigger<BredAnimalsTrig
       return new BredAnimalsTrigger.Instance(p_230241_2_, entitypredicate$andpredicate, entitypredicate$andpredicate1, entitypredicate$andpredicate2);
    }
 
-   public void trigger(ServerPlayerEntity p_192168_1_, AnimalEntity p_192168_2_, AnimalEntity p_192168_3_, @Nullable AgeableEntity p_192168_4_) {
+   public void trigger(ServerPlayerEntity p_192168_1_, Animal p_192168_2_, Animal p_192168_3_, @Nullable AgeableEntity p_192168_4_) {
       LootContext lootcontext = EntityPredicate.createContext(p_192168_1_, p_192168_2_);
       LootContext lootcontext1 = EntityPredicate.createContext(p_192168_1_, p_192168_3_);
       LootContext lootcontext2 = p_192168_4_ != null ? EntityPredicate.createContext(p_192168_1_, p_192168_4_) : null;

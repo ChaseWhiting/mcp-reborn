@@ -5,10 +5,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
-import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.CommandSource;
@@ -26,91 +22,105 @@ import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.server.ServerWorld;
 
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
 public class FillCommand {
-   private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType((p_208897_0_, p_208897_1_) -> {
-      return new TranslationTextComponent("commands.fill.toobig", p_208897_0_, p_208897_1_);
-   });
-   private static final BlockStateInput HOLLOW_CORE = new BlockStateInput(Blocks.AIR.defaultBlockState(), Collections.emptySet(), (CompoundNBT)null);
+   private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType((size, limit) -> new TranslationTextComponent("commands.fill.toobig", size, limit));
+   private static final BlockStateInput HOLLOW_CORE = new BlockStateInput(Blocks.AIR.defaultBlockState(), Collections.emptySet(), (CompoundNBT) null);
    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslationTextComponent("commands.fill.failed"));
 
-   public static void register(CommandDispatcher<CommandSource> p_198465_0_) {
-      p_198465_0_.register(Commands.literal("fill").requires((p_198471_0_) -> {
-         return p_198471_0_.hasPermission(2);
-      }).then(Commands.argument("from", BlockPosArgument.blockPos()).then(Commands.argument("to", BlockPosArgument.blockPos()).then(Commands.argument("block", BlockStateArgument.block()).executes((p_198472_0_) -> {
-         return fillBlocks(p_198472_0_.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(p_198472_0_, "from"), BlockPosArgument.getLoadedBlockPos(p_198472_0_, "to")), BlockStateArgument.getBlock(p_198472_0_, "block"), FillCommand.Mode.REPLACE, (Predicate<CachedBlockInfo>)null);
-      }).then(Commands.literal("replace").executes((p_198464_0_) -> {
-         return fillBlocks(p_198464_0_.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(p_198464_0_, "from"), BlockPosArgument.getLoadedBlockPos(p_198464_0_, "to")), BlockStateArgument.getBlock(p_198464_0_, "block"), FillCommand.Mode.REPLACE, (Predicate<CachedBlockInfo>)null);
-      }).then(Commands.argument("filter", BlockPredicateArgument.blockPredicate()).executes((p_198466_0_) -> {
-         return fillBlocks(p_198466_0_.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(p_198466_0_, "from"), BlockPosArgument.getLoadedBlockPos(p_198466_0_, "to")), BlockStateArgument.getBlock(p_198466_0_, "block"), FillCommand.Mode.REPLACE, BlockPredicateArgument.getBlockPredicate(p_198466_0_, "filter"));
-      }))).then(Commands.literal("keep").executes((p_198462_0_) -> {
-         return fillBlocks(p_198462_0_.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(p_198462_0_, "from"), BlockPosArgument.getLoadedBlockPos(p_198462_0_, "to")), BlockStateArgument.getBlock(p_198462_0_, "block"), FillCommand.Mode.REPLACE, (p_198469_0_) -> {
-            return p_198469_0_.getLevel().isEmptyBlock(p_198469_0_.getPos());
-         });
-      })).then(Commands.literal("outline").executes((p_198467_0_) -> {
-         return fillBlocks(p_198467_0_.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(p_198467_0_, "from"), BlockPosArgument.getLoadedBlockPos(p_198467_0_, "to")), BlockStateArgument.getBlock(p_198467_0_, "block"), FillCommand.Mode.OUTLINE, (Predicate<CachedBlockInfo>)null);
-      })).then(Commands.literal("hollow").executes((p_198461_0_) -> {
-         return fillBlocks(p_198461_0_.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(p_198461_0_, "from"), BlockPosArgument.getLoadedBlockPos(p_198461_0_, "to")), BlockStateArgument.getBlock(p_198461_0_, "block"), FillCommand.Mode.HOLLOW, (Predicate<CachedBlockInfo>)null);
-      })).then(Commands.literal("destroy").executes((p_198468_0_) -> {
-         return fillBlocks(p_198468_0_.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(p_198468_0_, "from"), BlockPosArgument.getLoadedBlockPos(p_198468_0_, "to")), BlockStateArgument.getBlock(p_198468_0_, "block"), FillCommand.Mode.DESTROY, (Predicate<CachedBlockInfo>)null);
-      }))))));
+   public static void register(CommandDispatcher<CommandSource> dispatcher) {
+      dispatcher.register(Commands.literal("fill").requires(source -> source.hasPermission(2))
+              .then(Commands.argument("from", BlockPosArgument.blockPos())
+                      .then(Commands.argument("to", BlockPosArgument.blockPos())
+                              .then(Commands.argument("block", BlockStateArgument.block())
+                                      .executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.REPLACE, null))
+                                      .then(Commands.literal("replace")
+                                              .executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.REPLACE, null))
+                                              .then(Commands.argument("filter1", BlockPredicateArgument.blockPredicate())
+                                                      .executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.REPLACE, BlockPredicateArgument.getBlockPredicate(context, "filter1")))
+                                                      .then(Commands.argument("filter2", BlockPredicateArgument.blockPredicate())
+                                                              .executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.REPLACE, combinePredicates(BlockPredicateArgument.getBlockPredicate(context, "filter1"), BlockPredicateArgument.getBlockPredicate(context, "filter2"))))
+                                                              .then(Commands.argument("filter3", BlockPredicateArgument.blockPredicate())
+                                                                      .executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.REPLACE, combinePredicates(BlockPredicateArgument.getBlockPredicate(context, "filter1"), BlockPredicateArgument.getBlockPredicate(context, "filter2"), BlockPredicateArgument.getBlockPredicate(context, "filter3"))))
+                                                                      .then(Commands.argument("filter4", BlockPredicateArgument.blockPredicate())
+                                                                              .executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.REPLACE, combinePredicates(BlockPredicateArgument.getBlockPredicate(context, "filter1"), BlockPredicateArgument.getBlockPredicate(context, "filter2"), BlockPredicateArgument.getBlockPredicate(context, "filter3"), BlockPredicateArgument.getBlockPredicate(context, "filter4"))))
+                                                                              .then(Commands.argument("filter5", BlockPredicateArgument.blockPredicate())
+                                                                                      .executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.REPLACE, combinePredicates(BlockPredicateArgument.getBlockPredicate(context, "filter1"), BlockPredicateArgument.getBlockPredicate(context, "filter2"), BlockPredicateArgument.getBlockPredicate(context, "filter3"), BlockPredicateArgument.getBlockPredicate(context, "filter4"), BlockPredicateArgument.getBlockPredicate(context, "filter5"))))
+                                                                              )
+                                                                      )
+                                                              )
+                                                      )
+                                              )
+                                      )
+                                      .then(Commands.literal("keep").executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.REPLACE, cachedBlockInfo -> cachedBlockInfo.getLevel().isEmptyBlock(cachedBlockInfo.getPos()))))
+                                      .then(Commands.literal("outline").executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.OUTLINE, null)))
+                                      .then(Commands.literal("hollow").executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.HOLLOW, null)))
+                                      .then(Commands.literal("destroy").executes(context -> fillBlocks(context.getSource(), new MutableBoundingBox(BlockPosArgument.getLoadedBlockPos(context, "from"), BlockPosArgument.getLoadedBlockPos(context, "to")), BlockStateArgument.getBlock(context, "block"), Mode.DESTROY, null)))
+                              )
+                      )
+              )
+      );
    }
 
-   private static int fillBlocks(CommandSource p_198463_0_, MutableBoundingBox p_198463_1_, BlockStateInput p_198463_2_, FillCommand.Mode p_198463_3_, @Nullable Predicate<CachedBlockInfo> p_198463_4_) throws CommandSyntaxException {
-      int i = p_198463_1_.getXSpan() * p_198463_1_.getYSpan() * p_198463_1_.getZSpan();
-      if (i > 32768) {
-         throw ERROR_AREA_TOO_LARGE.create(32768, i);
-      } else {
-         List<BlockPos> list = Lists.newArrayList();
-         ServerWorld serverworld = p_198463_0_.getLevel();
-         int j = 0;
+   private static Predicate<CachedBlockInfo> combinePredicates(Predicate<CachedBlockInfo>... predicates) {
+      return Stream.of(predicates).reduce(x -> false, Predicate::or);
+   }
 
-         for(BlockPos blockpos : BlockPos.betweenClosed(p_198463_1_.x0, p_198463_1_.y0, p_198463_1_.z0, p_198463_1_.x1, p_198463_1_.y1, p_198463_1_.z1)) {
-            if (p_198463_4_ == null || p_198463_4_.test(new CachedBlockInfo(serverworld, blockpos, true))) {
-               BlockStateInput blockstateinput = p_198463_3_.filter.filter(p_198463_1_, blockpos, p_198463_2_, serverworld);
-               if (blockstateinput != null) {
-                  TileEntity tileentity = serverworld.getBlockEntity(blockpos);
-                  IClearable.tryClear(tileentity);
-                  if (blockstateinput.place(serverworld, blockpos, 2)) {
-                     list.add(blockpos.immutable());
-                     ++j;
+   private static int fillBlocks(CommandSource source, MutableBoundingBox boundingBox, BlockStateInput blockStateInput, Mode mode, @Nullable Predicate<CachedBlockInfo> filter) throws CommandSyntaxException {
+      int volume = boundingBox.getXSpan() * boundingBox.getYSpan() * boundingBox.getZSpan();
+      if (volume > 1111132768) {
+         throw ERROR_AREA_TOO_LARGE.create(32768, volume);
+      } else {
+         List<BlockPos> affectedBlocks = Lists.newArrayList();
+         ServerWorld world = source.getLevel();
+         int affectedCount = 0;
+
+         for (BlockPos pos : BlockPos.betweenClosed(boundingBox.x0, boundingBox.y0, boundingBox.z0, boundingBox.x1, boundingBox.y1, boundingBox.z1)) {
+            if (filter == null || filter.test(new CachedBlockInfo(world, pos, true))) {
+               BlockStateInput stateInput = mode.filter.filter(boundingBox, pos, blockStateInput, world);
+               if (stateInput != null) {
+                  TileEntity tileEntity = world.getBlockEntity(pos);
+                  IClearable.tryClear(tileEntity);
+                  if (stateInput.place(world, pos, 2)) {
+                     affectedBlocks.add(pos.immutable());
+                     affectedCount++;
                   }
                }
             }
          }
 
-         for(BlockPos blockpos1 : list) {
-            Block block = serverworld.getBlockState(blockpos1).getBlock();
-            serverworld.blockUpdated(blockpos1, block);
+         for (BlockPos pos : affectedBlocks) {
+            Block block = world.getBlockState(pos).getBlock();
+            world.blockUpdated(pos, block);
          }
 
-         if (j == 0) {
+         if (affectedCount == 0) {
             throw ERROR_FAILED.create();
          } else {
-            p_198463_0_.sendSuccess(new TranslationTextComponent("commands.fill.success", j), true);
-            return j;
+            source.sendSuccess(new TranslationTextComponent("commands.fill.success", affectedCount), true);
+            return affectedCount;
          }
       }
    }
 
    static enum Mode {
-      REPLACE((p_198450_0_, p_198450_1_, p_198450_2_, p_198450_3_) -> {
-         return p_198450_2_;
-      }),
-      OUTLINE((p_198454_0_, p_198454_1_, p_198454_2_, p_198454_3_) -> {
-         return p_198454_1_.getX() != p_198454_0_.x0 && p_198454_1_.getX() != p_198454_0_.x1 && p_198454_1_.getY() != p_198454_0_.y0 && p_198454_1_.getY() != p_198454_0_.y1 && p_198454_1_.getZ() != p_198454_0_.z0 && p_198454_1_.getZ() != p_198454_0_.z1 ? null : p_198454_2_;
-      }),
-      HOLLOW((p_198453_0_, p_198453_1_, p_198453_2_, p_198453_3_) -> {
-         return p_198453_1_.getX() != p_198453_0_.x0 && p_198453_1_.getX() != p_198453_0_.x1 && p_198453_1_.getY() != p_198453_0_.y0 && p_198453_1_.getY() != p_198453_0_.y1 && p_198453_1_.getZ() != p_198453_0_.z0 && p_198453_1_.getZ() != p_198453_0_.z1 ? FillCommand.HOLLOW_CORE : p_198453_2_;
-      }),
-      DESTROY((p_198452_0_, p_198452_1_, p_198452_2_, p_198452_3_) -> {
-         p_198452_3_.destroyBlock(p_198452_1_, true);
-         return p_198452_2_;
+      REPLACE((boundingBox, pos, blockStateInput, world) -> blockStateInput),
+      OUTLINE((boundingBox, pos, blockStateInput, world) -> (pos.getX() != boundingBox.x0 && pos.getX() != boundingBox.x1 && pos.getY() != boundingBox.y0 && pos.getY() != boundingBox.y1 && pos.getZ() != boundingBox.z0 && pos.getZ() != boundingBox.z1) ? null : blockStateInput),
+      HOLLOW((boundingBox, pos, blockStateInput, world) -> (pos.getX() != boundingBox.x0 && pos.getX() != boundingBox.x1 && pos.getY() != boundingBox.y0 && pos.getY() != boundingBox.y1 && pos.getZ() != boundingBox.z0 && pos.getZ() != boundingBox.z1) ? HOLLOW_CORE : blockStateInput),
+      DESTROY((boundingBox, pos, blockStateInput, world) -> {
+         world.destroyBlock(pos, true);
+         return blockStateInput;
       });
 
       public final SetBlockCommand.IFilter filter;
 
-      private Mode(SetBlockCommand.IFilter p_i47985_3_) {
-         this.filter = p_i47985_3_;
+      private Mode(SetBlockCommand.IFilter filter) {
+         this.filter = filter;
       }
    }
 }

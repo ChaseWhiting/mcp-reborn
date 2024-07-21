@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -126,6 +127,8 @@ public class CompoundNBT implements INBT {
    public void putUUID(String p_186854_1_, UUID p_186854_2_) {
       this.tags.put(p_186854_1_, NBTUtil.createUUID(p_186854_2_));
    }
+
+
 
    public UUID getUUID(String p_186857_1_) {
       return NBTUtil.loadUUID(this.get(p_186857_1_));

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.boss.WitherEntity;
@@ -24,12 +24,12 @@ public class PiglinBruteSpecificSensor extends Sensor<LivingEntity> {
 
    protected void doTick(ServerWorld p_212872_1_, LivingEntity p_212872_2_) {
       Brain<?> brain = p_212872_2_.getBrain();
-      Optional<MobEntity> optional = Optional.empty();
+      Optional<Mob> optional = Optional.empty();
       List<AbstractPiglinEntity> list = Lists.newArrayList();
 
       for(LivingEntity livingentity : brain.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).orElse(ImmutableList.of())) {
          if (livingentity instanceof WitherSkeletonEntity || livingentity instanceof WitherEntity || livingentity instanceof VillagerEntity || livingentity instanceof IronGolemEntity) {
-            optional = Optional.of((MobEntity)livingentity);
+            optional = Optional.of((Mob)livingentity);
             break;
          }
       }

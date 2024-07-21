@@ -3,11 +3,11 @@ package net.minecraft.entity.ai.goal;
 import java.util.EnumSet;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.MathHelper;
 
 public class RangedAttackGoal extends Goal {
-   private final MobEntity mob;
+   private final Mob mob;
    private final IRangedAttackMob rangedAttackMob;
    private LivingEntity target;
    private int attackTime = -1;
@@ -27,7 +27,7 @@ public class RangedAttackGoal extends Goal {
          throw new IllegalArgumentException("ArrowAttackGoal requires Mob implements RangedAttackMob");
       } else {
          this.rangedAttackMob = p_i1650_1_;
-         this.mob = (MobEntity)p_i1650_1_;
+         this.mob = (Mob)p_i1650_1_;
          this.speedModifier = p_i1650_2_;
          this.attackIntervalMin = p_i1650_4_;
          this.attackIntervalMax = p_i1650_5_;

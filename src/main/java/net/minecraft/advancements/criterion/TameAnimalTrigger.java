@@ -1,7 +1,7 @@
 package net.minecraft.advancements.criterion;
 
 import com.google.gson.JsonObject;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.loot.ConditionArrayParser;
 import net.minecraft.loot.ConditionArraySerializer;
@@ -20,7 +20,7 @@ public class TameAnimalTrigger extends AbstractCriterionTrigger<TameAnimalTrigge
       return new TameAnimalTrigger.Instance(p_230241_2_, entitypredicate$andpredicate);
    }
 
-   public void trigger(ServerPlayerEntity p_193178_1_, AnimalEntity p_193178_2_) {
+   public void trigger(ServerPlayerEntity p_193178_1_, Animal p_193178_2_) {
       LootContext lootcontext = EntityPredicate.createContext(p_193178_1_, p_193178_2_);
       this.trigger(p_193178_1_, (p_227251_1_) -> {
          return p_227251_1_.matches(lootcontext);

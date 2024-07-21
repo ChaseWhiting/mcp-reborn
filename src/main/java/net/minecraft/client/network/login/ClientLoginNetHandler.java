@@ -91,6 +91,7 @@ public class ClientLoginNetHandler implements IClientLoginNetHandler {
       });
    }
 
+
    @Nullable
    private ITextComponent authenticateServer(String p_209522_1_) {
       try {

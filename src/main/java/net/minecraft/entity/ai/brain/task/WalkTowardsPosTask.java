@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.brain.task;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
@@ -10,7 +10,7 @@ import net.minecraft.entity.ai.brain.memory.WalkTarget;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.server.ServerWorld;
 
-public class WalkTowardsPosTask extends Task<CreatureEntity> {
+public class WalkTowardsPosTask extends Task<Creature> {
    private final MemoryModuleType<GlobalPos> memoryType;
    private final int closeEnoughDist;
    private final int maxDistanceFromPoi;
@@ -25,12 +25,12 @@ public class WalkTowardsPosTask extends Task<CreatureEntity> {
       this.maxDistanceFromPoi = p_i241910_4_;
    }
 
-   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, CreatureEntity p_212832_2_) {
+   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, Creature p_212832_2_) {
       Optional<GlobalPos> optional = p_212832_2_.getBrain().getMemory(this.memoryType);
       return optional.isPresent() && p_212832_1_.dimension() == optional.get().dimension() && optional.get().pos().closerThan(p_212832_2_.position(), (double)this.maxDistanceFromPoi);
    }
 
-   protected void start(ServerWorld p_212831_1_, CreatureEntity p_212831_2_, long p_212831_3_) {
+   protected void start(ServerWorld p_212831_1_, Creature p_212831_2_, long p_212831_3_) {
       if (p_212831_3_ > this.nextOkStartTime) {
          Brain<?> brain = p_212831_2_.getBrain();
          Optional<GlobalPos> optional = brain.getMemory(this.memoryType);

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.monster.AbstractRaiderEntity;
+import net.minecraft.entity.monster.ShamanEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.raid.Raid;
@@ -38,7 +39,7 @@ public class MoveTowardsRaidGoal<T extends AbstractRaiderEntity> extends Goal {
          if (!this.mob.isPathFinding()) {
             Vector3d vector3d = RandomPositionGenerator.getPosTowards(this.mob, 15, 4, Vector3d.atBottomCenterOf(raid.getCenter()));
             if (vector3d != null) {
-               this.mob.getNavigation().moveTo(vector3d.x, vector3d.y, vector3d.z, 1.0D);
+               this.mob.getNavigation().moveTo(vector3d.x, vector3d.y, vector3d.z, this.mob instanceof ShamanEntity ? 0.6D : 1.0D);
             }
          }
       }

@@ -3,15 +3,12 @@ package net.minecraft.entity.passive;
 import com.google.common.base.Optional;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.TargetGoal;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -35,7 +32,7 @@ import net.minecraft.entity.pathfinding.owl.OwlWaterAvoidingRandomFlyingGoal;
 import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.pathfinding.PathNodeType;
 
-public class OwlEntity extends AnimalEntity implements IFlyingAnimal {
+public class OwlEntity extends Animal implements IFlyingAnimal {
 
     private static final DataParameter<Integer> DATA_TYPE_ID = EntityDataManager.defineId(OwlEntity.class, DataSerializers.INT);
     private static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(OwlEntity.class, DataSerializers.BYTE);
@@ -70,7 +67,7 @@ public class OwlEntity extends AnimalEntity implements IFlyingAnimal {
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return MobEntity.createMobAttributes()
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 14.0D)
                 .add(Attributes.FLYING_SPEED, 1F)
                 .add(Attributes.MOVEMENT_SPEED, 0.4F)

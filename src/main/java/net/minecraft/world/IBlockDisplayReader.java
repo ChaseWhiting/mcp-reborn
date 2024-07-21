@@ -2,6 +2,7 @@ package net.minecraft.world;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.lighting.WorldLightManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,5 +27,10 @@ public interface IBlockDisplayReader extends IBlockReader {
 
    default boolean canSeeSky(BlockPos p_226660_1_) {
       return this.getBrightness(LightType.SKY, p_226660_1_) >= this.getMaxLightLevel();
+   }
+
+   default boolean canSeeSky(Vector3d vec) {
+      BlockPos pos = new BlockPos(vec);
+      return this.getBrightness(LightType.SKY, pos) >= this.getMaxLightLevel();
    }
 }

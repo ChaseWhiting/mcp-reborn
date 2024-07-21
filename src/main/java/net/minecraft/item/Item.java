@@ -19,15 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.ITag;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
@@ -77,6 +69,14 @@ public class Item implements IItemProvider {
       this.maxStackSize = p_i48487_1_.maxStackSize;
       this.foodProperties = p_i48487_1_.foodProperties;
       this.isFireResistant = p_i48487_1_.isFireResistant;
+   }
+
+   public String getRegistryName() {
+      return Registry.ITEM.getKey(this).toString();
+   }
+
+   public ResourceLocation getResourceLocation() {
+      return Registry.ITEM.getKey(this);
    }
 
    public void onUseTick(World p_219972_1_, LivingEntity p_219972_2_, ItemStack p_219972_3_, int p_219972_4_) {
@@ -289,7 +289,7 @@ public class Item implements IItemProvider {
    }
 
    public boolean useOnRelease(ItemStack p_219970_1_) {
-      return p_219970_1_.getItem() == Items.CROSSBOW;
+      return p_219970_1_.getItem() == Items.CROSSBOW || p_219970_1_.getItem() == Items.GILDED_CROSSBOW || p_219970_1_.getItem() instanceof AbstractCrossbowItem;
    }
 
    public ItemStack getDefaultInstance() {

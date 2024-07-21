@@ -20,7 +20,7 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.passive.fish.AbstractGroupFishEntity;
 import net.minecraft.entity.passive.horse.HorseEntity;
@@ -392,7 +392,7 @@ public class RaccoonEntity extends TameableEntity {
 
     protected void registerGoals() {
         // Initialize specific goals
-        this.landTargetGoal = new NearestAttackableTargetGoal<>(this, AnimalEntity.class, 10, false, false, (animal) -> {
+        this.landTargetGoal = new NearestAttackableTargetGoal<>(this, Animal.class, 10, false, false, (animal) -> {
             boolean flag = !(animal instanceof WolfEntity)
                     && !(animal instanceof CatEntity)
                     && !(animal instanceof BeeEntity)
@@ -424,7 +424,7 @@ public class RaccoonEntity extends TameableEntity {
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, WolfEntity.class, 20, false, false, (p_28600_) -> {
             return RaccoonEntity.this.getRaccoonType() == Type.RABID;
         }));
-        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, AnimalEntity.class, 20, false, false, (p_28600_) -> {
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Animal.class, 20, false, false, (p_28600_) -> {
             return RaccoonEntity.this.getRaccoonType() == Type.RABID && !(p_28600_ instanceof RaccoonEntity) && this.random.nextFloat() < 0.2F;
         }));
 
@@ -598,7 +598,7 @@ public class RaccoonEntity extends TameableEntity {
         }
 
         @Override
-        protected int nextStartTick(CreatureEntity creature) {
+        protected int nextStartTick(Creature creature) {
             return 40;
         }
 
@@ -1002,7 +1002,7 @@ public class RaccoonEntity extends TameableEntity {
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return MobEntity.createMobAttributes()
+        return Mob.createMobAttributes()
                 .add(Attributes.MOVEMENT_SPEED, (double) 0.3F)
                 .add(Attributes.MAX_HEALTH, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 32.0D)
@@ -1018,18 +1018,18 @@ public class RaccoonEntity extends TameableEntity {
     @Nullable
     public ILivingEntityData finalizeSpawn(IServerWorld p_213386_1_, DifficultyInstance p_213386_2_, SpawnReason p_213386_3_, @Nullable ILivingEntityData p_213386_4_, @Nullable CompoundNBT p_213386_5_) {
         Optional<RegistryKey<Biome>> optional = p_213386_1_.getBiomeName(this.blockPosition());
-        Type foxentity$type = Type.byBiome(optional);
+        Type raccoonType = Type.byBiome(optional);
         boolean flag = false;
         if (p_213386_4_ instanceof RaccoonData) {
-            foxentity$type = ((RaccoonData) p_213386_4_).type;
+            raccoonType = ((RaccoonData) p_213386_4_).type;
             if (((RaccoonData) p_213386_4_).getGroupSize() >= 2) {
                 flag = true;
             }
         } else {
-            p_213386_4_ = new RaccoonData(foxentity$type);
+            p_213386_4_ = new RaccoonData(raccoonType);
         }
 
-        this.setRaccoonType(foxentity$type);
+        this.setRaccoonType(raccoonType);
         if (flag) {
             this.setAge(-24000);
         }
@@ -1340,8 +1340,8 @@ public class RaccoonEntity extends TameableEntity {
 
             if (entity.getHunger() <= 40 || entity.getThirst() <= 40) {
                 if (leader != null) {
-                    List<AnimalEntity> nearbyAnimals = this.leader.level.getEntitiesOfClass(AnimalEntity.class, this.leader.getBoundingBox().inflate(8D,8D,8D));
-                    List<AnimalEntity> filteredAnimals = nearbyAnimals.stream()
+                    List<Animal> nearbyAnimals = this.leader.level.getEntitiesOfClass(Animal.class, this.leader.getBoundingBox().inflate(8D,8D,8D));
+                    List<Animal> filteredAnimals = nearbyAnimals.stream()
                             .filter(animal -> !entitiesToExclude.isPresent() || !entitiesToExclude.get().contains(animal.getClass()))
                             .collect(Collectors.toList());
 
@@ -1584,7 +1584,7 @@ public class RaccoonEntity extends TameableEntity {
     }
 
     public boolean canTakeItem(ItemStack p_213365_1_) {
-        EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(p_213365_1_);
+        EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(p_213365_1_);
         if (!this.getItemBySlot(equipmentslottype).isEmpty()) {
             return false;
         } else {
@@ -2023,9 +2023,9 @@ public class RaccoonEntity extends TameableEntity {
     }
 
     private void searchForFood() {
-        List<AnimalEntity> nearbyAnimals = this.level.getEntitiesOfClass(AnimalEntity.class, this.getBoundingBox().inflate(SEARCH_RADIUS, 12, SEARCH_RADIUS));
+        List<Animal> nearbyAnimals = this.level.getEntitiesOfClass(Animal.class, this.getBoundingBox().inflate(SEARCH_RADIUS, 12, SEARCH_RADIUS));
 
-        List<AnimalEntity> filteredAnimals = nearbyAnimals.stream()
+        List<Animal> filteredAnimals = nearbyAnimals.stream()
                 .filter(animal -> !entitiesToExclude.isPresent() || !entitiesToExclude.get().contains(animal.getClass()))
                 .collect(Collectors.toList());
 
@@ -2036,12 +2036,12 @@ public class RaccoonEntity extends TameableEntity {
         }
     }
 
-    private boolean shouldSearchForTarget(List<AnimalEntity> nearbyAnimals) {
+    private boolean shouldSearchForTarget(List<Animal> nearbyAnimals) {
         ItemStack itemstack = this.getItemBySlot(EquipmentSlotType.MAINHAND);
         return !itemstack.isEdible() && !nearbyAnimals.isEmpty() || itemstack.isEmpty() && !nearbyAnimals.isEmpty();
     }
 
-    private void setNewTarget(List<AnimalEntity> nearbyAnimals) {
+    private void setNewTarget(List<Animal> nearbyAnimals) {
         if (this.getTarget() == null) {
             this.setTarget(nearbyAnimals.get(0));
             // this.getNavigation().moveTo(nearbyAnimals.get(0), NAVIGATION_SPEED);
@@ -2473,7 +2473,7 @@ public class RaccoonEntity extends TameableEntity {
         return item.getItem().isEdible();
     }
 
-    protected void onOffspringSpawnedFromEgg(PlayerEntity p_213406_1_, MobEntity p_213406_2_) {
+    protected void onOffspringSpawnedFromEgg(PlayerEntity p_213406_1_, Mob p_213406_2_) {
         ((RaccoonEntity)p_213406_2_).addTrustedUUID(p_213406_1_.getUUID());
     }
 
@@ -2629,7 +2629,7 @@ public class RaccoonEntity extends TameableEntity {
         public boolean test(LivingEntity p_test_1_) {
             if (p_test_1_ instanceof RaccoonEntity) {
                 return false;
-            } else if (!(p_test_1_ instanceof ChickenEntity) && !(p_test_1_ instanceof RabbitEntity) && !(p_test_1_ instanceof MonsterEntity)) {
+            } else if (!(p_test_1_ instanceof ChickenEntity) && !(p_test_1_ instanceof RabbitEntity) && !(p_test_1_ instanceof Monster)) {
                 if (p_test_1_ instanceof TameableEntity) {
                     return !((TameableEntity)p_test_1_).isTame();
                 } else if (!(p_test_1_ instanceof PlayerEntity) || !p_test_1_.isSpectator() && !((PlayerEntity)p_test_1_).isCreative()) {
@@ -3501,7 +3501,7 @@ public class RaccoonEntity extends TameableEntity {
     }
 
     class WatchGoal extends LookAtGoal {
-        public WatchGoal(MobEntity p_i50733_2_, Class<? extends LivingEntity> p_i50733_3_, float p_i50733_4_) {
+        public WatchGoal(Mob p_i50733_2_, Class<? extends LivingEntity> p_i50733_3_, float p_i50733_4_) {
             super(p_i50733_2_, p_i50733_3_, p_i50733_4_);
         }
 

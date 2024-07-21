@@ -8,7 +8,10 @@ import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.tileentity.BannerPattern;
+import net.minecraft.util.AbstractCrossbowBuilder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.registry.Registry;
@@ -95,6 +98,7 @@ public class Items {
    public static final Item LAPIS_ORE = registerBlock(Blocks.LAPIS_ORE, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item LAPIS_BLOCK = registerBlock(Blocks.LAPIS_BLOCK, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item DISPENSER = registerBlock(Blocks.DISPENSER, ItemGroup.TAB_REDSTONE);
+   public static final Item FAN_BLOCK_ITEM = registerBlock(Blocks.FAN_BLOCK, ItemGroup.TAB_REDSTONE);
    public static final Item SANDSTONE = registerBlock(Blocks.SANDSTONE, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item CHISELED_SANDSTONE = registerBlock(Blocks.CHISELED_SANDSTONE, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item CUT_SANDSTONE = registerBlock(Blocks.CUT_SANDSTONE, ItemGroup.TAB_BUILDING_BLOCKS);
@@ -589,6 +593,7 @@ public class Items {
    public static final Item TURTLE_HELMET = registerItem("turtle_helmet", new ArmorItem(ArmorMaterial.TURTLE, EquipmentSlotType.HEAD, (new Item.Properties()).tab(ItemGroup.TAB_COMBAT)));
    public static final Item SCUTE = registerItem("scute", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item FLINT_AND_STEEL = registerItem("flint_and_steel", new FlintAndSteelItem((new Item.Properties()).durability(64).tab(ItemGroup.TAB_TOOLS)));
+   public static final Item BLUEBERRIES = registerItem("blueberries", new Item((new Item.Properties()).tab(ItemGroup.TAB_FOOD).food(Foods.BLUEBERRIES)));
    public static final Item APPLE = registerItem("apple", new Item((new Item.Properties()).tab(ItemGroup.TAB_FOOD).food(Foods.APPLE)));
    public static final Item BOW = registerItem("bow", new BowItem((new Item.Properties()).durability(384).tab(ItemGroup.TAB_COMBAT)));
    public static final Item BONE_BOW = registerItem("bone_bow", new BoneBowItem((new Item.Properties()).durability(586).tab(ItemGroup.TAB_COMBAT)));
@@ -599,6 +604,7 @@ public class Items {
    public static final Item HEALING_ARROW = registerItem("healing_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.HEALING));
    public static final Item FIREWORK_ARROW = registerItem("firework_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.FIREWORK));
    public static final Item POISON_ARROW = registerItem("poison_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.POISON));
+   public static final Item GILDED_ARROW = registerItem("gilded_arrow", new CustomArrowItem((new Item.Properties()).tab(ItemGroup.TAB_COMBAT), CustomArrowType.GILDED));
    public static final Item COAL = registerItem("coal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item CHARCOAL = registerItem("charcoal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item DIAMOND = registerItem("diamond", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
@@ -853,6 +859,8 @@ public class Items {
    public static final Item WITHER_SKELETON_SPAWN_EGG = registerItem("wither_skeleton_spawn_egg", new SpawnEggItem(EntityType.WITHER_SKELETON, 1315860, 4672845, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item WOLF_SPAWN_EGG = registerItem("wolf_spawn_egg", new SpawnEggItem(EntityType.WOLF, 14144467, 13545366, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item ZOGLIN_SPAWN_EGG = registerItem("zoglin_spawn_egg", new SpawnEggItem(EntityType.ZOGLIN, 13004373, 15132390, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+   public static final Item GIANT_SPAWN_EGG = registerItem("giant_spawn_egg", new SpawnEggItem(EntityType.GIANT, 44975, 7969893, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+
    public static final Item ZOMBIE_SPAWN_EGG = registerItem("zombie_spawn_egg", new SpawnEggItem(EntityType.ZOMBIE, 44975, 7969893, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item ZOMBIE_HORSE_SPAWN_EGG = registerItem("zombie_horse_spawn_egg", new SpawnEggItem(EntityType.ZOMBIE_HORSE, 3232308, 9945732, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item ZOMBIE_VILLAGER_SPAWN_EGG = registerItem("zombie_villager_spawn_egg", new SpawnEggItem(EntityType.ZOMBIE_VILLAGER, 5651507, 7969893, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
@@ -976,7 +984,31 @@ public class Items {
    public static final Item PHANTOM_MEMBRANE = registerItem("phantom_membrane", new Item((new Item.Properties()).tab(ItemGroup.TAB_BREWING)));
    public static final Item NAUTILUS_SHELL = registerItem("nautilus_shell", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item HEART_OF_THE_SEA = registerItem("heart_of_the_sea", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS).rarity(Rarity.UNCOMMON)));
+
+
+
+   public static final Item GILDED_CROSSBOW = registerItem("gilded_crossbow", new GildedCrossbowItem((new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_COMBAT).durability(296)));
+   public static final Item DIAMOND_CROSSBOW = (new AbstractCrossbowBuilder.Builder("diamond_crossbow").id(0)
+           .properties(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_COMBAT).durability(418))
+           .chargeDuration(new int[]{45, 4})
+           .isCrit(false)
+           .shootingPower(new float[]{2F, 3.2F})
+           .range(25)
+           .addDamage(4)
+           .build());
+
    public static final Item CROSSBOW = registerItem("crossbow", new CrossbowItem((new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_COMBAT).durability(326)));
+
+   public static final Item FROZEN_CROSSBOW = (new AbstractCrossbowBuilder.Builder("frozen_crossbow").id(1)
+           .properties(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_COMBAT).durability(195))
+           .chargeDuration(new int[]{50, 8})
+           .isCrit(false)
+           .shootingPower(new float[]{1.8F, 2F})
+           .range(20)
+           .effects(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 7 * 20, 1), new EffectInstance(Effects.BLINDNESS, 3 * 20, 0))
+           .build());
+
+
    public static final Item SUSPICIOUS_STEW = registerItem("suspicious_stew", new SuspiciousStewItem((new Item.Properties()).stacksTo(1).food(Foods.SUSPICIOUS_STEW)));
    public static final Item LOOM = registerBlock(Blocks.LOOM, ItemGroup.TAB_DECORATIONS);
    public static final Item FLOWER_BANNER_PATTERN = registerItem("flower_banner_pattern", new BannerPatternItem(BannerPattern.FLOWER, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC)));
@@ -1047,11 +1079,11 @@ public class Items {
       return registerItem(new ResourceLocation(p_221547_0_), p_221547_1_);
    }
 
-   private static Item registerItem(ResourceLocation p_221544_0_, Item p_221544_1_) {
-      if (p_221544_1_ instanceof BlockItem) {
-         ((BlockItem)p_221544_1_).registerBlocks(Item.BY_BLOCK, p_221544_1_);
+   public static Item registerItem(ResourceLocation resourceLocation, Item item) {
+      if (item instanceof BlockItem) {
+         ((BlockItem)item).registerBlocks(Item.BY_BLOCK, item);
       }
 
-      return Registry.register(Registry.ITEM, p_221544_0_, p_221544_1_);
+      return Registry.register(Registry.ITEM, resourceLocation, item);
    }
 }

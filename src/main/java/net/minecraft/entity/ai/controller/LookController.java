@@ -2,12 +2,12 @@ package net.minecraft.entity.ai.controller;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class LookController {
-   protected final MobEntity mob;
+   protected final Mob mob;
    protected float yMaxRotSpeed;
    protected float xMaxRotAngle;
    protected boolean hasWanted;
@@ -15,7 +15,7 @@ public class LookController {
    protected double wantedY;
    protected double wantedZ;
 
-   public LookController(MobEntity p_i1613_1_) {
+   public LookController(Mob p_i1613_1_) {
       this.mob = p_i1613_1_;
    }
 
@@ -23,8 +23,8 @@ public class LookController {
       this.setLookAt(p_220674_1_.x, p_220674_1_.y, p_220674_1_.z);
    }
 
-   public void setLookAt(Entity p_75651_1_, float p_75651_2_, float p_75651_3_) {
-      this.setLookAt(p_75651_1_.getX(), getWantedY(p_75651_1_), p_75651_1_.getZ(), p_75651_2_, p_75651_3_);
+   public void setLookAt(Entity targetEntity, float p_75651_2_, float p_75651_3_) {
+      this.setLookAt(targetEntity.getX(), getWantedY(targetEntity), targetEntity.getZ(), p_75651_2_, p_75651_3_);
    }
 
    public void setLookAt(double p_220679_1_, double p_220679_3_, double p_220679_5_) {

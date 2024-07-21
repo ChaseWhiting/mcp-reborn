@@ -1,7 +1,7 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.List;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.BoatEntity;
@@ -13,11 +13,11 @@ import net.minecraft.util.math.vector.Vector3d;
 
 public class FollowBoatGoal extends Goal {
    private int timeToRecalcPath;
-   private final CreatureEntity mob;
+   private final Creature mob;
    private PlayerEntity following;
    private BoatGoals currentGoal;
 
-   public FollowBoatGoal(CreatureEntity p_i48939_1_) {
+   public FollowBoatGoal(Creature p_i48939_1_) {
       this.mob = p_i48939_1_;
    }
 

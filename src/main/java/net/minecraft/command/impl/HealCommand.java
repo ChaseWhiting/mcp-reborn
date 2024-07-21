@@ -4,6 +4,7 @@ package net.minecraft.command.impl;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
@@ -44,14 +45,24 @@ public class HealCommand {
         LivingEntity livingEntity = (LivingEntity) entity;
         if (amount < 0) {  // Heal to full health
             livingEntity.setHealth(livingEntity.getMaxHealth());
+            if(livingEntity instanceof PlayerEntity) {
+                ((PlayerEntity)livingEntity).getFoodData().setFoodLevel(20);
+                ((PlayerEntity)livingEntity).getFoodData().setSaturation(10);
+            }
             source.sendFeedback(SUCCESS, new StringTextComponent("Healed " + entity.getName().getString() + " to full health."), false);
         } else {
             float newHealth = livingEntity.getHealth() + amount;
             if (newHealth > livingEntity.getMaxHealth()) {
-                throw EXCEEDS_MAX_HEALTH.create();
+                livingEntity.setHealth(livingEntity.getMaxHealth());
+                source.sendFeedback(SUCCESS, new StringTextComponent("Set the health of " + entity.getName().getString() + " to max health (" + livingEntity.getMaxHealth() + ")."), false);
+            } else {
+                livingEntity.setHealth(newHealth);
+                source.sendFeedback(SUCCESS, new StringTextComponent("Added " + amount + " health to " + entity.getName().getString() + "."), false);
             }
-            livingEntity.setHealth(newHealth);
-            source.sendFeedback(SUCCESS, new StringTextComponent("Added " + amount + " health to " + entity.getName().getString() + "."), false);
+            if (livingEntity instanceof PlayerEntity) {
+                ((PlayerEntity)livingEntity).getFoodData().setFoodLevel(20);
+                ((PlayerEntity)livingEntity).getFoodData().setSaturation(10);
+            }
         }
         return 1;
     }

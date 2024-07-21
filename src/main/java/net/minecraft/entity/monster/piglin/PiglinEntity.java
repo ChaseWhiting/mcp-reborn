@@ -3,11 +3,13 @@ package net.minecraft.entity.monster.piglin;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
@@ -15,7 +17,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ICrossbowUser;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -29,8 +31,7 @@ import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.monster.AbstractRaiderEntity;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -67,6 +68,7 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
    private final Inventory inventory = new Inventory(8);
    private boolean cannotHunt = false;
    private ItemStack storedCrossbow = new ItemStack(Items.CROSSBOW);
+
 
    private ItemStack storedSword = new ItemStack(Items.GOLDEN_SWORD);
    protected static final ImmutableList<SensorType<? extends Sensor<? super PiglinEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_SPECIFIC_SENSOR);
@@ -212,7 +214,7 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 16.0D).add(Attributes.MOVEMENT_SPEED, (double)0.35F).add(Attributes.ATTACK_DAMAGE, 5.0D);
+      return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 16.0D).add(Attributes.MOVEMENT_SPEED, (double)0.35F).add(Attributes.ATTACK_DAMAGE, 5.0D);
    }
 
    public static boolean checkPiglinSpawnRules(EntityType<PiglinEntity> p_234418_0_, IWorld p_234418_1_, SpawnReason p_234418_2_, BlockPos p_234418_3_, Random p_234418_4_) {
@@ -337,6 +339,13 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
    }
 
    private ItemStack createSpawnWeapon() {
+      if(this.random.nextFloat() < 0.1F) {
+         ItemStack gildedCrossbow = new ItemStack(Items.GILDED_CROSSBOW);
+         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(storedCrossbow);
+         EnchantmentHelper.setEnchantments(enchantments, gildedCrossbow);
+         storedCrossbow = gildedCrossbow;
+         this.setDropChance(EquipmentSlotType.MAINHAND, 0.02F);
+      }
       return (double)this.random.nextFloat() < 0.5D ? storedCrossbow : storedSword;
    }
 
@@ -362,7 +371,7 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
       } else if (this.isChargingCrossbow()) {
          return PiglinAction.CROSSBOW_CHARGE;
       } else {
-         return this.isAggressive() && this.isHolding(Items.CROSSBOW) ? PiglinAction.CROSSBOW_HOLD : PiglinAction.DEFAULT;
+         return this.isAggressive() && this.isHolding(Items.CROSSBOW) || this.isAggressive() && this.isHolding(Items.GILDED_CROSSBOW) ? PiglinAction.CROSSBOW_HOLD : PiglinAction.DEFAULT;
       }
    }
 
@@ -418,7 +427,7 @@ public class PiglinEntity extends AbstractPiglinEntity implements ICrossbowUser 
    }
 
    protected boolean canReplaceCurrentItem(ItemStack p_234440_1_) {
-      EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(p_234440_1_);
+      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(p_234440_1_);
       ItemStack itemstack = this.getItemBySlot(equipmentslottype);
       return this.canReplaceCurrentItem(p_234440_1_, itemstack);
    }

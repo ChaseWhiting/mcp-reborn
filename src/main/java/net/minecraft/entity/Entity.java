@@ -5,15 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -36,6 +29,7 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.ProtectionEnchantment;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.ItemEntity;
@@ -90,6 +84,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector2f;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.event.ClickEvent;
@@ -109,6 +104,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 
 public abstract class Entity implements INameable, ICommandSource {
    protected static final Logger LOGGER = LogManager.getLogger();
@@ -196,6 +192,10 @@ public abstract class Entity implements INameable, ICommandSource {
    private EntitySize dimensions;
    private float eyeHeight;
 
+   public EntitySize getDimensions() {
+      return dimensions;
+   }
+
    public PointOfInterestManager manager;
 
    public Entity(EntityType<?> p_i48580_1_, World p_i48580_2_) {
@@ -263,6 +263,14 @@ public abstract class Entity implements INameable, ICommandSource {
 
    public EntityType<?> getType() {
       return this.type;
+   }
+
+   public ResourceLocation getRegistryKey() {
+      return Registry.ENTITY_TYPE.getKey(this.getType());
+   }
+
+   public String getResourceKey() {
+      return Registry.ENTITY_TYPE.getResourceKey(this.getType()).toString();
    }
 
    public int getId() {
@@ -349,6 +357,14 @@ public abstract class Entity implements INameable, ICommandSource {
    public void setPos(double p_70107_1_, double p_70107_3_, double p_70107_5_) {
       this.setPosRaw(p_70107_1_, p_70107_3_, p_70107_5_);
       this.setBoundingBox(this.dimensions.makeBoundingBox(p_70107_1_, p_70107_3_, p_70107_5_));
+   }
+
+   public void setPos(BlockPos pos) {
+      double x = pos.getX();
+      double y = pos.getY();
+      double z = pos.getZ();
+      this.setPosRaw(x, y, z);
+      this.setBoundingBox(this.dimensions.makeBoundingBox(x, y, z));
    }
 
    protected void reapplyPosition() {
@@ -504,27 +520,27 @@ public abstract class Entity implements INameable, ICommandSource {
       return this.onGround;
    }
 
-   public void move(MoverType p_213315_1_, Vector3d p_213315_2_) {
+   public void move(MoverType p_213315_1_, Vector3d vector3d3) {
       if (this.noPhysics) {
-         this.setBoundingBox(this.getBoundingBox().move(p_213315_2_));
+         this.setBoundingBox(this.getBoundingBox().move(vector3d3));
          this.setLocationFromBoundingbox();
       } else {
          if (p_213315_1_ == MoverType.PISTON) {
-            p_213315_2_ = this.limitPistonMovement(p_213315_2_);
-            if (p_213315_2_.equals(Vector3d.ZERO)) {
+            vector3d3 = this.limitPistonMovement(vector3d3);
+            if (vector3d3.equals(Vector3d.ZERO)) {
                return;
             }
          }
 
          this.level.getProfiler().push("move");
          if (this.stuckSpeedMultiplier.lengthSqr() > 1.0E-7D) {
-            p_213315_2_ = p_213315_2_.multiply(this.stuckSpeedMultiplier);
+            vector3d3 = vector3d3.multiply(this.stuckSpeedMultiplier);
             this.stuckSpeedMultiplier = Vector3d.ZERO;
             this.setDeltaMovement(Vector3d.ZERO);
          }
 
-         p_213315_2_ = this.maybeBackOffFromEdge(p_213315_2_, p_213315_1_);
-         Vector3d vector3d = this.collide(p_213315_2_);
+         vector3d3 = this.maybeBackOffFromEdge(vector3d3, p_213315_1_);
+         Vector3d vector3d = this.collide(vector3d3);
          if (vector3d.lengthSqr() > 1.0E-7D) {
             this.setBoundingBox(this.getBoundingBox().move(vector3d));
             this.setLocationFromBoundingbox();
@@ -532,23 +548,23 @@ public abstract class Entity implements INameable, ICommandSource {
 
          this.level.getProfiler().pop();
          this.level.getProfiler().push("rest");
-         this.horizontalCollision = !MathHelper.equal(p_213315_2_.x, vector3d.x) || !MathHelper.equal(p_213315_2_.z, vector3d.z);
-         this.verticalCollision = p_213315_2_.y != vector3d.y;
-         this.onGround = this.verticalCollision && p_213315_2_.y < 0.0D;
+         this.horizontalCollision = !MathHelper.equal(vector3d3.x, vector3d.x) || !MathHelper.equal(vector3d3.z, vector3d.z);
+         this.verticalCollision = vector3d3.y != vector3d.y;
+         this.onGround = this.verticalCollision && vector3d3.y < 0.0D;
          BlockPos blockpos = this.getOnPos();
          BlockState blockstate = this.level.getBlockState(blockpos);
          this.checkFallDamage(vector3d.y, this.onGround, blockstate, blockpos);
          Vector3d vector3d1 = this.getDeltaMovement();
-         if (p_213315_2_.x != vector3d.x) {
+         if (vector3d3.x != vector3d.x) {
             this.setDeltaMovement(0.0D, vector3d1.y, vector3d1.z);
          }
 
-         if (p_213315_2_.z != vector3d.z) {
+         if (vector3d3.z != vector3d.z) {
             this.setDeltaMovement(vector3d1.x, vector3d1.y, 0.0D);
          }
 
          Block block = blockstate.getBlock();
-         if (p_213315_2_.y != vector3d.y) {
+         if (vector3d3.y != vector3d.y) {
             block.updateEntityAfterFallOn(this.level, this);
          }
 
@@ -718,8 +734,12 @@ public abstract class Entity implements INameable, ICommandSource {
       return vector3d;
    }
 
-   public static double getHorizontalDistanceSqr(Vector3d p_213296_0_) {
-      return p_213296_0_.x * p_213296_0_.x + p_213296_0_.z * p_213296_0_.z;
+   public static double getHorizontalDistanceSqr(Vector3d position) {
+      return position.x * position.x + position.z * position.z;
+   }
+
+   public static double getHorizontalDistance(Vector3d position) {
+      return MathHelper.sqrt(getHorizontalDistanceSqr(position));
    }
 
    public static Vector3d collideBoundingBoxHeuristically(@Nullable Entity p_223307_0_, Vector3d p_223307_1_, AxisAlignedBB p_223307_2_, World p_223307_3_, ISelectionContext p_223307_4_, ReuseableStream<VoxelShape> p_223307_5_) {
@@ -1221,6 +1241,11 @@ public abstract class Entity implements INameable, ICommandSource {
       this.hasImpulse = true;
    }
 
+   public void push(Vector3d vec) {
+      this.setDeltaMovement(this.getDeltaMovement().add(vec.x, vec.y, vec.z));
+      this.hasImpulse = true;
+   }
+
    protected void markHurt() {
       this.hurtMarked = true;
    }
@@ -1536,6 +1561,33 @@ public abstract class Entity implements INameable, ICommandSource {
    @Nullable
    public ItemEntity spawnAtLocation(IItemProvider p_199702_1_, int p_199702_2_) {
       return this.spawnAtLocation(new ItemStack(p_199702_1_), (float)p_199702_2_);
+   }
+
+   public void spawnAllMobs() {
+      for (EntityType<?> entityType : Registry.ENTITY_TYPE) {
+         if (entityType == EntityType.ENDER_DRAGON || entityType == EntityType.WITHER) {
+            continue;
+         }
+
+         Entity entity = entityType.create(this.level);
+         if (entity != null) {
+            entity.setPos(this.getX(), this.getY(), this.getZ());
+            this.level.addFreshEntity(entity);
+         } else {
+            System.err.println("Failed to create entity of type: " + entityType);
+         }
+      }
+   }
+
+   public void spawnAtLocation(EntityType<?> entity) {
+      Entity entityInstance = entity.create(this.level);
+      if (entityInstance != null) {
+         entityInstance.setPos(this.getX(), this.getY(), this.getZ());
+         this.level.addFreshEntity(entityInstance);
+      } else {
+         // Handle the case where the entity could not be created (optional)
+         System.err.println("Failed to create entity of type: " + entity);
+      }
    }
 
    @Nullable
@@ -1936,6 +1988,16 @@ public abstract class Entity implements INameable, ICommandSource {
 
    }
 
+   public void setAFlag(int flag, boolean value) {
+      byte b0 = this.entityData.get(DATA_SHARED_FLAGS_ID);
+      if (value) {
+         this.entityData.set(DATA_SHARED_FLAGS_ID, (byte)(b0 | 1 << flag));
+      } else {
+         this.entityData.set(DATA_SHARED_FLAGS_ID, (byte)(b0 & ~(1 << flag)));
+      }
+
+   }
+
    public int getMaxAirSupply() {
       return 300;
    }
@@ -2263,6 +2325,22 @@ public abstract class Entity implements INameable, ICommandSource {
       return ScorePlayerTeam.formatNameForTeam(this.getTeam(), this.getName()).withStyle((p_211516_1_) -> {
          return p_211516_1_.withHoverEvent(this.createHoverEvent()).withInsertion(this.getStringUUID());
       });
+   }
+
+   public float getHealth() {
+      if (this instanceof LivingEntity) {
+         LivingEntity entity = (LivingEntity) this;
+         return entity.getHealth();
+      }
+      return 0F;
+   }
+
+   public float getMaxHealth() {
+      if (this instanceof LivingEntity) {
+         LivingEntity entity = (LivingEntity) this;
+         return entity.getMaxHealth();
+      }
+      return 0F;
    }
 
    public void setCustomName(@Nullable ITextComponent p_200203_1_) {
@@ -2747,79 +2825,167 @@ public abstract class Entity implements INameable, ICommandSource {
       return this.type.getDimensions();
    }
 
+
+   /**
+    * Returns the current position of the entity as a Vector3d object.
+    *
+    * @return The current position of the entity.
+    */
    public Vector3d position() {
       return this.position;
    }
 
+   /**
+    * Returns the current block position of the entity as a BlockPos object.
+    *
+    * @return The current block position of the entity.
+    */
    public BlockPos blockPosition() {
       return this.blockPosition;
    }
 
+   /**
+    * Returns the current delta movement of the entity as a Vector3d object.
+    *
+    * @return The current delta movement of the entity.
+    */
    public Vector3d getDeltaMovement() {
       return this.deltaMovement;
    }
 
+   /**
+    * Sets the delta movement of the entity using a Vector3d object.
+    *
+    * @param vector3d The new delta movement for the entity.
+    */
    public void setDeltaMovement(Vector3d vector3d) {
       this.deltaMovement = vector3d;
    }
 
+   /**
+    * Sets the delta movement of the entity using x, y, and z coordinates.
+    *
+    * @param x The new x-component of the delta movement.
+    * @param y The new y-component of the delta movement.
+    * @param z The new z-component of the delta movement.
+    */
    public void setDeltaMovement(double x, double y, double z) {
       this.setDeltaMovement(new Vector3d(x, y, z));
    }
 
+   /**
+    * Returns the x-coordinate of the entity's position.
+    *
+    * @return The x-coordinate of the entity's position.
+    */
    public final double getX() {
       return this.position.x;
    }
 
-   public double getX(double p_226275_1_) {
-      return this.position.x + (double)this.getBbWidth() * p_226275_1_;
+   /**
+    * Returns the x-coordinate of the entity's position offset by a factor of the entity's bounding box width.
+    *
+    * @param factor The factor to offset the x-coordinate by.
+    * @return The offset x-coordinate of the entity's position.
+    */
+   public double getX(double factor) {
+      return this.position.x + (double)this.getBbWidth() * factor;
    }
 
-   public double getRandomX(double p_226282_1_) {
-      return this.getX((2.0D * this.random.nextDouble() - 1.0D) * p_226282_1_);
+   /**
+    * Returns a random x-coordinate near the entity's position within a range specified by the given factor.
+    *
+    * @param factor The range factor for randomizing the x-coordinate.
+    * @return A random x-coordinate near the entity's position.
+    */
+   public double getRandomX(double factor) {
+      return this.getX((2.0D * this.random.nextDouble() - 1.0D) * factor);
    }
 
+   /**
+    * Returns the y-coordinate of the entity's position.
+    *
+    * @return The y-coordinate of the entity's position.
+    */
    public final double getY() {
       return this.position.y;
    }
 
-   public double getY(double p_226283_1_) {
-      return this.position.y + (double)this.getBbHeight() * p_226283_1_;
+   /**
+    * Returns the y-coordinate of the entity's position offset by a factor of the entity's bounding box height.
+    *
+    * @param factor The factor to offset the y-coordinate by.
+    * @return The offset y-coordinate of the entity's position.
+    */
+   public double getY(double factor) {
+      return this.position.y + (double)this.getBbHeight() * factor;
    }
 
+   /**
+    * Returns a random y-coordinate near the entity's position within its bounding box height.
+    *
+    * @return A random y-coordinate near the entity's position.
+    */
    public double getRandomY() {
       return this.getY(this.random.nextDouble());
    }
 
+   /**
+    * Returns the y-coordinate of the entity's eye position.
+    *
+    * @return The y-coordinate of the entity's eye position.
+    */
    public double getEyeY() {
       return this.position.y + (double)this.eyeHeight;
    }
 
+   /**
+    * Returns the z-coordinate of the entity's position.
+    *
+    * @return The z-coordinate of the entity's position.
+    */
    public final double getZ() {
       return this.position.z;
    }
 
-   public double getZ(double p_226285_1_) {
-      return this.position.z + (double)this.getBbWidth() * p_226285_1_;
+   /**
+    * Returns the z-coordinate of the entity's position offset by a factor of the entity's bounding box width.
+    *
+    * @param factor The factor to offset the z-coordinate by.
+    * @return The offset z-coordinate of the entity's position.
+    */
+   public double getZ(double factor) {
+      return this.position.z + (double)this.getBbWidth() * factor;
    }
 
-   public double getRandomZ(double p_226287_1_) {
-      return this.getZ((2.0D * this.random.nextDouble() - 1.0D) * p_226287_1_);
+   /**
+    * Returns a random z-coordinate near the entity's position within a range specified by the given factor.
+    *
+    * @param factor The range factor for randomizing the z-coordinate.
+    * @return A random z-coordinate near the entity's position.
+    */
+   public double getRandomZ(double factor) {
+      return this.getZ((2.0D * this.random.nextDouble() - 1.0D) * factor);
    }
 
-   public void setPosRaw(double p_226288_1_, double p_226288_3_, double p_226288_5_) {
-      if (this.position.x != p_226288_1_ || this.position.y != p_226288_3_ || this.position.z != p_226288_5_) {
-         this.position = new Vector3d(p_226288_1_, p_226288_3_, p_226288_5_);
-         int i = MathHelper.floor(p_226288_1_);
-         int j = MathHelper.floor(p_226288_3_);
-         int k = MathHelper.floor(p_226288_5_);
+   /**
+    * Sets the raw position of the entity using x, y, and z coordinates. Updates the block position if necessary.
+    *
+    * @param x The new x-coordinate of the entity's position.
+    * @param y The new y-coordinate of the entity's position.
+    * @param z The new z-coordinate of the entity's position.
+    */
+   public void setPosRaw(double x, double y, double z) {
+      if (this.position.x != x || this.position.y != y || this.position.z != z) {
+         this.position = new Vector3d(x, y, z);
+         int i = MathHelper.floor(x);
+         int j = MathHelper.floor(y);
+         int k = MathHelper.floor(z);
          if (i != this.blockPosition.getX() || j != this.blockPosition.getY() || k != this.blockPosition.getZ()) {
             this.blockPosition = new BlockPos(i, j, k);
          }
-
          this.movedSinceLastChunkCheck = true;
       }
-
    }
 
    public void checkDespawn() {

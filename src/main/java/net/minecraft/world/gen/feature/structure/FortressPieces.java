@@ -680,48 +680,48 @@ public class FortressPieces {
          return isOkBox(mutableboundingbox) && StructurePiece.findCollisionPiece(p_175875_0_, mutableboundingbox) == null ? new FortressPieces.NetherStalkRoom(p_175875_5_, mutableboundingbox, p_175875_4_) : null;
       }
 
-      public boolean postProcess(ISeedReader p_230383_1_, StructureManager p_230383_2_, ChunkGenerator p_230383_3_, Random p_230383_4_, MutableBoundingBox p_230383_5_, ChunkPos p_230383_6_, BlockPos p_230383_7_) {
-         this.generateBox(p_230383_1_, p_230383_5_, 0, 3, 0, 12, 4, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 0, 5, 0, 12, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 0, 5, 0, 1, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 11, 5, 0, 12, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 2, 5, 11, 4, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 8, 5, 11, 10, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 5, 9, 11, 7, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 2, 5, 0, 4, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 8, 5, 0, 10, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 5, 9, 0, 7, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 2, 11, 2, 10, 12, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+      public boolean postProcess(ISeedReader world, StructureManager manager, ChunkGenerator chunkGenerator, Random random, MutableBoundingBox mutableBoundingBox, ChunkPos p_230383_6_, BlockPos p_230383_7_) {
+         this.generateBox(world, mutableBoundingBox, 0, 3, 0, 12, 4, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 0, 5, 0, 12, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 0, 5, 0, 1, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 11, 5, 0, 12, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 2, 5, 11, 4, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 8, 5, 11, 10, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 5, 9, 11, 7, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 2, 5, 0, 4, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 8, 5, 0, 10, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 5, 9, 0, 7, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 2, 11, 2, 10, 12, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
          BlockState blockstate = Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.WEST, Boolean.valueOf(true)).setValue(FenceBlock.EAST, Boolean.valueOf(true));
          BlockState blockstate1 = Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.NORTH, Boolean.valueOf(true)).setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
          BlockState blockstate2 = blockstate1.setValue(FenceBlock.WEST, Boolean.valueOf(true));
          BlockState blockstate3 = blockstate1.setValue(FenceBlock.EAST, Boolean.valueOf(true));
 
          for(int i = 1; i <= 11; i += 2) {
-            this.generateBox(p_230383_1_, p_230383_5_, i, 10, 0, i, 11, 0, blockstate, blockstate, false);
-            this.generateBox(p_230383_1_, p_230383_5_, i, 10, 12, i, 11, 12, blockstate, blockstate, false);
-            this.generateBox(p_230383_1_, p_230383_5_, 0, 10, i, 0, 11, i, blockstate1, blockstate1, false);
-            this.generateBox(p_230383_1_, p_230383_5_, 12, 10, i, 12, 11, i, blockstate1, blockstate1, false);
-            this.placeBlock(p_230383_1_, Blocks.NETHER_BRICKS.defaultBlockState(), i, 13, 0, p_230383_5_);
-            this.placeBlock(p_230383_1_, Blocks.NETHER_BRICKS.defaultBlockState(), i, 13, 12, p_230383_5_);
-            this.placeBlock(p_230383_1_, Blocks.NETHER_BRICKS.defaultBlockState(), 0, 13, i, p_230383_5_);
-            this.placeBlock(p_230383_1_, Blocks.NETHER_BRICKS.defaultBlockState(), 12, 13, i, p_230383_5_);
+            this.generateBox(world, mutableBoundingBox, i, 10, 0, i, 11, 0, blockstate, blockstate, false);
+            this.generateBox(world, mutableBoundingBox, i, 10, 12, i, 11, 12, blockstate, blockstate, false);
+            this.generateBox(world, mutableBoundingBox, 0, 10, i, 0, 11, i, blockstate1, blockstate1, false);
+            this.generateBox(world, mutableBoundingBox, 12, 10, i, 12, 11, i, blockstate1, blockstate1, false);
+            this.placeBlock(world, Blocks.NETHER_BRICKS.defaultBlockState(), i, 13, 0, mutableBoundingBox);
+            this.placeBlock(world, Blocks.NETHER_BRICKS.defaultBlockState(), i, 13, 12, mutableBoundingBox);
+            this.placeBlock(world, Blocks.NETHER_BRICKS.defaultBlockState(), 0, 13, i, mutableBoundingBox);
+            this.placeBlock(world, Blocks.NETHER_BRICKS.defaultBlockState(), 12, 13, i, mutableBoundingBox);
             if (i != 11) {
-               this.placeBlock(p_230383_1_, blockstate, i + 1, 13, 0, p_230383_5_);
-               this.placeBlock(p_230383_1_, blockstate, i + 1, 13, 12, p_230383_5_);
-               this.placeBlock(p_230383_1_, blockstate1, 0, 13, i + 1, p_230383_5_);
-               this.placeBlock(p_230383_1_, blockstate1, 12, 13, i + 1, p_230383_5_);
+               this.placeBlock(world, blockstate, i + 1, 13, 0, mutableBoundingBox);
+               this.placeBlock(world, blockstate, i + 1, 13, 12, mutableBoundingBox);
+               this.placeBlock(world, blockstate1, 0, 13, i + 1, mutableBoundingBox);
+               this.placeBlock(world, blockstate1, 12, 13, i + 1, mutableBoundingBox);
             }
          }
 
-         this.placeBlock(p_230383_1_, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.NORTH, Boolean.valueOf(true)).setValue(FenceBlock.EAST, Boolean.valueOf(true)), 0, 13, 0, p_230383_5_);
-         this.placeBlock(p_230383_1_, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.SOUTH, Boolean.valueOf(true)).setValue(FenceBlock.EAST, Boolean.valueOf(true)), 0, 13, 12, p_230383_5_);
-         this.placeBlock(p_230383_1_, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.SOUTH, Boolean.valueOf(true)).setValue(FenceBlock.WEST, Boolean.valueOf(true)), 12, 13, 12, p_230383_5_);
-         this.placeBlock(p_230383_1_, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.NORTH, Boolean.valueOf(true)).setValue(FenceBlock.WEST, Boolean.valueOf(true)), 12, 13, 0, p_230383_5_);
+         this.placeBlock(world, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.NORTH, Boolean.valueOf(true)).setValue(FenceBlock.EAST, Boolean.valueOf(true)), 0, 13, 0, mutableBoundingBox);
+         this.placeBlock(world, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.SOUTH, Boolean.valueOf(true)).setValue(FenceBlock.EAST, Boolean.valueOf(true)), 0, 13, 12, mutableBoundingBox);
+         this.placeBlock(world, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.SOUTH, Boolean.valueOf(true)).setValue(FenceBlock.WEST, Boolean.valueOf(true)), 12, 13, 12, mutableBoundingBox);
+         this.placeBlock(world, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.NORTH, Boolean.valueOf(true)).setValue(FenceBlock.WEST, Boolean.valueOf(true)), 12, 13, 0, mutableBoundingBox);
 
          for(int j1 = 3; j1 <= 9; j1 += 2) {
-            this.generateBox(p_230383_1_, p_230383_5_, 1, 7, j1, 1, 8, j1, blockstate2, blockstate2, false);
-            this.generateBox(p_230383_1_, p_230383_5_, 11, 7, j1, 11, 8, j1, blockstate3, blockstate3, false);
+            this.generateBox(world, mutableBoundingBox, 1, 7, j1, 1, 8, j1, blockstate2, blockstate2, false);
+            this.generateBox(world, mutableBoundingBox, 11, 7, j1, 11, 8, j1, blockstate3, blockstate3, false);
          }
 
          BlockState blockstate4 = Blocks.NETHER_BRICK_STAIRS.defaultBlockState().setValue(StairsBlock.FACING, Direction.NORTH);
@@ -730,65 +730,65 @@ public class FortressPieces {
             int k = j + 4;
 
             for(int l = 5; l <= 7; ++l) {
-               this.placeBlock(p_230383_1_, blockstate4, l, 5 + j, k, p_230383_5_);
+               this.placeBlock(world, blockstate4, l, 5 + j, k, mutableBoundingBox);
             }
 
             if (k >= 5 && k <= 8) {
-               this.generateBox(p_230383_1_, p_230383_5_, 5, 5, k, 7, j + 4, k, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+               this.generateBox(world, mutableBoundingBox, 5, 5, k, 7, j + 4, k, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             } else if (k >= 9 && k <= 10) {
-               this.generateBox(p_230383_1_, p_230383_5_, 5, 8, k, 7, j + 4, k, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+               this.generateBox(world, mutableBoundingBox, 5, 8, k, 7, j + 4, k, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             }
 
             if (j >= 1) {
-               this.generateBox(p_230383_1_, p_230383_5_, 5, 6 + j, k, 7, 9 + j, k, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+               this.generateBox(world, mutableBoundingBox, 5, 6 + j, k, 7, 9 + j, k, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
             }
          }
 
          for(int k1 = 5; k1 <= 7; ++k1) {
-            this.placeBlock(p_230383_1_, blockstate4, k1, 12, 11, p_230383_5_);
+            this.placeBlock(world, blockstate4, k1, 12, 11, mutableBoundingBox);
          }
 
-         this.generateBox(p_230383_1_, p_230383_5_, 5, 6, 7, 5, 7, 7, blockstate3, blockstate3, false);
-         this.generateBox(p_230383_1_, p_230383_5_, 7, 6, 7, 7, 7, 7, blockstate2, blockstate2, false);
-         this.generateBox(p_230383_1_, p_230383_5_, 5, 13, 12, 7, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 2, 5, 2, 3, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 2, 5, 9, 3, 5, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 2, 5, 4, 2, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 9, 5, 2, 10, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 9, 5, 9, 10, 5, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 10, 5, 4, 10, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 5, 6, 7, 5, 7, 7, blockstate3, blockstate3, false);
+         this.generateBox(world, mutableBoundingBox, 7, 6, 7, 7, 7, 7, blockstate2, blockstate2, false);
+         this.generateBox(world, mutableBoundingBox, 5, 13, 12, 7, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 2, 5, 2, 3, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 2, 5, 9, 3, 5, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 2, 5, 4, 2, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 9, 5, 2, 10, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 9, 5, 9, 10, 5, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 10, 5, 4, 10, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
          BlockState blockstate5 = blockstate4.setValue(StairsBlock.FACING, Direction.EAST);
          BlockState blockstate6 = blockstate4.setValue(StairsBlock.FACING, Direction.WEST);
-         this.placeBlock(p_230383_1_, blockstate6, 4, 5, 2, p_230383_5_);
-         this.placeBlock(p_230383_1_, blockstate6, 4, 5, 3, p_230383_5_);
-         this.placeBlock(p_230383_1_, blockstate6, 4, 5, 9, p_230383_5_);
-         this.placeBlock(p_230383_1_, blockstate6, 4, 5, 10, p_230383_5_);
-         this.placeBlock(p_230383_1_, blockstate5, 8, 5, 2, p_230383_5_);
-         this.placeBlock(p_230383_1_, blockstate5, 8, 5, 3, p_230383_5_);
-         this.placeBlock(p_230383_1_, blockstate5, 8, 5, 9, p_230383_5_);
-         this.placeBlock(p_230383_1_, blockstate5, 8, 5, 10, p_230383_5_);
-         this.generateBox(p_230383_1_, p_230383_5_, 3, 4, 4, 4, 4, 8, Blocks.SOUL_SAND.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 8, 4, 4, 9, 4, 8, Blocks.SOUL_SAND.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 3, 5, 4, 4, 5, 8, Blocks.NETHER_WART.defaultBlockState(), Blocks.NETHER_WART.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 8, 5, 4, 9, 5, 8, Blocks.NETHER_WART.defaultBlockState(), Blocks.NETHER_WART.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 4, 2, 0, 8, 2, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 0, 2, 4, 12, 2, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 4, 0, 0, 8, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 4, 0, 9, 8, 1, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 0, 0, 4, 3, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-         this.generateBox(p_230383_1_, p_230383_5_, 9, 0, 4, 12, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.placeBlock(world, blockstate6, 4, 5, 2, mutableBoundingBox);
+         this.placeBlock(world, blockstate6, 4, 5, 3, mutableBoundingBox);
+         this.placeBlock(world, blockstate6, 4, 5, 9, mutableBoundingBox);
+         this.placeBlock(world, blockstate6, 4, 5, 10, mutableBoundingBox);
+         this.placeBlock(world, blockstate5, 8, 5, 2, mutableBoundingBox);
+         this.placeBlock(world, blockstate5, 8, 5, 3, mutableBoundingBox);
+         this.placeBlock(world, blockstate5, 8, 5, 9, mutableBoundingBox);
+         this.placeBlock(world, blockstate5, 8, 5, 10, mutableBoundingBox);
+         this.generateBox(world, mutableBoundingBox, 3, 4, 4, 4, 4, 8, Blocks.SOUL_SAND.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 8, 4, 4, 9, 4, 8, Blocks.SOUL_SAND.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 3, 5, 4, 4, 5, 8, Blocks.NETHER_WART.defaultBlockState(), Blocks.NETHER_WART.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 8, 5, 4, 9, 5, 8, Blocks.NETHER_WART.defaultBlockState(), Blocks.NETHER_WART.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 4, 2, 0, 8, 2, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 0, 2, 4, 12, 2, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 4, 0, 0, 8, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 4, 0, 9, 8, 1, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 0, 0, 4, 3, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+         this.generateBox(world, mutableBoundingBox, 9, 0, 4, 12, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
          for(int l1 = 4; l1 <= 8; ++l1) {
             for(int i1 = 0; i1 <= 2; ++i1) {
-               this.fillColumnDown(p_230383_1_, Blocks.NETHER_BRICKS.defaultBlockState(), l1, -1, i1, p_230383_5_);
-               this.fillColumnDown(p_230383_1_, Blocks.NETHER_BRICKS.defaultBlockState(), l1, -1, 12 - i1, p_230383_5_);
+               this.fillColumnDown(world, Blocks.NETHER_BRICKS.defaultBlockState(), l1, -1, i1, mutableBoundingBox);
+               this.fillColumnDown(world, Blocks.NETHER_BRICKS.defaultBlockState(), l1, -1, 12 - i1, mutableBoundingBox);
             }
          }
 
          for(int i2 = 0; i2 <= 2; ++i2) {
             for(int j2 = 4; j2 <= 8; ++j2) {
-               this.fillColumnDown(p_230383_1_, Blocks.NETHER_BRICKS.defaultBlockState(), i2, -1, j2, p_230383_5_);
-               this.fillColumnDown(p_230383_1_, Blocks.NETHER_BRICKS.defaultBlockState(), 12 - i2, -1, j2, p_230383_5_);
+               this.fillColumnDown(world, Blocks.NETHER_BRICKS.defaultBlockState(), i2, -1, j2, mutableBoundingBox);
+               this.fillColumnDown(world, Blocks.NETHER_BRICKS.defaultBlockState(), 12 - i2, -1, j2, mutableBoundingBox);
             }
          }
 

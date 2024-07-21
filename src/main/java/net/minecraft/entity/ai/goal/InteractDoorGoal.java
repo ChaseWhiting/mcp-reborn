@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.goal;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoorBlock;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
@@ -10,14 +10,14 @@ import net.minecraft.util.GroundPathHelper;
 import net.minecraft.util.math.BlockPos;
 
 public abstract class InteractDoorGoal extends Goal {
-   protected MobEntity mob;
+   protected Mob mob;
    protected BlockPos doorPos = BlockPos.ZERO;
    protected boolean hasDoor;
    private boolean passed;
    private float doorOpenDirX;
    private float doorOpenDirZ;
 
-   public InteractDoorGoal(MobEntity p_i1621_1_) {
+   public InteractDoorGoal(Mob p_i1621_1_) {
       this.mob = p_i1621_1_;
       if (!GroundPathHelper.hasGroundPathNavigation(p_i1621_1_)) {
          throw new IllegalArgumentException("Unsupported mob type for DoorInteractGoal");

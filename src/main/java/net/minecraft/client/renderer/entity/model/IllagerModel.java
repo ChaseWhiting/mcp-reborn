@@ -5,6 +5,10 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.model.ModelHelper;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
+import net.minecraft.entity.monster.MarauderEntity;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.Items;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -65,7 +69,7 @@ public class IllagerModel<T extends AbstractIllagerEntity> extends SegmentedMode
       return ImmutableList.of(this.head, this.body, this.leftLeg, this.rightLeg, this.arms, this.rightArm, this.leftArm);
    }
 
-   public void setupAnim(T p_225597_1_, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
+   public void setupAnim(T entity, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
       this.head.yRot = p_225597_5_ * ((float)Math.PI / 180F);
       this.head.xRot = p_225597_6_ * ((float)Math.PI / 180F);
       this.arms.y = 3.0F;
@@ -99,14 +103,24 @@ public class IllagerModel<T extends AbstractIllagerEntity> extends SegmentedMode
          this.rightLeg.zRot = 0.0F;
       }
 
-      AbstractIllagerEntity.ArmPose abstractillagerentity$armpose = p_225597_1_.getArmPose();
-      if (abstractillagerentity$armpose == AbstractIllagerEntity.ArmPose.ATTACKING) {
-         if (p_225597_1_.getMainHandItem().isEmpty()) {
-            ModelHelper.animateZombieArms(this.leftArm, this.rightArm, true, this.attackTime, p_225597_4_);
+      AbstractIllagerEntity.ArmPose armPose = entity.getArmPose();
+      if (armPose == AbstractIllagerEntity.ArmPose.ATTACKING) {
+         if (entity instanceof MarauderEntity) {
+            if (!entity.getMainHandItem().isEmpty()) {
+               animateMarauderEntity((MarauderEntity) entity, p_225597_4_);
+            } else if (entity.getOffhandItem().getItem() instanceof ShieldItem && !((MarauderEntity) entity).shieldDisabled){
+               ModelHelper.animateShieldHolding(this.leftArm, this.rightArm, true, this.attackTime, p_225597_4_);
+            } else {
+                ModelHelper.swingWeaponDown(this.rightArm, this.leftArm, entity, this.attackTime, p_225597_4_);
+            }
          } else {
-            ModelHelper.swingWeaponDown(this.rightArm, this.leftArm, p_225597_1_, this.attackTime, p_225597_4_);
+            if (entity.getMainHandItem().isEmpty()) {
+               ModelHelper.animateZombieArms(this.leftArm, this.rightArm, true, this.attackTime, p_225597_4_);
+            } else {
+               ModelHelper.swingWeaponDown(this.rightArm, this.leftArm, entity, this.attackTime, p_225597_4_);
+            }
          }
-      } else if (abstractillagerentity$armpose == AbstractIllagerEntity.ArmPose.SPELLCASTING) {
+      } else if (armPose == AbstractIllagerEntity.ArmPose.SPELLCASTING) {
          this.rightArm.z = 0.0F;
          this.rightArm.x = -5.0F;
          this.leftArm.z = 0.0F;
@@ -117,17 +131,17 @@ public class IllagerModel<T extends AbstractIllagerEntity> extends SegmentedMode
          this.leftArm.zRot = -2.3561945F;
          this.rightArm.yRot = 0.0F;
          this.leftArm.yRot = 0.0F;
-      } else if (abstractillagerentity$armpose == AbstractIllagerEntity.ArmPose.BOW_AND_ARROW) {
+      } else if (armPose == AbstractIllagerEntity.ArmPose.BOW_AND_ARROW) {
          this.rightArm.yRot = -0.1F + this.head.yRot;
          this.rightArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot;
          this.leftArm.xRot = -0.9424779F + this.head.xRot;
          this.leftArm.yRot = this.head.yRot - 0.4F;
          this.leftArm.zRot = ((float)Math.PI / 2F);
-      } else if (abstractillagerentity$armpose == AbstractIllagerEntity.ArmPose.CROSSBOW_HOLD) {
+      } else if (armPose == AbstractIllagerEntity.ArmPose.CROSSBOW_HOLD) {
          ModelHelper.animateCrossbowHold(this.rightArm, this.leftArm, this.head, true);
-      } else if (abstractillagerentity$armpose == AbstractIllagerEntity.ArmPose.CROSSBOW_CHARGE) {
-         ModelHelper.animateCrossbowCharge(this.rightArm, this.leftArm, p_225597_1_, true);
-      } else if (abstractillagerentity$armpose == AbstractIllagerEntity.ArmPose.CELEBRATING) {
+      } else if (armPose == AbstractIllagerEntity.ArmPose.CROSSBOW_CHARGE) {
+         ModelHelper.animateCrossbowCharge(this.rightArm, this.leftArm, entity, true);
+      } else if (armPose == AbstractIllagerEntity.ArmPose.CELEBRATING) {
          this.rightArm.z = 0.0F;
          this.rightArm.x = -5.0F;
          this.rightArm.xRot = MathHelper.cos(p_225597_4_ * 0.6662F) * 0.05F;
@@ -140,10 +154,35 @@ public class IllagerModel<T extends AbstractIllagerEntity> extends SegmentedMode
          this.leftArm.yRot = 0.0F;
       }
 
-      boolean flag = abstractillagerentity$armpose == AbstractIllagerEntity.ArmPose.CROSSED;
+      boolean flag = armPose == AbstractIllagerEntity.ArmPose.CROSSED;
       this.arms.visible = flag;
       this.leftArm.visible = !flag;
       this.rightArm.visible = !flag;
+   }
+
+   // Method for handling MarauderEntity specific animations
+   private void animateMarauderEntity(MarauderEntity marauderEntity, float partialTicks) {
+      boolean isShieldDisabled = marauderEntity.shieldDisabled;
+      boolean hasShieldInOffhand = marauderEntity.getOffhandItem().getItem() == Items.SHIELD;
+      boolean hasAxeInMainHand = marauderEntity.getMainHandItem().getItem() instanceof AxeItem;
+      boolean isMainHandEmpty = marauderEntity.getMainHandItem().isEmpty();
+      boolean isOffhandEmpty = marauderEntity.getOffhandItem().isEmpty();
+
+      if(!isShieldDisabled && isMainHandEmpty && hasShieldInOffhand) {
+         ModelHelper.swingWeaponDown(this.rightArm, this.leftArm, marauderEntity, this.attackTime, partialTicks);
+      }
+
+      if (isShieldDisabled && !hasAxeInMainHand) {
+         ModelHelper.swingWeaponDown(this.rightArm, this.leftArm, marauderEntity, this.attackTime, partialTicks);
+      } else if (hasShieldInOffhand && hasAxeInMainHand) {
+         ModelHelper.animateShieldHolding(this.leftArm, this.rightArm, true, this.attackTime, partialTicks);
+      } else if (hasShieldInOffhand && isMainHandEmpty) {
+         ModelHelper.swingWeaponDown(this.rightArm, this.leftArm, marauderEntity, this.attackTime, partialTicks);
+      } else if (isOffhandEmpty && !isMainHandEmpty) {
+         ModelHelper.swingWeaponDown(this.rightArm, this.leftArm, marauderEntity, this.attackTime, partialTicks);
+      } else {
+         ModelHelper.bobArms(this.rightArm, this.leftArm, partialTicks);
+      }
    }
 
    private ModelRenderer getArm(HandSide p_191216_1_) {

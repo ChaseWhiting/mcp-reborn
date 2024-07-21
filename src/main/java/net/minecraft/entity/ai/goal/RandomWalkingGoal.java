@@ -2,12 +2,12 @@ package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
 import javax.annotation.Nullable;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class RandomWalkingGoal extends Goal {
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    protected double wantedX;
    protected double wantedY;
    protected double wantedZ;
@@ -16,15 +16,15 @@ public class RandomWalkingGoal extends Goal {
    protected boolean forceTrigger;
    private boolean checkNoActionTime;
 
-   public RandomWalkingGoal(CreatureEntity p_i1648_1_, double p_i1648_2_) {
+   public RandomWalkingGoal(Creature p_i1648_1_, double p_i1648_2_) {
       this(p_i1648_1_, p_i1648_2_, 120);
    }
 
-   public RandomWalkingGoal(CreatureEntity p_i45887_1_, double p_i45887_2_, int p_i45887_4_) {
+   public RandomWalkingGoal(Creature p_i45887_1_, double p_i45887_2_, int p_i45887_4_) {
       this(p_i45887_1_, p_i45887_2_, p_i45887_4_, true);
    }
 
-   public RandomWalkingGoal(CreatureEntity p_i231550_1_, double p_i231550_2_, int p_i231550_4_, boolean p_i231550_5_) {
+   public RandomWalkingGoal(Creature p_i231550_1_, double p_i231550_2_, int p_i231550_4_, boolean p_i231550_5_) {
       this.mob = p_i231550_1_;
       this.speedModifier = p_i231550_2_;
       this.interval = p_i231550_4_;

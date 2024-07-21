@@ -42,6 +42,7 @@ public class DefaultedRegistry<T> extends SimpleRegistry<T> {
       return (T)(t == null ? this.defaultValue : t);
    }
 
+
    public Optional<T> getOptional(@Nullable ResourceLocation p_241873_1_) {
       return Optional.ofNullable(super.get(p_241873_1_));
    }

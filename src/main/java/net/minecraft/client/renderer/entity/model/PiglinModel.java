@@ -3,7 +3,7 @@ package net.minecraft.client.renderer.entity.model;
 import net.minecraft.client.renderer.model.ModelHelper;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.monster.piglin.AbstractPiglinEntity;
 import net.minecraft.entity.monster.piglin.PiglinAction;
 import net.minecraft.entity.monster.piglin.PiglinEntity;
@@ -12,7 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class PiglinModel<T extends MobEntity> extends PlayerModel<T> {
+public class PiglinModel<T extends Mob> extends PlayerModel<T> {
    public final ModelRenderer earRight;
    public final ModelRenderer earLeft;
    private final ModelRenderer bodyDefault;

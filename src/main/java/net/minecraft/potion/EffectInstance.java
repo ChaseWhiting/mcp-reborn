@@ -23,40 +23,41 @@ public class EffectInstance implements Comparable<EffectInstance> {
    @Nullable
    private EffectInstance hiddenEffect;
 
-   public EffectInstance(Effect p_i46811_1_) {
-      this(p_i46811_1_, 0, 0);
+   public EffectInstance(Effect effect) {
+      this(effect, 0, 0);
    }
 
-   public EffectInstance(Effect p_i46812_1_, int p_i46812_2_) {
-      this(p_i46812_1_, p_i46812_2_, 0);
+   public EffectInstance(Effect effect, int duration) {
+      this(effect, duration, 0);
    }
 
    public EffectInstance(Effect effect, int duration, int amplifier) {
       this(effect, duration, amplifier, false, true);
    }
 
-   public EffectInstance(Effect p_i46814_1_, int p_i46814_2_, int p_i46814_3_, boolean p_i46814_4_, boolean p_i46814_5_) {
-      this(p_i46814_1_, p_i46814_2_, p_i46814_3_, p_i46814_4_, p_i46814_5_, p_i46814_5_);
+   public EffectInstance(Effect effect, int duration, int level, boolean ambient, boolean visible) {
+      this(effect, duration, level, ambient, visible, visible);
    }
 
-   public EffectInstance(Effect p_i48980_1_, int p_i48980_2_, int p_i48980_3_, boolean p_i48980_4_, boolean p_i48980_5_, boolean p_i48980_6_) {
-      this(p_i48980_1_, p_i48980_2_, p_i48980_3_, p_i48980_4_, p_i48980_5_, p_i48980_6_, (EffectInstance)null);
+   public EffectInstance(Effect effect, int duration, int level, boolean ambient, boolean visible, boolean showIcon) {
+      this(effect, duration, level, ambient, visible, showIcon, null);
    }
 
-   public EffectInstance(Effect p_i230050_1_, int p_i230050_2_, int p_i230050_3_, boolean p_i230050_4_, boolean p_i230050_5_, boolean p_i230050_6_, @Nullable EffectInstance p_i230050_7_) {
-      this.effect = p_i230050_1_;
-      this.duration = p_i230050_2_;
-      this.amplifier = p_i230050_3_;
-      this.ambient = p_i230050_4_;
-      this.visible = p_i230050_5_;
-      this.showIcon = p_i230050_6_;
-      this.hiddenEffect = p_i230050_7_;
+   public EffectInstance(Effect effect, int duration, int level, boolean ambient, boolean visible, boolean showIcon, @Nullable EffectInstance hiddenEffect) {
+      this.effect = effect;
+      this.duration = duration;
+      this.amplifier = level;
+      this.ambient = ambient;
+      this.visible = visible;
+      this.showIcon = showIcon;
+      this.hiddenEffect = hiddenEffect;
    }
 
-   public EffectInstance(EffectInstance p_i1577_1_) {
-      this.effect = p_i1577_1_.effect;
-      this.setDetailsFrom(p_i1577_1_);
+   public EffectInstance(EffectInstance other) {
+      this.effect = other.effect;
+      this.setDetailsFrom(other);
    }
+
 
    void setDetailsFrom(EffectInstance p_230117_1_) {
       this.duration = p_230117_1_.duration;

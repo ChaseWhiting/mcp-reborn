@@ -3,7 +3,7 @@ package net.minecraft.entity.ai.goal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.controller.LookController;
 import net.minecraft.pathfinding.FlyingPathNavigator;
 import net.minecraft.pathfinding.GroundPathNavigator;
@@ -11,9 +11,9 @@ import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.pathfinding.PathNodeType;
 
 public class FollowMobGoal extends Goal {
-   private final MobEntity mob;
-   private final Predicate<MobEntity> followPredicate;
-   private MobEntity followingMob;
+   private final Mob mob;
+   private final Predicate<Mob> followPredicate;
+   private Mob followingMob;
    private final double speedModifier;
    private final PathNavigator navigation;
    private int timeToRecalcPath;
@@ -21,7 +21,7 @@ public class FollowMobGoal extends Goal {
    private float oldWaterCost;
    private final float areaSize;
 
-   public FollowMobGoal(MobEntity p_i47417_1_, double p_i47417_2_, float p_i47417_4_, float p_i47417_5_) {
+   public FollowMobGoal(Mob p_i47417_1_, double p_i47417_2_, float p_i47417_4_, float p_i47417_5_) {
       this.mob = p_i47417_1_;
       this.followPredicate = (p_210291_1_) -> {
          return p_210291_1_ != null && p_i47417_1_.getClass() != p_210291_1_.getClass();
@@ -37,9 +37,9 @@ public class FollowMobGoal extends Goal {
    }
 
    public boolean canUse() {
-      List<MobEntity> list = this.mob.level.getEntitiesOfClass(MobEntity.class, this.mob.getBoundingBox().inflate((double)this.areaSize), this.followPredicate);
+      List<Mob> list = this.mob.level.getEntitiesOfClass(Mob.class, this.mob.getBoundingBox().inflate((double)this.areaSize), this.followPredicate);
       if (!list.isEmpty()) {
-         for(MobEntity mobentity : list) {
+         for(Mob mobentity : list) {
             if (!mobentity.isInvisible()) {
                this.followingMob = mobentity;
                return true;

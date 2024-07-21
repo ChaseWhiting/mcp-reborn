@@ -10,7 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.boss.WitherEntity;
@@ -50,7 +50,7 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
    protected void doTick(ServerWorld p_212872_1_, LivingEntity p_212872_2_) {
       Brain<?> brain = p_212872_2_.getBrain();
       brain.setMemory(MemoryModuleType.NEAREST_REPELLENT, findNearestRepellent(p_212872_1_, p_212872_2_));
-      Optional<MobEntity> optional = Optional.empty();
+      Optional<Mob> optional = Optional.empty();
       Optional<HoglinEntity> optional1 = Optional.empty();
       Optional<HoglinEntity> optional2 = Optional.empty();
       Optional<PiglinEntity> optional3 = Optional.empty();
@@ -86,6 +86,7 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
          } else if (livingentity instanceof PlayerEntity) {
             PlayerEntity playerentity = (PlayerEntity)livingentity;
             if (!optional5.isPresent() && EntityPredicates.ATTACK_ALLOWED.test(livingentity) && !PiglinTasks.isWearingGold(playerentity)) {
+
                optional5 = Optional.of(playerentity);
             }
 
@@ -107,7 +108,7 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
                optionalGolem = Optional.of(golem);
             }
          } else {
-            optional = Optional.of((MobEntity)livingentity);
+            optional = Optional.of((Mob)livingentity);
          }
       }
 

@@ -1,7 +1,6 @@
 package net.minecraft.entity.villager.data.quest;
 
 import net.minecraft.entity.EntityType;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 
 import java.util.ArrayList;
@@ -11,21 +10,47 @@ public class QuestTypes {
     public static List<Quest> quests = new ArrayList<>();
     public static List<Quest> clonedQuests = new ArrayList<>();
 
-    public static final Quest killCows = new Quest("Kill Cows", "Defeat 3 cows.");
-    public static final Quest fetchMeat = new Quest("Gather meat", "Get 4 raw beef.");
+    public static final Quest killCows = (new Quest.Builder())
+            .name("Kill Cows")
+            .description("Defeat 3 cows.")
+            .addRequiredKill(EntityType.COW, 3)
+            .addReward(Items.EMERALD, 3)
+            .setXP(2)
+            .build();
+
+    public static final Quest fetchMeat = (new Quest.Builder())
+            .name("Gather meat")
+            .description("Get 4 raw beef.")
+            .addRequiredItem(Items.BEEF, 4)
+            .addReward(Items.EMERALD, 1)
+            .setXP(1)
+            .build();
+
+    public static final Quest killWither = (new Quest.Builder())
+            .name("Kill the wither.")
+            .description("Defeat the wither")
+            .addRequiredKill(EntityType.WITHER, 1)
+            .setXP(40).addReward(Items.DIAMOND, 12)
+            .build();
+
+    public static final Quest defeatAllMob = (new Quest.Builder())
+            .setXP(3000)
+            .addReward(Items.DIAMOND, 40)
+            .addReward(Items.NETHERITE_INGOT, 4)
+            .addReward(Items.GOLD_BLOCK, 6)
+            .addReward(Items.TOTEM_OF_UNDYING)
+            .build();
 
     static {
-        killCows.addRequiredKill(EntityType.COW, 3);
-        killCows.addReward(new ItemStack(Items.EMERALD, 3));
-        killCows.addXPReward(2);
 
-        fetchMeat.addRequiredItem(new ItemStack(Items.BEEF, 3));
-        fetchMeat.addReward(new ItemStack(Items.EMERALD, 4));
+        addQuest(fetchMeat);
+        addQuest(killWither);
+        addQuest(killCows);
+    }
 
-        quests.add(killCows);
-        quests.add(fetchMeat);
-        clonedQuests.add(killCows);
-        clonedQuests.add(fetchMeat);
+    public static void addQuest(Quest quest) {
+        quests.add(quest);
+        clonedQuests.add(quest);
     }
 
     public static Quest getQuestByName(String name) {

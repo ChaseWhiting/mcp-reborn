@@ -5,7 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
@@ -56,7 +56,7 @@ public class SquidEntity extends WaterMobEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D);
    }
 
    protected float getStandingEyeHeight(Pose p_213348_1_, EntitySize p_213348_2_) {

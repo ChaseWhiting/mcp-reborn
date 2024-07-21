@@ -156,6 +156,7 @@ public class DataSerializers {
          return type;
       }
    };
+
    public static final IDataSerializer<Boolean> BOOLEAN = new IDataSerializer<Boolean>() {
       public void write(PacketBuffer p_187160_1_, Boolean p_187160_2_) {
          p_187160_1_.writeBoolean(p_187160_2_);

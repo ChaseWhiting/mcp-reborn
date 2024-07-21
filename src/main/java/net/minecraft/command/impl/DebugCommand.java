@@ -2,7 +2,6 @@ package net.minecraft.command.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -10,7 +9,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,22 +17,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.annotation.Nullable;
 
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.netty.buffer.Unpooled;
 import net.minecraft.block.Blocks;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.controller.MovementController;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.profiler.IProfileResult;
 import net.minecraft.server.MinecraftServer;
@@ -44,12 +33,9 @@ import net.minecraft.util.SharedConstants;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.system.CallbackI;
 
 public class DebugCommand {
 
@@ -240,8 +226,8 @@ public class DebugCommand {
          Collection<? extends Entity> entities = EntityArgument.getEntities(context, "targets");
          int count = 0;
          for (Entity entity : entities) {
-            if (entity instanceof MobEntity) {
-               MobEntity mob = (MobEntity) entity;
+            if (entity instanceof Mob) {
+               Mob mob = (Mob) entity;
                mob.getNavigation().stop();
                count++;
             }

@@ -4,29 +4,22 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.impl.FleeCommand;
-import net.minecraft.data.CustomRecipeBuilder;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.enchantment.IVanishable;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.SkeletonEntity;
 import net.minecraft.entity.monster.SpiderEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.BoneArrowEntity;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.server.ServerWorld;
 
 public class BoneBowItem extends BowItem implements IVanishable {
     public BoneBowItem(Item.Properties properties) {
@@ -57,7 +50,7 @@ public class BoneBowItem extends BowItem implements IVanishable {
                         if (f >= 1F) {
                             if (itemstack.getItem() == Items.BONE_ARROW && !(entity instanceof SkeletonEntity)) {
                                 AxisAlignedBB area = new AxisAlignedBB(playerentity.blockPosition()).inflate(12D, 5D, 12D);
-                                List<MobEntity> mobs = world.getEntitiesOfClass(MobEntity.class, area, e -> e instanceof CreeperEntity || e instanceof SpiderEntity);
+                                List<Mob> mobs = world.getEntitiesOfClass(Mob.class, area, e -> e instanceof CreeperEntity || e instanceof SpiderEntity);
                                 world.playSound(null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), SoundEvents.SKELETON_AMBIENT, SoundCategory.PLAYERS, 1.0F, 1.0F);
                                 if (!mobs.isEmpty()) {
                                     for (LivingEntity mob : mobs) {
@@ -173,9 +166,9 @@ public class BoneBowItem extends BowItem implements IVanishable {
         }
     }
 
-    private static void scareMobs(List<MobEntity> mobs, float speed, int radius, World world) {
+    private static void scareMobs(List<Mob> mobs, float speed, int radius, World world) {
         int count = 0;
-        for (MobEntity mob : mobs) {
+        for (Mob mob : mobs) {
             ++count;
             double X = mob.getRandomX((double) radius);
             double Z = mob.getRandomZ((double) radius);

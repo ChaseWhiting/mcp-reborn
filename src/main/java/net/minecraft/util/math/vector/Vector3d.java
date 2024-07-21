@@ -428,4 +428,7 @@ public class Vector3d implements IPosition {
    public final double z() {
       return this.z;
    }
+
+
+
 }

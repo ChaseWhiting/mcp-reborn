@@ -10,7 +10,7 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -45,7 +45,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biomes;
 
-public class SlimeEntity extends MobEntity implements IMob {
+public class SlimeEntity extends Mob implements IMob {
    private static final DataParameter<Integer> ID_SIZE = EntityDataManager.defineId(SlimeEntity.class, DataSerializers.INT);
    public float targetSquish;
    public float squish;

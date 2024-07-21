@@ -1,7 +1,7 @@
 package net.minecraft.entity.pathfinding.owl;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.network.DebugPacketSender;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathFinder;
@@ -12,7 +12,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 public class OwlFlyingPathNavigator extends PathNavigator {
-    public OwlFlyingPathNavigator(MobEntity mob, World world) {
+    public OwlFlyingPathNavigator(Mob mob, World world) {
         super(mob, world);
     }
 

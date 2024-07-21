@@ -44,19 +44,11 @@ import net.minecraft.loot.conditions.LootConditionManager;
 import net.minecraft.loot.functions.LootFunctionManager;
 import net.minecraft.particles.ParticleType;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.Effects;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.Potions;
+import net.minecraft.potion.*;
 import net.minecraft.stats.StatType;
 import net.minecraft.stats.Stats;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.IObjectIntIterable;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SharedConstants;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.village.PointOfInterestType;
 import net.minecraft.world.Dimension;
 import net.minecraft.world.DimensionType;
@@ -107,6 +99,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IObjectIntIterab
    public static final RegistryKey<Registry<Enchantment>> ENCHANTMENT_REGISTRY = createRegistryKey("enchantment");
    public static final RegistryKey<Registry<EntityType<?>>> ENTITY_TYPE_REGISTRY = createRegistryKey("entity_type");
    public static final RegistryKey<Registry<Item>> ITEM_REGISTRY = createRegistryKey("item");
+   public static final RegistryKey<Registry<CrossbowConfig>> CROSSBOW_CONFIG_REGISTRY = createRegistryKey("crossbow_config");
    public static final RegistryKey<Registry<Potion>> POTION_REGISTRY = createRegistryKey("potion");
    public static final RegistryKey<Registry<ParticleType<?>>> PARTICLE_TYPE_REGISTRY = createRegistryKey("particle_type");
    public static final RegistryKey<Registry<TileEntityType<?>>> BLOCK_ENTITY_TYPE_REGISTRY = createRegistryKey("block_entity_type");
@@ -154,6 +147,12 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IObjectIntIterab
    public static final DefaultedRegistry<Item> ITEM = registerDefaulted(ITEM_REGISTRY, "air", () -> {
       return Items.AIR;
    });
+
+   public static final Registry<CrossbowConfig> CROSSBOW_CONFIG = registerSimple(CROSSBOW_CONFIG_REGISTRY, () -> {
+      return new CrossbowConfig(new float[]{0,0}, new int[]{0,0}, false, 0, 0, (EffectInstance[]) null);
+   });
+
+
    public static final DefaultedRegistry<Potion> POTION = registerDefaulted(POTION_REGISTRY, "empty", () -> {
       return Potions.EMPTY;
    });
@@ -416,6 +415,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IObjectIntIterab
          return t;
       }
    }
+
 
    public abstract Set<ResourceLocation> keySet();
 

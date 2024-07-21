@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
 import java.util.function.Predicate;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathNavigator;
@@ -12,7 +12,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 
 public class AvoidBlockGoal<T extends Block> extends Goal {
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    private final double walkSpeedModifier;
    private final double sprintSpeedModifier;
    protected T toAvoid;
@@ -23,7 +23,7 @@ public class AvoidBlockGoal<T extends Block> extends Goal {
    protected final Predicate<BlockState> avoidPredicate;
    protected final Predicate<BlockState> predicateOnAvoidBlock;
 
-   public AvoidBlockGoal(CreatureEntity creature, Class<T> avoidBlockClass, Predicate<BlockState> avoidPredicate, float maxDist, double walkSpeedModifier, double sprintSpeedModifier, Predicate<BlockState> predicateOnAvoidBlock) {
+   public AvoidBlockGoal(Creature creature, Class<T> avoidBlockClass, Predicate<BlockState> avoidPredicate, float maxDist, double walkSpeedModifier, double sprintSpeedModifier, Predicate<BlockState> predicateOnAvoidBlock) {
       this.mob = creature;
       this.avoidClass = avoidBlockClass;
       this.avoidPredicate = avoidPredicate;

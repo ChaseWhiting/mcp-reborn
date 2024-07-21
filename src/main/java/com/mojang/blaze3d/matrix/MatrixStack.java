@@ -12,33 +12,33 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class MatrixStack {
-   private final Deque<MatrixStack.Entry> poseStack = Util.make(Queues.newArrayDeque(), (p_227864_0_) -> {
+   private final Deque<MatrixStack.Entry> poseStack = Util.make(Queues.newArrayDeque(), (entries) -> {
       Matrix4f matrix4f = new Matrix4f();
       matrix4f.setIdentity();
       Matrix3f matrix3f = new Matrix3f();
       matrix3f.setIdentity();
-      p_227864_0_.add(new MatrixStack.Entry(matrix4f, matrix3f));
+      entries.add(new MatrixStack.Entry(matrix4f, matrix3f));
    });
 
-   public void translate(double p_227861_1_, double p_227861_3_, double p_227861_5_) {
+   public void translate(double x, double y, double z) {
       MatrixStack.Entry matrixstack$entry = this.poseStack.getLast();
-      matrixstack$entry.pose.multiply(Matrix4f.createTranslateMatrix((float)p_227861_1_, (float)p_227861_3_, (float)p_227861_5_));
+      matrixstack$entry.pose.multiply(Matrix4f.createTranslateMatrix((float)x, (float)y, (float)z));
    }
 
-   public void scale(float p_227862_1_, float p_227862_2_, float p_227862_3_) {
+   public void scale(float x, float y, float z) {
       MatrixStack.Entry matrixstack$entry = this.poseStack.getLast();
-      matrixstack$entry.pose.multiply(Matrix4f.createScaleMatrix(p_227862_1_, p_227862_2_, p_227862_3_));
-      if (p_227862_1_ == p_227862_2_ && p_227862_2_ == p_227862_3_) {
-         if (p_227862_1_ > 0.0F) {
+      matrixstack$entry.pose.multiply(Matrix4f.createScaleMatrix(x, y, z));
+      if (x == y && y == z) {
+         if (x > 0.0F) {
             return;
          }
 
          matrixstack$entry.normal.mul(-1.0F);
       }
 
-      float f = 1.0F / p_227862_1_;
-      float f1 = 1.0F / p_227862_2_;
-      float f2 = 1.0F / p_227862_3_;
+      float f = 1.0F / x;
+      float f1 = 1.0F / y;
+      float f2 = 1.0F / z;
       float f3 = MathHelper.fastInvCubeRoot(f * f1 * f2);
       matrixstack$entry.normal.mul(Matrix3f.createScaleMatrix(f3 * f, f3 * f1, f3 * f2));
    }

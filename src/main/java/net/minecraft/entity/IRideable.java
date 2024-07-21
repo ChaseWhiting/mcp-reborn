@@ -11,7 +11,7 @@ public interface IRideable {
 
    float getSteeringSpeed();
 
-   default boolean travel(MobEntity p_233622_1_, BoostHelper p_233622_2_, Vector3d p_233622_3_) {
+   default boolean travel(Mob p_233622_1_, BoostHelper p_233622_2_, Vector3d p_233622_3_) {
       if (!p_233622_1_.isAlive()) {
          return false;
       } else {

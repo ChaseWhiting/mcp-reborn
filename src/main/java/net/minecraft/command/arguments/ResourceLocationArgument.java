@@ -17,11 +17,16 @@ import net.minecraft.loot.conditions.ILootCondition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.structure.Structure;
 
 public class ResourceLocationArgument implements ArgumentType<ResourceLocation> {
    private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
    private static final DynamicCommandExceptionType ERROR_UNKNOWN_ADVANCEMENT = new DynamicCommandExceptionType((p_208676_0_) -> {
       return new TranslationTextComponent("advancement.advancementNotFound", p_208676_0_);
+   });
+   private static final DynamicCommandExceptionType ERROR_INVALID_FEATURE = new DynamicCommandExceptionType((p_208676_0_) -> {
+      return new TranslationTextComponent("feature.invalid", p_208676_0_);
    });
    private static final DynamicCommandExceptionType ERROR_UNKNOWN_RECIPE = new DynamicCommandExceptionType((p_208677_0_) -> {
       return new TranslationTextComponent("recipe.notFound", p_208677_0_);
@@ -75,6 +80,21 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
 
    public static ResourceLocation getId(CommandContext<CommandSource> p_197195_0_, String p_197195_1_) {
       return p_197195_0_.getArgument(p_197195_1_, ResourceLocation.class);
+   }
+
+//   public static ConfiguredFeature<?, ?> getConfiguredFeature(CommandContext<CommandSource> context, String name) throws CommandSyntaxException {
+//      ResourceLocation resourceLocation = context.getArgument(name, ResourceLocation.class);
+//      return context.getSource().getLevel().structureFeatureManager().getConfiguredFeature(resourceLocation)
+//              .orElseThrow(() -> ERROR_INVALID_FEATURE.create(resourceLocation));
+//   }
+
+   public static Structure getStructure(CommandContext<CommandSource> context, ResourceLocation key) {
+      Structure structure = Registry.STRUCTURE_FEATURE.get(key);
+      if (structure == null) {
+         // Handle the case where the structure is not found
+         throw new IllegalArgumentException("Structure not found for key: " + key);
+      }
+      return structure;
    }
 
    public ResourceLocation parse(StringReader p_parse_1_) throws CommandSyntaxException {

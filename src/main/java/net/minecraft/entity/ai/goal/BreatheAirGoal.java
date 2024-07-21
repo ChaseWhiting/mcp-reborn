@@ -3,7 +3,7 @@ package net.minecraft.entity.ai.goal;
 import java.util.EnumSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.MoverType;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.util.math.BlockPos;
@@ -12,9 +12,9 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorldReader;
 
 public class BreatheAirGoal extends Goal {
-   private final CreatureEntity mob;
+   private final Creature mob;
 
-   public BreatheAirGoal(CreatureEntity p_i48940_1_) {
+   public BreatheAirGoal(Creature p_i48940_1_) {
       this.mob = p_i48940_1_;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
    }

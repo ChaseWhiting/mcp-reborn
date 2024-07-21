@@ -3,7 +3,7 @@ package net.minecraft.entity.pathfinding.owl;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.tags.BlockTags;
@@ -13,7 +13,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class OwlWaterAvoidingRandomFlyingGoal extends WaterAvoidingRandomWalkingGoal {
-    public OwlWaterAvoidingRandomFlyingGoal(CreatureEntity mob, double speed) {
+    public OwlWaterAvoidingRandomFlyingGoal(Creature mob, double speed) {
         super(mob, speed);
     }
 

@@ -2,12 +2,12 @@ package net.minecraft.entity.monster;
 
 import java.util.EnumSet;
 import javax.annotation.Nullable;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -37,9 +37,9 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 
-public class VexEntity extends MonsterEntity {
+public class VexEntity extends Monster {
    protected static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(VexEntity.class, DataSerializers.BYTE);
-   private MobEntity owner;
+   private Mob owner;
    @Nullable
    private BlockPos boundOrigin;
    private boolean hasLimitedLife;
@@ -74,14 +74,14 @@ public class VexEntity extends MonsterEntity {
       this.goalSelector.addGoal(4, new VexEntity.ChargeAttackGoal());
       this.goalSelector.addGoal(8, new VexEntity.MoveRandomGoal());
       this.goalSelector.addGoal(9, new LookAtGoal(this, PlayerEntity.class, 3.0F, 1.0F));
-      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
+      this.goalSelector.addGoal(10, new LookAtGoal(this, Mob.class, 8.0F));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, AbstractRaiderEntity.class)).setAlertOthers());
       this.targetSelector.addGoal(2, new VexEntity.CopyOwnerTargetGoal(this));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 14.0D).add(Attributes.ATTACK_DAMAGE, 4.0D);
+      return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 14.0D).add(Attributes.ATTACK_DAMAGE, 4.0D);
    }
 
    protected void defineSynchedData() {
@@ -115,7 +115,7 @@ public class VexEntity extends MonsterEntity {
 
    }
 
-   public MobEntity getOwner() {
+   public Mob getOwner() {
       return this.owner;
    }
 
@@ -152,7 +152,7 @@ public class VexEntity extends MonsterEntity {
       this.setVexFlag(1, p_190648_1_);
    }
 
-   public void setOwner(MobEntity p_190658_1_) {
+   public void setOwner(Mob p_190658_1_) {
       this.owner = p_190658_1_;
    }
 
@@ -237,7 +237,7 @@ public class VexEntity extends MonsterEntity {
    class CopyOwnerTargetGoal extends TargetGoal {
       private final EntityPredicate copyOwnerTargeting = (new EntityPredicate()).allowUnseeable().ignoreInvisibilityTesting();
 
-      public CopyOwnerTargetGoal(CreatureEntity p_i47231_2_) {
+      public CopyOwnerTargetGoal(Creature p_i47231_2_) {
          super(p_i47231_2_, false);
       }
 

@@ -16,6 +16,8 @@ public class CustomArrowRenderer extends ArrowRenderer<CustomArrowEntity> {
     public static final ResourceLocation TELEPORTATION_ARROW_LOCATION = new ResourceLocation("textures/entity/projectiles/teleportation_arrow.png");
     public static final ResourceLocation HEALING_ARROW_LOCATION = new ResourceLocation("textures/entity/projectiles/healing_arrow.png");
     public static final ResourceLocation FIREWORK_ARROW_LOCATION = new ResourceLocation("textures/entity/projectiles/firework_arrow.png");
+    public static final ResourceLocation GILDED_ARROW_LOCATION = new ResourceLocation("textures/entity/projectiles/gilded_arrow.png");
+
 
 
     public static final ResourceLocation ARROW_LOCATION = new ResourceLocation("textures/entity/projectiles/arrow.png");
@@ -42,6 +44,8 @@ public class CustomArrowRenderer extends ArrowRenderer<CustomArrowEntity> {
                 return HEALING_ARROW_LOCATION;
             case 5:
                 return FIREWORK_ARROW_LOCATION;
+            case 6:
+                return GILDED_ARROW_LOCATION;
         }
         return ARROW_LOCATION;
     }

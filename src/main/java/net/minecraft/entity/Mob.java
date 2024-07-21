@@ -58,8 +58,8 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class MobEntity extends LivingEntity {
-   private static final DataParameter<Byte> DATA_MOB_FLAGS_ID = EntityDataManager.defineId(MobEntity.class, DataSerializers.BYTE);
+public abstract class Mob extends LivingEntity {
+   private static final DataParameter<Byte> DATA_MOB_FLAGS_ID = EntityDataManager.defineId(Mob.class, DataSerializers.BYTE);
    public int ambientSoundTime;
    protected int xpReward;
    protected LookController lookControl;
@@ -88,7 +88,7 @@ public abstract class MobEntity extends LivingEntity {
    private BlockPos restrictCenter = BlockPos.ZERO;
    private float restrictRadius = -1.0F;
 
-   protected MobEntity(EntityType<? extends MobEntity> p_i48576_1_, World p_i48576_2_) {
+   protected Mob(EntityType<? extends Mob> p_i48576_1_, World p_i48576_2_) {
       super(p_i48576_1_, p_i48576_2_);
       this.goalSelector = new GoalSelector(p_i48576_2_.getProfilerSupplier());
       this.targetSelector = new GoalSelector(p_i48576_2_.getProfilerSupplier());
@@ -106,8 +106,13 @@ public abstract class MobEntity extends LivingEntity {
 
    }
 
+   public GoalSelector getGoalSelector() {
+      return goalSelector;
+   }
+
    protected void registerGoals() {
    }
+
 
    public static AttributeModifierMap.MutableAttribute createMobAttributes() {
       return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 16.0D).add(Attributes.ATTACK_KNOCKBACK);
@@ -122,9 +127,9 @@ public abstract class MobEntity extends LivingEntity {
    }
 
    public float getPathfindingMalus(PathNodeType p_184643_1_) {
-      MobEntity mobentity;
-      if (this.getVehicle() instanceof MobEntity && ((MobEntity)this.getVehicle()).shouldPassengersInheritMalus()) {
-         mobentity = (MobEntity)this.getVehicle();
+      Mob mobentity;
+      if (this.getVehicle() instanceof Mob && ((Mob)this.getVehicle()).shouldPassengersInheritMalus()) {
+         mobentity = (Mob)this.getVehicle();
       } else {
          mobentity = this;
       }
@@ -150,8 +155,8 @@ public abstract class MobEntity extends LivingEntity {
    }
 
    public MovementController getMoveControl() {
-      if (this.isPassenger() && this.getVehicle() instanceof MobEntity) {
-         MobEntity mobentity = (MobEntity)this.getVehicle();
+      if (this.isPassenger() && this.getVehicle() instanceof Mob) {
+         Mob mobentity = (Mob)this.getVehicle();
          return mobentity.getMoveControl();
       } else {
          return this.moveControl;
@@ -163,8 +168,8 @@ public abstract class MobEntity extends LivingEntity {
    }
 
    public PathNavigator getNavigation() {
-      if (this.isPassenger() && this.getVehicle() instanceof MobEntity) {
-         MobEntity mobentity = (MobEntity)this.getVehicle();
+      if (this.isPassenger() && this.getVehicle() instanceof Mob) {
+         Mob mobentity = (Mob)this.getVehicle();
          return mobentity.getNavigation();
       } else {
          return this.navigation;
@@ -211,6 +216,8 @@ public abstract class MobEntity extends LivingEntity {
       }
 
    }
+
+
 
    public void baseTick() {
       super.baseTick();
@@ -313,7 +320,7 @@ public abstract class MobEntity extends LivingEntity {
    }
 
    protected void updateControlFlags() {
-      boolean flag = !(this.getControllingPassenger() instanceof MobEntity);
+      boolean flag = !(this.getControllingPassenger() instanceof Mob);
       boolean flag1 = !(this.getVehicle() instanceof BoatEntity);
       this.goalSelector.setControlFlag(Goal.Flag.MOVE, flag);
       this.goalSelector.setControlFlag(Goal.Flag.JUMP, flag && flag1);
@@ -565,7 +572,7 @@ public abstract class MobEntity extends LivingEntity {
          }
       } else if (p_208003_1_.getItem() instanceof BowItem && p_208003_2_.getItem() instanceof BowItem) {
          return this.canReplaceEqualItem(p_208003_1_, p_208003_2_);
-      } else if (p_208003_1_.getItem() instanceof CrossbowItem && p_208003_2_.getItem() instanceof CrossbowItem) {
+      } else if (p_208003_1_.getItem() instanceof CrossbowItem && p_208003_2_.getItem() instanceof CrossbowItem || p_208003_1_.getItem() instanceof GildedCrossbowItem && p_208003_2_.getItem() instanceof GildedCrossbowItem) {
          return this.canReplaceEqualItem(p_208003_1_, p_208003_2_);
       } else if (p_208003_1_.getItem() instanceof ArmorItem) {
          if (EnchantmentHelper.hasBindingCurse(p_208003_2_)) {
@@ -746,7 +753,7 @@ public abstract class MobEntity extends LivingEntity {
       return p_70663_1_ + f;
    }
 
-   public static boolean checkMobSpawnRules(EntityType<? extends MobEntity> p_223315_0_, IWorld p_223315_1_, SpawnReason p_223315_2_, BlockPos p_223315_3_, Random p_223315_4_) {
+   public static boolean checkMobSpawnRules(EntityType<? extends Mob> p_223315_0_, IWorld p_223315_1_, SpawnReason p_223315_2_, BlockPos p_223315_3_, Random p_223315_4_) {
       BlockPos blockpos = p_223315_3_.below();
       return p_223315_2_ == SpawnReason.SPAWNER || p_223315_1_.getBlockState(blockpos).isValidSpawn(p_223315_1_, blockpos, p_223315_0_);
    }
@@ -800,13 +807,25 @@ public abstract class MobEntity extends LivingEntity {
       }
    }
 
-   public void setItemSlot(EquipmentSlotType p_184201_1_, ItemStack p_184201_2_) {
-      switch(p_184201_1_.getType()) {
+   public void setItemSlot(EquipmentSlotType slotType, ItemStack item) {
+      switch(slotType.getType()) {
       case HAND:
-         this.handItems.set(p_184201_1_.getIndex(), p_184201_2_);
+         this.handItems.set(slotType.getIndex(), item);
          break;
       case ARMOR:
-         this.armorItems.set(p_184201_1_.getIndex(), p_184201_2_);
+         this.armorItems.set(slotType.getIndex(), item);
+      }
+
+   }
+
+   public void setItemSlot(EquipmentSlotType slotType, Item item1) {
+      ItemStack item = new ItemStack(item1);
+      switch(slotType.getType()) {
+         case HAND:
+            this.handItems.set(slotType.getIndex(), item);
+            break;
+         case ARMOR:
+            this.armorItems.set(slotType.getIndex(), item);
       }
 
    }
@@ -1065,7 +1084,7 @@ public abstract class MobEntity extends LivingEntity {
          if (itemstack.getItem() instanceof SpawnEggItem) {
             if (this.level instanceof ServerWorld) {
                SpawnEggItem spawneggitem = (SpawnEggItem)itemstack.getItem();
-               Optional<MobEntity> optional = spawneggitem.spawnOffspringFromSpawnEgg(p_233661_1_, this, (EntityType)this.getType(), (ServerWorld)this.level, this.position(), itemstack);
+               Optional<Mob> optional = spawneggitem.spawnOffspringFromSpawnEgg(p_233661_1_, this, (EntityType)this.getType(), (ServerWorld)this.level, this.position(), itemstack);
                optional.ifPresent((p_233658_2_) -> {
                   this.onOffspringSpawnedFromEgg(p_233661_1_, p_233658_2_);
                });
@@ -1079,7 +1098,7 @@ public abstract class MobEntity extends LivingEntity {
       }
    }
 
-   protected void onOffspringSpawnedFromEgg(PlayerEntity p_213406_1_, MobEntity p_213406_2_) {
+   protected void onOffspringSpawnedFromEgg(PlayerEntity p_213406_1_, Mob p_213406_2_) {
    }
 
    protected ActionResultType mobInteract(PlayerEntity p_230254_1_, Hand p_230254_2_) {
@@ -1116,7 +1135,7 @@ public abstract class MobEntity extends LivingEntity {
    }
 
    @Nullable
-   public <T extends MobEntity> T convertTo(EntityType<T> targetType, boolean keepEquipment) {
+   public <T extends Mob> T convertTo(EntityType<T> targetType, boolean keepEquipment) {
       if (this.removed) {
          return null;
       } else {
@@ -1172,7 +1191,7 @@ public abstract class MobEntity extends LivingEntity {
       }
    }
 
-   public void dropLeash(boolean p_110160_1_, boolean p_110160_2_) {
+   public void dropLeash(boolean broadcast, boolean dropLead) {
       if (this.leashHolder != null) {
          this.forcedLoading = false;
          if (!(this.leashHolder instanceof PlayerEntity)) {
@@ -1181,11 +1200,11 @@ public abstract class MobEntity extends LivingEntity {
 
          this.leashHolder = null;
          this.leashInfoTag = null;
-         if (!this.level.isClientSide && p_110160_2_) {
+         if (!this.level.isClientSide && dropLead) {
             this.spawnAtLocation(Items.LEAD);
          }
 
-         if (!this.level.isClientSide && p_110160_1_ && this.level instanceof ServerWorld) {
+         if (!this.level.isClientSide && broadcast && this.level instanceof ServerWorld) {
             ((ServerWorld)this.level).getChunkSource().broadcast(this, new SMountEntityPacket(this, (Entity)null));
          }
       }

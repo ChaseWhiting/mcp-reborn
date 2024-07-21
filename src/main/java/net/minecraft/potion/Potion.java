@@ -14,8 +14,8 @@ public class Potion {
       return Registry.POTION.get(ResourceLocation.tryParse(p_185168_0_));
    }
 
-   public Potion(EffectInstance... p_i46739_1_) {
-      this((String)null, p_i46739_1_);
+   public Potion(EffectInstance... effectInstances) {
+      this((String)null, effectInstances);
    }
 
    public Potion(@Nullable String p_i46740_1_, EffectInstance... p_i46740_2_) {

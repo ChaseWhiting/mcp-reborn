@@ -1,15 +1,15 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.List;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.Animal;
 
 public class FollowParentGoal extends Goal {
-   private final AnimalEntity animal;
-   private AnimalEntity parent;
+   private final Animal animal;
+   private Animal parent;
    private final double speedModifier;
    private int timeToRecalcPath;
 
-   public FollowParentGoal(AnimalEntity p_i1626_1_, double p_i1626_2_) {
+   public FollowParentGoal(Animal p_i1626_1_, double p_i1626_2_) {
       this.animal = p_i1626_1_;
       this.speedModifier = p_i1626_2_;
    }
@@ -18,11 +18,11 @@ public class FollowParentGoal extends Goal {
       if (this.animal.getAge() >= 0) {
          return false;
       } else {
-         List<AnimalEntity> list = this.animal.level.getEntitiesOfClass(this.animal.getClass(), this.animal.getBoundingBox().inflate(8.0D, 4.0D, 8.0D));
-         AnimalEntity animalentity = null;
+         List<Animal> list = this.animal.level.getEntitiesOfClass(this.animal.getClass(), this.animal.getBoundingBox().inflate(8.0D, 4.0D, 8.0D));
+         Animal animalentity = null;
          double d0 = Double.MAX_VALUE;
 
-         for(AnimalEntity animalentity1 : list) {
+         for(Animal animalentity1 : list) {
             if (animalentity1.getAge() >= 0) {
                double d1 = this.animal.distanceToSqr(animalentity1);
                if (!(d1 > d0)) {

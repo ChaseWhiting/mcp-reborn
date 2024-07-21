@@ -19,7 +19,7 @@ public class MultishotEnchantment extends Enchantment {
       return 3;
    }
 
-   public boolean checkCompatibility(Enchantment p_77326_1_) {
-      return super.checkCompatibility(p_77326_1_) && p_77326_1_ != Enchantments.PIERCING;
+   public boolean checkCompatibility(Enchantment enchantment) {
+      return super.checkCompatibility(enchantment) && enchantment != Enchantments.PIERCING && enchantment != Enchantments.RICOCHET;
    }
 }

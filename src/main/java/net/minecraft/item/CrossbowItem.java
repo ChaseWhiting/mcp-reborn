@@ -339,9 +339,14 @@ public class CrossbowItem extends ShootableItem implements IVanishable {
       return getChargeDuration(p_77626_1_) + 3;
    }
 
-   public static int getChargeDuration(ItemStack p_220026_0_) {
-      int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.QUICK_CHARGE, p_220026_0_);
-      return i == 0 ? 25 : 25 - 5 * i;
+   public static int getChargeDuration(ItemStack crossbow) {
+      if(crossbow.getItem() == Items.GILDED_CROSSBOW) {
+         return GildedCrossbowItem.getChargeDuration(crossbow);
+      } else if (crossbow.getItem() instanceof AbstractCrossbowItem) {
+         return AbstractCrossbowItem.getChargeDuration(crossbow);
+      }
+      int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.QUICK_CHARGE, crossbow);
+      return i == 0 ? 30 : 30 - 5 * i;
    }
 
    public UseAction getUseAnimation(ItemStack p_77661_1_) {
@@ -391,8 +396,8 @@ public class CrossbowItem extends ShootableItem implements IVanishable {
       }
    }
 
-   private static float getShootingPower(ItemStack p_220013_0_) {
-      return p_220013_0_.getItem() == Items.CROSSBOW && containsChargedProjectile(p_220013_0_, Items.FIREWORK_ROCKET) ? 1.6F : 3.15F;
+   private static float getShootingPower(ItemStack crossbow) {
+      return crossbow.getItem() == Items.CROSSBOW && containsChargedProjectile(crossbow, Items.FIREWORK_ROCKET) ? 1.6F : 3.15F;
    }
 
    public int getDefaultProjectileRange() {

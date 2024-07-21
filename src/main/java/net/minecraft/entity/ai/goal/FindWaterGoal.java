@@ -1,14 +1,14 @@
 package net.minecraft.entity.ai.goal;
 
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
 public class FindWaterGoal extends Goal {
-   private final CreatureEntity mob;
+   private final Creature mob;
 
-   public FindWaterGoal(CreatureEntity p_i48936_1_) {
+   public FindWaterGoal(Creature p_i48936_1_) {
       this.mob = p_i48936_1_;
    }
 

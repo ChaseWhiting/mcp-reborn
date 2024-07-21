@@ -3,12 +3,12 @@ package net.minecraft.entity.ai.goal;
 import java.util.EnumSet;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.Items;
 
-public class RangedBowAttackGoal<T extends MonsterEntity & IRangedAttackMob> extends Goal {
+public class RangedBowAttackGoal<T extends Monster & IRangedAttackMob> extends Goal {
    private final T mob;
    private final double speedModifier;
    private int attackIntervalMin;

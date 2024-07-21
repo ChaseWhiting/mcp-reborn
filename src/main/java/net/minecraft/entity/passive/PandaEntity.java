@@ -15,7 +15,7 @@ import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -32,7 +32,7 @@ import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
@@ -62,7 +62,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class PandaEntity extends AnimalEntity {
+public class PandaEntity extends Animal {
    private static final DataParameter<Integer> UNHAPPY_COUNTER = EntityDataManager.defineId(PandaEntity.class, DataSerializers.INT);
    private static final DataParameter<Integer> SNEEZE_COUNTER = EntityDataManager.defineId(PandaEntity.class, DataSerializers.INT);
    private static final DataParameter<Integer> EAT_COUNTER = EntityDataManager.defineId(PandaEntity.class, DataSerializers.INT);
@@ -96,7 +96,7 @@ public class PandaEntity extends AnimalEntity {
    }
 
    public boolean canTakeItem(ItemStack p_213365_1_) {
-      EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(p_213365_1_);
+      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(p_213365_1_);
       if (!this.getItemBySlot(equipmentslottype).isEmpty()) {
          return false;
       } else {
@@ -250,7 +250,7 @@ public class PandaEntity extends AnimalEntity {
       this.goalSelector.addGoal(3, new PandaEntity.AttackGoal(this, (double)1.2F, true));
       this.goalSelector.addGoal(4, new TemptGoal(this, 1.0D, Ingredient.of(Blocks.BAMBOO.asItem()), false));
       this.goalSelector.addGoal(6, new PandaEntity.AvoidGoal<>(this, PlayerEntity.class, 8.0F, 2.0D, 2.0D));
-      this.goalSelector.addGoal(6, new PandaEntity.AvoidGoal<>(this, MonsterEntity.class, 4.0F, 2.0D, 2.0D));
+      this.goalSelector.addGoal(6, new PandaEntity.AvoidGoal<>(this, Monster.class, 4.0F, 2.0D, 2.0D));
       this.goalSelector.addGoal(7, new PandaEntity.SitGoal());
       this.goalSelector.addGoal(8, new PandaEntity.LieBackGoal(this));
       this.goalSelector.addGoal(8, new PandaEntity.ChildPlayGoal(this));
@@ -264,7 +264,7 @@ public class PandaEntity extends AnimalEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.15F).add(Attributes.ATTACK_DAMAGE, 6.0D);
+      return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.15F).add(Attributes.ATTACK_DAMAGE, 6.0D);
    }
 
    public PandaEntity.Gene getVariant() {
@@ -926,7 +926,7 @@ public class PandaEntity extends AnimalEntity {
          }
       }
 
-      protected void alertOther(MobEntity p_220793_1_, LivingEntity p_220793_2_) {
+      protected void alertOther(Mob p_220793_1_, LivingEntity p_220793_2_) {
          if (p_220793_1_ instanceof PandaEntity && ((PandaEntity)p_220793_1_).isAggressive()) {
             p_220793_1_.setTarget(p_220793_2_);
          }

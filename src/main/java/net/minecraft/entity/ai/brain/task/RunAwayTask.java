@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.brain.task;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.function.Function;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 
-public class RunAwayTask<T> extends Task<CreatureEntity> {
+public class RunAwayTask<T> extends Task<Creature> {
    private final MemoryModuleType<T> walkAwayFromMemory;
    private final float speedModifier;
    private final int desiredDistance;
@@ -34,15 +34,15 @@ public class RunAwayTask<T> extends Task<CreatureEntity> {
       return new RunAwayTask<>(p_233965_0_, p_233965_1_, p_233965_2_, p_233965_3_, Entity::position);
    }
 
-   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, CreatureEntity p_212832_2_) {
+   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, Creature p_212832_2_) {
       return this.alreadyWalkingAwayFromPosWithSameSpeed(p_212832_2_) ? false : p_212832_2_.position().closerThan(this.getPosToAvoid(p_212832_2_), (double)this.desiredDistance);
    }
 
-   private Vector3d getPosToAvoid(CreatureEntity p_233961_1_) {
+   private Vector3d getPosToAvoid(Creature p_233961_1_) {
       return this.toPosition.apply(p_233961_1_.getBrain().getMemory(this.walkAwayFromMemory).get());
    }
 
-   private boolean alreadyWalkingAwayFromPosWithSameSpeed(CreatureEntity p_233964_1_) {
+   private boolean alreadyWalkingAwayFromPosWithSameSpeed(Creature p_233964_1_) {
       if (!p_233964_1_.getBrain().hasMemoryValue(MemoryModuleType.WALK_TARGET)) {
          return false;
       } else {
@@ -57,11 +57,11 @@ public class RunAwayTask<T> extends Task<CreatureEntity> {
       }
    }
 
-   protected void start(ServerWorld p_212831_1_, CreatureEntity p_212831_2_, long p_212831_3_) {
+   protected void start(ServerWorld p_212831_1_, Creature p_212831_2_, long p_212831_3_) {
       moveAwayFrom(p_212831_2_, this.getPosToAvoid(p_212831_2_), this.speedModifier);
    }
 
-   private static void moveAwayFrom(CreatureEntity p_233962_0_, Vector3d p_233962_1_, float p_233962_2_) {
+   private static void moveAwayFrom(Creature p_233962_0_, Vector3d p_233962_1_, float p_233962_2_) {
       for(int i = 0; i < 10; ++i) {
          Vector3d vector3d = RandomPositionGenerator.getLandPosAvoid(p_233962_0_, 16, 7, p_233962_1_);
          if (vector3d != null) {

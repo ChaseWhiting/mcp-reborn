@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -83,9 +83,9 @@ public class LeashKnotEntity extends HangingEntity {
       } else {
          boolean flag = false;
          double d0 = 7.0D;
-         List<MobEntity> list = this.level.getEntitiesOfClass(MobEntity.class, new AxisAlignedBB(this.getX() - 7.0D, this.getY() - 7.0D, this.getZ() - 7.0D, this.getX() + 7.0D, this.getY() + 7.0D, this.getZ() + 7.0D));
+         List<Mob> list = this.level.getEntitiesOfClass(Mob.class, new AxisAlignedBB(this.getX() - 7.0D, this.getY() - 7.0D, this.getZ() - 7.0D, this.getX() + 7.0D, this.getY() + 7.0D, this.getZ() + 7.0D));
 
-         for(MobEntity mobentity : list) {
+         for(Mob mobentity : list) {
             if (mobentity.getLeashHolder() == p_184230_1_) {
                mobentity.setLeashedTo(this, true);
                flag = true;
@@ -95,7 +95,7 @@ public class LeashKnotEntity extends HangingEntity {
          if (!flag) {
             this.remove();
             if (p_184230_1_.abilities.instabuild) {
-               for(MobEntity mobentity1 : list) {
+               for(Mob mobentity1 : list) {
                   if (mobentity1.isLeashed() && mobentity1.getLeashHolder() == this) {
                      mobentity1.dropLeash(true, false);
                   }

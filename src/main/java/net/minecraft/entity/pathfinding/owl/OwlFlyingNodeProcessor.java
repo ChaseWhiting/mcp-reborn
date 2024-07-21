@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.pathfinding.FlaggedPathPoint;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.pathfinding.PathPoint;
@@ -21,7 +21,7 @@ import net.minecraft.world.Region;
 public class OwlFlyingNodeProcessor extends WalkNodeProcessor {
 
     @Override
-    public void prepare(Region region, MobEntity mob) {
+    public void prepare(Region region, Mob mob) {
         super.prepare(region, mob);
         this.oldWaterCost = mob.getPathfindingMalus(PathNodeType.WATER);
     }
@@ -156,7 +156,7 @@ public class OwlFlyingNodeProcessor extends WalkNodeProcessor {
     }
 
     @Override
-    public PathNodeType getBlockPathType(IBlockReader blockReader, int x, int y, int z, MobEntity mob, int xSize, int ySize, int zSize, boolean canOpenDoors, boolean canPassDoors) {
+    public PathNodeType getBlockPathType(IBlockReader blockReader, int x, int y, int z, Mob mob, int xSize, int ySize, int zSize, boolean canOpenDoors, boolean canPassDoors) {
         EnumSet<PathNodeType> enumset = EnumSet.noneOf(PathNodeType.class);
         PathNodeType pathnodetype = PathNodeType.BLOCKED;
         BlockPos blockpos = mob.blockPosition();
@@ -211,11 +211,11 @@ public class OwlFlyingNodeProcessor extends WalkNodeProcessor {
         return pathnodetype;
     }
 
-    private PathNodeType getBlockPathType(MobEntity mob, BlockPos pos) {
+    private PathNodeType getBlockPathType(Mob mob, BlockPos pos) {
         return this.getBlockPathType(mob, pos.getX(), pos.getY(), pos.getZ());
     }
 
-    private PathNodeType getBlockPathType(MobEntity mob, int x, int y, int z) {
+    private PathNodeType getBlockPathType(Mob mob, int x, int y, int z) {
         return this.getBlockPathType(this.level, x, y, z, mob, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors());
     }
 }

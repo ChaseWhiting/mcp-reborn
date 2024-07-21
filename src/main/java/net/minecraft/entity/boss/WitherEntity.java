@@ -15,7 +15,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IChargeableMob;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.Goal;
@@ -26,7 +26,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
@@ -60,7 +60,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
         value = Dist.CLIENT,
         _interface = IChargeableMob.class
 )
-public class WitherEntity extends MonsterEntity implements IChargeableMob, IRangedAttackMob {
+public class WitherEntity extends Monster implements IChargeableMob, IRangedAttackMob {
     private static final DataParameter<Integer> DATA_TARGET_A = EntityDataManager.defineId(WitherEntity.class, DataSerializers.INT);
     private static final DataParameter<Integer> DATA_TARGET_B = EntityDataManager.defineId(WitherEntity.class, DataSerializers.INT);
     private static final DataParameter<Integer> DATA_TARGET_C = EntityDataManager.defineId(WitherEntity.class, DataSerializers.INT);
@@ -94,7 +94,7 @@ public class WitherEntity extends MonsterEntity implements IChargeableMob, IRang
         this.goalSelector.addGoal(6, new LookAtGoal(this, PlayerEntity.class, 8.0F));
         this.goalSelector.addGoal(7, new LookRandomlyGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, MobEntity.class, 0, false, false, LIVING_ENTITY_SELECTOR));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Mob.class, 0, false, false, LIVING_ENTITY_SELECTOR));
     }
 
     protected void defineSynchedData() {
@@ -477,7 +477,7 @@ public class WitherEntity extends MonsterEntity implements IChargeableMob, IRang
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 300.0D).add(Attributes.MOVEMENT_SPEED, (double) 0.6F).add(Attributes.FOLLOW_RANGE, 40.0D).add(Attributes.ARMOR, 4.0D);
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 300.0D).add(Attributes.MOVEMENT_SPEED, (double) 0.6F).add(Attributes.FOLLOW_RANGE, 40.0D).add(Attributes.ARMOR, 4.0D);
     }
 
     @OnlyIn(Dist.CLIENT)

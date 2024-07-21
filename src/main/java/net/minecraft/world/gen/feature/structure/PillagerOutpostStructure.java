@@ -13,7 +13,10 @@ import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
 
 public class PillagerOutpostStructure extends JigsawStructure {
-   private static final List<MobSpawnInfo.Spawners> OUTPOST_ENEMIES = ImmutableList.of(new MobSpawnInfo.Spawners(EntityType.PILLAGER, 1, 1, 1));
+   private static final List<MobSpawnInfo.Spawners> OUTPOST_ENEMIES = ImmutableList.of(
+           new MobSpawnInfo.Spawners(EntityType.PILLAGER, 10, 1, 1),
+           new MobSpawnInfo.Spawners(EntityType.PILLAGER_CAPTAIN, 2, 1, 1)
+   );
 
    public PillagerOutpostStructure(Codec<VillageConfig> p_i231977_1_) {
       super(p_i231977_1_, 0, true, true);
@@ -23,17 +26,26 @@ public class PillagerOutpostStructure extends JigsawStructure {
       return OUTPOST_ENEMIES;
    }
 
-   protected boolean isFeatureChunk(ChunkGenerator p_230363_1_, BiomeProvider p_230363_2_, long p_230363_3_, SharedSeedRandom p_230363_5_, int p_230363_6_, int p_230363_7_, Biome p_230363_8_, ChunkPos p_230363_9_, VillageConfig p_230363_10_) {
-      int i = p_230363_6_ >> 4;
-      int j = p_230363_7_ >> 4;
-      p_230363_5_.setSeed((long)(i ^ j << 4) ^ p_230363_3_);
-      p_230363_5_.nextInt();
-      if (p_230363_5_.nextInt(5) != 0) {
+   protected boolean isFeatureChunk(ChunkGenerator chunkGenerator, BiomeProvider biomeProvider, long worldSeed, SharedSeedRandom random, int x, int z, Biome biome, ChunkPos chunkPos, VillageConfig villageConfig) {
+      // Calculate the chunk coordinates
+      int chunkX = x >> 4;
+      int chunkZ = z >> 4;
+
+      // Set the seed for the random number generator
+      random.setSeed((long)(chunkX ^ (chunkZ << 4)) ^ worldSeed);
+
+      // Advance the random number generator's internal state
+      random.nextInt();
+
+      // Check if the next random number is divisible by 5
+      if (random.nextInt(5) != 0) {
          return false;
       } else {
-         return !this.isNearVillage(p_230363_1_, p_230363_3_, p_230363_5_, p_230363_6_, p_230363_7_);
+         // Check if the feature (e.g., village) is near another village
+         return !this.isNearVillage(chunkGenerator, worldSeed, random, x, z);
       }
    }
+
 
    private boolean isNearVillage(ChunkGenerator p_242782_1_, long p_242782_2_, SharedSeedRandom p_242782_4_, int p_242782_5_, int p_242782_6_) {
       StructureSeparationSettings structureseparationsettings = p_242782_1_.getSettings().getConfig(Structure.VILLAGE);

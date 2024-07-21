@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.brain.task;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.memory.WalkTarget;
@@ -13,7 +13,7 @@ import net.minecraft.world.server.ServerWorld;
 
 import java.util.List;
 
-public class AttackStrafingTask<E extends MobEntity> extends Task<E> {
+public class AttackStrafingTask<E extends Mob> extends Task<E> {
    private final int tooCloseDistance;
    private final int shootingRangeDistance;
    private final float strafeSpeed;
@@ -67,8 +67,8 @@ public class AttackStrafingTask<E extends MobEntity> extends Task<E> {
    }
 
    private float determineStrafeDirection(E entity) {
-      List<MobEntity> nearbyMobs = entity.level.getEntitiesOfClass(MobEntity.class, entity.getBoundingBox().inflate(this.mobCloseDistance));
-      for (MobEntity mob : nearbyMobs) {
+      List<Mob> nearbyMobs = entity.level.getEntitiesOfClass(Mob.class, entity.getBoundingBox().inflate(this.mobCloseDistance));
+      for (Mob mob : nearbyMobs) {
          if (mob != entity && mob instanceof AbstractPiglinEntity) {
             // Determine strafe direction to avoid the nearby mob
             double deltaX = mob.getX() - entity.getX();

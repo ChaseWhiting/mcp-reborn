@@ -1,13 +1,13 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class MoveTowardsTargetGoal extends Goal {
-   private final CreatureEntity mob;
+   private final Creature mob;
    private LivingEntity target;
    private double wantedX;
    private double wantedY;
@@ -15,7 +15,7 @@ public class MoveTowardsTargetGoal extends Goal {
    private final double speedModifier;
    private final float within;
 
-   public MoveTowardsTargetGoal(CreatureEntity p_i1640_1_, double p_i1640_2_, float p_i1640_4_) {
+   public MoveTowardsTargetGoal(Creature p_i1640_1_, double p_i1640_2_, float p_i1640_4_) {
       this.mob = p_i1640_1_;
       this.speedModifier = p_i1640_2_;
       this.within = p_i1640_4_;

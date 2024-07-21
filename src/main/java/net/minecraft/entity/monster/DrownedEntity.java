@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.IRangedAttackMob;
@@ -293,14 +293,14 @@ public class DrownedEntity extends ZombieEntity implements IRangedAttackMob {
    }
 
    static class GoToWaterGoal extends Goal {
-      private final CreatureEntity mob;
+      private final Creature mob;
       private double wantedX;
       private double wantedY;
       private double wantedZ;
       private final double speedModifier;
       private final World level;
 
-      public GoToWaterGoal(CreatureEntity p_i48910_1_, double p_i48910_2_) {
+      public GoToWaterGoal(Creature p_i48910_1_, double p_i48910_2_) {
          this.mob = p_i48910_1_;
          this.speedModifier = p_i48910_2_;
          this.level = p_i48910_1_.level;

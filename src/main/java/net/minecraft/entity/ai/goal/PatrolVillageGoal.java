@@ -3,7 +3,7 @@ package net.minecraft.entity.ai.goal;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
@@ -15,7 +15,7 @@ import net.minecraft.village.PointOfInterestManager;
 import net.minecraft.world.server.ServerWorld;
 
 public class PatrolVillageGoal extends RandomWalkingGoal {
-   public PatrolVillageGoal(CreatureEntity p_i231547_1_, double p_i231547_2_) {
+   public PatrolVillageGoal(Creature p_i231547_1_, double p_i231547_2_) {
       super(p_i231547_1_, p_i231547_2_, 240, false);
    }
 

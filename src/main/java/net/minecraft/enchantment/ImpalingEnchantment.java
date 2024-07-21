@@ -1,6 +1,8 @@
 package net.minecraft.enchantment;
 
 import net.minecraft.entity.CreatureAttribute;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 
 public class ImpalingEnchantment extends Enchantment {

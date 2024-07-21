@@ -3,6 +3,7 @@ package net.minecraft.world.raid;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.monster.AbstractRaiderEntity;
+import net.minecraft.entity.monster.PatrollerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -75,7 +77,7 @@ public class Raid {
    private int raidCooldownTicks;
    private final Random random = new Random();
    private final int numGroups;
-   private Raid.Status status;
+   public Raid.Status status;
    private int celebrationTicks;
    private Optional<BlockPos> waveSpawnPos = Optional.empty();
 
@@ -195,6 +197,15 @@ public class Raid {
       }
 
       p_221309_1_.removeEffect(Effects.BAD_OMEN);
+   }
+
+   public void absorbBadOmen(PatrollerEntity patrollerEntity) {
+      if (patrollerEntity.hasEffect(Effects.BAD_OMEN)) {
+         this.badOmenLevel += patrollerEntity.getEffect(Effects.BAD_OMEN).getAmplifier() + 1;
+         this.badOmenLevel = MathHelper.clamp(this.badOmenLevel, 0, this.getMaxBadOmenLevel());
+      }
+
+      patrollerEntity.removeEffect(Effects.BAD_OMEN);
    }
 
    public void stop() {
@@ -464,6 +475,7 @@ public class Raid {
          int numSpawns = this.getDefaultNumSpawns(waveMember, nextGroupIndex, shouldSpawnBonus)
                  + this.getPotentialBonusSpawns(waveMember, this.random, nextGroupIndex, currentDifficulty, shouldSpawnBonus);
          int ravagerSpawnCount = 0;
+         int gildedRavagerSpawnCount = 0;
 
          for(int spawnIndex = 0; spawnIndex < numSpawns; ++spawnIndex) {
             AbstractRaiderEntity raider = waveMember.entityType.create(this.level);
@@ -477,16 +489,35 @@ public class Raid {
             if (waveMember.entityType == EntityType.RAVAGER) {
                AbstractRaiderEntity rider = null;
                if (nextGroupIndex == this.getNumGroups(Difficulty.NORMAL)) {
-                  rider = EntityType.PILLAGER.create(this.level);
+                  rider = random.nextFloat() < 0.7F ? EntityType.PILLAGER_CAPTAIN.create(this.level) : EntityType.PILLAGER.create(this.level);
                } else if (nextGroupIndex >= this.getNumGroups(Difficulty.HARD)) {
                   if (ravagerSpawnCount == 0) {
-                     rider = EntityType.EVOKER.create(this.level);
+                     rider = random.nextBoolean() ? EntityType.EVOKER.create(this.level) : new SecureRandom().nextBoolean() ? EntityType.SHAMAN.create(this.level) : EntityType.ILLUSIONER.create(this.level);
                   } else {
-                     rider = EntityType.VINDICATOR.create(this.level);
+                     rider = random.nextBoolean() ? EntityType.VINDICATOR.create(this.level) : EntityType.MARAUDER.create(this.level);
                   }
                }
 
                ++ravagerSpawnCount;
+               if (rider != null) {
+                  this.joinRaid(nextGroupIndex, rider, spawnPosition, false);
+                  rider.moveTo(spawnPosition, 0.0F, 0.0F);
+                  rider.startRiding(raider);
+               }
+            } else if (waveMember.entityType == EntityType.GILDED_RAVAGER) {
+               AbstractRaiderEntity rider = null;
+               if (nextGroupIndex == this.getNumGroups(Difficulty.NORMAL)) {
+                  rider = EntityType.PILLAGER_CAPTAIN.create(this.level);
+               } else if (nextGroupIndex >= this.getNumGroups(Difficulty.HARD)) {
+                  if (gildedRavagerSpawnCount == 0) {
+                     rider = EntityType.ILLUSIONER.create(this.level);
+                  } else {
+                     rider = EntityType.MARAUDER.create(this.level);
+                  }
+               }
+
+
+               ++gildedRavagerSpawnCount;
                if (rider != null) {
                   this.joinRaid(nextGroupIndex, rider, spawnPosition, false);
                   rider.moveTo(spawnPosition, 0.0F, 0.0F);
@@ -603,10 +634,9 @@ public class Raid {
       return null;
    }
 
-   private boolean addWaveMob(int p_221287_1_, AbstractRaiderEntity p_221287_2_) {
+   public boolean addWaveMob(int p_221287_1_, AbstractRaiderEntity p_221287_2_) {
       return this.addWaveMob(p_221287_1_, p_221287_2_, true);
    }
-
    public boolean addWaveMob(int p_221300_1_, AbstractRaiderEntity p_221300_2_, boolean p_221300_3_) {
       this.groupRaiderMap.computeIfAbsent(p_221300_1_, (p_221323_0_) -> {
          return Sets.newHashSet();
@@ -687,7 +717,15 @@ public class Raid {
          case RAVAGER:
             potentialSpawns = !isEasyDifficulty && specialCondition ? 1 : 0;
             break;
-         default:
+         case GILDED_RAVAGER:
+            potentialSpawns = !isEasyDifficulty && specialCondition ? 2 : 0;
+            break;
+         case ILLUSIONER:
+            potentialSpawns = randomGenerator.nextInt(2);
+            break;
+         case SHAMAN:
+
+            default:
             return 0;
       }
 
@@ -753,7 +791,7 @@ public class Raid {
       this.heroesOfTheVillage.add(p_221311_1_.getUUID());
    }
 
-   static enum Status {
+   public static enum Status {
       ONGOING,
       VICTORY,
       LOSS,
@@ -776,12 +814,17 @@ public class Raid {
       }
    }
 
-   static enum WaveMember {
+   public static enum WaveMember {
       VINDICATOR(EntityType.VINDICATOR, new int[]{0, 0, 2, 0, 1, 4, 2, 5}),
       EVOKER(EntityType.EVOKER, new int[]{0, 0, 0, 0, 0, 1, 1, 2}),
-      PILLAGER(EntityType.PILLAGER, new int[]{0, 4, 3, 3, 4, 4, 4, 2}),
+      PILLAGER(EntityType.PILLAGER, new int[]{0, 4, 3, 3, 3, 4, 4, 2}),
       WITCH(EntityType.WITCH, new int[]{0, 0, 0, 0, 3, 0, 0, 1}),
-      RAVAGER(EntityType.RAVAGER, new int[]{0, 0, 0, 1, 0, 1, 0, 2});
+      RAVAGER(EntityType.RAVAGER, new int[]{0, 0, 1, 0, 0, 2, 1, 1}),
+      GILDED_RAVAGER(EntityType.GILDED_RAVAGER, new int[]{0, 0, 1, 2, 0, 0, 2, 3}),
+      ILLUSIONER(EntityType.ILLUSIONER, new int[]{0, 1, 0, 1, 0, 1, 2, 3}),
+      SHAMAN(EntityType.SHAMAN, new int[]{0, 1, 0, 2, 0, 2, 0, 3}),
+      MARAUDER(EntityType.MARAUDER, new int[]{0, 0, 2, 1, 0, 2, 1, 2}),
+      CAPTAIN(EntityType.PILLAGER_CAPTAIN, new int[]{1, 0, 1, 0, 1, 3, 2, 4});
 
       private static final Raid.WaveMember[] VALUES = values();
       private final EntityType<? extends AbstractRaiderEntity> entityType;

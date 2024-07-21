@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -18,7 +18,7 @@ public class WalkAndSwimNodeProcessor extends WalkNodeProcessor {
    private float oldWalkableCost;
    private float oldWaterBorderCost;
 
-   public void prepare(Region p_225578_1_, MobEntity p_225578_2_) {
+   public void prepare(Region p_225578_1_, Mob p_225578_2_) {
       super.prepare(p_225578_1_, p_225578_2_);
       p_225578_2_.setPathfindingMalus(PathNodeType.WATER, 0.0F);
       this.oldWalkableCost = p_225578_2_.getPathfindingMalus(PathNodeType.WALKABLE);

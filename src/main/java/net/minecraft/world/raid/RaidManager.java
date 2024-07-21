@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.entity.monster.AbstractRaiderEntity;
+import net.minecraft.entity.monster.PatrollerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -39,6 +40,10 @@ public class RaidManager extends WorldSavedData {
       this.setDirty();
    }
 
+   public Map<Integer, Raid> getRaidMap() {
+      return raidMap;
+   }
+
    public Raid get(int p_215167_1_) {
       return this.raidMap.get(p_215167_1_);
    }
@@ -47,7 +52,7 @@ public class RaidManager extends WorldSavedData {
       for (Raid raid : this.raidMap.values()) {
          BlockPos center = raid.getCenter();
          double distance = Math.sqrt(center.distSqr(pos));
-         if (distance <= 60) {
+         if (distance <= 100) {
             return raid;
          }
       }
@@ -154,7 +159,61 @@ public class RaidManager extends WorldSavedData {
       }
    }
 
-   private Raid getOrCreateRaid(ServerWorld p_215168_1_, BlockPos p_215168_2_) {
+   @Nullable
+   public Raid createOrExtendRaidForPatroller(PatrollerEntity patroller) {
+      if (patroller.isSpectator()) {
+         return null;
+      } else if (this.level.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
+         return null;
+      } else {
+         DimensionType dimensiontype = patroller.level.dimensionType();
+         if (!dimensiontype.hasRaids()) {
+            return null;
+         } else {
+            BlockPos blockpos = patroller.blockPosition();
+            List<PointOfInterest> list = this.level.getPoiManager().getInRange(PointOfInterestType.ALL, blockpos, 64, PointOfInterestManager.Status.IS_OCCUPIED).collect(Collectors.toList());
+            int i = 0;
+            Vector3d vector3d = Vector3d.ZERO;
+
+            for(PointOfInterest pointofinterest : list) {
+               BlockPos blockpos2 = pointofinterest.getPos();
+               vector3d = vector3d.add((double)blockpos2.getX(), (double)blockpos2.getY(), (double)blockpos2.getZ());
+               ++i;
+            }
+
+            BlockPos blockpos1;
+            if (i > 0) {
+               vector3d = vector3d.scale(1.0D / (double)i);
+               blockpos1 = new BlockPos(vector3d);
+            } else {
+               blockpos1 = blockpos;
+            }
+
+            Raid raid = this.getOrCreateRaid((ServerWorld) patroller.level, blockpos1);
+            boolean flag = false;
+            if (!raid.isStarted()) {
+               if (!this.raidMap.containsKey(raid.getId())) {
+                  this.raidMap.put(raid.getId(), raid);
+               }
+
+               flag = true;
+            } else if (raid.getBadOmenLevel() < raid.getMaxBadOmenLevel()) {
+               flag = true;
+            } else {
+               patroller.removeEffect(Effects.BAD_OMEN);
+            }
+
+            if (flag) {
+               raid.absorbBadOmen(patroller);
+            }
+
+            this.setDirty();
+            return raid;
+         }
+      }
+   }
+
+   public Raid getOrCreateRaid(ServerWorld p_215168_1_, BlockPos p_215168_2_) {
       Raid raid = p_215168_1_.getRaidAt(p_215168_2_);
       return raid != null ? raid : new Raid(this.getUniqueId(), p_215168_1_, p_215168_2_);
    }

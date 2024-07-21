@@ -1,12 +1,12 @@
 package net.minecraft.entity.ai.goal;
 
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 
 public class OpenDoorGoal extends InteractDoorGoal {
    private final boolean closeDoor;
    private int forgetTime;
 
-   public OpenDoorGoal(MobEntity p_i1644_1_, boolean p_i1644_2_) {
+   public OpenDoorGoal(Mob p_i1644_1_, boolean p_i1644_2_) {
       super(p_i1644_1_);
       this.mob = p_i1644_1_;
       this.closeDoor = p_i1644_2_;

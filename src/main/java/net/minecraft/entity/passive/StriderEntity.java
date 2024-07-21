@@ -15,7 +15,7 @@ import net.minecraft.entity.IEquipable;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.IRideable;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -69,7 +69,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class StriderEntity extends AnimalEntity implements IRideable, IEquipable {
+public class StriderEntity extends Animal implements IRideable, IEquipable {
    private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WARPED_FUNGUS);
    private static final Ingredient TEMPT_ITEMS = Ingredient.of(Items.WARPED_FUNGUS, Items.WARPED_FUNGUS_ON_A_STICK);
    private static final DataParameter<Integer> DATA_BOOST_TIME = EntityDataManager.defineId(StriderEntity.class, DataSerializers.INT);
@@ -305,7 +305,7 @@ public class StriderEntity extends AnimalEntity implements IRideable, IEquipable
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.175F).add(Attributes.FOLLOW_RANGE, 16.0D);
+      return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.175F).add(Attributes.FOLLOW_RANGE, 16.0D);
    }
 
    protected SoundEvent getAmbientSound() {
@@ -395,7 +395,7 @@ public class StriderEntity extends AnimalEntity implements IRideable, IEquipable
       } else {
          Object object;
          if (this.random.nextInt(30) == 0) {
-            MobEntity mobentity = EntityType.ZOMBIFIED_PIGLIN.create(p_213386_1_.getLevel());
+            Mob mobentity = EntityType.ZOMBIFIED_PIGLIN.create(p_213386_1_.getLevel());
             object = this.spawnJockey(p_213386_1_, p_213386_2_, mobentity, new ZombieEntity.GroupData(ZombieEntity.getSpawnAsBabyOdds(this.random), false));
             mobentity.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.WARPED_FUNGUS_ON_A_STICK));
             this.equipSaddle((SoundCategory)null);
@@ -411,7 +411,7 @@ public class StriderEntity extends AnimalEntity implements IRideable, IEquipable
       }
    }
 
-   private ILivingEntityData spawnJockey(IServerWorld p_242331_1_, DifficultyInstance p_242331_2_, MobEntity p_242331_3_, @Nullable ILivingEntityData p_242331_4_) {
+   private ILivingEntityData spawnJockey(IServerWorld p_242331_1_, DifficultyInstance p_242331_2_, Mob p_242331_3_, @Nullable ILivingEntityData p_242331_4_) {
       p_242331_3_.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
       p_242331_3_.finalizeSpawn(p_242331_1_, p_242331_2_, SpawnReason.JOCKEY, p_242331_4_, (CompoundNBT)null);
       p_242331_3_.startRiding(this, true);

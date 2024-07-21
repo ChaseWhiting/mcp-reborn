@@ -1,12 +1,12 @@
 package net.minecraft.entity.ai.controller;
 
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 
 public class JumpController {
-   private final MobEntity mob;
+   private final Mob mob;
    protected boolean jump;
 
-   public JumpController(MobEntity p_i1612_1_) {
+   public JumpController(Mob p_i1612_1_) {
       this.mob = p_i1612_1_;
    }
 

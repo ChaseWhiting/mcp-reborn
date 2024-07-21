@@ -13,7 +13,7 @@ import java.util.Set;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.BrainUtil;
@@ -25,11 +25,7 @@ import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.monster.HoglinEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameterSets;
 import net.minecraft.loot.LootParameters;
@@ -317,10 +313,10 @@ public class PiglinTasks {
     }
 
     private static boolean wantsToStopRiding(PiglinEntity p_234467_0_, Entity p_234467_1_) {
-        if (!(p_234467_1_ instanceof MobEntity)) {
+        if (!(p_234467_1_ instanceof Mob)) {
             return false;
         } else {
-            MobEntity mobentity = (MobEntity) p_234467_1_;
+            Mob mobentity = (Mob) p_234467_1_;
             return !mobentity.isBaby() || !mobentity.isAlive() || wasHurtRecently(p_234467_0_) || wasHurtRecently(mobentity) || mobentity instanceof PiglinEntity && mobentity.getVehicle() == null;
         }
     }
@@ -366,7 +362,7 @@ public class PiglinTasks {
                     return optional5;
                 }
 
-                Optional<MobEntity> optional3 = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_NEMESIS);
+                Optional<Mob> optional3 = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_NEMESIS);
                 if (optional3.isPresent()) {
                     return optional3;
                 } else {
@@ -504,6 +500,9 @@ public class PiglinTasks {
     }
 
     public static boolean isWearingGold(LivingEntity p_234460_0_) {
+        if(p_234460_0_.isHolding(Items.GILDED_CROSSBOW)) {
+            return true;
+        }
         for (ItemStack itemstack : p_234460_0_.getArmorSlots()) {
             Item item = itemstack.getItem();
             if (item instanceof ArmorItem && ((ArmorItem) item).getMaterial() == ArmorMaterial.GOLD) {
@@ -660,7 +659,7 @@ public class PiglinTasks {
     }
 
     private static boolean hasCrossbow(LivingEntity p_234494_0_) {
-        return p_234494_0_.isHolding(Items.CROSSBOW);
+        return p_234494_0_.isHolding(Items.CROSSBOW) || p_234494_0_.isHolding(Items.GILDED_CROSSBOW) || AbstractCrossbowItem.isHoldingAbstractCrossbowItem(p_234494_0_);
     }
 
     private static void admireGoldItem(LivingEntity p_234501_0_) {

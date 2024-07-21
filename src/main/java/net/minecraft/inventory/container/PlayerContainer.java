@@ -2,7 +2,7 @@ package net.minecraft.inventory.container;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftResultInventory;
@@ -52,7 +52,7 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
             }
 
             public boolean mayPlace(ItemStack p_75214_1_) {
-               return equipmentslottype == MobEntity.getEquipmentSlotForItem(p_75214_1_);
+               return equipmentslottype == Mob.getEquipmentSlotForItem(p_75214_1_);
             }
 
             public boolean mayPickup(PlayerEntity p_82869_1_) {
@@ -120,7 +120,7 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
       if (slot != null && slot.hasItem()) {
          ItemStack itemstack1 = slot.getItem();
          itemstack = itemstack1.copy();
-         EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(itemstack);
+         EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
          if (p_82846_2_ == 0) {
             if (!this.moveItemStackTo(itemstack1, 9, 45, true)) {
                return ItemStack.EMPTY;

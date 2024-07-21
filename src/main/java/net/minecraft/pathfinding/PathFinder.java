@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Region;
 
@@ -27,7 +27,7 @@ public class PathFinder {
    }
 
    @Nullable
-   public Path findPath(Region p_227478_1_, MobEntity p_227478_2_, Set<BlockPos> p_227478_3_, float p_227478_4_, int p_227478_5_, float p_227478_6_) {
+   public Path findPath(Region p_227478_1_, Mob p_227478_2_, Set<BlockPos> p_227478_3_, float p_227478_4_, int p_227478_5_, float p_227478_6_) {
       this.openSet.clear();
       this.nodeEvaluator.prepare(p_227478_1_, p_227478_2_);
       PathPoint pathpoint = this.nodeEvaluator.getStart();

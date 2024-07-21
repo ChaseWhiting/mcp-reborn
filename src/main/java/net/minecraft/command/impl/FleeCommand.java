@@ -6,7 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
@@ -14,7 +14,6 @@ import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FleeCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
@@ -39,7 +38,7 @@ public class FleeCommand {
         try {
             BlockPos pos = source.getEntityOrException().blockPosition();
             AxisAlignedBB axisAlignedBB = new AxisAlignedBB(pos).inflate(radius);
-            List<MobEntity> mobs = world.getEntitiesOfClass(MobEntity.class, axisAlignedBB);
+            List<Mob> mobs = world.getEntitiesOfClass(Mob.class, axisAlignedBB);
             if (!mobs.isEmpty()) {
                 if (mobs.size() > 100) {
                     limitFlee(mobs, source, speed, radius);
@@ -57,10 +56,10 @@ public class FleeCommand {
         return 1;
     }
 
-    private static int flee(List<MobEntity> mobs, CommandSource source, float speed, int radius) {
+    private static int flee(List<Mob> mobs, CommandSource source, float speed, int radius) {
         ServerWorld world = source.getLevel();
         int count = 0;
-        for (MobEntity mob : mobs) {
+        for (Mob mob : mobs) {
             ++count;
             double X = mob.getRandomX(40D);
             double Z = mob.getRandomZ(40D);
@@ -71,7 +70,7 @@ public class FleeCommand {
         return 1;
     }
 
-    private static int limitFlee(List<MobEntity> mobs, CommandSource source, float speed, int radius) {
+    private static int limitFlee(List<Mob> mobs, CommandSource source, float speed, int radius) {
         while (mobs.size() > 100) {
             mobs.remove(0);
         }

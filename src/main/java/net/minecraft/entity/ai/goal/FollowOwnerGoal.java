@@ -25,16 +25,16 @@ public class FollowOwnerGoal extends Goal {
    private float oldWaterCost;
    private final boolean canFly;
 
-   public FollowOwnerGoal(TameableEntity p_i225711_1_, double p_i225711_2_, float p_i225711_4_, float p_i225711_5_, boolean p_i225711_6_) {
-      this.tamable = p_i225711_1_;
-      this.level = p_i225711_1_.level;
-      this.speedModifier = p_i225711_2_;
-      this.navigation = p_i225711_1_.getNavigation();
-      this.startDistance = p_i225711_4_;
-      this.stopDistance = p_i225711_5_;
-      this.canFly = p_i225711_6_;
+   public FollowOwnerGoal(TameableEntity tameableEntity, double speed, float startDistance, float stopDistance, boolean canFly) {
+      this.tamable = tameableEntity;
+      this.level = tameableEntity.level;
+      this.speedModifier = speed;
+      this.navigation = tameableEntity.getNavigation();
+      this.startDistance = startDistance;
+      this.stopDistance = stopDistance;
+      this.canFly = canFly;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
-      if (!(p_i225711_1_.getNavigation() instanceof GroundPathNavigator) && !(p_i225711_1_.getNavigation() instanceof FlyingPathNavigator)) {
+      if (!(tameableEntity.getNavigation() instanceof GroundPathNavigator) && !(tameableEntity.getNavigation() instanceof FlyingPathNavigator)) {
          throw new IllegalArgumentException("Unsupported mob type for FollowOwnerGoal");
       }
    }

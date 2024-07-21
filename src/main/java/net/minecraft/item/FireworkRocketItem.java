@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -93,6 +94,12 @@ public class FireworkRocketItem extends Item {
       BURST(4, "burst"),
       SQUARE(5, "square"),
       CROSS(6, "cross");
+
+      public static FireworkRocketItem.Shape getRandomShape() {
+         FireworkRocketItem.Shape[] shapes = FireworkRocketItem.Shape.values();
+         int randomIndex = new Random().nextInt(shapes.length);
+         return shapes[randomIndex];
+      }
 
       private static final FireworkRocketItem.Shape[] BY_ID = Arrays.stream(values()).sorted(Comparator.comparingInt((p_199796_0_) -> {
          return p_199796_0_.id;

@@ -5,11 +5,9 @@ import com.mojang.serialization.Dynamic;
 
 import javax.annotation.Nullable;
 
-import groovy.lang.Script;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.main.GroovyScriptLoader;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -20,13 +18,12 @@ import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
-import net.minecraft.loot.functions.EnchantRandomly;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -46,7 +43,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbowUser {
@@ -69,12 +65,12 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
         RANDOM_CROSSBOW_ENCHANT.put(Enchantments.UNBREAKING, random.nextInt(2 + 1));
     }
 
-    private ItemStack storedCrossbow = new ItemStack(Items.CROSSBOW);
+    private ItemStack storedCrossbow = new ItemStack(Items.GILDED_CROSSBOW);
 
     private ItemStack storedAxe = new ItemStack(Items.GOLDEN_AXE);
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 50.0D).add(Attributes.MOVEMENT_SPEED, (double) 0.35F).add(Attributes.ATTACK_DAMAGE, 7.0D).add(Attributes.FOLLOW_RANGE, 16D);
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 50.0D).add(Attributes.MOVEMENT_SPEED, (double) 0.35F).add(Attributes.ATTACK_DAMAGE, 7.0D).add(Attributes.FOLLOW_RANGE, 16D);
     }
 
     @Override
@@ -105,6 +101,7 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
 
             storedCrossbow.enchant(enchantment, enchantmentLevel);
         }
+        this.setDropChance(EquipmentSlotType.MAINHAND, 0.02F);
         return super.finalizeSpawn(world, difficultyInstance, spawnReason, iLivingEntityData, compoundNBT);
     }
 
@@ -149,7 +146,7 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
                 this.storedAxe = this.getItemBySlot(EquipmentSlotType.MAINHAND).copy();
             }
             if (this.storedCrossbow == null) {
-                this.storedCrossbow = new ItemStack(Items.CROSSBOW);
+                this.storedCrossbow = new ItemStack(Items.GILDED_CROSSBOW);
             }
             this.setItemSlot(EquipmentSlotType.MAINHAND, this.storedCrossbow);
         }
@@ -227,7 +224,7 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
         } else if (this.isChargingCrossbow()) {
             return PiglinAction.CROSSBOW_CHARGE;
         } else {
-            return this.isAggressive() && this.isHolding(Items.CROSSBOW) ? PiglinAction.CROSSBOW_HOLD : PiglinAction.DEFAULT;
+            return this.isAggressive() && this.isHolding(Items.CROSSBOW) || this.isAggressive() && this.isHolding(Items.GILDED_CROSSBOW) ? PiglinAction.CROSSBOW_HOLD : PiglinAction.DEFAULT;
         }
     }
 
@@ -310,10 +307,21 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
     }
 
     public void performCrossbowAttack(LivingEntity target, float velocity) {
-        Hand hand = ProjectileHelper.getWeaponHoldingHand(this, Items.CROSSBOW);
-        ItemStack itemstack = this.getItemInHand(hand);
+        Hand hand;
+        ItemStack itemstack;
+
         if (this.isHolding(Items.CROSSBOW)) {
+            hand = ProjectileHelper.getWeaponHoldingHand(this, Items.CROSSBOW);
+            itemstack = this.getItemInHand(hand);
             CrossbowItem.performShooting(this.level, this, hand, itemstack, velocity, (float) (14 - this.level.getDifficulty().getId() * 4));
+        } else if (this.isHolding(Items.GILDED_CROSSBOW)) {
+            hand = ProjectileHelper.getWeaponHoldingHand(this, Items.GILDED_CROSSBOW);
+            itemstack = this.getItemInHand(hand);
+            GildedCrossbowItem.performShooting(this.level, this, hand, itemstack, velocity, (float) (14 - this.level.getDifficulty().getId() * 4));
+        } else if (AbstractCrossbowItem.isHoldingAbstractCrossbowItem(this)) {
+            hand = AbstractCrossbowItem.getHandHoldingAbstractCrossbowItem(this);
+            itemstack = this.getItemInHand(hand);
+            AbstractCrossbowItem.performShooting(this.level, this, hand, itemstack, velocity, (float) (14 - this.level.getDifficulty().getId() * 4));
         }
 
         this.onCrossbowAttackPerformed();
@@ -321,7 +329,7 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
 
     @Override
     public boolean canFireProjectileWeapon(ShootableItem shootable) {
-        return shootable == Items.CROSSBOW;
+        return shootable == Items.CROSSBOW || shootable == Items.GILDED_CROSSBOW || shootable instanceof AbstractCrossbowItem;
     }
 
     @Override

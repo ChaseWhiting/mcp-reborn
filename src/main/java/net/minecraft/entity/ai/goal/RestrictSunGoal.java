@@ -1,14 +1,14 @@
 package net.minecraft.entity.ai.goal;
 
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.util.GroundPathHelper;
 
 public class RestrictSunGoal extends Goal {
-   private final CreatureEntity mob;
+   private final Creature mob;
 
-   public RestrictSunGoal(CreatureEntity p_i1652_1_) {
+   public RestrictSunGoal(Creature p_i1652_1_) {
       this.mob = p_i1652_1_;
    }
 

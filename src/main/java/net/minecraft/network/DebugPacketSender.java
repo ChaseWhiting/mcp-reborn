@@ -3,14 +3,13 @@ package net.minecraft.network;
 import io.netty.buffer.Unpooled;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.debug.EntityAIDebugRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.schedule.Activity;
@@ -78,7 +77,7 @@ public class DebugPacketSender {
    private static void sendVillageSectionsPacket(ServerWorld p_240840_0_, BlockPos p_240840_1_) {
    }
 
-   public static void sendPathFindingPacket(World p_218803_0_, MobEntity p_218803_1_, @Nullable Path p_218803_2_, float p_218803_3_) {
+   public static void sendPathFindingPacket(World p_218803_0_, Mob p_218803_1_, @Nullable Path p_218803_2_, float p_218803_3_) {
    }
 
    public static void sendNeighborsUpdatePacket(World p_218806_0_, BlockPos p_218806_1_) {
@@ -87,7 +86,7 @@ public class DebugPacketSender {
    public static void sendStructurePacket(ISeedReader p_218804_0_, StructureStart<?> p_218804_1_) {
    }
 
-   public static void sendGoalSelector(World p_218800_0_, MobEntity p_218800_1_, GoalSelector p_218800_2_) {
+   public static void sendGoalSelector(World p_218800_0_, Mob p_218800_1_, GoalSelector p_218800_2_) {
       if (p_218800_0_ instanceof ServerWorld) {
          ;
       }
@@ -311,7 +310,7 @@ public class DebugPacketSender {
         player.connection.send(packet);
     }
 
-    public static void sendPathDebugData(ServerPlayerEntity player, MobEntity mob, Path path, World world) {
+    public static void sendPathDebugData(ServerPlayerEntity player, Mob mob, Path path, World world) {
         PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
         packetBuffer.writeInt(mob.getId());
         System.out.println("Sending mob ID: " + mob.getId());
@@ -376,7 +375,7 @@ public class DebugPacketSender {
     }
 
     // Method to test and use PathCalculation's calculateOptimalNodes method
-    public static void testCalculateOptimalNodes(ServerPlayerEntity player, MobEntity mob, World world, int radius) {
+    public static void testCalculateOptimalNodes(ServerPlayerEntity player, Mob mob, World world, int radius) {
         List<PathPoint> nodes = PathCalculation.calculateOptimalNodes(mob, world, radius);
         Path path = PathCalculation.findPath(mob, mob.blockPosition(), nodes);
         sendPathDebugData(player, mob, path, world);

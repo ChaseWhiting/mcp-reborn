@@ -1,6 +1,6 @@
 package net.minecraft.pathfinding;
 
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.passive.DolphinEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.DebugPacketSender;
@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 public class SwimmerPathNavigator extends PathNavigator {
    private boolean allowBreaching;
 
-   public SwimmerPathNavigator(MobEntity p_i45873_1_, World p_i45873_2_) {
+   public SwimmerPathNavigator(Mob p_i45873_1_, World p_i45873_2_) {
       super(p_i45873_1_, p_i45873_2_);
    }
 

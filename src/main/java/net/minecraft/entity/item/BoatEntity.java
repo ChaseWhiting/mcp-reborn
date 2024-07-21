@@ -12,7 +12,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
@@ -623,7 +623,7 @@ public class BoatEntity extends Entity {
                f = -0.6F;
             }
 
-            if (p_184232_1_ instanceof AnimalEntity) {
+            if (p_184232_1_ instanceof Animal) {
                f = (float)((double)f + 0.2D);
             }
          }
@@ -633,9 +633,9 @@ public class BoatEntity extends Entity {
          p_184232_1_.yRot += this.deltaRotation;
          p_184232_1_.setYHeadRot(p_184232_1_.getYHeadRot() + this.deltaRotation);
          this.clampRotation(p_184232_1_);
-         if (p_184232_1_ instanceof AnimalEntity && this.getPassengers().size() > 1) {
+         if (p_184232_1_ instanceof Animal && this.getPassengers().size() > 1) {
             int j = p_184232_1_.getId() % 2 == 0 ? 90 : 270;
-            p_184232_1_.setYBodyRot(((AnimalEntity)p_184232_1_).yBodyRot + (float)j);
+            p_184232_1_.setYBodyRot(((Animal)p_184232_1_).yBodyRot + (float)j);
             p_184232_1_.setYHeadRot(p_184232_1_.getYHeadRot() + (float)j);
          }
 

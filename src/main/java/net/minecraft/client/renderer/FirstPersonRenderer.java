@@ -11,10 +11,7 @@ import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.FilledMapItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
@@ -208,7 +205,7 @@ public class FirstPersonRenderer {
       boolean flag1 = true;
       if (p_228396_4_.isUsingItem()) {
          ItemStack itemstack = p_228396_4_.getUseItem();
-         if (itemstack.getItem() == Items.BOW || itemstack.getItem() == Items.CROSSBOW || itemstack.getItem() == Items.BONE_BOW) {
+         if (itemstack.getItem() == Items.BOW || itemstack.getItem() == Items.CROSSBOW || itemstack.getItem() == Items.BONE_BOW || itemstack.getItem() == Items.GILDED_CROSSBOW || itemstack.getItem() instanceof AbstractCrossbowItem) {
             flag = p_228396_4_.getUsedItemHand() == Hand.MAIN_HAND;
             flag1 = !flag;
          }
@@ -219,15 +216,21 @@ public class FirstPersonRenderer {
             if (itemstack1.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(itemstack1)) {
                flag1 = false;
             }
+            if(itemstack1.getItem() == Items.GILDED_CROSSBOW && GildedCrossbowItem.isCharged(itemstack1)) {
+               flag1 = false;
+            }
+            if(itemstack1.getItem() instanceof AbstractCrossbowItem && AbstractCrossbowItem.isCharged(itemstack1)) {
+               flag1 = false;
+            }
          }
       } else {
          ItemStack itemstack2 = p_228396_4_.getMainHandItem();
          ItemStack itemstack3 = p_228396_4_.getOffhandItem();
-         if (itemstack2.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(itemstack2)) {
+         if (itemstack2.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(itemstack2) || itemstack2.getItem() == Items.GILDED_CROSSBOW && GildedCrossbowItem.isCharged(itemstack2) || itemstack2.getItem() instanceof AbstractCrossbowItem && AbstractCrossbowItem.isCharged(itemstack2)) {
             flag1 = !flag;
          }
 
-         if (itemstack3.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(itemstack3)) {
+         if (itemstack3.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(itemstack3) || itemstack3.getItem() == Items.GILDED_CROSSBOW && GildedCrossbowItem.isCharged(itemstack3) || itemstack3.getItem() instanceof AbstractCrossbowItem && AbstractCrossbowItem.isCharged(itemstack2)) {
             flag = !itemstack2.isEmpty();
             flag1 = !flag;
          }
@@ -252,22 +255,22 @@ public class FirstPersonRenderer {
       p_228396_3_.endBatch();
    }
 
-   private void renderArmWithItem(AbstractClientPlayerEntity p_228405_1_, float p_228405_2_, float p_228405_3_, Hand p_228405_4_, float p_228405_5_, ItemStack p_228405_6_, float p_228405_7_, MatrixStack p_228405_8_, IRenderTypeBuffer p_228405_9_, int p_228405_10_) {
+   private void renderArmWithItem(AbstractClientPlayerEntity p_228405_1_, float p_228405_2_, float p_228405_3_, Hand p_228405_4_, float p_228405_5_, ItemStack handItem, float p_228405_7_, MatrixStack p_228405_8_, IRenderTypeBuffer p_228405_9_, int p_228405_10_) {
       boolean flag = p_228405_4_ == Hand.MAIN_HAND;
       HandSide handside = flag ? p_228405_1_.getMainArm() : p_228405_1_.getMainArm().getOpposite();
       p_228405_8_.pushPose();
-      if (p_228405_6_.isEmpty()) {
+      if (handItem.isEmpty()) {
          if (flag && !p_228405_1_.isInvisible()) {
             this.renderPlayerArm(p_228405_8_, p_228405_9_, p_228405_10_, p_228405_7_, p_228405_5_, handside);
          }
-      } else if (p_228405_6_.getItem() == Items.FILLED_MAP) {
+      } else if (handItem.getItem() == Items.FILLED_MAP) {
          if (flag && this.offHandItem.isEmpty()) {
             this.renderTwoHandedMap(p_228405_8_, p_228405_9_, p_228405_10_, p_228405_3_, p_228405_7_, p_228405_5_);
          } else {
-            this.renderOneHandedMap(p_228405_8_, p_228405_9_, p_228405_10_, p_228405_7_, handside, p_228405_5_, p_228405_6_);
+            this.renderOneHandedMap(p_228405_8_, p_228405_9_, p_228405_10_, p_228405_7_, handside, p_228405_5_, handItem);
          }
-      } else if (p_228405_6_.getItem() == Items.CROSSBOW) {
-         boolean flag1 = CrossbowItem.isCharged(p_228405_6_);
+      } else if (handItem.getItem() == Items.CROSSBOW) {
+         boolean flag1 = CrossbowItem.isCharged(handItem);
          boolean flag2 = handside == HandSide.RIGHT;
          int i = flag2 ? 1 : -1;
          if (p_228405_1_.isUsingItem() && p_228405_1_.getUseItemRemainingTicks() > 0 && p_228405_1_.getUsedItemHand() == p_228405_4_) {
@@ -276,8 +279,8 @@ public class FirstPersonRenderer {
             p_228405_8_.mulPose(Vector3f.XP.rotationDegrees(-11.935F));
             p_228405_8_.mulPose(Vector3f.YP.rotationDegrees((float)i * 65.3F));
             p_228405_8_.mulPose(Vector3f.ZP.rotationDegrees((float)i * -9.785F));
-            float f9 = (float)p_228405_6_.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - p_228405_2_ + 1.0F);
-            float f13 = f9 / (float)CrossbowItem.getChargeDuration(p_228405_6_);
+            float f9 = (float)handItem.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - p_228405_2_ + 1.0F);
+            float f13 = f9 / (float)CrossbowItem.getChargeDuration(handItem);
             if (f13 > 1.0F) {
                f13 = 1.0F;
             }
@@ -305,18 +308,96 @@ public class FirstPersonRenderer {
             }
          }
 
-         this.renderItem(p_228405_1_, p_228405_6_, flag2 ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !flag2, p_228405_8_, p_228405_9_, p_228405_10_);
-      } else {
+         this.renderItem(p_228405_1_, handItem, flag2 ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !flag2, p_228405_8_, p_228405_9_, p_228405_10_);
+      } else if (handItem.getItem() == Items.GILDED_CROSSBOW) {
+         boolean flag1 = GildedCrossbowItem.isCharged(handItem);
+         boolean flag2 = handside == HandSide.RIGHT;
+         int i = flag2 ? 1 : -1;
+         if (p_228405_1_.isUsingItem() && p_228405_1_.getUseItemRemainingTicks() > 0 && p_228405_1_.getUsedItemHand() == p_228405_4_) {
+            this.applyItemArmTransform(p_228405_8_, handside, p_228405_7_);
+            p_228405_8_.translate((double)((float)i * -0.4785682F), (double)-0.094387F, (double)0.05731531F);
+            p_228405_8_.mulPose(Vector3f.XP.rotationDegrees(-11.935F));
+            p_228405_8_.mulPose(Vector3f.YP.rotationDegrees((float)i * 65.3F));
+            p_228405_8_.mulPose(Vector3f.ZP.rotationDegrees((float)i * -9.785F));
+            float f9 = (float)handItem.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - p_228405_2_ + 1.0F);
+            float f13 = f9 / (float)GildedCrossbowItem.getChargeDuration(handItem);
+            if (f13 > 1.0F) {
+               f13 = 1.0F;
+            }
+
+            if (f13 > 0.1F) {
+               float f16 = MathHelper.sin((f9 - 0.1F) * 1.3F);
+               float f3 = f13 - 0.1F;
+               float f4 = f16 * f3;
+               p_228405_8_.translate((double)(f4 * 0.0F), (double)(f4 * 0.004F), (double)(f4 * 0.0F));
+            }
+
+            p_228405_8_.translate((double)(f13 * 0.0F), (double)(f13 * 0.0F), (double)(f13 * 0.04F));
+            p_228405_8_.scale(1.0F, 1.0F, 1.0F + f13 * 0.2F);
+            p_228405_8_.mulPose(Vector3f.YN.rotationDegrees((float)i * 45.0F));
+         } else {
+            float f = -0.4F * MathHelper.sin(MathHelper.sqrt(p_228405_5_) * (float)Math.PI);
+            float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(p_228405_5_) * ((float)Math.PI * 2F));
+            float f2 = -0.2F * MathHelper.sin(p_228405_5_ * (float)Math.PI);
+            p_228405_8_.translate((double)((float)i * f), (double)f1, (double)f2);
+            this.applyItemArmTransform(p_228405_8_, handside, p_228405_7_);
+            this.applyItemArmAttackTransform(p_228405_8_, handside, p_228405_5_);
+            if (flag1 && p_228405_5_ < 0.001F) {
+               p_228405_8_.translate((double)((float)i * -0.641864F), 0.0D, 0.0D);
+               p_228405_8_.mulPose(Vector3f.YP.rotationDegrees((float)i * 10.0F));
+            }
+         }
+         this.renderItem(p_228405_1_, handItem, flag2 ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !flag2, p_228405_8_, p_228405_9_, p_228405_10_);
+      } else if (handItem.getItem() instanceof AbstractCrossbowItem) {
+         boolean flag1 = AbstractCrossbowItem.isCharged(handItem);
+         boolean flag2 = handside == HandSide.RIGHT;
+         int i = flag2 ? 1 : -1;
+         if (p_228405_1_.isUsingItem() && p_228405_1_.getUseItemRemainingTicks() > 0 && p_228405_1_.getUsedItemHand() == p_228405_4_) {
+            this.applyItemArmTransform(p_228405_8_, handside, p_228405_7_);
+            p_228405_8_.translate((double)((float)i * -0.4785682F), (double)-0.094387F, (double)0.05731531F);
+            p_228405_8_.mulPose(Vector3f.XP.rotationDegrees(-11.935F));
+            p_228405_8_.mulPose(Vector3f.YP.rotationDegrees((float)i * 65.3F));
+            p_228405_8_.mulPose(Vector3f.ZP.rotationDegrees((float)i * -9.785F));
+            float f9 = (float)handItem.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - p_228405_2_ + 1.0F);
+            float f13 = f9 / (float)AbstractCrossbowItem.getChargeDuration(handItem);
+            if (f13 > 1.0F) {
+               f13 = 1.0F;
+            }
+
+            if (f13 > 0.1F) {
+               float f16 = MathHelper.sin((f9 - 0.1F) * 1.3F);
+               float f3 = f13 - 0.1F;
+               float f4 = f16 * f3;
+               p_228405_8_.translate((double)(f4 * 0.0F), (double)(f4 * 0.004F), (double)(f4 * 0.0F));
+            }
+
+            p_228405_8_.translate((double)(f13 * 0.0F), (double)(f13 * 0.0F), (double)(f13 * 0.04F));
+            p_228405_8_.scale(1.0F, 1.0F, 1.0F + f13 * 0.2F);
+            p_228405_8_.mulPose(Vector3f.YN.rotationDegrees((float)i * 45.0F));
+         } else {
+            float f = -0.4F * MathHelper.sin(MathHelper.sqrt(p_228405_5_) * (float)Math.PI);
+            float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(p_228405_5_) * ((float)Math.PI * 2F));
+            float f2 = -0.2F * MathHelper.sin(p_228405_5_ * (float)Math.PI);
+            p_228405_8_.translate((double)((float)i * f), (double)f1, (double)f2);
+            this.applyItemArmTransform(p_228405_8_, handside, p_228405_7_);
+            this.applyItemArmAttackTransform(p_228405_8_, handside, p_228405_5_);
+            if (flag1 && p_228405_5_ < 0.001F) {
+               p_228405_8_.translate((double)((float)i * -0.641864F), 0.0D, 0.0D);
+               p_228405_8_.mulPose(Vector3f.YP.rotationDegrees((float)i * 10.0F));
+            }
+         }
+         this.renderItem(p_228405_1_, handItem, flag2 ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !flag2, p_228405_8_, p_228405_9_, p_228405_10_);
+      }else {
          boolean flag3 = handside == HandSide.RIGHT;
          if (p_228405_1_.isUsingItem() && p_228405_1_.getUseItemRemainingTicks() > 0 && p_228405_1_.getUsedItemHand() == p_228405_4_) {
             int k = flag3 ? 1 : -1;
-            switch(p_228405_6_.getUseAnimation()) {
+            switch(handItem.getUseAnimation()) {
             case NONE:
                this.applyItemArmTransform(p_228405_8_, handside, p_228405_7_);
                break;
             case EAT:
             case DRINK:
-               this.applyEatTransform(p_228405_8_, p_228405_2_, handside, p_228405_6_);
+               this.applyEatTransform(p_228405_8_, p_228405_2_, handside, handItem);
                this.applyItemArmTransform(p_228405_8_, handside, p_228405_7_);
                break;
             case BLOCK:
@@ -328,7 +409,7 @@ public class FirstPersonRenderer {
                p_228405_8_.mulPose(Vector3f.XP.rotationDegrees(-13.935F));
                p_228405_8_.mulPose(Vector3f.YP.rotationDegrees((float)k * 35.3F));
                p_228405_8_.mulPose(Vector3f.ZP.rotationDegrees((float)k * -9.785F));
-               float f8 = (float)p_228405_6_.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - p_228405_2_ + 1.0F);
+               float f8 = (float)handItem.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - p_228405_2_ + 1.0F);
                float f12 = f8 / 20.0F;
                f12 = (f12 * f12 + f12 * 2.0F) / 3.0F;
                if (f12 > 1.0F) {
@@ -352,7 +433,7 @@ public class FirstPersonRenderer {
                p_228405_8_.mulPose(Vector3f.XP.rotationDegrees(-55.0F));
                p_228405_8_.mulPose(Vector3f.YP.rotationDegrees((float)k * 35.3F));
                p_228405_8_.mulPose(Vector3f.ZP.rotationDegrees((float)k * -9.785F));
-               float f7 = (float)p_228405_6_.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - p_228405_2_ + 1.0F);
+               float f7 = (float)handItem.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - p_228405_2_ + 1.0F);
                float f11 = f7 / 10.0F;
                if (f11 > 1.0F) {
                   f11 = 1.0F;
@@ -385,7 +466,7 @@ public class FirstPersonRenderer {
             this.applyItemArmAttackTransform(p_228405_8_, handside, p_228405_5_);
          }
 
-         this.renderItem(p_228405_1_, p_228405_6_, flag3 ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !flag3, p_228405_8_, p_228405_9_, p_228405_10_);
+         this.renderItem(p_228405_1_, handItem, flag3 ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !flag3, p_228405_8_, p_228405_9_, p_228405_10_);
       }
 
       p_228405_8_.popPose();

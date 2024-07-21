@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -117,7 +117,7 @@ public class VillageSiege implements ISpecialSpawner {
          int k = p_225476_2_.getZ() + p_225476_1_.random.nextInt(16) - 8;
          int l = p_225476_1_.getHeight(Heightmap.Type.WORLD_SURFACE, j, k);
          BlockPos blockpos = new BlockPos(j, l, k);
-         if (p_225476_1_.isVillage(blockpos) && MonsterEntity.checkMonsterSpawnRules(EntityType.ZOMBIE, p_225476_1_, SpawnReason.EVENT, blockpos, p_225476_1_.random)) {
+         if (p_225476_1_.isVillage(blockpos) && Monster.checkMonsterSpawnRules(EntityType.ZOMBIE, p_225476_1_, SpawnReason.EVENT, blockpos, p_225476_1_.random)) {
             return Vector3d.atBottomCenterOf(blockpos);
          }
       }

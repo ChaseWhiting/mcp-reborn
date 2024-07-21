@@ -5,14 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.memory.WalkTarget;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
 
-public class WalkRandomlyInsideTask extends Task<CreatureEntity> {
+public class WalkRandomlyInsideTask extends Task<Creature> {
    private final float speedModifier;
 
    public WalkRandomlyInsideTask(float p_i50364_1_) {
@@ -20,11 +20,11 @@ public class WalkRandomlyInsideTask extends Task<CreatureEntity> {
       this.speedModifier = p_i50364_1_;
    }
 
-   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, CreatureEntity p_212832_2_) {
+   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, Creature p_212832_2_) {
       return !p_212832_1_.canSeeSky(p_212832_2_.blockPosition());
    }
 
-   protected void start(ServerWorld p_212831_1_, CreatureEntity p_212831_2_, long p_212831_3_) {
+   protected void start(ServerWorld p_212831_1_, Creature p_212831_2_, long p_212831_3_) {
       BlockPos blockpos = p_212831_2_.blockPosition();
       List<BlockPos> list = BlockPos.betweenClosedStream(blockpos.offset(-1, -1, -1), blockpos.offset(1, 1, 1)).map(BlockPos::immutable).collect(Collectors.toList());
       Collections.shuffle(list);

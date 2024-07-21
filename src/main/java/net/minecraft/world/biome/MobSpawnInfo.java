@@ -145,11 +145,11 @@ public class MobSpawnInfo {
       public final int minCount;
       public final int maxCount;
 
-      public Spawners(EntityType<?> p_i241950_1_, int p_i241950_2_, int p_i241950_3_, int p_i241950_4_) {
-         super(p_i241950_2_);
-         this.type = p_i241950_1_.getCategory() == EntityClassification.MISC ? EntityType.PIG : p_i241950_1_;
-         this.minCount = p_i241950_3_;
-         this.maxCount = p_i241950_4_;
+      public Spawners(EntityType<?> entity, int weight, int minGroupSpawn, int maxGroupSpawn) {
+         super(weight);
+         this.type = entity.getCategory() == EntityClassification.MISC ? EntityType.PIG : entity;
+         this.minCount = minGroupSpawn;
+         this.maxCount = maxGroupSpawn;
       }
 
       public String toString() {

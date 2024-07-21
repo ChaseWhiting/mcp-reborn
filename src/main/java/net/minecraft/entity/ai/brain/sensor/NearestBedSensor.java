@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.BlockPos;
@@ -15,7 +15,7 @@ import net.minecraft.village.PointOfInterestManager;
 import net.minecraft.village.PointOfInterestType;
 import net.minecraft.world.server.ServerWorld;
 
-public class NearestBedSensor extends Sensor<MobEntity> {
+public class NearestBedSensor extends Sensor<Mob> {
    private final Long2LongMap batchCache = new Long2LongOpenHashMap();
    private int triedCount;
    private long lastUpdate;
@@ -28,7 +28,7 @@ public class NearestBedSensor extends Sensor<MobEntity> {
       return ImmutableSet.of(MemoryModuleType.NEAREST_BED);
    }
 
-   protected void doTick(ServerWorld p_212872_1_, MobEntity p_212872_2_) {
+   protected void doTick(ServerWorld p_212872_1_, Mob p_212872_2_) {
       if (p_212872_2_.isBaby()) {
          this.triedCount = 0;
          this.lastUpdate = p_212872_1_.getGameTime() + (long)p_212872_1_.getRandom().nextInt(20);

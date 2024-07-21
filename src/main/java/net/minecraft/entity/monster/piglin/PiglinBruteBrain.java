@@ -11,6 +11,7 @@ import net.minecraft.entity.ai.brain.BrainUtil;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.schedule.Activity;
 import net.minecraft.entity.ai.brain.task.*;
+import net.minecraft.item.AbstractCrossbowItem;
 import net.minecraft.item.Items;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.GlobalPos;
@@ -59,7 +60,7 @@ public class PiglinBruteBrain {
    }
 
    private static boolean hasCrossbow(LivingEntity p_234494_0_) {
-      return p_234494_0_.isHolding(Items.CROSSBOW);
+      return p_234494_0_.isHolding(Items.CROSSBOW) || p_234494_0_.isHolding(Items.GILDED_CROSSBOW) || AbstractCrossbowItem.isHoldingAbstractCrossbowItem(p_234494_0_);
    }
 
    protected static void updateActivity(PiglinBruteEntity p_242358_0_) {

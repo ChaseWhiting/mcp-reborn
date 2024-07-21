@@ -6,7 +6,7 @@ import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.player.PlayerEntity;
@@ -114,7 +114,7 @@ public class PufferfishEntity extends AbstractFishEntity {
    public void aiStep() {
       super.aiStep();
       if (this.isAlive() && this.getPuffState() > 0) {
-         for(MobEntity mobentity : this.level.getEntitiesOfClass(MobEntity.class, this.getBoundingBox().inflate(0.3D), NO_SPECTATORS_AND_NO_WATER_MOB)) {
+         for(Mob mobentity : this.level.getEntitiesOfClass(Mob.class, this.getBoundingBox().inflate(0.3D), NO_SPECTATORS_AND_NO_WATER_MOB)) {
             if (mobentity.isAlive()) {
                this.touch(mobentity);
             }
@@ -123,7 +123,7 @@ public class PufferfishEntity extends AbstractFishEntity {
 
    }
 
-   private void touch(MobEntity p_205719_1_) {
+   private void touch(Mob p_205719_1_) {
       int i = this.getPuffState();
       if (p_205719_1_.hurt(DamageSource.mobAttack(this), (float)(1 + i))) {
          p_205719_1_.addEffect(new EffectInstance(Effects.POISON, 60 * i, 0));

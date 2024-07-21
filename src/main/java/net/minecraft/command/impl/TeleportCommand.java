@@ -17,7 +17,7 @@ import net.minecraft.command.arguments.ILocationArgument;
 import net.minecraft.command.arguments.LocationInput;
 import net.minecraft.command.arguments.RotationArgument;
 import net.minecraft.command.arguments.Vec3Argument;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -35,29 +35,43 @@ import net.minecraft.world.server.TicketType;
 public class TeleportCommand {
    private static final SimpleCommandExceptionType INVALID_POSITION = new SimpleCommandExceptionType(new TranslationTextComponent("commands.teleport.invalidPosition"));
 
-   public static void register(CommandDispatcher<CommandSource> p_198809_0_) {
-      LiteralCommandNode<CommandSource> literalcommandnode = p_198809_0_.register(Commands.literal("teleport").requires((p_198816_0_) -> {
-         return p_198816_0_.hasPermission(2);
-      }).then(Commands.argument("targets", EntityArgument.entities()).then(Commands.argument("location", Vec3Argument.vec3()).executes((p_198807_0_) -> {
-         return teleportToPos(p_198807_0_.getSource(), EntityArgument.getEntities(p_198807_0_, "targets"), p_198807_0_.getSource().getLevel(), Vec3Argument.getCoordinates(p_198807_0_, "location"), (ILocationArgument)null, (TeleportCommand.Facing)null);
-      }).then(Commands.argument("rotation", RotationArgument.rotation()).executes((p_198811_0_) -> {
-         return teleportToPos(p_198811_0_.getSource(), EntityArgument.getEntities(p_198811_0_, "targets"), p_198811_0_.getSource().getLevel(), Vec3Argument.getCoordinates(p_198811_0_, "location"), RotationArgument.getRotation(p_198811_0_, "rotation"), (TeleportCommand.Facing)null);
-      })).then(Commands.literal("facing").then(Commands.literal("entity").then(Commands.argument("facingEntity", EntityArgument.entity()).executes((p_198806_0_) -> {
-         return teleportToPos(p_198806_0_.getSource(), EntityArgument.getEntities(p_198806_0_, "targets"), p_198806_0_.getSource().getLevel(), Vec3Argument.getCoordinates(p_198806_0_, "location"), (ILocationArgument)null, new TeleportCommand.Facing(EntityArgument.getEntity(p_198806_0_, "facingEntity"), EntityAnchorArgument.Type.FEET));
-      }).then(Commands.argument("facingAnchor", EntityAnchorArgument.anchor()).executes((p_198812_0_) -> {
-         return teleportToPos(p_198812_0_.getSource(), EntityArgument.getEntities(p_198812_0_, "targets"), p_198812_0_.getSource().getLevel(), Vec3Argument.getCoordinates(p_198812_0_, "location"), (ILocationArgument)null, new TeleportCommand.Facing(EntityArgument.getEntity(p_198812_0_, "facingEntity"), EntityAnchorArgument.getAnchor(p_198812_0_, "facingAnchor")));
-      })))).then(Commands.argument("facingLocation", Vec3Argument.vec3()).executes((p_198805_0_) -> {
-         return teleportToPos(p_198805_0_.getSource(), EntityArgument.getEntities(p_198805_0_, "targets"), p_198805_0_.getSource().getLevel(), Vec3Argument.getCoordinates(p_198805_0_, "location"), (ILocationArgument)null, new TeleportCommand.Facing(Vec3Argument.getVec3(p_198805_0_, "facingLocation")));
-      })))).then(Commands.argument("destination", EntityArgument.entity()).executes((p_198814_0_) -> {
-         return teleportToEntity(p_198814_0_.getSource(), EntityArgument.getEntities(p_198814_0_, "targets"), EntityArgument.getEntity(p_198814_0_, "destination"));
-      }))).then(Commands.argument("location", Vec3Argument.vec3()).executes((p_200560_0_) -> {
-         return teleportToPos(p_200560_0_.getSource(), Collections.singleton(p_200560_0_.getSource().getEntityOrException()), p_200560_0_.getSource().getLevel(), Vec3Argument.getCoordinates(p_200560_0_, "location"), LocationInput.current(), (TeleportCommand.Facing)null);
-      })).then(Commands.argument("destination", EntityArgument.entity()).executes((p_200562_0_) -> {
-         return teleportToEntity(p_200562_0_.getSource(), Collections.singleton(p_200562_0_.getSource().getEntityOrException()), EntityArgument.getEntity(p_200562_0_, "destination"));
-      })));
-      p_198809_0_.register(Commands.literal("tp").requires((p_200556_0_) -> {
-         return p_200556_0_.hasPermission(2);
-      }).redirect(literalcommandnode));
+   public static void register(CommandDispatcher<CommandSource> dispatcher) {
+      LiteralCommandNode<CommandSource> teleportCommand = dispatcher.register(
+              Commands.literal("teleport")
+                      .requires((source) -> source.hasPermission(2))
+                      .then(Commands.argument("targets", EntityArgument.entities())
+                              .then(Commands.argument("location", Vec3Argument.vec3())
+                                      .executes((context) -> teleportToPos(context.getSource(), EntityArgument.getEntities(context, "targets"), context.getSource().getLevel(), Vec3Argument.getCoordinates(context, "location"), null, null))
+                                      .then(Commands.argument("rotation", RotationArgument.rotation())
+                                              .executes((context) -> teleportToPos(context.getSource(), EntityArgument.getEntities(context, "targets"), context.getSource().getLevel(), Vec3Argument.getCoordinates(context, "location"), RotationArgument.getRotation(context, "rotation"), null))
+                                      )
+                                      .then(Commands.literal("facing")
+                                              .then(Commands.literal("entity")
+                                                      .then(Commands.argument("facingEntity", EntityArgument.entity())
+                                                              .executes((context) -> teleportToPos(context.getSource(), EntityArgument.getEntities(context, "targets"), context.getSource().getLevel(), Vec3Argument.getCoordinates(context, "location"), null, new TeleportCommand.Facing(EntityArgument.getEntity(context, "facingEntity"), EntityAnchorArgument.Type.FEET)))
+                                                              .then(Commands.argument("facingAnchor", EntityAnchorArgument.anchor())
+                                                                      .executes((context) -> teleportToPos(context.getSource(), EntityArgument.getEntities(context, "targets"), context.getSource().getLevel(), Vec3Argument.getCoordinates(context, "location"), null, new TeleportCommand.Facing(EntityArgument.getEntity(context, "facingEntity"), EntityAnchorArgument.getAnchor(context, "facingAnchor"))))
+                                                              )
+                                                      )
+                                              )
+                                              .then(Commands.argument("facingLocation", Vec3Argument.vec3())
+                                                      .executes((context) -> teleportToPos(context.getSource(), EntityArgument.getEntities(context, "targets"), context.getSource().getLevel(), Vec3Argument.getCoordinates(context, "location"), null, new TeleportCommand.Facing(Vec3Argument.getVec3(context, "facingLocation"))))
+                                              )
+                                      )
+                              )
+                              .then(Commands.argument("destination", EntityArgument.entity())
+                                      .executes((context) -> teleportToEntity(context.getSource(), EntityArgument.getEntities(context, "targets"), EntityArgument.getEntity(context, "destination")))
+                              )
+                      )
+                      .then(Commands.argument("location", Vec3Argument.vec3())
+                              .executes((context) -> teleportToPos(context.getSource(), Collections.singleton(context.getSource().getEntityOrException()), context.getSource().getLevel(), Vec3Argument.getCoordinates(context, "location"), LocationInput.current(), null))
+                      )
+                      .then(Commands.argument("destination", EntityArgument.entity())
+                              .executes((context) -> teleportToEntity(context.getSource(), Collections.singleton(context.getSource().getEntityOrException()), EntityArgument.getEntity(context, "destination")))
+                      )
+      );
+
+      dispatcher.register(Commands.literal("tp").requires((source) -> source.hasPermission(2)).redirect(teleportCommand));
    }
 
    private static int teleportToEntity(CommandSource p_201126_0_, Collection<? extends Entity> p_201126_1_, Entity p_201126_2_) throws CommandSyntaxException {
@@ -172,8 +186,8 @@ public class TeleportCommand {
             p_201127_1_.setOnGround(true);
          }
 
-         if (p_201127_1_ instanceof CreatureEntity) {
-            ((CreatureEntity)p_201127_1_).getNavigation().stop();
+         if (p_201127_1_ instanceof Creature) {
+            ((Creature)p_201127_1_).getNavigation().stop();
          }
 
       }

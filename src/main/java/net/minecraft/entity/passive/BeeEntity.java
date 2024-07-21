@@ -73,7 +73,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal, IBee {
+public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee {
    private static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(BeeEntity.class, DataSerializers.BYTE);
    private static final DataParameter<Integer> DATA_REMAINING_ANGER_TIME = EntityDataManager.defineId(BeeEntity.class, DataSerializers.INT);
    private static final RangedInteger PERSISTENT_ANGER_TIME = TickRangeConverter.rangeOfSeconds(20, 39);
@@ -466,7 +466,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.FLYING_SPEED, (double)0.6F).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.ATTACK_DAMAGE, 2.0D).add(Attributes.FOLLOW_RANGE, 48.0D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.FLYING_SPEED, (double)0.6F).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.ATTACK_DAMAGE, 2.0D).add(Attributes.FOLLOW_RANGE, 48.0D);
    }
 
    protected PathNavigator createNavigation(World p_175447_1_) {
@@ -583,7 +583,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
          return BeeEntity.this.isAngry() && super.canContinueToUse();
       }
 
-      protected void alertOther(MobEntity bee, LivingEntity target) {
+      protected void alertOther(Mob bee, LivingEntity target) {
          if (isBee(bee) && this.mob.canSee(target)) {
             bee.setTarget(target);
          }
@@ -617,7 +617,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
    }
 
    class BeeLookController extends LookController {
-      BeeLookController(MobEntity p_i225729_2_) {
+      BeeLookController(Mob p_i225729_2_) {
          super(p_i225729_2_);
       }
 
@@ -1067,7 +1067,7 @@ public class BeeEntity extends AnimalEntity implements IAngerable, IFlyingAnimal
    }
 
    class StingGoal extends MeleeAttackGoal {
-      StingGoal(CreatureEntity p_i225718_2_, double p_i225718_3_, boolean p_i225718_5_) {
+      StingGoal(Creature p_i225718_2_, double p_i225718_3_, boolean p_i225718_5_) {
          super(p_i225718_2_, p_i225718_3_, p_i225718_5_);
       }
 

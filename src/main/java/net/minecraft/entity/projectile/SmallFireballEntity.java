@@ -4,7 +4,7 @@ import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -49,7 +49,7 @@ public class SmallFireballEntity extends AbstractFireballEntity {
       super.onHitBlock(p_230299_1_);
       if (!this.level.isClientSide) {
          Entity entity = this.getOwner();
-         if (entity == null || !(entity instanceof MobEntity) || this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+         if (entity == null || !(entity instanceof Mob) || this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
             BlockPos blockpos = p_230299_1_.getBlockPos().relative(p_230299_1_.getDirection());
             if (this.level.isEmptyBlock(blockpos)) {
                this.level.setBlockAndUpdate(blockpos, AbstractFireBlock.getState(this.level, blockpos));

@@ -1,13 +1,13 @@
 package net.minecraft.entity.passive;
 
 import javax.annotation.Nullable;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 
-public abstract class GolemEntity extends CreatureEntity {
+public abstract class GolemEntity extends Creature {
    protected GolemEntity(EntityType<? extends GolemEntity> p_i48569_1_, World p_i48569_2_) {
       super(p_i48569_1_, p_i48569_2_);
    }

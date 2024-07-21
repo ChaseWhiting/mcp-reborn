@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
+
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
@@ -22,10 +23,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.raid.Raid;
 
-public abstract class PatrollerEntity extends MonsterEntity {
+public abstract class PatrollerEntity extends Monster {
    private BlockPos patrolTarget;
    private boolean patrolLeader;
    private boolean patrolling;
+   private boolean canSpawnRaid;
 
    protected PatrollerEntity(EntityType<? extends PatrollerEntity> p_i50201_1_, World p_i50201_2_) {
       super(p_i50201_1_, p_i50201_2_);
@@ -41,6 +43,7 @@ public abstract class PatrollerEntity extends MonsterEntity {
       if (this.patrolTarget != null) {
          p_213281_1_.put("PatrolTarget", NBTUtil.writeBlockPos(this.patrolTarget));
       }
+      p_213281_1_.putBoolean("canSpawnRaid", this.canSpawnRaid);
 
       p_213281_1_.putBoolean("PatrolLeader", this.patrolLeader);
       p_213281_1_.putBoolean("Patrolling", this.patrolling);
@@ -51,6 +54,7 @@ public abstract class PatrollerEntity extends MonsterEntity {
       if (p_70037_1_.contains("PatrolTarget")) {
          this.patrolTarget = NBTUtil.readBlockPos(p_70037_1_.getCompound("PatrolTarget"));
       }
+      this.canSpawnRaid = p_70037_1_.getBoolean("canSpawnRaid");
 
       this.patrolLeader = p_70037_1_.getBoolean("PatrolLeader");
       this.patrolling = p_70037_1_.getBoolean("Patrolling");
@@ -62,6 +66,14 @@ public abstract class PatrollerEntity extends MonsterEntity {
 
    public boolean canBeLeader() {
       return true;
+   }
+
+   public void setCanSpawnRaid() {
+      this.canSpawnRaid = true;
+   }
+
+   public void tick() {
+      super.tick();
    }
 
    @Nullable

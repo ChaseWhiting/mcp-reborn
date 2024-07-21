@@ -1,12 +1,12 @@
 package net.minecraft.client.renderer.entity.model;
 
 import net.minecraft.client.renderer.model.ModelHelper;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractZombieModel<T extends MonsterEntity> extends BipedModel<T> {
+public abstract class AbstractZombieModel<T extends Monster> extends BipedModel<T> {
    protected AbstractZombieModel(float p_i51070_1_, float p_i51070_2_, int p_i51070_3_, int p_i51070_4_) {
       super(p_i51070_1_, p_i51070_2_, p_i51070_3_, p_i51070_4_);
    }

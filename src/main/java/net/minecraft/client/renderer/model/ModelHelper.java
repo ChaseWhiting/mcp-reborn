@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.model;
 
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
@@ -32,7 +32,7 @@ public class ModelHelper {
       modelrenderer1.xRot = MathHelper.lerp(f2, modelrenderer1.xRot, (-(float)Math.PI / 2F));
    }
 
-   public static <T extends MobEntity> void swingWeaponDown(ModelRenderer p_239103_0_, ModelRenderer p_239103_1_, T p_239103_2_, float p_239103_3_, float p_239103_4_) {
+   public static <T extends Mob> void swingWeaponDown(ModelRenderer p_239103_0_, ModelRenderer p_239103_1_, T p_239103_2_, float p_239103_3_, float p_239103_4_) {
       float f = MathHelper.sin(p_239103_3_ * (float)Math.PI);
       float f1 = MathHelper.sin((1.0F - (1.0F - p_239103_3_) * (1.0F - p_239103_3_)) * (float)Math.PI);
       p_239103_0_.zRot = 0.0F;
@@ -74,5 +74,97 @@ public class ModelHelper {
       p_239105_1_.xRot += f * 1.2F - f1 * 0.4F;
       p_239105_0_.xRot += f * 1.2F - f1 * 0.4F;
       bobArms(p_239105_1_, p_239105_0_, p_239105_4_);
+   }
+
+   public static void animateShieldHolding(ModelRenderer leftArm, ModelRenderer rightArm, boolean isLeftHanded, float attackTime, float partialTicks) {
+      float swingProgress = MathHelper.sin(attackTime * (float)Math.PI);
+      float swingProgressInverse = MathHelper.sin((1.0F - (1.0F - attackTime) * (1.0F - attackTime)) * (float)Math.PI);
+
+      rightArm.zRot = 0.0F;
+      leftArm.zRot = 0.0F;
+
+      if (isLeftHanded) {
+         leftArm.yRot = -(0.1F - swingProgress * 0.6F);
+         rightArm.yRot = 0.1F - swingProgress * 0.6F;
+      } else {
+         rightArm.yRot = -(0.1F - swingProgress * 0.6F);
+         leftArm.yRot = 0.1F - swingProgress * 0.6F;
+      }
+
+      float armBaseRotation = -(float)Math.PI / 2.25F;
+      rightArm.xRot = armBaseRotation;
+      leftArm.xRot = armBaseRotation;
+
+      if (isLeftHanded) {
+         leftArm.xRot += swingProgress * 1.2F - swingProgressInverse * 0.4F;
+         rightArm.xRot += swingProgress * 1.2F - swingProgressInverse * 0.4F;
+      } else {
+         rightArm.xRot += swingProgress * 1.2F - swingProgressInverse * 0.4F;
+         leftArm.xRot += swingProgress * 1.2F - swingProgressInverse * 0.4F;
+      }
+
+      // Additional adjustments to better hold the shield
+      if (isLeftHanded) {
+         leftArm.xRot += 0.5F; // Adjust the arm to look more natural when holding a shield
+         leftArm.zRot += 0.1F; // Slight tilt for better positioning
+         leftArm.yRot += 0.6F; // Move arm inward
+      } else {
+         rightArm.xRot += 0.5F; // Adjust the arm to look more natural when holding a shield
+         rightArm.zRot += 0.1F; // Slight tilt for better positioning
+         rightArm.yRot -= 0.5F; // Move arm inward
+      }
+
+      bobArms(rightArm, leftArm, partialTicks);
+   }
+
+   public static void animateShieldHoldingNoHandItem(ModelRenderer leftArm, ModelRenderer rightArm, boolean isLeftHanded, float attackTime, float partialTicks) {
+      float swingProgress = MathHelper.sin(attackTime * (float)Math.PI);
+      float swingProgressInverse = MathHelper.sin((1.0F - (1.0F - attackTime) * (1.0F - attackTime)) * (float)Math.PI);
+
+      rightArm.zRot = 0.0F;
+      leftArm.zRot = 0.0F;
+
+      if (isLeftHanded) {
+         leftArm.yRot = -(0.1F - swingProgress * 0.6F);
+         rightArm.yRot = 0.1F - swingProgress * 0.6F;
+      } else {
+         rightArm.yRot = -(0.1F - swingProgress * 0.6F);
+         leftArm.yRot = 0.1F - swingProgress * 0.6F;
+      }
+
+      float armBaseRotation = -(float)Math.PI / 2.25F;
+      rightArm.xRot = armBaseRotation;
+      leftArm.xRot = armBaseRotation;
+
+      if (isLeftHanded) {
+         leftArm.xRot += swingProgress * 1.2F - swingProgressInverse * 0.4F;
+         rightArm.xRot += swingProgress * 1.2F - swingProgressInverse * 0.4F;
+      } else {
+         rightArm.xRot += swingProgress * 1.2F - swingProgressInverse * 0.4F;
+         leftArm.xRot += swingProgress * 1.2F - swingProgressInverse * 0.4F;
+      }
+
+      // Additional adjustments to better hold the shield
+      if (isLeftHanded) {
+         leftArm.xRot += 0.5F; // Adjust the arm to look more natural when holding a shield
+         leftArm.zRot += 0.1F; // Slight tilt for better positioning
+         leftArm.yRot += 0.6F; // Move arm inward
+
+         // Animate the right arm for attacking
+         rightArm.xRot = armBaseRotation + (swingProgress * 1.2F - swingProgressInverse * 0.4F);
+         rightArm.zRot = 0F;
+         rightArm.yRot = 0.1F - swingProgress * 0.6F; // Slight rotation for attack animation
+      } else {
+         rightArm.xRot += 0.5F; // Adjust the arm to look more natural when holding a shield
+         rightArm.zRot += 0.1F; // Slight tilt for better positioning
+         rightArm.yRot += 0.5F; // Move arm inward
+
+         // Animate the left arm for attacking
+         leftArm.xRot = armBaseRotation + (swingProgress * 1.2F - swingProgressInverse * 0.4F);
+         leftArm.zRot = 0F;
+         leftArm.yRot = 0.1F - swingProgress * 0.6F; // Slight rotation for attack animation
+      }
+
+      bobArms(rightArm, leftArm, partialTicks);
    }
 }

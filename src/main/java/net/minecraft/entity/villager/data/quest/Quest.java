@@ -2,6 +2,7 @@ package net.minecraft.entity.villager.data.quest;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -34,6 +35,18 @@ public class Quest {
         this.isCompleted = false;
     }
 
+    public void setRequiredItems(List<ItemStack> requiredItems) {
+        this.requiredItems = requiredItems;
+    }
+
+    public void setRequiredKills(Map<EntityType<?>, Integer> requiredKills) {
+        this.requiredKills = requiredKills;
+    }
+
+    public void setRewards(List<ItemStack> rewards) {
+        this.rewards = rewards;
+    }
+
     // Getters and setters for the fields
     public String getName() {
         return name;
@@ -48,7 +61,7 @@ public class Quest {
     }
 
     public void addXPReward(int xp) {
-        this.xpAmount = xp;
+        this.xpAmount = xpAmount + xp;
     }
 
     public String getDescription() {
@@ -215,6 +228,69 @@ public class Quest {
 
         quest.isCompleted = nbt.getBoolean("IsCompleted");
         return quest;
+    }
+
+    public static class Builder {
+        private String name;
+        private String description;
+        private List<ItemStack> requiredItems = new ArrayList<>();
+        private Map<EntityType<?>, Integer> requiredKills = new HashMap<>();
+        private List<ItemStack> rewards = new ArrayList<>();
+        private int xpAmount;
+
+        public Quest.Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Quest.Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Quest.Builder addRequiredItem(Item item) {
+            this.requiredItems.add(new ItemStack(item));
+            return this;
+        }
+
+        public Quest.Builder addRequiredItem(Item item, int count) {
+            this.requiredItems.add(new ItemStack(item, count));
+            return this;
+        }
+
+        public Quest.Builder addRequiredKill(EntityType<?> entity, int count) {
+            this.requiredKills.put(entity, count);
+            return this;
+        }
+
+        public Quest.Builder addReward(Item item, int count) {
+            this.rewards.add(new ItemStack(item, count));
+            return this;
+        }
+
+        public Quest.Builder addReward(Item item) {
+            this.rewards.add(new ItemStack(item, 1));
+            return this;
+        }
+
+        public Quest.Builder setXP(int xpAmount) {
+            this.xpAmount = xpAmount;
+            return this;
+        }
+
+
+
+
+        public Quest build() {
+            Quest quest = new Quest(name, description);
+            quest.setRequiredItems(requiredItems);
+            quest.setRewards(rewards);
+            quest.setRequiredKills(requiredKills);
+            quest.addXPReward(xpAmount);
+
+            return quest;
+        }
+
     }
 }
 

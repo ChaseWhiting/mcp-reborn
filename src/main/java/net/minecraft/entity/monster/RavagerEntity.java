@@ -8,7 +8,7 @@ import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.Goal;
@@ -64,7 +64,7 @@ public class RavagerEntity extends AbstractRaiderEntity {
       this.goalSelector.addGoal(4, new RavagerEntity.AttackGoal());
       this.goalSelector.addGoal(5, new WaterAvoidingRandomWalkingGoal(this, 0.4D));
       this.goalSelector.addGoal(6, new LookAtGoal(this, PlayerEntity.class, 6.0F));
-      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
+      this.goalSelector.addGoal(10, new LookAtGoal(this, Mob.class, 8.0F));
       this.targetSelector.addGoal(2, (new HurtByTargetGoal(this, AbstractRaiderEntity.class)).setAlertOthers());
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
       this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, true));
@@ -72,7 +72,7 @@ public class RavagerEntity extends AbstractRaiderEntity {
    }
 
    protected void updateControlFlags() {
-      boolean flag = !(this.getControllingPassenger() instanceof MobEntity) || this.getControllingPassenger().getType().is(EntityTypeTags.RAIDERS);
+      boolean flag = !(this.getControllingPassenger() instanceof Mob) || this.getControllingPassenger().getType().is(EntityTypeTags.RAIDERS);
       boolean flag1 = !(this.getVehicle() instanceof BoatEntity);
       this.goalSelector.setControlFlag(Goal.Flag.MOVE, flag);
       this.goalSelector.setControlFlag(Goal.Flag.JUMP, flag && flag1);
@@ -81,7 +81,13 @@ public class RavagerEntity extends AbstractRaiderEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 100.0D).add(Attributes.MOVEMENT_SPEED, 0.3D).add(Attributes.KNOCKBACK_RESISTANCE, 0.75D).add(Attributes.ATTACK_DAMAGE, 12.0D).add(Attributes.ATTACK_KNOCKBACK, 1.5D).add(Attributes.FOLLOW_RANGE, 32.0D);
+      return Monster.createMonsterAttributes()
+              .add(Attributes.MAX_HEALTH, 90.0D) // Reduced from 100.0D
+              .add(Attributes.MOVEMENT_SPEED, 0.29D) // Reduced from 0.3D
+              .add(Attributes.KNOCKBACK_RESISTANCE, 0.65D) // Reduced from 0.75D
+              .add(Attributes.ATTACK_DAMAGE, 11.0D) // Reduced from 12.0D
+              .add(Attributes.ATTACK_KNOCKBACK, 1.3D) // Reduced from 1.5D
+              .add(Attributes.FOLLOW_RANGE, 32.0D); // Reduced from 32.0D
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
@@ -311,7 +317,7 @@ public class RavagerEntity extends AbstractRaiderEntity {
    }
 
    static class Navigator extends GroundPathNavigator {
-      public Navigator(MobEntity p_i50754_1_, World p_i50754_2_) {
+      public Navigator(Mob p_i50754_1_, World p_i50754_2_) {
          super(p_i50754_1_, p_i50754_2_);
       }
 

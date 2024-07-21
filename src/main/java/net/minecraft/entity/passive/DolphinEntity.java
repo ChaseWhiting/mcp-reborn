@@ -12,7 +12,7 @@ import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
@@ -167,7 +167,7 @@ public class DolphinEntity extends WaterMobEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)1.2F).add(Attributes.ATTACK_DAMAGE, 3.0D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)1.2F).add(Attributes.ATTACK_DAMAGE, 3.0D);
    }
 
    protected PathNavigator createNavigation(World p_175447_1_) {
@@ -209,7 +209,7 @@ public class DolphinEntity extends WaterMobEntity {
    }
 
    public boolean canTakeItem(ItemStack p_213365_1_) {
-      EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(p_213365_1_);
+      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(p_213365_1_);
       if (!this.getItemBySlot(equipmentslottype).isEmpty()) {
          return false;
       } else {

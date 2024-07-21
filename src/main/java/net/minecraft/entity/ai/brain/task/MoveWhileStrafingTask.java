@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.brain.task;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.BrainUtil;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
@@ -11,7 +11,7 @@ import net.minecraft.entity.ai.brain.memory.WalkTarget;
 import net.minecraft.util.math.EntityPosWrapper;
 import net.minecraft.world.server.ServerWorld;
 
-public class MoveWhileStrafingTask extends Task<MobEntity> {
+public class MoveWhileStrafingTask extends Task<Mob> {
    private final float speedModifier;
 
    public MoveWhileStrafingTask(float speedModifier) {
@@ -22,7 +22,7 @@ public class MoveWhileStrafingTask extends Task<MobEntity> {
       this.speedModifier = speedModifier;
    }
 
-   protected void start(ServerWorld world, MobEntity entity, long gameTime) {
+   protected void start(ServerWorld world, Mob entity, long gameTime) {
       if (entity.getBrain().getMemory(MemoryModuleType.WALK_TARGET).isPresent()) {
          return; // Skip if strafing
       }

@@ -42,7 +42,7 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -1043,7 +1043,7 @@ public class ChunkManager extends ChunkLoader implements ChunkHolder.IPlayerProv
          Entity entity = chunkmanager$entitytracker.entity;
          if (entity != p_219180_1_ && entity.xChunk == p_219180_3_.getPos().x && entity.zChunk == p_219180_3_.getPos().z) {
             chunkmanager$entitytracker.updatePlayer(p_219180_1_);
-            if (entity instanceof MobEntity && ((MobEntity)entity).getLeashHolder() != null) {
+            if (entity instanceof Mob && ((Mob)entity).getLeashHolder() != null) {
                list.add(entity);
             }
 
@@ -1055,7 +1055,7 @@ public class ChunkManager extends ChunkLoader implements ChunkHolder.IPlayerProv
 
       if (!list.isEmpty()) {
          for(Entity entity1 : list) {
-            p_219180_1_.connection.send(new SMountEntityPacket(entity1, ((MobEntity)entity1).getLeashHolder()));
+            p_219180_1_.connection.send(new SMountEntityPacket(entity1, ((Mob)entity1).getLeashHolder()));
          }
       }
 

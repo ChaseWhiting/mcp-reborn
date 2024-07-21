@@ -33,6 +33,7 @@ public abstract class AbstractIllagerEntity extends AbstractRaiderEntity {
         BOW_AND_ARROW,
         CROSSBOW_HOLD,
         CROSSBOW_CHARGE,
+        SHIELD,
         CELEBRATING,
         NEUTRAL;
     }

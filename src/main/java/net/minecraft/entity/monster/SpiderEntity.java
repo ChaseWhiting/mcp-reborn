@@ -42,7 +42,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 
-public class SpiderEntity extends MonsterEntity {
+public class SpiderEntity extends Monster {
    private static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(SpiderEntity.class, DataSerializers.BYTE);
 
    public SpiderEntity(EntityType<? extends SpiderEntity> p_i48550_1_, World p_i48550_2_) {
@@ -83,7 +83,7 @@ public class SpiderEntity extends MonsterEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 16.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F);
+      return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 16.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F);
    }
 
    protected SoundEvent getAmbientSound() {

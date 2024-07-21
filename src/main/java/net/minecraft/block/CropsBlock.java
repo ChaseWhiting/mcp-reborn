@@ -2,6 +2,7 @@ package net.minecraft.block;
 
 import java.util.Random;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.GildedRavagerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -134,12 +135,13 @@ public class CropsBlock extends BushBlock implements IGrowable {
       return (p_196260_2_.getRawBrightness(p_196260_3_, 0) >= 8 || p_196260_2_.canSeeSky(p_196260_3_)) && super.canSurvive(p_196260_1_, p_196260_2_, p_196260_3_);
    }
 
-   public void entityInside(BlockState p_196262_1_, World p_196262_2_, BlockPos p_196262_3_, Entity p_196262_4_) {
-      if (p_196262_4_ instanceof RavagerEntity && p_196262_2_.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-         p_196262_2_.destroyBlock(p_196262_3_, true, p_196262_4_);
+   public void entityInside(BlockState state, World world, BlockPos pos, Entity entity) {
+      boolean flag = world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+      if (entity instanceof RavagerEntity && flag || entity instanceof GildedRavagerEntity && flag) {
+         world.destroyBlock(pos, true, entity);
       }
 
-      super.entityInside(p_196262_1_, p_196262_2_, p_196262_3_, p_196262_4_);
+      super.entityInside(state, world, pos, entity);
    }
 
    @OnlyIn(Dist.CLIENT)

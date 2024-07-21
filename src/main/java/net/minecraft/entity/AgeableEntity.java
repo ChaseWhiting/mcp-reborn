@@ -11,7 +11,7 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
-public abstract class AgeableEntity extends CreatureEntity {
+public abstract class AgeableEntity extends Creature {
    private static final DataParameter<Boolean> DATA_BABY_ID = EntityDataManager.defineId(AgeableEntity.class, DataSerializers.BOOLEAN);
    protected int age;
    protected int forcedAge;

@@ -52,7 +52,7 @@ public enum EnchantmentType {
    },
    BREAKABLE {
       public boolean canEnchant(Item p_77557_1_) {
-         return p_77557_1_.canBeDepleted();
+         return p_77557_1_.canBeDepleted() /*&& p_77557_1_ != Items.GILDED_CROSSBOW*/;
       }
    },
    BOW {
@@ -77,13 +77,29 @@ public enum EnchantmentType {
    },
    CROSSBOW {
       public boolean canEnchant(Item p_77557_1_) {
-         return p_77557_1_ instanceof CrossbowItem;
+         return p_77557_1_ instanceof CrossbowItem || p_77557_1_ instanceof GildedCrossbowItem || p_77557_1_ instanceof AbstractCrossbowItem;
       }
    },
    CROSSBOW_OR_BONE_BOW {
       public boolean canEnchant(Item p_77557_1_) {
-         return p_77557_1_ instanceof CrossbowItem || p_77557_1_ instanceof BoneBowItem;
+         return p_77557_1_ instanceof CrossbowItem || p_77557_1_ instanceof BoneBowItem || p_77557_1_ instanceof GildedCrossbowItem || p_77557_1_ instanceof AbstractCrossbowItem;
       }
+   },
+   GILDED_CROSSBOW {
+      public boolean canEnchant(Item item) {
+         return item == Items.GILDED_CROSSBOW;
+      }
+   },
+   SPECIAL_CROSSBOW {
+      public boolean canEnchant(Item item) {
+         return item instanceof AbstractCrossbowItem || item == Items.GILDED_CROSSBOW;
+      }
+   },
+   ABSTRACT_CROSSBOW {
+     public boolean canEnchant(Item item) {
+
+        return item instanceof AbstractCrossbowItem;
+     }
    },
    VANISHABLE {
       public boolean canEnchant(Item p_77557_1_) {
@@ -95,4 +111,5 @@ public enum EnchantmentType {
    }
 
    public abstract boolean canEnchant(Item p_77557_1_);
+
 }

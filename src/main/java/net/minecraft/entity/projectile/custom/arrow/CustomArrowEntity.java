@@ -1,19 +1,13 @@
 package net.minecraft.entity.projectile.custom.arrow;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ICrossbowUser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.monster.PillagerEntity;
+import net.minecraft.entity.*;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.datasync.DataParameter;
@@ -21,10 +15,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.MathHelper;
@@ -50,18 +41,19 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         ARROW_ITEM_MAP.put(CustomArrowType.TELEPORTATION, Items.TELEPORTATION_ARROW);
         ARROW_ITEM_MAP.put(CustomArrowType.HEALING, Items.HEALING_ARROW);
         ARROW_ITEM_MAP.put(CustomArrowType.FIREWORK, Items.FIREWORK_ARROW);
+        ARROW_ITEM_MAP.put(CustomArrowType.GILDED, Items.GILDED_ARROW);
         // Add other custom arrow types here
     }
 
-    private double baseDamage = this.getArrowType().getBaseDamage();
 
     public CustomArrowEntity(EntityType<? extends CustomArrowEntity> arrow, World world) {
         super(arrow, world);
-        this.baseDamage = this.getArrowType().getBaseDamage();
+        this.addBaseDamage(this.getArrowType().getBaseDamage());
     }
 
     public CustomArrowEntity(World world, double x, double y, double z) {
         super(EntityType.CUSTOM_ARROW, x, y, z, world);
+        this.addBaseDamage(this.getArrowType().getBaseDamage());
     }
 
     public CustomArrowEntity(World world, LivingEntity entity) {
@@ -77,7 +69,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
     }
 
     public double getBaseDamage() {
-        return this.baseDamage;
+        return super.getBaseDamage();
     }
 
     @ParametersAreNonnullByDefault
@@ -127,7 +119,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
     private void spawnFireworks(LivingEntity entity) {
         int numFireworks = RANDOM.nextInt(8) + 1;
         for (int i = 0; i < numFireworks; i++) {
-            ItemStack item = createCustomFirework();
+            ItemStack item = FireworkUtility.newFirework();
             double randomX = RANDOM.nextDouble();
             double randomZ = RANDOM.nextDouble();
             FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level, this.getOwner(), entity.getX() + randomX, entity.getY() + 0.5, entity.getZ() + randomZ, item);
@@ -153,6 +145,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
     }
 
     protected void onHitBlock(BlockRayTraceResult result) {
+        super.onHitBlock(result);
         BlockState blockstate = this.level.getBlockState(result.getBlockPos());
         blockstate.onProjectileHit(this.level, blockstate, result, this);
         CustomArrowType type = this.getArrowType();
@@ -165,7 +158,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
                 handleTeleportationHit();
                 break;
             case 5:
-                spawnFireworkOnBlockHit();
+                spawnFireworkOnBlockHit(false);
                 break;
         }
     }
@@ -185,13 +178,24 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         }
     }
 
-    private void spawnFireworkOnBlockHit() {
-        ItemStack item = createCustomFirework();
+    public void tick() {
+        super.tick();
+
+        List<Monster> nearbyEntities = this.level.getEntitiesOfClass(Monster.class, this.getBoundingBox().inflate(1.6D));
+        if (!nearbyEntities.isEmpty() && this.getArrowType() == CustomArrowType.FIREWORK && this.getGravityLevel() <= 0) {
+            this.spawnFireworkOnBlockHit(true);
+        }
+    }
+
+
+
+    private void spawnFireworkOnBlockHit(boolean explode) {
+        ItemStack item = FireworkUtility.newFirework();
         FireworkRocketEntity fireworkRocket = new FireworkRocketEntity(this.level, this.getOwner(), this.getX(), this.getY() - 0.2, this.getZ(), item);
         fireworkRocket.setFromFireworkArrow(true);
-        List<MonsterEntity> targets = this.level.getEntitiesOfClass(MonsterEntity.class, this.getBoundingBox().inflate(8D, 6D, 8D));
+        List<Monster> targets = this.level.getEntitiesOfClass(Monster.class, this.getBoundingBox().inflate(8D, 6D, 8D));
         if (!targets.isEmpty()) {
-            fireworkRocket.setDeltaMovement(this.getDeltaMovement().x, -0.3, this.getDeltaMovement().z);
+            fireworkRocket.setDeltaMovement(!explode ? this.getDeltaMovement().x : 0, -0.3, !explode ? this.getDeltaMovement().z : 0);
         }
         this.level.addFreshEntity(fireworkRocket);
         this.remove();
@@ -292,6 +296,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         CompoundNBT itemTag = new CompoundNBT();
         itemTag.put("Fireworks", fireworkTag);
         fireworkStack.setTag(itemTag);
+        System.out.println("Compound of arrow: " + FireworkUtility.getExplosionsTag(fireworkStack));
         return fireworkStack;
     }
 
@@ -303,4 +308,18 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         }
         return colors;
     }
+
+    public ItemStack newFirework() {
+        FireworkUtility.Builder builder = new FireworkUtility.Builder();
+        return builder.addExplosion(FireworkRocketItem.Shape.getRandomShape(), new DyeColor[]{DyeColor.ORANGE, DyeColor.RED}, new DyeColor[]{DyeColor.ORANGE, DyeColor.BLACK}, true, true).build();
+    }
+
+    public ItemStack newFirework(FireworkRocketItem.Shape shape, DyeColor[] colors, DyeColor[] flickerColors, boolean trail, boolean flicker) {
+        FireworkUtility.Builder builder = new FireworkUtility.Builder();
+        return builder.addExplosion(shape, colors, flickerColors, trail, flicker).build();
+    }
+
+
+
+
 }

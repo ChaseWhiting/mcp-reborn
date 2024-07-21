@@ -651,6 +651,43 @@ public class BlockModelProvider {
       this.blockStateOutput.accept(FinishedVariantBlockState.multiVariant(p_240029_1_).with(BlockStateVariantBuilder.property(BlockStateProperties.FACING).select(Direction.DOWN, BlockModelDefinition.variant().with(BlockModelFields.MODEL, resourcelocation1).with(BlockModelFields.X_ROT, BlockModelFields.Rotation.R180)).select(Direction.UP, BlockModelDefinition.variant().with(BlockModelFields.MODEL, resourcelocation1)).select(Direction.NORTH, BlockModelDefinition.variant().with(BlockModelFields.MODEL, resourcelocation)).select(Direction.EAST, BlockModelDefinition.variant().with(BlockModelFields.MODEL, resourcelocation).with(BlockModelFields.Y_ROT, BlockModelFields.Rotation.R90)).select(Direction.SOUTH, BlockModelDefinition.variant().with(BlockModelFields.MODEL, resourcelocation).with(BlockModelFields.Y_ROT, BlockModelFields.Rotation.R180)).select(Direction.WEST, BlockModelDefinition.variant().with(BlockModelFields.MODEL, resourcelocation).with(BlockModelFields.Y_ROT, BlockModelFields.Rotation.R270))));
    }
 
+   private void createFanBlock(Block fanBlock) {
+      ModelTextures modelTextures = (new ModelTextures())
+              .put(StockTextureAliases.TOP, ModelTextures.getBlockTexture(Blocks.FURNACE, "_top"))
+              .put(StockTextureAliases.SIDE, ModelTextures.getBlockTexture(Blocks.FURNACE, "_side"))
+              .put(StockTextureAliases.FRONT, ModelTextures.getBlockTexture(fanBlock, "_front"));
+
+      ModelTextures modelTexturesVertical = (new ModelTextures())
+              .put(StockTextureAliases.SIDE, ModelTextures.getBlockTexture(Blocks.FURNACE, "_top"))
+              .put(StockTextureAliases.FRONT, ModelTextures.getBlockTexture(fanBlock, "_front_vertical"));
+
+      ResourceLocation resourceLocation = StockModelShapes.CUBE_ORIENTABLE.create(fanBlock, modelTextures, this.modelOutput);
+      ResourceLocation resourceLocationVertical = StockModelShapes.CUBE_ORIENTABLE_VERTICAL.create(fanBlock, modelTexturesVertical, this.modelOutput);
+
+      this.blockStateOutput.accept(
+              FinishedVariantBlockState.multiVariant(fanBlock)
+                      .with(BlockStateVariantBuilder.property(BlockStateProperties.FACING)
+                              .select(Direction.DOWN, BlockModelDefinition.variant()
+                                      .with(BlockModelFields.MODEL, resourceLocationVertical)
+                                      .with(BlockModelFields.X_ROT, BlockModelFields.Rotation.R180))
+                              .select(Direction.UP, BlockModelDefinition.variant()
+                                      .with(BlockModelFields.MODEL, resourceLocationVertical))
+                              .select(Direction.NORTH, BlockModelDefinition.variant()
+                                      .with(BlockModelFields.MODEL, resourceLocation))
+                              .select(Direction.EAST, BlockModelDefinition.variant()
+                                      .with(BlockModelFields.MODEL, resourceLocation)
+                                      .with(BlockModelFields.Y_ROT, BlockModelFields.Rotation.R90))
+                              .select(Direction.SOUTH, BlockModelDefinition.variant()
+                                      .with(BlockModelFields.MODEL, resourceLocation)
+                                      .with(BlockModelFields.Y_ROT, BlockModelFields.Rotation.R180))
+                              .select(Direction.WEST, BlockModelDefinition.variant()
+                                      .with(BlockModelFields.MODEL, resourceLocation)
+                                      .with(BlockModelFields.Y_ROT, BlockModelFields.Rotation.R270))
+                      )
+      );
+   }
+
+
    private void createEndPortalFrame() {
       ResourceLocation resourcelocation = ModelsResourceUtil.getModelLocation(Blocks.END_PORTAL_FRAME);
       ResourceLocation resourcelocation1 = ModelsResourceUtil.getModelLocation(Blocks.END_PORTAL_FRAME, "_filled");
@@ -1257,6 +1294,7 @@ public class BlockModelProvider {
       this.createNyliumBlock(Blocks.WARPED_NYLIUM);
       this.createDispenserBlock(Blocks.DISPENSER);
       this.createDispenserBlock(Blocks.DROPPER);
+      this.createFanBlock(Blocks.FAN_BLOCK);
       this.createLantern(Blocks.LANTERN);
       this.createLantern(Blocks.SOUL_LANTERN);
       this.createAxisAlignedPillarBlockCustomModel(Blocks.CHAIN, ModelsResourceUtil.getModelLocation(Blocks.CHAIN));

@@ -11,7 +11,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -145,11 +145,11 @@ public class SpawnEggItem extends Item {
       return this.defaultType;
    }
 
-   public Optional<MobEntity> spawnOffspringFromSpawnEgg(PlayerEntity p_234809_1_, MobEntity p_234809_2_, EntityType<? extends MobEntity> p_234809_3_, ServerWorld p_234809_4_, Vector3d p_234809_5_, ItemStack p_234809_6_) {
+   public Optional<Mob> spawnOffspringFromSpawnEgg(PlayerEntity p_234809_1_, Mob p_234809_2_, EntityType<? extends Mob> p_234809_3_, ServerWorld p_234809_4_, Vector3d p_234809_5_, ItemStack p_234809_6_) {
       if (!this.spawnsEntity(p_234809_6_.getTag(), p_234809_3_)) {
          return Optional.empty();
       } else {
-         MobEntity mobentity;
+         Mob mobentity;
          if (p_234809_2_ instanceof AgeableEntity) {
             mobentity = ((AgeableEntity)p_234809_2_).getBreedOffspring(p_234809_4_, (AgeableEntity)p_234809_2_);
          } else {

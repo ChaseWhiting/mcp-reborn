@@ -162,10 +162,12 @@ public class HoglinTasks {
    }
 
    private static void setAttackTarget(HoglinEntity p_234397_0_, LivingEntity p_234397_1_) {
-      Brain<HoglinEntity> brain = p_234397_0_.getBrain();
-      brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-      brain.eraseMemory(MemoryModuleType.BREED_TARGET);
-      brain.setMemoryWithExpiry(MemoryModuleType.ATTACK_TARGET, p_234397_1_, 200L);
+
+         Brain<HoglinEntity> brain = p_234397_0_.getBrain();
+         brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+         brain.eraseMemory(MemoryModuleType.BREED_TARGET);
+         brain.setMemoryWithExpiry(MemoryModuleType.ATTACK_TARGET, p_234397_1_, 200L);
+
    }
 
    private static void broadcastAttackTarget(HoglinEntity p_234399_0_, LivingEntity p_234399_1_) {

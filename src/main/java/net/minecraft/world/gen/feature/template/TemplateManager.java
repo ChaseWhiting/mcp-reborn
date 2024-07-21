@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundNBT;
@@ -50,6 +51,17 @@ public class TemplateManager {
 
       return template;
    }
+
+   public Set<ResourceLocation> getKeys() {
+      // Assuming `this.templates` is a Map<ResourceLocation, Template>
+      return this.structureRepository.keySet();
+   }
+
+   public Template getTemplate(ResourceLocation templateLocation) {
+      return this.structureRepository.get(templateLocation);
+   }
+
+
 
    @Nullable
    public Template get(ResourceLocation p_200219_1_) {

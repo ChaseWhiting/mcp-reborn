@@ -8,8 +8,8 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
-public abstract class CreatureEntity extends MobEntity {
-   protected CreatureEntity(EntityType<? extends CreatureEntity> p_i48575_1_, World p_i48575_2_) {
+public abstract class Creature extends Mob {
+   protected Creature(EntityType<? extends Creature> p_i48575_1_, World p_i48575_2_) {
       super(p_i48575_1_, p_i48575_2_);
    }
 

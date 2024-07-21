@@ -3,14 +3,14 @@ package net.minecraft.entity.ai;
 import com.google.common.collect.Lists;
 import java.util.List;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 
 public class EntitySenses {
-   private final MobEntity mob;
+   private final Mob mob;
    private final List<Entity> seen = Lists.newArrayList();
    private final List<Entity> unseen = Lists.newArrayList();
 
-   public EntitySenses(MobEntity p_i1672_1_) {
+   public EntitySenses(Mob p_i1672_1_) {
       this.mob = p_i1672_1_;
    }
 

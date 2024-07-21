@@ -1,7 +1,7 @@
 package net.minecraft.pathfinding;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.DebugPacketSender;
 import net.minecraft.util.DebugUtils;
@@ -11,7 +11,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 public class FlyingPathNavigator extends PathNavigator {
-   public FlyingPathNavigator(MobEntity p_i47412_1_, World p_i47412_2_) {
+   public FlyingPathNavigator(Mob p_i47412_1_, World p_i47412_2_) {
       super(p_i47412_1_, p_i47412_2_);
    }
 

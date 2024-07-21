@@ -40,14 +40,14 @@ public class MinecraftServerGui extends JComponent {
    private final Collection<Runnable> finalizers = Lists.newArrayList();
    private final AtomicBoolean isClosing = new AtomicBoolean();
 
-   public static MinecraftServerGui showFrameFor(final DedicatedServer p_219048_0_) {
+   public static MinecraftServerGui showFrameFor(final DedicatedServer dedicatedServer) {
       try {
          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       } catch (Exception exception) {
       }
 
       final JFrame jframe = new JFrame("Minecraft server");
-      final MinecraftServerGui minecraftservergui = new MinecraftServerGui(p_219048_0_);
+      final MinecraftServerGui minecraftservergui = new MinecraftServerGui(dedicatedServer);
       jframe.setDefaultCloseOperation(2);
       jframe.add(minecraftservergui);
       jframe.pack();
@@ -57,7 +57,7 @@ public class MinecraftServerGui extends JComponent {
          public void windowClosing(WindowEvent p_windowClosing_1_) {
             if (!minecraftservergui.isClosing.getAndSet(true)) {
                jframe.setTitle("Minecraft server - shutting down!");
-               p_219048_0_.halt(true);
+               dedicatedServer.halt(true);
                minecraftservergui.runFinalizers();
             }
 

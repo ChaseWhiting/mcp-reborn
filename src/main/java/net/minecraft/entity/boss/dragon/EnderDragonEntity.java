@@ -10,7 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -54,7 +54,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class EnderDragonEntity extends MobEntity implements IMob {
+public class EnderDragonEntity extends Mob implements IMob {
    private static final Logger LOGGER = LogManager.getLogger();
    public static final DataParameter<Integer> DATA_PHASE = EntityDataManager.defineId(EnderDragonEntity.class, DataSerializers.INT);
    private static final EntityPredicate CRYSTAL_DESTROY_TARGETING = (new EntityPredicate()).range(64.0D);
@@ -109,7 +109,7 @@ public class EnderDragonEntity extends MobEntity implements IMob {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 200.0D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 200.0D);
    }
 
    protected void defineSynchedData() {

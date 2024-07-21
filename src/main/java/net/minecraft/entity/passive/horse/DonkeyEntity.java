@@ -3,7 +3,7 @@ package net.minecraft.entity.passive.horse;
 import javax.annotation.Nullable;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
@@ -40,7 +40,7 @@ public class DonkeyEntity extends AbstractChestedHorseEntity {
       return SoundEvents.DONKEY_HURT;
    }
 
-   public boolean canMate(AnimalEntity p_70878_1_) {
+   public boolean canMate(Animal p_70878_1_) {
       if (p_70878_1_ == this) {
          return false;
       } else if (!(p_70878_1_ instanceof DonkeyEntity) && !(p_70878_1_ instanceof HorseEntity)) {

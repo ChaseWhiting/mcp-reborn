@@ -1,13 +1,11 @@
 package net.minecraft.entity;
 
-import net.minecraft.entity.player.PlayerEntity;
-
 import javax.annotation.Nullable;
 
 public interface IBee {
 
 
-    public default void setTarget(@Nullable LivingEntity target, MobEntity entity) {
+    public default void setTarget(@Nullable LivingEntity target, Mob entity) {
         entity.setTarget(target);
     }
 }

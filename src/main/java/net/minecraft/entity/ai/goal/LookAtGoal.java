@@ -4,12 +4,12 @@ import java.util.EnumSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.EntityPredicates;
 
 public class LookAtGoal extends Goal {
-   protected final MobEntity mob;
+   protected final Mob mob;
    protected Entity lookAt;
    protected final float lookDistance;
    private int lookTime;
@@ -17,11 +17,11 @@ public class LookAtGoal extends Goal {
    protected final Class<? extends LivingEntity> lookAtType;
    protected final EntityPredicate lookAtContext;
 
-   public LookAtGoal(MobEntity p_i1631_1_, Class<? extends LivingEntity> p_i1631_2_, float p_i1631_3_) {
+   public LookAtGoal(Mob p_i1631_1_, Class<? extends LivingEntity> p_i1631_2_, float p_i1631_3_) {
       this(p_i1631_1_, p_i1631_2_, p_i1631_3_, 0.02F);
    }
 
-   public LookAtGoal(MobEntity p_i1632_1_, Class<? extends LivingEntity> p_i1632_2_, float p_i1632_3_, float p_i1632_4_) {
+   public LookAtGoal(Mob p_i1632_1_, Class<? extends LivingEntity> p_i1632_2_, float p_i1632_3_, float p_i1632_4_) {
       this.mob = p_i1632_1_;
       this.lookAtType = p_i1632_2_;
       this.lookDistance = p_i1632_3_;

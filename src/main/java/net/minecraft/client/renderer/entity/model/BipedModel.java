@@ -240,7 +240,7 @@ public class BipedModel<T extends LivingEntity> extends AgeableModel<T> implemen
 
    }
 
-   private void poseLeftArm(T p_241655_1_) {
+   private void poseLeftArm(T entity) {
       switch(this.leftArmPose) {
       case EMPTY:
          this.leftArm.yRot = 0.0F;
@@ -264,7 +264,7 @@ public class BipedModel<T extends LivingEntity> extends AgeableModel<T> implemen
          this.leftArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot;
          break;
       case CROSSBOW_CHARGE:
-         ModelHelper.animateCrossbowCharge(this.rightArm, this.leftArm, p_241655_1_, false);
+         ModelHelper.animateCrossbowCharge(this.rightArm, this.leftArm, entity, false);
          break;
       case CROSSBOW_HOLD:
          ModelHelper.animateCrossbowHold(this.rightArm, this.leftArm, this.head, false);

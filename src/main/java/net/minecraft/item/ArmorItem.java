@@ -11,7 +11,7 @@ import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.enchantment.IArmorVanishable;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -45,12 +45,12 @@ public class ArmorItem extends Item implements IArmorVanishable {
          return false;
       } else {
          LivingEntity livingentity = list.get(0);
-         EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(p_226626_1_);
+         EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(p_226626_1_);
          ItemStack itemstack = p_226626_1_.split(1);
          livingentity.setItemSlot(equipmentslottype, itemstack);
-         if (livingentity instanceof MobEntity) {
-            ((MobEntity)livingentity).setDropChance(equipmentslottype, 2.0F);
-            ((MobEntity)livingentity).setPersistenceRequired();
+         if (livingentity instanceof Mob) {
+            ((Mob)livingentity).setDropChance(equipmentslottype, 2.0F);
+            ((Mob)livingentity).setPersistenceRequired();
          }
 
          return true;
@@ -94,7 +94,7 @@ public class ArmorItem extends Item implements IArmorVanishable {
 
    public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
       ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-      EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(itemstack);
+      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
       ItemStack itemstack1 = p_77659_2_.getItemBySlot(equipmentslottype);
       if (itemstack1.isEmpty()) {
          p_77659_2_.setItemSlot(equipmentslottype, itemstack.copy());

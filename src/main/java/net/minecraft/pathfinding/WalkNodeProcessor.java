@@ -15,7 +15,7 @@ import net.minecraft.block.DoorBlock;
 import net.minecraft.block.FenceGateBlock;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.tags.BlockTags;
@@ -34,7 +34,7 @@ public class WalkNodeProcessor extends NodeProcessor {
    private final Long2ObjectMap<PathNodeType> pathTypesByPosCache = new Long2ObjectOpenHashMap<>();
    private final Object2BooleanMap<AxisAlignedBB> collisionCache = new Object2BooleanOpenHashMap<>();
 
-   public void prepare(Region p_225578_1_, MobEntity p_225578_2_) {
+   public void prepare(Region p_225578_1_, Mob p_225578_2_) {
       super.prepare(p_225578_1_, p_225578_2_);
       this.oldWaterCost = p_225578_2_.getPathfindingMalus(PathNodeType.WATER);
    }
@@ -314,7 +314,7 @@ public class WalkNodeProcessor extends NodeProcessor {
       });
    }
 
-   public PathNodeType getBlockPathType(IBlockReader p_186319_1_, int p_186319_2_, int p_186319_3_, int p_186319_4_, MobEntity p_186319_5_, int p_186319_6_, int p_186319_7_, int p_186319_8_, boolean p_186319_9_, boolean p_186319_10_) {
+   public PathNodeType getBlockPathType(IBlockReader p_186319_1_, int p_186319_2_, int p_186319_3_, int p_186319_4_, Mob p_186319_5_, int p_186319_6_, int p_186319_7_, int p_186319_8_, boolean p_186319_9_, boolean p_186319_10_) {
       EnumSet<PathNodeType> enumset = EnumSet.noneOf(PathNodeType.class);
       PathNodeType pathnodetype = PathNodeType.BLOCKED;
       BlockPos blockpos = p_186319_5_.blockPosition();
@@ -381,11 +381,11 @@ public class WalkNodeProcessor extends NodeProcessor {
       return p_215744_5_;
    }
 
-   private PathNodeType getBlockPathType(MobEntity p_186329_1_, BlockPos p_186329_2_) {
+   private PathNodeType getBlockPathType(Mob p_186329_1_, BlockPos p_186329_2_) {
       return this.getCachedBlockType(p_186329_1_, p_186329_2_.getX(), p_186329_2_.getY(), p_186329_2_.getZ());
    }
 
-   private PathNodeType getCachedBlockType(MobEntity p_237230_1_, int p_237230_2_, int p_237230_3_, int p_237230_4_) {
+   private PathNodeType getCachedBlockType(Mob p_237230_1_, int p_237230_2_, int p_237230_3_, int p_237230_4_) {
       return this.pathTypesByPosCache.computeIfAbsent(BlockPos.asLong(p_237230_2_, p_237230_3_, p_237230_4_), (p_237229_5_) -> {
          return this.getBlockPathType(this.level, p_237230_2_, p_237230_3_, p_237230_4_, p_237230_1_, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors());
       });

@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
@@ -46,7 +46,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 
-public abstract class AbstractSkeletonEntity extends MonsterEntity implements IRangedAttackMob {
+public abstract class AbstractSkeletonEntity extends Monster implements IRangedAttackMob {
    private final RangedBowAttackGoal<AbstractSkeletonEntity> bowGoal = new RangedBowAttackGoal<>(this, 1.0D, 20, 15.0F);
    private final MeleeAttackGoal meleeGoal = new MeleeAttackGoal(this, 1.2D, false) {
       public void stop() {
@@ -79,7 +79,7 @@ public abstract class AbstractSkeletonEntity extends MonsterEntity implements IR
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D);
+      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D);
    }
 
    protected void playStepSound(BlockPos p_180429_1_, BlockState p_180429_2_) {
@@ -118,8 +118,8 @@ public abstract class AbstractSkeletonEntity extends MonsterEntity implements IR
 
    public void rideTick() {
       super.rideTick();
-      if (this.getVehicle() instanceof CreatureEntity) {
-         CreatureEntity creatureentity = (CreatureEntity)this.getVehicle();
+      if (this.getVehicle() instanceof Creature) {
+         Creature creatureentity = (Creature)this.getVehicle();
          this.yBodyRot = creatureentity.yBodyRot;
       }
 

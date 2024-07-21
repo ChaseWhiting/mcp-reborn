@@ -30,7 +30,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
-public class SilverfishEntity extends MonsterEntity {
+public class SilverfishEntity extends Monster {
    private SilverfishEntity.SummonSilverfishGoal friendsGoal;
 
    public SilverfishEntity(EntityType<? extends SilverfishEntity> p_i50195_1_, World p_i50195_2_) {
@@ -56,7 +56,7 @@ public class SilverfishEntity extends MonsterEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
+      return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
    }
 
    protected boolean isMovementNoisy() {

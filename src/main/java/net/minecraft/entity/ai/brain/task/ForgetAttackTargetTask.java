@@ -5,12 +5,12 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.world.server.ServerWorld;
 
-public class ForgetAttackTargetTask<E extends MobEntity> extends Task<E> {
+public class ForgetAttackTargetTask<E extends Mob> extends Task<E> {
    private final Predicate<E> canAttackPredicate;
    private final Function<E, Optional<? extends LivingEntity>> targetFinderFunction;
 

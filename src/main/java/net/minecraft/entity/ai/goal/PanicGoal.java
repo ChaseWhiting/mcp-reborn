@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
 import javax.annotation.Nullable;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.tags.FluidTags;
@@ -11,14 +11,14 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 
 public class PanicGoal extends Goal {
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    protected final double speedModifier;
    protected double posX;
    protected double posY;
    protected double posZ;
    protected boolean isRunning;
 
-   public PanicGoal(CreatureEntity p_i1645_1_, double p_i1645_2_) {
+   public PanicGoal(Creature p_i1645_1_, double p_i1645_2_) {
       this.mob = p_i1645_1_;
       this.speedModifier = p_i1645_2_;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE));

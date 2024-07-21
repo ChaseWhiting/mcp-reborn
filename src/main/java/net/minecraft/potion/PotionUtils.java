@@ -25,14 +25,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PotionUtils {
    private static final IFormattableTextComponent NO_EFFECT = (new TranslationTextComponent("effect.none")).withStyle(TextFormatting.GRAY);
 
-   public static List<EffectInstance> getMobEffects(ItemStack p_185189_0_) {
-      return getAllEffects(p_185189_0_.getTag());
+   public static List<EffectInstance> getMobEffects(ItemStack potion) {
+      return getAllEffects(potion.getTag());
    }
 
-   public static List<EffectInstance> getAllEffects(Potion p_185186_0_, Collection<EffectInstance> p_185186_1_) {
+   public static List<EffectInstance> getAllEffects(Potion potion, Collection<EffectInstance> effects) {
       List<EffectInstance> list = Lists.newArrayList();
-      list.addAll(p_185186_0_.getEffects());
-      list.addAll(p_185186_1_);
+      list.addAll(potion.getEffects());
+      list.addAll(effects);
       return list;
    }
 
@@ -149,58 +149,85 @@ public class PotionUtils {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public static void addPotionTooltip(ItemStack p_185182_0_, List<ITextComponent> p_185182_1_, float p_185182_2_) {
-      List<EffectInstance> list = getMobEffects(p_185182_0_);
-      List<Pair<Attribute, AttributeModifier>> list1 = Lists.newArrayList();
-      if (list.isEmpty()) {
-         p_185182_1_.add(NO_EFFECT);
+   public static void addPotionTooltip(ItemStack itemStack, List<ITextComponent> tooltip, float durationFactor) {
+      // Get the list of active potion effects on the item
+      List<EffectInstance> effectInstances = getMobEffects(itemStack);
+      List<Pair<Attribute, AttributeModifier>> attributeModifiers = Lists.newArrayList();
+
+      if (effectInstances.isEmpty()) {
+         tooltip.add(NO_EFFECT);
       } else {
-         for(EffectInstance effectinstance : list) {
-            IFormattableTextComponent iformattabletextcomponent = new TranslationTextComponent(effectinstance.getDescriptionId());
-            Effect effect = effectinstance.getEffect();
-            Map<Attribute, AttributeModifier> map = effect.getAttributeModifiers();
-            if (!map.isEmpty()) {
-               for(Entry<Attribute, AttributeModifier> entry : map.entrySet()) {
-                  AttributeModifier attributemodifier = entry.getValue();
-                  AttributeModifier attributemodifier1 = new AttributeModifier(attributemodifier.getName(), effect.getAttributeModifierValue(effectinstance.getAmplifier(), attributemodifier), attributemodifier.getOperation());
-                  list1.add(new Pair<>(entry.getKey(), attributemodifier1));
+         for (EffectInstance effectInstance : effectInstances) {
+            IFormattableTextComponent effectTextComponent = new TranslationTextComponent(effectInstance.getDescriptionId());
+            Effect effect = effectInstance.getEffect();
+            Map<Attribute, AttributeModifier> effectAttributes = effect.getAttributeModifiers();
+
+            // Process attribute modifiers for each effect
+            if (!effectAttributes.isEmpty()) {
+               for (Entry<Attribute, AttributeModifier> entry : effectAttributes.entrySet()) {
+                  AttributeModifier originalModifier = entry.getValue();
+                  AttributeModifier newModifier = new AttributeModifier(
+                          originalModifier.getName(),
+                          effect.getAttributeModifierValue(effectInstance.getAmplifier(), originalModifier),
+                          originalModifier.getOperation()
+                  );
+                  attributeModifiers.add(new Pair<>(entry.getKey(), newModifier));
                }
             }
 
-            if (effectinstance.getAmplifier() > 0) {
-               iformattabletextcomponent = new TranslationTextComponent("potion.withAmplifier", iformattabletextcomponent, new TranslationTextComponent("potion.potency." + effectinstance.getAmplifier()));
+            // Add amplifier and duration information to the effect text
+            if (effectInstance.getAmplifier() > 0) {
+               effectTextComponent = new TranslationTextComponent(
+                       "potion.withAmplifier",
+                       effectTextComponent,
+                       new TranslationTextComponent("potion.potency." + effectInstance.getAmplifier())
+               );
             }
 
-            if (effectinstance.getDuration() > 20) {
-               iformattabletextcomponent = new TranslationTextComponent("potion.withDuration", iformattabletextcomponent, EffectUtils.formatDuration(effectinstance, p_185182_2_));
+            if (effectInstance.getDuration() > 20) {
+               effectTextComponent = new TranslationTextComponent(
+                       "potion.withDuration",
+                       effectTextComponent,
+                       EffectUtils.formatDuration(effectInstance, durationFactor)
+               );
             }
 
-            p_185182_1_.add(iformattabletextcomponent.withStyle(effect.getCategory().getTooltipFormatting()));
+            tooltip.add(effectTextComponent.withStyle(effect.getCategory().getTooltipFormatting()));
          }
       }
 
-      if (!list1.isEmpty()) {
-         p_185182_1_.add(StringTextComponent.EMPTY);
-         p_185182_1_.add((new TranslationTextComponent("potion.whenDrank")).withStyle(TextFormatting.DARK_PURPLE));
+      // Add attribute modifier information to the tooltip
+      if (!attributeModifiers.isEmpty()) {
+         tooltip.add(StringTextComponent.EMPTY);
+         tooltip.add((new TranslationTextComponent("potion.whenDrank")).withStyle(TextFormatting.DARK_PURPLE));
 
-         for(Pair<Attribute, AttributeModifier> pair : list1) {
-            AttributeModifier attributemodifier2 = pair.getSecond();
-            double d0 = attributemodifier2.getAmount();
-            double d1;
-            if (attributemodifier2.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && attributemodifier2.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
-               d1 = attributemodifier2.getAmount();
+         for (Pair<Attribute, AttributeModifier> pair : attributeModifiers) {
+            AttributeModifier modifier = pair.getSecond();
+            double amount = modifier.getAmount();
+            double displayAmount;
+
+            if (modifier.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE &&
+                    modifier.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
+               displayAmount = modifier.getAmount();
             } else {
-               d1 = attributemodifier2.getAmount() * 100.0D;
+               displayAmount = modifier.getAmount() * 100.0D;
             }
 
-            if (d0 > 0.0D) {
-               p_185182_1_.add((new TranslationTextComponent("attribute.modifier.plus." + attributemodifier2.getOperation().toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslationTextComponent(pair.getFirst().getDescriptionId()))).withStyle(TextFormatting.BLUE));
-            } else if (d0 < 0.0D) {
-               d1 = d1 * -1.0D;
-               p_185182_1_.add((new TranslationTextComponent("attribute.modifier.take." + attributemodifier2.getOperation().toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslationTextComponent(pair.getFirst().getDescriptionId()))).withStyle(TextFormatting.RED));
+            if (amount > 0.0D) {
+               tooltip.add((new TranslationTextComponent(
+                       "attribute.modifier.plus." + modifier.getOperation().toValue(),
+                       ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(displayAmount),
+                       new TranslationTextComponent(pair.getFirst().getDescriptionId())
+               )).withStyle(TextFormatting.BLUE));
+            } else if (amount < 0.0D) {
+               displayAmount = displayAmount * -1.0D;
+               tooltip.add((new TranslationTextComponent(
+                       "attribute.modifier.take." + modifier.getOperation().toValue(),
+                       ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(displayAmount),
+                       new TranslationTextComponent(pair.getFirst().getDescriptionId())
+               )).withStyle(TextFormatting.RED));
             }
          }
       }
-
    }
 }

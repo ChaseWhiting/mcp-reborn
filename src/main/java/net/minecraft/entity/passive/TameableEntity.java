@@ -24,7 +24,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class TameableEntity extends AnimalEntity {
+public abstract class TameableEntity extends Animal {
    protected static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(TameableEntity.class, DataSerializers.BYTE);
    protected static final DataParameter<Optional<UUID>> DATA_OWNERUUID_ID = EntityDataManager.defineId(TameableEntity.class, DataSerializers.OPTIONAL_UUID);
    private boolean orderedToSit;

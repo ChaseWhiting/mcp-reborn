@@ -5,18 +5,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.world.server.ServerWorld;
 
-public class WantedItemsSensor extends Sensor<MobEntity> {
+public class WantedItemsSensor extends Sensor<Mob> {
    public Set<MemoryModuleType<?>> requires() {
       return ImmutableSet.of(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
    }
 
-   protected void doTick(ServerWorld p_212872_1_, MobEntity p_212872_2_) {
+   protected void doTick(ServerWorld p_212872_1_, Mob p_212872_2_) {
       Brain<?> brain = p_212872_2_.getBrain();
       List<ItemEntity> list = p_212872_1_.getEntitiesOfClass(ItemEntity.class, p_212872_2_.getBoundingBox().inflate(8.0D, 4.0D, 8.0D), (p_234123_0_) -> {
          return true;

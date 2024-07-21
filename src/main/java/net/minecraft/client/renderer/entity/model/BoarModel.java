@@ -2,14 +2,14 @@ package net.minecraft.client.renderer.entity.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.monster.IFlinging;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BoarModel<T extends MobEntity & IFlinging> extends AgeableModel<T> {
+public class BoarModel<T extends Mob & IFlinging> extends AgeableModel<T> {
    private final ModelRenderer head;
    private final ModelRenderer rightEar;
    private final ModelRenderer leftEar;

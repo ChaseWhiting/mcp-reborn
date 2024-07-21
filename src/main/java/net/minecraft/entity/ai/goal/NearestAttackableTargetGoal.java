@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -16,15 +16,15 @@ public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetG
    protected LivingEntity target;
    protected EntityPredicate targetConditions;
 
-   public NearestAttackableTargetGoal(MobEntity p_i50313_1_, Class<T> p_i50313_2_, boolean p_i50313_3_) {
+   public NearestAttackableTargetGoal(Mob p_i50313_1_, Class<T> p_i50313_2_, boolean p_i50313_3_) {
       this(p_i50313_1_, p_i50313_2_, p_i50313_3_, false);
    }
 
-   public NearestAttackableTargetGoal(MobEntity p_i50314_1_, Class<T> p_i50314_2_, boolean p_i50314_3_, boolean p_i50314_4_) {
+   public NearestAttackableTargetGoal(Mob p_i50314_1_, Class<T> p_i50314_2_, boolean p_i50314_3_, boolean p_i50314_4_) {
       this(p_i50314_1_, p_i50314_2_, 10, p_i50314_3_, p_i50314_4_, (Predicate<LivingEntity>)null);
    }
 
-   public NearestAttackableTargetGoal(MobEntity p_i50315_1_, Class<T> p_i50315_2_, int p_i50315_3_, boolean p_i50315_4_, boolean p_i50315_5_, @Nullable Predicate<LivingEntity> p_i50315_6_) {
+   public NearestAttackableTargetGoal(Mob p_i50315_1_, Class<T> p_i50315_2_, int p_i50315_3_, boolean p_i50315_4_, boolean p_i50315_5_, @Nullable Predicate<LivingEntity> p_i50315_6_) {
       super(p_i50315_1_, p_i50315_4_, p_i50315_5_);
       this.targetType = p_i50315_2_;
       this.randomInterval = p_i50315_3_;

@@ -3,6 +3,7 @@ package net.minecraft.potion;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.monster.PatrollerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.Difficulty;
@@ -44,16 +45,33 @@ public class Effects {
          return true;
       }
 
-      public void applyEffectTick(LivingEntity p_76394_1_, int p_76394_2_) {
-         if (p_76394_1_ instanceof ServerPlayerEntity && !p_76394_1_.isSpectator()) {
-            ServerPlayerEntity serverplayerentity = (ServerPlayerEntity)p_76394_1_;
+      public void applyEffectTick(LivingEntity entity, int level) {
+         if (entity instanceof ServerPlayerEntity && !entity.isSpectator()) {
+            ServerPlayerEntity serverplayerentity = (ServerPlayerEntity)entity;
             ServerWorld serverworld = serverplayerentity.getLevel();
             if (serverworld.getDifficulty() == Difficulty.PEACEFUL) {
                return;
             }
 
-            if (serverworld.isVillage(p_76394_1_.blockPosition())) {
+            if (serverworld.isVillage(entity.blockPosition())) {
                serverworld.getRaids().createOrExtendRaid(serverplayerentity);
+            }
+         }
+
+         if (entity instanceof PatrollerEntity) {
+            PatrollerEntity patroller = (PatrollerEntity) entity;
+
+            // Check if the level is an instance of ServerWorld before casting
+            if (patroller.level instanceof ServerWorld) {
+               ServerWorld serverWorld = (ServerWorld) patroller.level;
+
+               if (serverWorld.getDifficulty() == Difficulty.PEACEFUL) {
+                  return;
+               }
+
+               if (serverWorld.isVillage(entity.blockPosition())) {
+                  serverWorld.getRaids().createOrExtendRaidForPatroller(patroller);
+               }
             }
          }
 

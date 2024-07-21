@@ -79,25 +79,14 @@ import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierManager;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.entity.item.EnderCrystalEntity;
-import net.minecraft.entity.item.EnderPearlEntity;
-import net.minecraft.entity.item.ExperienceBottleEntity;
-import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.item.FallingBlockEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.entity.item.LeashKnotEntity;
-import net.minecraft.entity.item.PaintingEntity;
-import net.minecraft.entity.item.TNTEntity;
+import net.minecraft.entity.item.*;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.item.minecart.ChestMinecartEntity;
 import net.minecraft.entity.item.minecart.CommandBlockMinecartEntity;
@@ -483,7 +472,9 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
          entity = new ArmorStandEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.END_CRYSTAL) {
          entity = new EnderCrystalEntity(this.level, d0, d1, d2);
-      } else if (entitytype == EntityType.ITEM) {
+      } else if (entitytype == EntityType.BLACKHOLE) {
+         entity = new BlackholeEntity(this.level, d0, d1, d2);
+      }else if (entitytype == EntityType.ITEM) {
          entity = new ItemEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.FALLING_BLOCK) {
          entity = new FallingBlockEntity(this.level, d0, d1, d2, Block.stateById(p_147235_1_.getData()));
@@ -924,8 +915,8 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
    public void handleEntityLinkPacket(SMountEntityPacket p_147243_1_) {
       PacketThreadUtil.ensureRunningOnSameThread(p_147243_1_, this, this.minecraft);
       Entity entity = this.level.getEntity(p_147243_1_.getSourceId());
-      if (entity instanceof MobEntity) {
-         ((MobEntity)entity).setDelayedLeashHolderId(p_147243_1_.getDestId());
+      if (entity instanceof Mob) {
+         ((Mob)entity).setDelayedLeashHolderId(p_147243_1_.getDestId());
       }
 
    }

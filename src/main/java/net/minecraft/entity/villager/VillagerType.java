@@ -38,6 +38,7 @@ public final class VillagerType {
       p_221172_0_.put(Biomes.MODIFIED_JUNGLE_EDGE, JUNGLE);
       p_221172_0_.put(Biomes.SAVANNA_PLATEAU, SAVANNA);
       p_221172_0_.put(Biomes.SAVANNA, SAVANNA);
+      p_221172_0_.put(Biomes.GOLDEN_SAVANNA, SAVANNA);
       p_221172_0_.put(Biomes.SHATTERED_SAVANNA, SAVANNA);
       p_221172_0_.put(Biomes.SHATTERED_SAVANNA_PLATEAU, SAVANNA);
       p_221172_0_.put(Biomes.DEEP_FROZEN_OCEAN, SNOW);

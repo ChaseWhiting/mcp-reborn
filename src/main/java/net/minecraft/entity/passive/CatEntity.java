@@ -13,7 +13,7 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -238,7 +238,7 @@ public class CatEntity extends TameableEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.ATTACK_DAMAGE, 3.0D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.ATTACK_DAMAGE, 3.0D);
    }
 
    public boolean causeFallDamage(float p_225503_1_, float p_225503_2_) {
@@ -340,7 +340,7 @@ public class CatEntity extends TameableEntity {
       return catentity;
    }
 
-   public boolean canMate(AnimalEntity p_70878_1_) {
+   public boolean canMate(Animal p_70878_1_) {
       if (!this.isTame()) {
          return false;
       } else if (!(p_70878_1_ instanceof CatEntity)) {

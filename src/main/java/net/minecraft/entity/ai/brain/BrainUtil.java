@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.memory.WalkTarget;
 import net.minecraft.entity.item.ItemEntity;
@@ -92,7 +92,7 @@ public class BrainUtil {
       }).min(Comparator.comparingInt(p_220617_0_::sectionsToVillage)).orElse(p_220617_1_);
    }
 
-   public static boolean isWithinAttackRange(MobEntity p_233869_0_, LivingEntity p_233869_1_, int p_233869_2_) {
+   public static boolean isWithinAttackRange(Mob p_233869_0_, LivingEntity p_233869_1_, int p_233869_2_) {
       Item item = p_233869_0_.getMainHandItem().getItem();
       if (item instanceof ShootableItem && p_233869_0_.canFireProjectileWeapon((ShootableItem)item)) {
          int i = ((ShootableItem)item).getDefaultProjectileRange() - p_233869_2_;
@@ -102,7 +102,7 @@ public class BrainUtil {
       }
    }
 
-   public static boolean isWithinAttackRange(MobEntity mob, LivingEntity ta) {
+   public static boolean isWithinAttackRange(Mob mob, LivingEntity ta) {
       Item item = mob.getMainHandItem().getItem();
       if (item instanceof ShootableItem && mob.canFireProjectileWeapon((ShootableItem)item)) {
          int i = 15;

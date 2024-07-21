@@ -132,7 +132,8 @@ public class MainMenuScreen extends Screen {
       this.addButton(new Button(this.width / 2 - 100, p_73969_1_, 200, 20, new TranslationTextComponent("menu.singleplayer"), (p_213089_1_) -> {
          this.minecraft.setScreen(new WorldSelectionScreen(this));
       }));
-      boolean flag = this.minecraft.allowsMultiplayer();
+//      boolean flag = this.minecraft.allowsMultiplayer();
+      boolean flag = true;
       Button.ITooltip button$itooltip = flag ? Button.NO_TOOLTIP : (p_238659_1_, p_238659_2_, p_238659_3_, p_238659_4_) -> {
          if (!p_238659_1_.active) {
             this.renderTooltip(p_238659_2_, this.minecraft.font.split(new TranslationTextComponent("title.multiplayer.disabled"), Math.max(this.width / 2 - 43, 170)), p_238659_3_, p_238659_4_);

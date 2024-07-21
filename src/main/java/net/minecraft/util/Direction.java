@@ -64,10 +64,10 @@ public enum Direction implements IStringSerializable {
       throw new IllegalArgumentException("Duplicate keys");
    }, Long2ObjectOpenHashMap::new));
 
-   private Direction(int p_i46016_3_, int p_i46016_4_, int p_i46016_5_, String p_i46016_6_, Direction.AxisDirection p_i46016_7_, Direction.Axis p_i46016_8_, Vector3i p_i46016_9_) {
-      this.data3d = p_i46016_3_;
-      this.data2d = p_i46016_5_;
-      this.oppositeIndex = p_i46016_4_;
+   private Direction(int data3d, int oppositeindex, int data2d, String p_i46016_6_, Direction.AxisDirection p_i46016_7_, Direction.Axis p_i46016_8_, Vector3i p_i46016_9_) {
+      this.data3d = data3d;
+      this.data2d = data2d;
+      this.oppositeIndex = oppositeindex;
       this.name = p_i46016_6_;
       this.axis = p_i46016_8_;
       this.axisDirection = p_i46016_7_;

@@ -14,7 +14,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ICrossbowUser;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -27,15 +27,12 @@ import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.BannerItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.ShootableItem;
+import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.datasync.DataParameter;
@@ -69,7 +66,7 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
       this.goalSelector.addGoal(3, new RangedCrossbowAttackGoal<>(this, 1.0D, 8.0F));
       this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
       this.goalSelector.addGoal(9, new LookAtGoal(this, PlayerEntity.class, 15.0F, 1.0F));
-      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 15.0F));
+      this.goalSelector.addGoal(10, new LookAtGoal(this, Mob.class, 15.0F));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, AbstractRaiderEntity.class)).setAlertOthers());
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, false));
@@ -77,7 +74,7 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.35F).add(Attributes.MAX_HEALTH, 24.0D).add(Attributes.ATTACK_DAMAGE, 5.0D).add(Attributes.FOLLOW_RANGE, 32.0D);
+      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.35F).add(Attributes.MAX_HEALTH, 24.0D).add(Attributes.ATTACK_DAMAGE, 5.0D).add(Attributes.FOLLOW_RANGE, 32.0D);
    }
 
    protected void defineSynchedData() {
@@ -120,7 +117,7 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
    public AbstractIllagerEntity.ArmPose getArmPose() {
       if (this.isChargingCrossbow()) {
          return AbstractIllagerEntity.ArmPose.CROSSBOW_CHARGE;
-      } else if (this.isHolding(Items.CROSSBOW)) {
+      } else if (this.isHolding(Items.CROSSBOW) || this.isHolding(Items.GILDED_CROSSBOW) || AbstractCrossbowItem.isHoldingAbstractCrossbowItem(this)) {
          return AbstractIllagerEntity.ArmPose.CROSSBOW_HOLD;
       } else {
          return this.isAggressive() ? AbstractIllagerEntity.ArmPose.ATTACKING : AbstractIllagerEntity.ArmPose.NEUTRAL;
@@ -241,6 +238,33 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
          }
       }
    }
+
+   public void tick() {
+      super.tick();
+      boolean isHoldingCrossbow = this.getMainHandItem().getItem() instanceof CrossbowItem
+              || this.getMainHandItem().getItem() instanceof GildedCrossbowItem
+              || this.getMainHandItem().getItem() instanceof AbstractCrossbowItem;
+
+      if (this.getVehicle() != null && this.getVehicle() instanceof HorseEntity && this.getTarget() != null && isHoldingCrossbow) {
+         HorseEntity horse = (HorseEntity) this.getVehicle();
+
+         // Synchronize horse's rotation with the rider's rotation
+         horse.setYBodyRot(this.yBodyRot);
+         horse.setYHeadRot(this.yHeadRot);
+         horse.yRotO = horse.yBodyRot;
+         horse.yRot = horse.yBodyRot;
+
+         // Update horse's navigation
+         if (this.getNavigation().getTargetPos() != null) {
+            horse.getNavigation().moveTo(this.getNavigation().getTargetPos().getX(),
+                    this.getNavigation().getTargetPos().getY(),
+                    this.getNavigation().getTargetPos().getZ(),
+                    horse.getAttributeValue(Attributes.MOVEMENT_SPEED) + 0.3D);
+         }
+      }
+   }
+
+
 
    public void applyRaidBuffs(int p_213660_1_, boolean p_213660_2_) {
       Raid raid = this.getCurrentRaid();

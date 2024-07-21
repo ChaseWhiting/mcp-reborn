@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import net.minecraft.block.DoorBlock;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.pathfinding.Path;
@@ -20,7 +20,7 @@ import net.minecraft.village.PointOfInterestType;
 import net.minecraft.world.server.ServerWorld;
 
 public class MoveThroughVillageGoal extends Goal {
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    private final double speedModifier;
    private Path path;
    private BlockPos poiPos;
@@ -29,7 +29,7 @@ public class MoveThroughVillageGoal extends Goal {
    private final int distanceToPoi;
    private final BooleanSupplier canDealWithDoors;
 
-   public MoveThroughVillageGoal(CreatureEntity p_i50324_1_, double p_i50324_2_, boolean p_i50324_4_, int p_i50324_5_, BooleanSupplier p_i50324_6_) {
+   public MoveThroughVillageGoal(Creature p_i50324_1_, double p_i50324_2_, boolean p_i50324_4_, int p_i50324_5_, BooleanSupplier p_i50324_6_) {
       this.mob = p_i50324_1_;
       this.speedModifier = p_i50324_2_;
       this.onlyAtNight = p_i50324_4_;

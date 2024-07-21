@@ -16,7 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -65,8 +65,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ParrotEntity extends ShoulderRidingEntity implements IFlyingAnimal {
    private static final DataParameter<Integer> DATA_VARIANT_ID = EntityDataManager.defineId(ParrotEntity.class, DataSerializers.INT);
-   private static final Predicate<MobEntity> NOT_PARROT_PREDICATE = new Predicate<MobEntity>() {
-      public boolean test(@Nullable MobEntity p_test_1_) {
+   private static final Predicate<Mob> NOT_PARROT_PREDICATE = new Predicate<Mob>() {
+      public boolean test(@Nullable Mob p_test_1_) {
          return p_test_1_ != null && ParrotEntity.MOB_SOUND_MAP.containsKey(p_test_1_.getType());
       }
    };
@@ -86,6 +86,7 @@ public class ParrotEntity extends ShoulderRidingEntity implements IFlyingAnimal 
       p_200609_0_.put(EntityType.HOGLIN, SoundEvents.PARROT_IMITATE_HOGLIN);
       p_200609_0_.put(EntityType.HUSK, SoundEvents.PARROT_IMITATE_HUSK);
       p_200609_0_.put(EntityType.ILLUSIONER, SoundEvents.PARROT_IMITATE_ILLUSIONER);
+      p_200609_0_.put(EntityType.EVOKER, SoundEvents.PARROT_IMITATE_EVOKER);
       p_200609_0_.put(EntityType.MAGMA_CUBE, SoundEvents.PARROT_IMITATE_MAGMA_CUBE);
       p_200609_0_.put(EntityType.PHANTOM, SoundEvents.PARROT_IMITATE_PHANTOM);
       p_200609_0_.put(EntityType.PIGLIN, SoundEvents.PARROT_IMITATE_PIGLIN);
@@ -149,7 +150,7 @@ public class ParrotEntity extends ShoulderRidingEntity implements IFlyingAnimal 
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 6.0D).add(Attributes.FLYING_SPEED, (double)0.4F).add(Attributes.MOVEMENT_SPEED, (double)0.2F);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 6.0D).add(Attributes.FLYING_SPEED, (double)0.4F).add(Attributes.MOVEMENT_SPEED, (double)0.2F);
    }
 
    protected PathNavigator createNavigation(World p_175447_1_) {
@@ -209,9 +210,9 @@ public class ParrotEntity extends ShoulderRidingEntity implements IFlyingAnimal 
 
    public static boolean imitateNearbyMobs(World p_192006_0_, Entity p_192006_1_) {
       if (p_192006_1_.isAlive() && !p_192006_1_.isSilent() && p_192006_0_.random.nextInt(2) == 0) {
-         List<MobEntity> list = p_192006_0_.getEntitiesOfClass(MobEntity.class, p_192006_1_.getBoundingBox().inflate(20.0D), NOT_PARROT_PREDICATE);
+         List<Mob> list = p_192006_0_.getEntitiesOfClass(Mob.class, p_192006_1_.getBoundingBox().inflate(20.0D), NOT_PARROT_PREDICATE);
          if (!list.isEmpty()) {
-            MobEntity mobentity = list.get(p_192006_0_.random.nextInt(list.size()));
+            Mob mobentity = list.get(p_192006_0_.random.nextInt(list.size()));
             if (!mobentity.isSilent()) {
                SoundEvent soundevent = getImitatedSound(mobentity.getType());
                p_192006_0_.playSound((PlayerEntity)null, p_192006_1_.getX(), p_192006_1_.getY(), p_192006_1_.getZ(), soundevent, p_192006_1_.getSoundSource(), 0.7F, getPitch(p_192006_0_.random));
@@ -284,7 +285,7 @@ public class ParrotEntity extends ShoulderRidingEntity implements IFlyingAnimal 
    protected void checkFallDamage(double p_184231_1_, boolean p_184231_3_, BlockState p_184231_4_, BlockPos p_184231_5_) {
    }
 
-   public boolean canMate(AnimalEntity p_70878_1_) {
+   public boolean canMate(Animal p_70878_1_) {
       return false;
    }
 

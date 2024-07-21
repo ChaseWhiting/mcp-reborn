@@ -77,6 +77,10 @@ public class MaterialColor {
       }
    }
 
+   public int getColor() {
+      return col;
+   }
+
    @OnlyIn(Dist.CLIENT)
    public int calculateRGBColor(int p_151643_1_) {
       int i = 220;

@@ -15,33 +15,81 @@ public class AxisAlignedBB {
    public final double maxY;
    public final double maxZ;
 
-   public AxisAlignedBB(double p_i2300_1_, double p_i2300_3_, double p_i2300_5_, double p_i2300_7_, double p_i2300_9_, double p_i2300_11_) {
-      this.minX = Math.min(p_i2300_1_, p_i2300_7_);
-      this.minY = Math.min(p_i2300_3_, p_i2300_9_);
-      this.minZ = Math.min(p_i2300_5_, p_i2300_11_);
-      this.maxX = Math.max(p_i2300_1_, p_i2300_7_);
-      this.maxY = Math.max(p_i2300_3_, p_i2300_9_);
-      this.maxZ = Math.max(p_i2300_5_, p_i2300_11_);
+   /**
+    * Constructs an AxisAlignedBB (Axis Aligned Bounding Box) with the specified minimum and maximum coordinates.
+    *
+    * @param x1 The first x-coordinate.
+    * @param y1 The first y-coordinate.
+    * @param z1 The first z-coordinate.
+    * @param x2 The second x-coordinate.
+    * @param y2 The second y-coordinate.
+    * @param z2 The second z-coordinate.
+    */
+   public AxisAlignedBB(double x1, double y1, double z1, double x2, double y2, double z2) {
+      this.minX = Math.min(x1, x2);
+      this.minY = Math.min(y1, y2);
+      this.minZ = Math.min(z1, z2);
+      this.maxX = Math.max(x1, x2);
+      this.maxY = Math.max(y1, y2);
+      this.maxZ = Math.max(z1, z2);
    }
 
-   public AxisAlignedBB(BlockPos p_i46612_1_) {
-      this((double)p_i46612_1_.getX(), (double)p_i46612_1_.getY(), (double)p_i46612_1_.getZ(), (double)(p_i46612_1_.getX() + 1), (double)(p_i46612_1_.getY() + 1), (double)(p_i46612_1_.getZ() + 1));
+   /**
+    * Constructs an AxisAlignedBB (Axis Aligned Bounding Box) with the specified BlockPos.
+    * The bounding box will cover the block at the given position.
+    *
+    * @param blockPos The BlockPos representing the position of the block.
+    */
+   public AxisAlignedBB(BlockPos blockPos) {
+      this((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ(),
+              (double)(blockPos.getX() + 1), (double)(blockPos.getY() + 1), (double)(blockPos.getZ() + 1));
    }
 
-   public AxisAlignedBB(BlockPos p_i45554_1_, BlockPos p_i45554_2_) {
-      this((double)p_i45554_1_.getX(), (double)p_i45554_1_.getY(), (double)p_i45554_1_.getZ(), (double)p_i45554_2_.getX(), (double)p_i45554_2_.getY(), (double)p_i45554_2_.getZ());
+   /**
+    * Constructs an AxisAlignedBB (Axis Aligned Bounding Box) with two BlockPos.
+    * The bounding box will span from the first position to the second position.
+    *
+    * @param pos1 The first BlockPos representing one corner of the bounding box.
+    * @param pos2 The second BlockPos representing the opposite corner of the bounding box.
+    */
+   public AxisAlignedBB(BlockPos pos1, BlockPos pos2) {
+      this((double)pos1.getX(), (double)pos1.getY(), (double)pos1.getZ(),
+              (double)pos2.getX(), (double)pos2.getY(), (double)pos2.getZ());
    }
 
-   public AxisAlignedBB(Vector3d p_i47144_1_, Vector3d p_i47144_2_) {
-      this(p_i47144_1_.x, p_i47144_1_.y, p_i47144_1_.z, p_i47144_2_.x, p_i47144_2_.y, p_i47144_2_.z);
+   /**
+    * Constructs an AxisAlignedBB (Axis Aligned Bounding Box) with two Vector3d.
+    * The bounding box will span from the first vector to the second vector.
+    *
+    * @param vec1 The first Vector3d representing one corner of the bounding box.
+    * @param vec2 The second Vector3d representing the opposite corner of the bounding box.
+    */
+   public AxisAlignedBB(Vector3d vec1, Vector3d vec2) {
+      this(vec1.x, vec1.y, vec1.z, vec2.x, vec2.y, vec2.z);
    }
 
-   public static AxisAlignedBB of(MutableBoundingBox p_216363_0_) {
-      return new AxisAlignedBB((double)p_216363_0_.x0, (double)p_216363_0_.y0, (double)p_216363_0_.z0, (double)(p_216363_0_.x1 + 1), (double)(p_216363_0_.y1 + 1), (double)(p_216363_0_.z1 + 1));
+   /**
+    * Creates an AxisAlignedBB (Axis Aligned Bounding Box) from a MutableBoundingBox.
+    * The bounding box will cover the area defined by the MutableBoundingBox.
+    *
+    * @param boundingBox The MutableBoundingBox representing the area to cover.
+    * @return A new AxisAlignedBB covering the specified area.
+    */
+   public static AxisAlignedBB of(MutableBoundingBox boundingBox) {
+      return new AxisAlignedBB((double)boundingBox.x0, (double)boundingBox.y0, (double)boundingBox.z0,
+              (double)(boundingBox.x1 + 1), (double)(boundingBox.y1 + 1), (double)(boundingBox.z1 + 1));
    }
 
-   public static AxisAlignedBB unitCubeFromLowerCorner(Vector3d p_241549_0_) {
-      return new AxisAlignedBB(p_241549_0_.x, p_241549_0_.y, p_241549_0_.z, p_241549_0_.x + 1.0D, p_241549_0_.y + 1.0D, p_241549_0_.z + 1.0D);
+   /**
+    * Creates an AxisAlignedBB (Axis Aligned Bounding Box) representing a unit cube
+    * from the specified lower corner.
+    *
+    * @param lowerCorner The Vector3d representing the lower corner of the unit cube.
+    * @return A new AxisAlignedBB representing the unit cube from the lower corner.
+    */
+   public static AxisAlignedBB unitCubeFromLowerCorner(Vector3d lowerCorner) {
+      return new AxisAlignedBB(lowerCorner.x, lowerCorner.y, lowerCorner.z,
+              lowerCorner.x + 1.0D, lowerCorner.y + 1.0D, lowerCorner.z + 1.0D);
    }
 
    public double min(Direction.Axis p_197745_1_) {
@@ -118,50 +166,82 @@ public class AxisAlignedBB {
       return new AxisAlignedBB(d0, d1, d2, d3, d4, d5);
    }
 
-   public AxisAlignedBB expandTowards(Vector3d p_216361_1_) {
-      return this.expandTowards(p_216361_1_.x, p_216361_1_.y, p_216361_1_.z);
+   /**
+    * Expands the current AxisAlignedBB (Axis Aligned Bounding Box) towards the specified vector.
+    *
+    * @param vector The Vector3d representing the direction and distance to expand towards.
+    * @return A new AxisAlignedBB expanded towards the specified vector.
+    */
+   public AxisAlignedBB expandTowards(Vector3d vector) {
+      return this.expandTowards(vector.x, vector.y, vector.z);
    }
 
-   public AxisAlignedBB expandTowards(double p_72321_1_, double p_72321_3_, double p_72321_5_) {
-      double d0 = this.minX;
-      double d1 = this.minY;
-      double d2 = this.minZ;
-      double d3 = this.maxX;
-      double d4 = this.maxY;
-      double d5 = this.maxZ;
-      if (p_72321_1_ < 0.0D) {
-         d0 += p_72321_1_;
-      } else if (p_72321_1_ > 0.0D) {
-         d3 += p_72321_1_;
+   /**
+    * Expands the current AxisAlignedBB (Axis Aligned Bounding Box) towards the specified coordinates.
+    * The expansion is directional based on the sign of the provided values.
+    *
+    * @param x The distance to expand along the x-axis.
+    * @param y The distance to expand along the y-axis.
+    * @param z The distance to expand along the z-axis.
+    * @return A new AxisAlignedBB expanded towards the specified coordinates.
+    */
+   public AxisAlignedBB expandTowards(double x, double y, double z) {
+      double minX = this.minX;
+      double minY = this.minY;
+      double minZ = this.minZ;
+      double maxX = this.maxX;
+      double maxY = this.maxY;
+      double maxZ = this.maxZ;
+
+      if (x < 0.0D) {
+         minX += x;
+      } else if (x > 0.0D) {
+         maxX += x;
       }
 
-      if (p_72321_3_ < 0.0D) {
-         d1 += p_72321_3_;
-      } else if (p_72321_3_ > 0.0D) {
-         d4 += p_72321_3_;
+      if (y < 0.0D) {
+         minY += y;
+      } else if (y > 0.0D) {
+         maxY += y;
       }
 
-      if (p_72321_5_ < 0.0D) {
-         d2 += p_72321_5_;
-      } else if (p_72321_5_ > 0.0D) {
-         d5 += p_72321_5_;
+      if (z < 0.0D) {
+         minZ += z;
+      } else if (z > 0.0D) {
+         maxZ += z;
       }
 
-      return new AxisAlignedBB(d0, d1, d2, d3, d4, d5);
+      return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
    }
 
-   public AxisAlignedBB inflate(double p_72314_1_, double p_72314_3_, double p_72314_5_) {
-      double d0 = this.minX - p_72314_1_;
-      double d1 = this.minY - p_72314_3_;
-      double d2 = this.minZ - p_72314_5_;
-      double d3 = this.maxX + p_72314_1_;
-      double d4 = this.maxY + p_72314_3_;
-      double d5 = this.maxZ + p_72314_5_;
-      return new AxisAlignedBB(d0, d1, d2, d3, d4, d5);
+   /**
+    * Inflates the current AxisAlignedBB (Axis Aligned Bounding Box) by the specified amounts along each axis.
+    * The inflation is symmetric along each axis.
+    *
+    * @param x The amount to inflate along the x-axis.
+    * @param y The amount to inflate along the y-axis.
+    * @param z The amount to inflate along the z-axis.
+    * @return A new AxisAlignedBB inflated by the specified amounts.
+    */
+   public AxisAlignedBB inflate(double x, double y, double z) {
+      double minX = this.minX - x;
+      double minY = this.minY - y;
+      double minZ = this.minZ - z;
+      double maxX = this.maxX + x;
+      double maxY = this.maxY + y;
+      double maxZ = this.maxZ + z;
+      return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
    }
 
-   public AxisAlignedBB inflate(double p_186662_1_) {
-      return this.inflate(p_186662_1_, p_186662_1_, p_186662_1_);
+   /**
+    * Inflates the current AxisAlignedBB (Axis Aligned Bounding Box) by the specified amount uniformly along each axis.
+    * The inflation is symmetric along each axis.
+    *
+    * @param amount The amount to inflate uniformly along each axis.
+    * @return A new AxisAlignedBB inflated by the specified amount.
+    */
+   public AxisAlignedBB inflate(double amount) {
+      return this.inflate(amount, amount, amount);
    }
 
    public AxisAlignedBB intersect(AxisAlignedBB p_191500_1_) {

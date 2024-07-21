@@ -3,7 +3,7 @@ package net.minecraft.entity.ai.goal;
 import javax.annotation.Nullable;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.pathfinding.Path;
@@ -12,7 +12,7 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.util.math.MathHelper;
 
 public abstract class TargetGoal extends Goal {
-   protected final MobEntity mob;
+   protected final Mob mob;
    protected final boolean mustSee;
    private final boolean mustReach;
    private int reachCache;
@@ -21,11 +21,11 @@ public abstract class TargetGoal extends Goal {
    protected LivingEntity targetMob;
    protected int unseenMemoryTicks = 60;
 
-   public TargetGoal(MobEntity p_i50308_1_, boolean p_i50308_2_) {
+   public TargetGoal(Mob p_i50308_1_, boolean p_i50308_2_) {
       this(p_i50308_1_, p_i50308_2_, false);
    }
 
-   public TargetGoal(MobEntity p_i50309_1_, boolean p_i50309_2_, boolean p_i50309_3_) {
+   public TargetGoal(Mob p_i50309_1_, boolean p_i50309_2_, boolean p_i50309_3_) {
       this.mob = p_i50309_1_;
       this.mustSee = p_i50309_2_;
       this.mustReach = p_i50309_3_;

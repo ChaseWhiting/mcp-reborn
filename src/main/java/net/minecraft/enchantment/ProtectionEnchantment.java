@@ -8,9 +8,9 @@ import net.minecraft.util.math.MathHelper;
 public class ProtectionEnchantment extends Enchantment {
    public final ProtectionEnchantment.Type type;
 
-   public ProtectionEnchantment(Enchantment.Rarity p_i46723_1_, ProtectionEnchantment.Type p_i46723_2_, EquipmentSlotType... p_i46723_3_) {
-      super(p_i46723_1_, p_i46723_2_ == ProtectionEnchantment.Type.FALL ? EnchantmentType.ARMOR_FEET : EnchantmentType.ARMOR, p_i46723_3_);
-      this.type = p_i46723_2_;
+   public ProtectionEnchantment(Enchantment.Rarity rarity, ProtectionEnchantment.Type type, EquipmentSlotType... slotTypes) {
+      super(rarity, type == ProtectionEnchantment.Type.FALL ? EnchantmentType.ARMOR_FEET : EnchantmentType.ARMOR, slotTypes);
+      this.type = type;
    }
 
    public int getMinCost(int p_77321_1_) {

@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.brain.task;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.brain.BrainUtil;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
@@ -13,7 +13,7 @@ import net.minecraft.util.math.SectionPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 
-public class FindWalkTargetTask extends Task<CreatureEntity> {
+public class FindWalkTargetTask extends Task<Creature> {
    private final float speedModifier;
    private final int maxXyDist;
    private final int maxYDist;
@@ -29,7 +29,7 @@ public class FindWalkTargetTask extends Task<CreatureEntity> {
       this.maxYDist = p_i51526_3_;
    }
 
-   protected void start(ServerWorld p_212831_1_, CreatureEntity p_212831_2_, long p_212831_3_) {
+   protected void start(ServerWorld p_212831_1_, Creature p_212831_2_, long p_212831_3_) {
       BlockPos blockpos = p_212831_2_.blockPosition();
       if (p_212831_1_.isVillage(blockpos)) {
          this.setRandomPos(p_212831_2_);
@@ -45,14 +45,14 @@ public class FindWalkTargetTask extends Task<CreatureEntity> {
 
    }
 
-   private void setTargetedPos(CreatureEntity p_220594_1_, SectionPos p_220594_2_) {
+   private void setTargetedPos(Creature p_220594_1_, SectionPos p_220594_2_) {
       Optional<Vector3d> optional = Optional.ofNullable(RandomPositionGenerator.getPosTowards(p_220594_1_, this.maxXyDist, this.maxYDist, Vector3d.atBottomCenterOf(p_220594_2_.center())));
       p_220594_1_.getBrain().setMemory(MemoryModuleType.WALK_TARGET, optional.map((p_220596_1_) -> {
          return new WalkTarget(p_220596_1_, this.speedModifier, 0);
       }));
    }
 
-   private void setRandomPos(CreatureEntity p_220593_1_) {
+   private void setRandomPos(Creature p_220593_1_) {
       Optional<Vector3d> optional = Optional.ofNullable(RandomPositionGenerator.getLandPos(p_220593_1_, this.maxXyDist, this.maxYDist));
       p_220593_1_.getBrain().setMemory(MemoryModuleType.WALK_TARGET, optional.map((p_220595_1_) -> {
          return new WalkTarget(p_220595_1_, this.speedModifier, 0);

@@ -9,7 +9,10 @@ import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.monster.PillagerEntity;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
@@ -34,6 +37,8 @@ import net.minecraft.world.server.ServerWorld;
 public class HorseEntity extends AbstractHorseEntity {
    private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
    private static final DataParameter<Integer> DATA_ID_TYPE_VARIANT = EntityDataManager.defineId(HorseEntity.class, DataSerializers.INT);
+   private NearestAttackableTargetGoal<PlayerEntity> attackPlayerGoal = new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true);
+   private MeleeAttackGoal attackGoal = new MeleeAttackGoal(this, 1.0D, false);
 
    public HorseEntity(EntityType<? extends HorseEntity> p_i50238_1_, World p_i50238_2_) {
       super(p_i50238_1_, p_i50238_2_);
@@ -141,6 +146,18 @@ public class HorseEntity extends AbstractHorseEntity {
 
    }
 
+   public void tick() {
+      super.tick();
+
+      if(this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PillagerEntity) {
+         this.targetSelector.addGoal(1, attackPlayerGoal);
+         this.goalSelector.addGoal(1, attackGoal);
+      } else {
+         this.targetSelector.removeGoal(attackPlayerGoal);
+         this.targetSelector.removeGoal(attackGoal);
+      }
+   }
+
    protected SoundEvent getAmbientSound() {
       super.getAmbientSound();
       return SoundEvents.HORSE_AMBIENT;
@@ -209,7 +226,7 @@ public class HorseEntity extends AbstractHorseEntity {
       }
    }
 
-   public boolean canMate(AnimalEntity p_70878_1_) {
+   public boolean canMate(Animal p_70878_1_) {
       if (p_70878_1_ == this) {
          return false;
       } else if (!(p_70878_1_ instanceof DonkeyEntity) && !(p_70878_1_ instanceof HorseEntity)) {

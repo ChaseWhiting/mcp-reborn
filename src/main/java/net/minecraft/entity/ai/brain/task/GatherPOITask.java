@@ -9,7 +9,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.network.DebugPacketSender;
@@ -20,7 +20,7 @@ import net.minecraft.village.PointOfInterestManager;
 import net.minecraft.village.PointOfInterestType;
 import net.minecraft.world.server.ServerWorld;
 
-public class GatherPOITask extends Task<CreatureEntity> {
+public class GatherPOITask extends Task<Creature> {
    private final PointOfInterestType poiType;
    private final MemoryModuleType<GlobalPos> memoryToAcquire;
    private final boolean onlyIfAdult;
@@ -50,7 +50,7 @@ public class GatherPOITask extends Task<CreatureEntity> {
       return builder.build();
    }
 
-   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, CreatureEntity p_212832_2_) {
+   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, Creature p_212832_2_) {
       if (this.onlyIfAdult && p_212832_2_.isBaby()) {
          return false;
       } else if (this.nextScheduledStart == 0L) {
@@ -61,7 +61,7 @@ public class GatherPOITask extends Task<CreatureEntity> {
       }
    }
 
-   protected void start(ServerWorld p_212831_1_, CreatureEntity p_212831_2_, long p_212831_3_) {
+   protected void start(ServerWorld p_212831_1_, Creature p_212831_2_, long p_212831_3_) {
       this.nextScheduledStart = p_212831_3_ + 20L + (long)p_212831_1_.getRandom().nextInt(20);
       PointOfInterestManager pointofinterestmanager = p_212831_1_.getPoiManager();
       this.batchCache.long2ObjectEntrySet().removeIf((p_241362_2_) -> {

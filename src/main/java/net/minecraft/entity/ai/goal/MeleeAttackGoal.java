@@ -1,7 +1,7 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.pathfinding.Path;
@@ -9,7 +9,7 @@ import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.Hand;
 
 public class MeleeAttackGoal extends Goal {
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    private final double speedModifier;
    private final boolean followingTargetEvenIfNotSeen;
    private Path path;
@@ -17,14 +17,14 @@ public class MeleeAttackGoal extends Goal {
    private double pathedTargetY;
    private double pathedTargetZ;
    private int ticksUntilNextPathRecalculation;
-   private int ticksUntilNextAttack;
+   public int ticksUntilNextAttack;
    private final int attackInterval = 20;
    private long lastCanUseCheck;
 
-   public MeleeAttackGoal(CreatureEntity p_i1636_1_, double p_i1636_2_, boolean p_i1636_4_) {
+   public MeleeAttackGoal(Creature p_i1636_1_, double speed, boolean followTargetEvenIfNotSeen) {
       this.mob = p_i1636_1_;
-      this.speedModifier = p_i1636_2_;
-      this.followingTargetEvenIfNotSeen = p_i1636_4_;
+      this.speedModifier = speed;
+      this.followingTargetEvenIfNotSeen = followTargetEvenIfNotSeen;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
    }
 

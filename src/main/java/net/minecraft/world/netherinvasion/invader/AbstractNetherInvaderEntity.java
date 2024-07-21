@@ -15,11 +15,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.MoveTowardsRaidGoal;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.AbstractIllagerEntity;
-import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.monster.PatrollerEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -44,12 +41,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.netherinvasion.NetherInvasion;
 import net.minecraft.world.netherinvasion.NetherInvasionManager;
 import net.minecraft.world.raid.Raid;
-import net.minecraft.world.raid.RaidManager;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AbstractNetherInvaderEntity extends MonsterEntity {
+public abstract class AbstractNetherInvaderEntity extends Monster {
     protected static final DataParameter<Boolean> IS_CELEBRATING = EntityDataManager.defineId(AbstractNetherInvaderEntity.class, DataSerializers.BOOLEAN);
     private static final Predicate<ItemEntity> ALLOWED_ITEMS = (p_213647_0_) -> {
         return !p_213647_0_.hasPickUpDelay() && p_213647_0_.isAlive() && ItemStack.matches(p_213647_0_.getItem(), NetherInvasion.getLeaderBannerInstance());

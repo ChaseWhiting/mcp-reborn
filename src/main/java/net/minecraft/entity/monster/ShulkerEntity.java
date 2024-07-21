@@ -13,7 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -112,7 +112,7 @@ public class ShulkerEntity extends GolemEntity implements IMob {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 30.0D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 30.0D);
    }
 
    protected BodyController createBodyControl() {
@@ -501,7 +501,7 @@ public class ShulkerEntity extends GolemEntity implements IMob {
    }
 
    class BodyHelperController extends BodyController {
-      public BodyHelperController(MobEntity p_i50612_2_) {
+      public BodyHelperController(Mob p_i50612_2_) {
          super(p_i50612_2_);
       }
 

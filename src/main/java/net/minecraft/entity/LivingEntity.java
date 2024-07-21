@@ -27,8 +27,6 @@ import net.minecraft.block.HoneyBlock;
 import net.minecraft.block.LadderBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.TrapDoorBlock;
-import net.minecraft.client.renderer.debug.DebugRenderer;
-import net.minecraft.client.renderer.debug.EntityAIDebugRenderer;
 import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -52,13 +50,7 @@ import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ElytraItem;
-import net.minecraft.item.Food;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.UseAction;
+import net.minecraft.item.*;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameterSets;
 import net.minecraft.loot.LootParameters;
@@ -97,6 +89,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerChunkProvider;
@@ -111,7 +104,7 @@ public abstract class LivingEntity extends Entity {
    private static final UUID SPEED_MODIFIER_SOUL_SPEED_UUID = UUID.fromString("87f46a96-686f-4796-b035-22e16ee9e038");
    private static final AttributeModifier SPEED_MODIFIER_SPRINTING = new AttributeModifier(SPEED_MODIFIER_SPRINTING_UUID, "Sprinting speed boost", (double)0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL);
    protected static final DataParameter<Byte> DATA_LIVING_ENTITY_FLAGS = EntityDataManager.defineId(LivingEntity.class, DataSerializers.BYTE);
-   private static final DataParameter<Float> DATA_HEALTH_ID = EntityDataManager.defineId(LivingEntity.class, DataSerializers.FLOAT);
+   static final DataParameter<Float> DATA_HEALTH_ID = EntityDataManager.defineId(LivingEntity.class, DataSerializers.FLOAT);
    private static final DataParameter<Integer> DATA_EFFECT_COLOR_ID = EntityDataManager.defineId(LivingEntity.class, DataSerializers.INT);
    private static final DataParameter<Boolean> DATA_EFFECT_AMBIENCE_ID = EntityDataManager.defineId(LivingEntity.class, DataSerializers.BOOLEAN);
    private static final DataParameter<Integer> DATA_ARROW_COUNT_ID = EntityDataManager.defineId(LivingEntity.class, DataSerializers.INT);
@@ -208,6 +201,10 @@ public abstract class LivingEntity extends Entity {
 
    public Brain<?> getBrain() {
       return this.brain;
+   }
+
+   public String getRegistryName() {
+      return Registry.ENTITY_TYPE.getKey(this.getType()).toString();
    }
 
    protected Brain.BrainCodec<?> brainProvider() {
@@ -1264,15 +1261,49 @@ public abstract class LivingEntity extends Entity {
       return lootcontext$builder;
    }
 
-   public void knockback(float p_233627_1_, double p_233627_2_, double p_233627_4_) {
-      p_233627_1_ = (float)((double)p_233627_1_ * (1.0D - this.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
-      if (!(p_233627_1_ <= 0.0F)) {
+   public void knockback(float strength, double xRatio, double zRatio) {
+      // Adjust the knockback strength based on the entity's knockback resistance attribute
+      strength = (float) ((double) strength * (1.0D - this.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
+
+      // If the adjusted knockback strength is greater than 0, apply the knockback
+      if (strength > 0.0F) {
          this.hasImpulse = true;
-         Vector3d vector3d = this.getDeltaMovement();
-         Vector3d vector3d1 = (new Vector3d(p_233627_2_, 0.0D, p_233627_4_)).normalize().scale((double)p_233627_1_);
-         this.setDeltaMovement(vector3d.x / 2.0D - vector3d1.x, this.onGround ? Math.min(0.4D, vector3d.y / 2.0D + (double)p_233627_1_) : vector3d.y, vector3d.z / 2.0D - vector3d1.z);
+
+         // Get the current motion vector of the entity
+         Vector3d currentMotion = this.getDeltaMovement();
+
+         // Create a normalized vector from the x and z ratios, scaled by the knockback strength
+         Vector3d knockbackVector = (new Vector3d(xRatio, 0.0D, zRatio)).normalize().scale((double) strength);
+
+         // Set the new motion vector, adjusting for the knockback
+         this.setDeltaMovement(
+                 currentMotion.x / 2.0D - knockbackVector.x,
+                 this.onGround ? Math.min(0.4D, currentMotion.y / 2.0D + (double) strength) : currentMotion.y,
+                 currentMotion.z / 2.0D - knockbackVector.z
+         );
       }
    }
+
+   // Custom knockback method to include vertical knockback
+   public void knockbackEntity(LivingEntity entity, float strength, double xRatio, double zRatio) {
+      strength = (float) ((double) strength * (1.0D - entity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
+
+      if (strength > 0.0F) {
+         entity.hasImpulse = true;
+         Vector3d currentMotion = entity.getDeltaMovement();
+         Vector3d knockbackVector = (new Vector3d(xRatio, 0.0D, zRatio)).normalize().scale((double) strength);
+
+         entity.setDeltaMovement(
+                 currentMotion.x / 2.0D - knockbackVector.x,
+                 Math.min(0.9D, currentMotion.y / 2.0D + (double) strength), // Adjusted to ensure upward knockback
+                 currentMotion.z / 2.0D - knockbackVector.z
+         );
+
+         System.out.println("Knockback vector: " + new Vector3d(xRatio, 0.0D, zRatio).normalize().scale((double) strength));
+      }
+   }
+
+
 
    @Nullable
    protected SoundEvent getHurtSound(DamageSource p_184601_1_) {
@@ -1721,6 +1752,12 @@ public abstract class LivingEntity extends Entity {
       });
    }
 
+   public boolean isHoldingAbstractCrossbow(Item item) {
+      return this.isHolding((item1) -> {
+         return item1 instanceof AbstractCrossbowItem;
+      });
+   }
+
    public boolean isHolding(Predicate<Item> p_233634_1_) {
       return p_233634_1_.test(this.getMainHandItem().getItem()) || p_233634_1_.test(this.getOffhandItem().getItem());
    }
@@ -1924,49 +1961,8 @@ public abstract class LivingEntity extends Entity {
             if (this.horizontalCollision && this.isFree(vector3d4.x, vector3d4.y + (double)0.6F - this.getY() + d7, vector3d4.z)) {
                this.setDeltaMovement(vector3d4.x, (double)0.3F, vector3d4.z);
             }
-         } else if (this.isFallFlying()) {
-            Vector3d vector3d = this.getDeltaMovement();
-            if (vector3d.y > -0.5D) {
-               this.fallDistance = 1.0F;
-            }
-
-            Vector3d vector3d1 = this.getLookAngle();
-            float f = this.xRot * ((float)Math.PI / 180F);
-            double d1 = Math.sqrt(vector3d1.x * vector3d1.x + vector3d1.z * vector3d1.z);
-            double d3 = Math.sqrt(getHorizontalDistanceSqr(vector3d));
-            double d4 = vector3d1.length();
-            float f1 = MathHelper.cos(f);
-            f1 = (float)((double)f1 * (double)f1 * Math.min(1.0D, d4 / 0.4D));
-            vector3d = this.getDeltaMovement().add(0.0D, d0 * (-1.0D + (double)f1 * 0.75D), 0.0D);
-            if (vector3d.y < 0.0D && d1 > 0.0D) {
-               double d5 = vector3d.y * -0.1D * (double)f1;
-               vector3d = vector3d.add(vector3d1.x * d5 / d1, d5, vector3d1.z * d5 / d1);
-            }
-
-            if (f < 0.0F && d1 > 0.0D) {
-               double d9 = d3 * (double)(-MathHelper.sin(f)) * 0.04D;
-               vector3d = vector3d.add(-vector3d1.x * d9 / d1, d9 * 3.2D, -vector3d1.z * d9 / d1);
-            }
-
-            if (d1 > 0.0D) {
-               vector3d = vector3d.add((vector3d1.x / d1 * d3 - vector3d.x) * 0.1D, 0.0D, (vector3d1.z / d1 * d3 - vector3d.z) * 0.1D);
-            }
-
-            this.setDeltaMovement(vector3d.multiply((double)0.99F, (double)0.98F, (double)0.99F));
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            if (this.horizontalCollision && !this.level.isClientSide) {
-               double d10 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
-               double d6 = d3 - d10;
-               float f2 = (float)(d6 * 10.0D - 3.0D);
-               if (f2 > 0.0F) {
-                  this.playSound(this.getFallDamageSound((int)f2), 1.0F, 1.0F);
-                  this.hurt(DamageSource.FLY_INTO_WALL, f2);
-               }
-            }
-
-            if (this.onGround && !this.level.isClientSide) {
-               this.setSharedFlag(7, false);
-            }
+         } else if (this.isFallFlying()) { // Checks if the player is currently flying with Elytra
+            ElytraItem.glide(this, d0);
          } else {
             BlockPos blockpos = this.getBlockPosBelowThatAffectsMyMovement();
             float f3 = this.level.getBlockState(blockpos).getBlock().getFriction();
@@ -2641,6 +2637,7 @@ public abstract class LivingEntity extends Entity {
       this.absorptionAmount = p_110149_1_;
    }
 
+
    public void onEnterCombat() {
    }
 
@@ -2896,8 +2893,8 @@ public abstract class LivingEntity extends Entity {
             world.broadcastEntityEvent(this, (byte)46);
          }
 
-         if (this instanceof CreatureEntity) {
-            ((CreatureEntity)this).getNavigation().stop();
+         if (this instanceof Creature) {
+            ((Creature)this).getNavigation().stop();
          }
 
          return true;

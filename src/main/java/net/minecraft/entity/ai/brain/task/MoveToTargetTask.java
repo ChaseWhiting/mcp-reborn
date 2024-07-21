@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.brain.task;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.BrainUtil;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
@@ -11,7 +11,7 @@ import net.minecraft.entity.ai.brain.memory.WalkTarget;
 import net.minecraft.util.math.EntityPosWrapper;
 import net.minecraft.world.server.ServerWorld;
 
-public class MoveToTargetTask extends Task<MobEntity> {
+public class MoveToTargetTask extends Task<Mob> {
    private final float speedModifier;
 
    public MoveToTargetTask(float p_i231534_1_) {
@@ -19,7 +19,7 @@ public class MoveToTargetTask extends Task<MobEntity> {
       this.speedModifier = p_i231534_1_;
    }
 
-   protected void start(ServerWorld p_212831_1_, MobEntity p_212831_2_, long p_212831_3_) {
+   protected void start(ServerWorld p_212831_1_, Mob p_212831_2_, long p_212831_3_) {
       LivingEntity livingentity = p_212831_2_.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
       if (BrainUtil.canSee(p_212831_2_, livingentity) && BrainUtil.isWithinAttackRange(p_212831_2_, livingentity, 1)) {
          this.clearWalkTarget(p_212831_2_);

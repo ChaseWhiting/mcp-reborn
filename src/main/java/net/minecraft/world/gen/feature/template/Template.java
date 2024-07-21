@@ -19,7 +19,7 @@ import net.minecraft.block.ILiquidContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.item.PaintingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -394,8 +394,8 @@ public class Template {
                float f = p_242927_6_.mirror(p_237143_3_);
                f = f + (p_242927_6_.yRot - p_242927_6_.rotate(p_237143_4_));
                p_242927_6_.moveTo(vector3d1.x, vector3d1.y, vector3d1.z, f, p_242927_6_.xRot);
-               if (p_237143_7_ && p_242927_6_ instanceof MobEntity) {
-                  ((MobEntity)p_242927_6_).finalizeSpawn(p_237143_1_, p_237143_1_.getCurrentDifficultyAt(new BlockPos(vector3d1)), SpawnReason.STRUCTURE, (ILivingEntityData)null, compoundnbt);
+               if (p_237143_7_ && p_242927_6_ instanceof Mob) {
+                  ((Mob)p_242927_6_).finalizeSpawn(p_237143_1_, p_237143_1_.getCurrentDifficultyAt(new BlockPos(vector3d1)), SpawnReason.STRUCTURE, (ILivingEntityData)null, compoundnbt);
                }
 
                p_237143_1_.addFreshEntityWithPassengers(p_242927_6_);

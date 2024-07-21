@@ -23,7 +23,7 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -44,7 +44,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.passive.fish.AbstractGroupFishEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -83,15 +83,9 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.entity.item.TNTEntity;
-import net.minecraft.item.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.feature.structure.Structure;
 
-public class FoxEntity extends AnimalEntity {
+public class FoxEntity extends Animal {
    private static final DataParameter<Integer> DATA_TYPE_ID = EntityDataManager.defineId(FoxEntity.class, DataSerializers.INT);
    private static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(FoxEntity.class, DataSerializers.BYTE);
    private static final DataParameter<Optional<UUID>> DATA_TRUSTED_ID_0 = EntityDataManager.defineId(FoxEntity.class, DataSerializers.OPTIONAL_UUID);
@@ -140,7 +134,7 @@ public class FoxEntity extends AnimalEntity {
    }
 
    protected void registerGoals() {
-      this.landTargetGoal = new NearestAttackableTargetGoal<>(this, AnimalEntity.class, 10, false, false, (p_213487_0_) -> {
+      this.landTargetGoal = new NearestAttackableTargetGoal<>(this, Animal.class, 10, false, false, (p_213487_0_) -> {
          return p_213487_0_ instanceof ChickenEntity || p_213487_0_ instanceof RabbitEntity;
       });
       this.turtleEggTargetGoal = new NearestAttackableTargetGoal<>(this, TurtleEntity.class, 10, false, false, TurtleEntity.BABY_ON_LAND_SELECTOR);
@@ -268,7 +262,7 @@ public class FoxEntity extends AnimalEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.FOLLOW_RANGE, 32.0D).add(Attributes.ATTACK_DAMAGE, 2.0D);
+      return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.FOLLOW_RANGE, 32.0D).add(Attributes.ATTACK_DAMAGE, 2.0D);
    }
 
    public FoxEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
@@ -435,7 +429,7 @@ public class FoxEntity extends AnimalEntity {
    }
 
    public boolean canTakeItem(ItemStack p_213365_1_) {
-      EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(p_213365_1_);
+      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(p_213365_1_);
       if (!this.getItemBySlot(equipmentslottype).isEmpty()) {
          return false;
       } else {
@@ -564,7 +558,7 @@ public class FoxEntity extends AnimalEntity {
       return p_70877_1_.getItem() == Items.SWEET_BERRIES;
    }
 
-   protected void onOffspringSpawnedFromEgg(PlayerEntity p_213406_1_, MobEntity p_213406_2_) {
+   protected void onOffspringSpawnedFromEgg(PlayerEntity p_213406_1_, Mob p_213406_2_) {
       ((FoxEntity)p_213406_2_).addTrustedUUID(p_213406_1_.getUUID());
    }
 
@@ -714,7 +708,7 @@ public class FoxEntity extends AnimalEntity {
       public boolean test(LivingEntity p_test_1_) {
          if (p_test_1_ instanceof FoxEntity) {
             return false;
-         } else if (!(p_test_1_ instanceof ChickenEntity) && !(p_test_1_ instanceof RabbitEntity) && !(p_test_1_ instanceof MonsterEntity)) {
+         } else if (!(p_test_1_ instanceof ChickenEntity) && !(p_test_1_ instanceof RabbitEntity) && !(p_test_1_ instanceof Monster)) {
             if (p_test_1_ instanceof TameableEntity) {
                return !((TameableEntity)p_test_1_).isTame();
             } else if (!(p_test_1_ instanceof PlayerEntity) || !p_test_1_.isSpectator() && !((PlayerEntity)p_test_1_).isCreative()) {
@@ -1412,7 +1406,7 @@ public class FoxEntity extends AnimalEntity {
    }
 
    class WatchGoal extends LookAtGoal {
-      public WatchGoal(MobEntity p_i50733_2_, Class<? extends LivingEntity> p_i50733_3_, float p_i50733_4_) {
+      public WatchGoal(Mob p_i50733_2_, Class<? extends LivingEntity> p_i50733_3_, float p_i50733_4_) {
          super(p_i50733_2_, p_i50733_3_, p_i50733_4_);
       }
 

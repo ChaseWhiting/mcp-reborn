@@ -41,22 +41,22 @@ public interface IBlockReader {
       return BlockPos.betweenClosedStream(p_234853_1_).map(this::getBlockState);
    }
 
-   default BlockRayTraceResult clip(RayTraceContext p_217299_1_) {
-      return traverseBlocks(p_217299_1_, (p_217297_1_, p_217297_2_) -> {
-         BlockState blockstate = this.getBlockState(p_217297_2_);
-         FluidState fluidstate = this.getFluidState(p_217297_2_);
-         Vector3d vector3d = p_217297_1_.getFrom();
-         Vector3d vector3d1 = p_217297_1_.getTo();
-         VoxelShape voxelshape = p_217297_1_.getBlockShape(blockstate, this, p_217297_2_);
-         BlockRayTraceResult blockraytraceresult = this.clipWithInteractionOverride(vector3d, vector3d1, p_217297_2_, voxelshape, blockstate);
-         VoxelShape voxelshape1 = p_217297_1_.getFluidShape(fluidstate, this, p_217297_2_);
-         BlockRayTraceResult blockraytraceresult1 = voxelshape1.clip(vector3d, vector3d1, p_217297_2_);
-         double d0 = blockraytraceresult == null ? Double.MAX_VALUE : p_217297_1_.getFrom().distanceToSqr(blockraytraceresult.getLocation());
-         double d1 = blockraytraceresult1 == null ? Double.MAX_VALUE : p_217297_1_.getFrom().distanceToSqr(blockraytraceresult1.getLocation());
+   default BlockRayTraceResult clip(RayTraceContext context) {
+      return traverseBlocks(context, (rayTraceContext, position) -> {
+         BlockState blockstate = this.getBlockState(position);
+         FluidState fluidstate = this.getFluidState(position);
+         Vector3d vector3d = rayTraceContext.getFrom();
+         Vector3d vector3d1 = rayTraceContext.getTo();
+         VoxelShape voxelshape = rayTraceContext.getBlockShape(blockstate, this, position);
+         BlockRayTraceResult blockraytraceresult = this.clipWithInteractionOverride(vector3d, vector3d1, position, voxelshape, blockstate);
+         VoxelShape voxelshape1 = rayTraceContext.getFluidShape(fluidstate, this, position);
+         BlockRayTraceResult blockraytraceresult1 = voxelshape1.clip(vector3d, vector3d1, position);
+         double d0 = blockraytraceresult == null ? Double.MAX_VALUE : rayTraceContext.getFrom().distanceToSqr(blockraytraceresult.getLocation());
+         double d1 = blockraytraceresult1 == null ? Double.MAX_VALUE : rayTraceContext.getFrom().distanceToSqr(blockraytraceresult1.getLocation());
          return d0 <= d1 ? blockraytraceresult : blockraytraceresult1;
-      }, (p_217302_0_) -> {
-         Vector3d vector3d = p_217302_0_.getFrom().subtract(p_217302_0_.getTo());
-         return BlockRayTraceResult.miss(p_217302_0_.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), new BlockPos(p_217302_0_.getTo()));
+      }, (nextContext) -> {
+         Vector3d vector3d = nextContext.getFrom().subtract(nextContext.getTo());
+         return BlockRayTraceResult.miss(nextContext.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), new BlockPos(nextContext.getTo()));
       });
    }
 

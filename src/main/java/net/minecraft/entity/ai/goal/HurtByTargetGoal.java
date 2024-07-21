@@ -3,11 +3,11 @@ package net.minecraft.entity.ai.goal;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.GameRules;
@@ -19,7 +19,7 @@ public class HurtByTargetGoal extends TargetGoal {
    private final Class<?>[] toIgnoreDamage;
    private Class<?>[] toIgnoreAlert;
 
-   public HurtByTargetGoal(CreatureEntity p_i50317_1_, Class<?>... p_i50317_2_) {
+   public HurtByTargetGoal(Creature p_i50317_1_, Class<?>... p_i50317_2_) {
       super(p_i50317_1_, true);
       this.toIgnoreDamage = p_i50317_2_;
       this.setFlags(EnumSet.of(Goal.Flag.TARGET));
@@ -66,17 +66,17 @@ public class HurtByTargetGoal extends TargetGoal {
    protected void alertOthers() {
       double d0 = this.getFollowDistance();
       AxisAlignedBB axisalignedbb = AxisAlignedBB.unitCubeFromLowerCorner(this.mob.position()).inflate(d0, 10.0D, d0);
-      List<MobEntity> list = this.mob.level.getLoadedEntitiesOfClass(this.mob.getClass(), axisalignedbb);
+      List<Mob> list = this.mob.level.getLoadedEntitiesOfClass(this.mob.getClass(), axisalignedbb);
       Iterator iterator = list.iterator();
 
       while(true) {
-         MobEntity mobentity;
+         Mob mobentity;
          while(true) {
             if (!iterator.hasNext()) {
                return;
             }
 
-            mobentity = (MobEntity)iterator.next();
+            mobentity = (Mob)iterator.next();
             if (this.mob != mobentity && mobentity.getTarget() == null && (!(this.mob instanceof TameableEntity) || ((TameableEntity)this.mob).getOwner() == ((TameableEntity)mobentity).getOwner()) && !mobentity.isAlliedTo(this.mob.getLastHurtByMob())) {
                if (this.toIgnoreAlert == null) {
                   break;
@@ -101,7 +101,7 @@ public class HurtByTargetGoal extends TargetGoal {
       }
    }
 
-   protected void alertOther(MobEntity p_220793_1_, LivingEntity p_220793_2_) {
+   protected void alertOther(Mob p_220793_1_, LivingEntity p_220793_2_) {
       p_220793_1_.setTarget(p_220793_2_);
    }
 }

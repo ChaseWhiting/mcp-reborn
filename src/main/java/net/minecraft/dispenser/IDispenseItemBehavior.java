@@ -29,15 +29,9 @@ import net.minecraft.entity.passive.horse.AbstractChestedHorseEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.entity.projectile.EggEntity;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.entity.projectile.PotionEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.SmallFireballEntity;
-import net.minecraft.entity.projectile.SnowballEntity;
-import net.minecraft.entity.projectile.SpectralArrowEntity;
+import net.minecraft.entity.projectile.*;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowEntity;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ArmorItem;
@@ -73,6 +67,7 @@ public interface IDispenseItemBehavior {
       return p_210297_1_;
    };
 
+
    ItemStack dispense(IBlockSource p_dispense_1_, ItemStack p_dispense_2_);
 
    static void bootStrap() {
@@ -83,6 +78,71 @@ public interface IDispenseItemBehavior {
             return arrowentity;
          }
       });
+      // Register Bone Arrow dispenser behavior
+      DispenserBlock.registerBehavior(Items.BONE_ARROW, new ProjectileDispenseBehavior() {
+         @Override
+         protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            BoneArrowEntity boneArrowEntity = new BoneArrowEntity(world, position.x(), position.y(), position.z());
+            boneArrowEntity.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+            return boneArrowEntity;
+         }
+      });
+
+// Register Burning Arrow dispenser behavior
+      DispenserBlock.registerBehavior(Items.BURNING_ARROW, new ProjectileDispenseBehavior() {
+         @Override
+         protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            CustomArrowEntity burningArrowEntity = new CustomArrowEntity(world, position.x(), position.y(), position.z());
+            burningArrowEntity.setArrowType(CustomArrowType.BURNING);
+            burningArrowEntity.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+            return burningArrowEntity;
+         }
+      });
+
+// Register Teleportation Arrow dispenser behavior
+      DispenserBlock.registerBehavior(Items.TELEPORTATION_ARROW, new ProjectileDispenseBehavior() {
+         @Override
+         protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            CustomArrowEntity teleportationArrowEntity = new CustomArrowEntity(world, position.x(), position.y(), position.z());
+            teleportationArrowEntity.setArrowType(CustomArrowType.TELEPORTATION);
+            teleportationArrowEntity.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+            return teleportationArrowEntity;
+         }
+      });
+
+// Register Healing Arrow dispenser behavior
+      DispenserBlock.registerBehavior(Items.HEALING_ARROW, new ProjectileDispenseBehavior() {
+         @Override
+         protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            CustomArrowEntity healingArrowEntity = new CustomArrowEntity(world, position.x(), position.y(), position.z());
+            healingArrowEntity.setArrowType(CustomArrowType.HEALING);
+            healingArrowEntity.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+            return healingArrowEntity;
+         }
+      });
+
+// Register Firework Arrow dispenser behavior
+      DispenserBlock.registerBehavior(Items.FIREWORK_ARROW, new ProjectileDispenseBehavior() {
+         @Override
+         protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            CustomArrowEntity fireworkArrowEntity = new CustomArrowEntity(world, position.x(), position.y(), position.z());
+            fireworkArrowEntity.setArrowType(CustomArrowType.FIREWORK);
+            fireworkArrowEntity.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+            return fireworkArrowEntity;
+         }
+      });
+
+// Register Poison Arrow dispenser behavior
+      DispenserBlock.registerBehavior(Items.POISON_ARROW, new ProjectileDispenseBehavior() {
+         @Override
+         protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            CustomArrowEntity poisonArrowEntity = new CustomArrowEntity(world, position.x(), position.y(), position.z());
+            poisonArrowEntity.setArrowType(CustomArrowType.POISON);
+            poisonArrowEntity.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+            return poisonArrowEntity;
+         }
+      });
+
       DispenserBlock.registerBehavior(Items.TIPPED_ARROW, new ProjectileDispenseBehavior() {
          protected ProjectileEntity getProjectile(World p_82499_1_, IPosition p_82499_2_, ItemStack p_82499_3_) {
             ArrowEntity arrowentity = new ArrowEntity(p_82499_1_, p_82499_2_.x(), p_82499_2_.y(), p_82499_2_.z());

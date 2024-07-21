@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.loot.ConditionArrayParser;
@@ -113,7 +113,7 @@ public class EntityPredicate {
             return false;
          } else if (!this.vehicle.matches(p_217993_1_, p_217993_2_, p_217993_3_.getVehicle())) {
             return false;
-         } else if (!this.targetedEntity.matches(p_217993_1_, p_217993_2_, p_217993_3_ instanceof MobEntity ? ((MobEntity)p_217993_3_).getTarget() : null)) {
+         } else if (!this.targetedEntity.matches(p_217993_1_, p_217993_2_, p_217993_3_ instanceof Mob ? ((Mob)p_217993_3_).getTarget() : null)) {
             return false;
          } else {
             if (this.team != null) {

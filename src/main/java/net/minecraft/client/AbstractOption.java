@@ -314,6 +314,11 @@ public abstract class AbstractOption {
    }, (p_216621_0_, p_216621_1_) -> {
       p_216621_0_.autoJump = p_216621_1_;
    });
+   public static final BooleanOption SHOW_ENTITY_HEALTH = new BooleanOption("options.showEntityHealth", (settings) -> {
+      return settings.showEntityHealth;
+   }, (settings, value) -> {
+      settings.showEntityHealth = value;
+   });
    public static final BooleanOption AUTO_SUGGESTIONS = new BooleanOption("options.autoSuggestCommands", (p_216643_0_) -> {
       return p_216643_0_.autoSuggestions;
    }, (p_216656_0_, p_216656_1_) -> {

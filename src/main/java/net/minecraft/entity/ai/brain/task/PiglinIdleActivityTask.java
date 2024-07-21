@@ -2,14 +2,14 @@ package net.minecraft.entity.ai.brain.task;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.function.Predicate;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.util.RangedInteger;
 import net.minecraft.world.server.ServerWorld;
 
-public class PiglinIdleActivityTask<E extends MobEntity, T> extends Task<E> {
+public class PiglinIdleActivityTask<E extends Mob, T> extends Task<E> {
    private final Predicate<E> predicate;
    private final MemoryModuleType<? extends T> sourceMemory;
    private final MemoryModuleType<T> targetMemory;

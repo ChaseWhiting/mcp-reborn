@@ -3,8 +3,8 @@ package net.minecraft.entity.ai.goal;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
-import net.minecraft.entity.CreatureEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Creature;
+import net.minecraft.entity.Mob;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particles.ItemParticleData;
@@ -22,10 +22,10 @@ import net.minecraft.world.server.ServerWorld;
 
 public class BreakBlockGoal extends MoveToBlockGoal {
    private final Block blockToRemove;
-   private final MobEntity removerMob;
+   private final Mob removerMob;
    private int ticksSinceReachedGoal;
 
-   public BreakBlockGoal(Block p_i48795_1_, CreatureEntity p_i48795_2_, double p_i48795_3_, int p_i48795_5_) {
+   public BreakBlockGoal(Block p_i48795_1_, Creature p_i48795_2_, double p_i48795_3_, int p_i48795_5_) {
       super(p_i48795_2_, p_i48795_3_, 24, p_i48795_5_);
       this.blockToRemove = p_i48795_1_;
       this.removerMob = p_i48795_2_;

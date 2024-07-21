@@ -1,14 +1,14 @@
 package net.minecraft.entity.ai.goal;
 
 import javax.annotation.Nullable;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class RandomSwimmingGoal extends RandomWalkingGoal {
-   public RandomSwimmingGoal(CreatureEntity p_i48937_1_, double p_i48937_2_, int p_i48937_4_) {
+   public RandomSwimmingGoal(Creature p_i48937_1_, double p_i48937_2_, int p_i48937_4_) {
       super(p_i48937_1_, p_i48937_2_, p_i48937_4_);
    }
 

@@ -1,7 +1,7 @@
 package net.minecraft.item;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.item.LeashKnotEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tags.BlockTags;
@@ -39,7 +39,7 @@ public class LeadItem extends Item {
       int j = p_226641_2_.getY();
       int k = p_226641_2_.getZ();
 
-      for(MobEntity mobentity : p_226641_1_.getEntitiesOfClass(MobEntity.class, new AxisAlignedBB((double)i - 7.0D, (double)j - 7.0D, (double)k - 7.0D, (double)i + 7.0D, (double)j + 7.0D, (double)k + 7.0D))) {
+      for(Mob mobentity : p_226641_1_.getEntitiesOfClass(Mob.class, new AxisAlignedBB((double)i - 7.0D, (double)j - 7.0D, (double)k - 7.0D, (double)i + 7.0D, (double)j + 7.0D, (double)k + 7.0D))) {
          if (mobentity.getLeashHolder() == p_226641_0_) {
             if (leashknotentity == null) {
                leashknotentity = LeashKnotEntity.getOrCreateKnot(p_226641_1_, p_226641_2_);

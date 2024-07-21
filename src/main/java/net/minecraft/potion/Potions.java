@@ -44,6 +44,9 @@ public class Potions {
    public static final Potion WEAKNESS = register("weakness", new Potion(new EffectInstance(Effects.WEAKNESS, 1800)));
    public static final Potion LONG_WEAKNESS = register("long_weakness", new Potion("weakness", new EffectInstance(Effects.WEAKNESS, 4800)));
    public static final Potion LUCK = register("luck", new Potion("luck", new EffectInstance(Effects.LUCK, 6000)));
+   public static final Potion BAD_OMEN = register("bad_omen", new Potion("bad_omen", new EffectInstance(Effects.BAD_OMEN, 120000)));
+   public static final Potion STRONG_BAD_OMEN = register("strong_bad_omen", new Potion("bad_omen", new EffectInstance(Effects.BAD_OMEN, 120000, 2)));
+   public static final Potion STRONGER_BAD_OMEN = register("stronger_bad_omen", new Potion("bad_omen", new EffectInstance(Effects.BAD_OMEN, 120000, 4)));
    public static final Potion SLOW_FALLING = register("slow_falling", new Potion(new EffectInstance(Effects.SLOW_FALLING, 1800)));
    public static final Potion LONG_SLOW_FALLING = register("long_slow_falling", new Potion("slow_falling", new EffectInstance(Effects.SLOW_FALLING, 4800)));
 

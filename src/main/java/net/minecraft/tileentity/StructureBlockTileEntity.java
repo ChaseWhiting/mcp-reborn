@@ -405,7 +405,7 @@ public class StructureBlockTileEntity extends TileEntity {
       return this.loadStructure(p_242687_1_, true);
    }
 
-   private static Random createRandom(long p_214074_0_) {
+   public static Random createRandom(long p_214074_0_) {
       return p_214074_0_ == 0L ? new Random(Util.getMillis()) : new Random(p_214074_0_);
    }
 

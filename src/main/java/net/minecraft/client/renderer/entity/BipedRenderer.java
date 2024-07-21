@@ -4,13 +4,13 @@ import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.HeadLayer;
 import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BipedRenderer<T extends MobEntity, M extends BipedModel<T>> extends MobRenderer<T, M> {
+public class BipedRenderer<T extends Mob, M extends BipedModel<T>> extends MobRenderer<T, M> {
    private static final ResourceLocation DEFAULT_LOCATION = new ResourceLocation("textures/entity/steve.png");
 
    public BipedRenderer(EntityRendererManager p_i46168_1_, M p_i46168_2_, float p_i46168_3_) {

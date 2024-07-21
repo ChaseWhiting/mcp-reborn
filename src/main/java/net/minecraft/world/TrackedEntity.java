@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -255,8 +255,8 @@ public class TrackedEntity {
          p_219452_1_.accept(new SSetPassengersPacket(this.entity.getVehicle()));
       }
 
-      if (this.entity instanceof MobEntity) {
-         MobEntity mobentity = (MobEntity)this.entity;
+      if (this.entity instanceof Mob) {
+         Mob mobentity = (Mob)this.entity;
          if (mobentity.isLeashed()) {
             p_219452_1_.accept(new SMountEntityPacket(mobentity, mobentity.getLeashHolder()));
          }

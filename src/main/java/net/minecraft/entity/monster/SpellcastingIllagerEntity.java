@@ -129,23 +129,25 @@ public abstract class SpellcastingIllagerEntity extends AbstractIllagerEntity {
       FANGS(2, 0.4D, 0.3D, 0.35D),
       WOLOLO(3, 0.7D, 0.5D, 0.2D),
       DISAPPEAR(4, 0.3D, 0.3D, 0.8D),
-      BLINDNESS(5, 0.1D, 0.1D, 0.2D);
+      BLINDNESS(5, 0.1D, 0.1D, 0.2D),
+      WOLVES(6, 0.0D, 0.5D, 0.0D),
+      SHIELD_FIRE(8, 1.0D, 0.5D, 0.0D),
+      HEAL(7, 1.0D, 0.0D, 0.0D);
 
       private final int id;
       private final double[] spellColor;
 
-      private SpellType(int p_i47561_3_, double p_i47561_4_, double p_i47561_6_, double p_i47561_8_) {
-         this.id = p_i47561_3_;
-         this.spellColor = new double[]{p_i47561_4_, p_i47561_6_, p_i47561_8_};
+      private SpellType(int id, double red, double green, double blue) {
+         this.id = id;
+         this.spellColor = new double[]{red, green, blue};
       }
 
-      public static SpellcastingIllagerEntity.SpellType byId(int p_193337_0_) {
-         for(SpellcastingIllagerEntity.SpellType spellcastingillagerentity$spelltype : values()) {
-            if (p_193337_0_ == spellcastingillagerentity$spelltype.id) {
-               return spellcastingillagerentity$spelltype;
+      public static SpellType byId(int id) {
+         for (SpellType spellType : values()) {
+            if (id == spellType.id) {
+               return spellType;
             }
          }
-
          return NONE;
       }
    }
@@ -158,21 +160,32 @@ public abstract class SpellcastingIllagerEntity extends AbstractIllagerEntity {
       }
 
       public boolean canUse() {
-         LivingEntity livingentity = SpellcastingIllagerEntity.this.getTarget();
-         if (livingentity != null && livingentity.isAlive()) {
+         if (SpellcastingIllagerEntity.this instanceof ShamanEntity) {
             if (SpellcastingIllagerEntity.this.isCastingSpell()) {
                return false;
-            } else {
-               return SpellcastingIllagerEntity.this.tickCount >= this.nextAttackTickCount;
             }
+            return SpellcastingIllagerEntity.this.tickCount >= this.nextAttackTickCount;
          } else {
-            return false;
+            LivingEntity livingentity = SpellcastingIllagerEntity.this.getTarget();
+            if (livingentity != null && livingentity.isAlive()) {
+               if (SpellcastingIllagerEntity.this.isCastingSpell()) {
+                  return false;
+               } else {
+                  return SpellcastingIllagerEntity.this.tickCount >= this.nextAttackTickCount;
+               }
+            } else {
+               return false;
+            }
          }
       }
 
       public boolean canContinueToUse() {
-         LivingEntity livingentity = SpellcastingIllagerEntity.this.getTarget();
-         return livingentity != null && livingentity.isAlive() && this.attackWarmupDelay > 0;
+         if (SpellcastingIllagerEntity.this instanceof ShamanEntity) {
+            return this.attackWarmupDelay > 0;
+         } else {
+            LivingEntity livingentity = SpellcastingIllagerEntity.this.getTarget();
+            return livingentity != null && livingentity.isAlive() && this.attackWarmupDelay > 0;
+         }
       }
 
       public void start() {

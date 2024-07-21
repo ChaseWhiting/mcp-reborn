@@ -22,7 +22,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -165,7 +165,7 @@ public abstract class PlayerEntity extends LivingEntity {
         this.killCounts = new HashMap<>();
         this.questManager = new QuestManager(this);
         this.quests = new ArrayList<>();
-        this.questManager.addQuest(QuestTypes.killCows);
+        this.questManager.addQuest(QuestTypes.defeatAllMob);
         this.inventoryMenu = new PlayerContainer(this.inventory, !p_i241920_1_.isClientSide, this);
         this.containerMenu = this.inventoryMenu;
         this.moveTo((double) p_i241920_2_.getX() + 0.5D, (double) (p_i241920_2_.getY() + 1), (double) p_i241920_2_.getZ() + 0.5D, p_i241920_3_, 0.0F);
@@ -1897,7 +1897,7 @@ public abstract class PlayerEntity extends LivingEntity {
                         if (equipmentslottype != EquipmentSlotType.HEAD) {
                             return false;
                         }
-                    } else if (MobEntity.getEquipmentSlotForItem(p_174820_2_) != equipmentslottype) {
+                    } else if (Mob.getEquipmentSlotForItem(p_174820_2_) != equipmentslottype) {
                         return false;
                     }
                 }
@@ -1975,7 +1975,7 @@ public abstract class PlayerEntity extends LivingEntity {
     }
 
     public boolean canTakeItem(ItemStack p_213365_1_) {
-        EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(p_213365_1_);
+        EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(p_213365_1_);
         return this.getItemBySlot(equipmentslottype).isEmpty();
     }
 

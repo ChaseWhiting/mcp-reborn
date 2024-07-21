@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
@@ -33,7 +33,7 @@ public class WalkToHouseTask extends Task<LivingEntity> {
       if (p_212832_1_.getGameTime() - this.lastUpdate < 20L) {
          return false;
       } else {
-         CreatureEntity creatureentity = (CreatureEntity)p_212832_2_;
+         Creature creatureentity = (Creature)p_212832_2_;
          PointOfInterestManager pointofinterestmanager = p_212832_1_.getPoiManager();
          Optional<BlockPos> optional = pointofinterestmanager.findClosest(PointOfInterestType.HOME.getPredicate(), p_212832_2_.blockPosition(), 48, PointOfInterestManager.Status.ANY);
          return optional.isPresent() && !(optional.get().distSqr(creatureentity.blockPosition()) <= 4.0D);
@@ -43,7 +43,7 @@ public class WalkToHouseTask extends Task<LivingEntity> {
    protected void start(ServerWorld p_212831_1_, LivingEntity p_212831_2_, long p_212831_3_) {
       this.triedCount = 0;
       this.lastUpdate = p_212831_1_.getGameTime() + (long)p_212831_1_.getRandom().nextInt(20);
-      CreatureEntity creatureentity = (CreatureEntity)p_212831_2_;
+      Creature creatureentity = (Creature)p_212831_2_;
       PointOfInterestManager pointofinterestmanager = p_212831_1_.getPoiManager();
       Predicate<BlockPos> predicate = (p_225453_1_) -> {
          long i = p_225453_1_.asLong();

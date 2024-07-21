@@ -56,6 +56,7 @@ public class GameRules {
    }));
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_SPECTATORSGENERATECHUNKS = register("spectatorsGenerateChunks", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
    public static final GameRules.RuleKey<GameRules.IntegerValue> RULE_SPAWN_RADIUS = register("spawnRadius", GameRules.Category.PLAYER, GameRules.IntegerValue.create(10));
+   public static final GameRules.RuleKey<GameRules.IntegerValue> RULE_ELYTRA_EXTRA_MOVEMENT = register("elytraMovementVec", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0));
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_DISABLE_ELYTRA_MOVEMENT_CHECK = register("disableElytraMovementCheck", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
    public static final GameRules.RuleKey<GameRules.IntegerValue> RULE_MAX_ENTITY_CRAMMING = register("maxEntityCramming", GameRules.Category.MOBS, GameRules.IntegerValue.create(24));
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_WEATHER_CYCLE = register("doWeatherCycle", GameRules.Category.UPDATES, GameRules.BooleanValue.create(true));

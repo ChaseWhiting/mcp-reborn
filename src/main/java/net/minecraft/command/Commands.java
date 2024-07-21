@@ -107,6 +107,13 @@ public class Commands {
       GroovyCommand.register(this.dispatcher);
       FakePlayerCommand.register(this.dispatcher);
       QuestCommand.register(this.dispatcher);
+      CreateCustomCommand.register(this.dispatcher);
+      CreateCommand.register(this.dispatcher);
+      CustomCommand.register(this.dispatcher);
+      RandomEntityCommand.register(this.dispatcher);
+      RandomItemCommand.register(this.dispatcher);
+      GiveSpawnDispenserCommand.register(this.dispatcher);
+      //PlaceCommand.register(this.dispatcher);
 //      if (SharedConstants.IS_RUNNING_IN_IDE) {
 //         TestCommand.register(this.dispatcher);
 //      }

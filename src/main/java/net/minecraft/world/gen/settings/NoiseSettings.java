@@ -21,19 +21,19 @@ public class NoiseSettings {
    private final boolean islandNoiseOverride;
    private final boolean isAmplified;
 
-   public NoiseSettings(int p_i231910_1_, ScalingSettings p_i231910_2_, SlideSettings p_i231910_3_, SlideSettings p_i231910_4_, int p_i231910_5_, int p_i231910_6_, double p_i231910_7_, double p_i231910_9_, boolean p_i231910_11_, boolean p_i231910_12_, boolean p_i231910_13_, boolean p_i231910_14_) {
-      this.height = p_i231910_1_;
-      this.noiseSamplingSettings = p_i231910_2_;
-      this.topSlideSettings = p_i231910_3_;
-      this.bottomSlideSettings = p_i231910_4_;
-      this.noiseSizeHorizontal = p_i231910_5_;
-      this.noiseSizeVertical = p_i231910_6_;
-      this.densityFactor = p_i231910_7_;
-      this.densityOffset = p_i231910_9_;
-      this.useSimplexSurfaceNoise = p_i231910_11_;
-      this.randomDensityOffset = p_i231910_12_;
-      this.islandNoiseOverride = p_i231910_13_;
-      this.isAmplified = p_i231910_14_;
+   public NoiseSettings(int height, ScalingSettings noiseSamplingSettings, SlideSettings topSlideSettings, SlideSettings bottomSlideSettings, int noiseSizeHorizontal, int noiseSizeVertical, double densityFactor, double densityOffset, boolean useSimplexSurfaceNoise, boolean randomDensityOffset, boolean islandNoiseOverride, boolean isAmplified) {
+      this.height = height;
+      this.noiseSamplingSettings = noiseSamplingSettings;
+      this.topSlideSettings = topSlideSettings;
+      this.bottomSlideSettings = bottomSlideSettings;
+      this.noiseSizeHorizontal = noiseSizeHorizontal;
+      this.noiseSizeVertical = noiseSizeVertical;
+      this.densityFactor = densityFactor;
+      this.densityOffset = densityOffset;
+      this.useSimplexSurfaceNoise = useSimplexSurfaceNoise;
+      this.randomDensityOffset = randomDensityOffset;
+      this.islandNoiseOverride = islandNoiseOverride;
+      this.isAmplified = isAmplified;
    }
 
    public int height() {

@@ -18,7 +18,7 @@ import net.minecraft.entity.IEquipable;
 import net.minecraft.entity.IJumpingMount;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -31,7 +31,7 @@ import net.minecraft.entity.ai.goal.PanicGoal;
 import net.minecraft.entity.ai.goal.RunAroundLikeCrazyGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -69,7 +69,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AbstractHorseEntity extends AnimalEntity implements IInventoryChangedListener, IJumpingMount, IEquipable {
+public abstract class AbstractHorseEntity extends Animal implements IInventoryChangedListener, IJumpingMount, IEquipable {
    private static final Predicate<LivingEntity> PARENT_HORSE_SELECTOR = (p_213617_0_) -> {
       return p_213617_0_ instanceof AbstractHorseEntity && ((AbstractHorseEntity)p_213617_0_).isBred();
    };
@@ -360,7 +360,7 @@ public abstract class AbstractHorseEntity extends AnimalEntity implements IInven
    }
 
    public static AttributeModifierMap.MutableAttribute createBaseHorseAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.JUMP_STRENGTH).add(Attributes.MAX_HEALTH, 53.0D).add(Attributes.MOVEMENT_SPEED, (double)0.225F);
+      return Mob.createMobAttributes().add(Attributes.JUMP_STRENGTH).add(Attributes.MAX_HEALTH, 53.0D).add(Attributes.MOVEMENT_SPEED, (double)0.225F);
    }
 
    public int getMaxSpawnClusterSize() {
@@ -772,7 +772,7 @@ public abstract class AbstractHorseEntity extends AnimalEntity implements IInven
       this.updateContainerEquipment();
    }
 
-   public boolean canMate(AnimalEntity p_70878_1_) {
+   public boolean canMate(Animal p_70878_1_) {
       return false;
    }
 
@@ -785,13 +785,13 @@ public abstract class AbstractHorseEntity extends AnimalEntity implements IInven
       return null;
    }
 
-   protected void setOffspringAttributes(AgeableEntity p_190681_1_, AbstractHorseEntity p_190681_2_) {
-      double d0 = this.getAttributeBaseValue(Attributes.MAX_HEALTH) + p_190681_1_.getAttributeBaseValue(Attributes.MAX_HEALTH) + (double)this.generateRandomMaxHealth();
-      p_190681_2_.getAttribute(Attributes.MAX_HEALTH).setBaseValue(d0 / 3.0D);
-      double d1 = this.getAttributeBaseValue(Attributes.JUMP_STRENGTH) + p_190681_1_.getAttributeBaseValue(Attributes.JUMP_STRENGTH) + this.generateRandomJumpStrength();
-      p_190681_2_.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(d1 / 3.0D);
-      double d2 = this.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) + p_190681_1_.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) + this.generateRandomSpeed();
-      p_190681_2_.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(d2 / 3.0D);
+   protected void setOffspringAttributes(AgeableEntity horse1, AbstractHorseEntity horse2) {
+      double d0 = this.getAttributeBaseValue(Attributes.MAX_HEALTH) + horse1.getAttributeBaseValue(Attributes.MAX_HEALTH) + (double)this.generateRandomMaxHealth();
+      horse2.getAttribute(Attributes.MAX_HEALTH).setBaseValue(d0 / 3.0D);
+      double d1 = this.getAttributeBaseValue(Attributes.JUMP_STRENGTH) + horse1.getAttributeBaseValue(Attributes.JUMP_STRENGTH) + this.generateRandomJumpStrength();
+      horse2.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(d1 / 3.0D);
+      double d2 = this.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) + horse1.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) + this.generateRandomSpeed();
+      horse2.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(d2 / 3.0D);
    }
 
    public boolean canBeControlledByRider() {
@@ -872,8 +872,8 @@ public abstract class AbstractHorseEntity extends AnimalEntity implements IInven
 
    public void positionRider(Entity p_184232_1_) {
       super.positionRider(p_184232_1_);
-      if (p_184232_1_ instanceof MobEntity) {
-         MobEntity mobentity = (MobEntity)p_184232_1_;
+      if (p_184232_1_ instanceof Mob) {
+         Mob mobentity = (Mob)p_184232_1_;
          this.yBodyRot = mobentity.yBodyRot;
       }
 

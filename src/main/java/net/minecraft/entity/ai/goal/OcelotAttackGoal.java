@@ -2,16 +2,16 @@ package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.world.IBlockReader;
 
 public class OcelotAttackGoal extends Goal {
    private final IBlockReader level;
-   private final MobEntity mob;
+   private final Mob mob;
    private LivingEntity target;
    private int attackTime;
 
-   public OcelotAttackGoal(MobEntity p_i1641_1_) {
+   public OcelotAttackGoal(Mob p_i1641_1_) {
       this.mob = p_i1641_1_;
       this.level = p_i1641_1_.level;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));

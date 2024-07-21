@@ -25,9 +25,9 @@ import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.inventory.IInventory;
@@ -532,7 +532,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
 
    private void tellNeutralMobsThatIDied() {
       AxisAlignedBB axisalignedbb = (new AxisAlignedBB(this.blockPosition())).inflate(32.0D, 10.0D, 32.0D);
-      this.level.getLoadedEntitiesOfClass(MobEntity.class, axisalignedbb).stream().filter((p_241155_0_) -> {
+      this.level.getLoadedEntitiesOfClass(Mob.class, axisalignedbb).stream().filter((p_241155_0_) -> {
          return p_241155_0_ instanceof IAngerable;
       }).forEach((p_241145_1_) -> {
          ((IAngerable)p_241145_1_).playerDied(this);
@@ -760,7 +760,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
                   double d0 = 8.0D;
                   double d1 = 5.0D;
                   Vector3d vector3d = Vector3d.atBottomCenterOf(p_213819_1_);
-                  List<MonsterEntity> list = this.level.getEntitiesOfClass(MonsterEntity.class, new AxisAlignedBB(vector3d.x() - 8.0D, vector3d.y() - 5.0D, vector3d.z() - 8.0D, vector3d.x() + 8.0D, vector3d.y() + 5.0D, vector3d.z() + 8.0D), (p_241146_1_) -> {
+                  List<Monster> list = this.level.getEntitiesOfClass(Monster.class, new AxisAlignedBB(vector3d.x() - 8.0D, vector3d.y() - 5.0D, vector3d.z() - 8.0D, vector3d.x() + 8.0D, vector3d.y() + 5.0D, vector3d.z() + 8.0D), (p_241146_1_) -> {
                      return p_241146_1_.isPreventingPlayerRest(this);
                   });
                   if (!list.isEmpty()) {

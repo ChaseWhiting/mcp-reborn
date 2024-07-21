@@ -1,6 +1,6 @@
 package net.minecraft.entity.ai.controller;
 
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.util.math.MathHelper;
 
@@ -8,7 +8,7 @@ public class FlyingMovementController extends MovementController {
    private final int maxTurn;
    private final boolean hoversInPlace;
 
-   public FlyingMovementController(MobEntity p_i225710_1_, int p_i225710_2_, boolean p_i225710_3_) {
+   public FlyingMovementController(Mob p_i225710_1_, int p_i225710_2_, boolean p_i225710_3_) {
       super(p_i225710_1_);
       this.maxTurn = p_i225710_2_;
       this.hoversInPlace = p_i225710_3_;

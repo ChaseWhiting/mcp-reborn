@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.BlockState;
@@ -15,6 +16,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -27,10 +30,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.server.SChangeGameStatePacket;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -48,6 +48,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class AbstractArrowEntity extends ProjectileEntity {
    private static final DataParameter<Byte> ID_FLAGS = EntityDataManager.defineId(AbstractArrowEntity.class, DataSerializers.BYTE);
    private static final DataParameter<Byte> PIERCE_LEVEL = EntityDataManager.defineId(AbstractArrowEntity.class, DataSerializers.BYTE);
+   private static final DataParameter<Byte> RICOCHET_LEVEL = EntityDataManager.defineId(AbstractArrowEntity.class, DataSerializers.BYTE);
+   private static final DataParameter<Byte> GRAVITY_LEVEL = EntityDataManager.defineId(AbstractArrowEntity.class, DataSerializers.BYTE);
+
    @Nullable
    private BlockState lastState;
    protected boolean inGround;
@@ -97,6 +100,8 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
    protected void defineSynchedData() {
       this.entityData.define(ID_FLAGS, (byte)0);
       this.entityData.define(PIERCE_LEVEL, (byte)0);
+      this.entityData.define(RICOCHET_LEVEL, (byte)0);
+      this.entityData.define(GRAVITY_LEVEL, (byte)0);
    }
 
    public void shoot(double p_70186_1_, double p_70186_3_, double p_70186_5_, float p_70186_7_, float p_70186_8_) {
@@ -200,7 +205,7 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
          double d3 = vector3d.x;
          double d4 = vector3d.y;
          double d0 = vector3d.z;
-         if (this.isCritArrow()) {
+         if (this.isCritArrow() || shotFromCrossbow()) {
             for(int i = 0; i < 4; ++i) {
                this.level.addParticle(ParticleTypes.CRIT, this.getX() + d3 * (double)i / 4.0D, this.getY() + d4 * (double)i / 4.0D, this.getZ() + d0 * (double)i / 4.0D, -d3, -d4 + 0.2D, -d0);
             }
@@ -279,10 +284,11 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
 
    }
 
-   protected void onHitEntity(EntityRayTraceResult p_213868_1_) {
-      super.onHitEntity(p_213868_1_);
-      Entity entity = p_213868_1_.getEntity();
+   protected void onHitEntity(EntityRayTraceResult result) {
+      super.onHitEntity(result);
+      Entity entity = result.getEntity();
       float f = (float)this.getDeltaMovement().length();
+      dealWithGravity();
       int i = MathHelper.ceil(MathHelper.clamp((double)f * this.baseDamage, 0.0D, 2.147483647E9D));
       if (this.getPierceLevel() > 0) {
          if (this.piercingIgnoreEntityIds == null) {
@@ -300,6 +306,23 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
 
          this.piercingIgnoreEntityIds.add(entity.getId());
       }
+
+//      if (getRicochetLevel() > 0) {
+//         setRicochetLevel((byte) Math.max(0, getRicochetLevel() - 1));
+//
+//         Vector3d vector3d = this.position().subtract(this.getDeltaMovement());
+//         double scaleFactor = -0.3 - (random.nextDouble() * 0.2);
+//         Vector3d ricochetVector = vector3d.normalize().scale(scaleFactor);
+//
+//         // Introduce randomness to x and z components to avoid consistent directional bias
+//         ricochetVector = ricochetVector.add(
+//                 (random.nextDouble() - 0.5) * 0.1, // small random value in range [-0.05, 0.05]
+//                 0.2,
+//                 (random.nextDouble() - 0.5) * 0.1  // small random value in range [-0.05, 0.05]
+//         );
+//
+//         this.setDeltaMovement(ricochetVector);
+//      }
 
       if (this.isCritArrow()) {
          long j = (long)this.random.nextInt(i / 2 + 2);
@@ -366,7 +389,7 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
          }
 
          this.playSound(this.soundEvent, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-         if (this.getPierceLevel() <= 0) {
+         if (this.getPierceLevel() <= 0 && this.getRicochetLevel() <= 0) {
             this.remove();
          }
       } else {
@@ -385,22 +408,117 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
 
    }
 
-   protected void onHitBlock(BlockRayTraceResult p_230299_1_) {
-      this.lastState = this.level.getBlockState(p_230299_1_.getBlockPos());
-      super.onHitBlock(p_230299_1_);
-      Vector3d vector3d = p_230299_1_.getLocation().subtract(this.getX(), this.getY(), this.getZ());
-      this.setDeltaMovement(vector3d);
-      Vector3d vector3d1 = vector3d.normalize().scale((double)0.05F);
-      this.setPosRaw(this.getX() - vector3d1.x, this.getY() - vector3d1.y, this.getZ() - vector3d1.z);
-      this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-      this.inGround = true;
-      this.shakeTime = 7;
-      this.setCritArrow(false);
-      this.setPierceLevel((byte)0);
-      this.setSoundEvent(SoundEvents.ARROW_HIT);
-      this.setShotFromCrossbow(false);
-      this.resetPiercedEntities();
+   public void dealWithGravity() {
+      if (getGravityLevel() > 0) {
+
+         // Cap the bounding box to a maximum of 6 blocks
+         double maxBoundingBox = Math.min(6, 5 + 2 * this.getGravityLevel());
+         List<LivingEntity> entities = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(maxBoundingBox)).stream()
+                 .filter(entity -> !(entity instanceof EnderDragonEntity))
+                 .collect(Collectors.toList());
+
+         if (!entities.isEmpty()) {
+            for (LivingEntity entity : entities) {
+               double x = this.getX() - entity.getX();
+               double y = this.getY() - entity.getY();
+               double z = this.getZ() - entity.getZ();
+
+               // Calculate distance from the entity to the gravity source
+               double distance = Math.sqrt(x * x + y * y + z * z);
+
+               // Adjust factor based on the gravity level
+               double factor = switch (this.getGravityLevel()) {
+                  case 1 -> 0.5;
+                  case 2 -> 0.8;
+                  case 3 -> 1.0;
+                  case 4 -> 1.3;
+                  case 5 -> 1.5;
+                  default -> 0;
+               };
+
+               Vector3d vector3d = new Vector3d(x, y, z).normalize().scale(factor);
+
+               // Prevent entities from being thrown too high into the air
+               if (distance < 3) {
+                  vector3d = new Vector3d(vector3d.x, Math.min(vector3d.y, 0.5), vector3d.z);
+               }
+
+               entity.setDeltaMovement(entity.getDeltaMovement().add(vector3d));
+            }
+         }
+
+         setGravityLevel((byte) Math.max(0, getGravityLevel() - 1));
+      }
    }
+
+
+   protected void onHitBlock(BlockRayTraceResult result) {
+      this.lastState = this.level.getBlockState(result.getBlockPos());
+      super.onHitBlock(result);
+      dealWithGravity();
+      // Check if the block face hit is a vertical face (a wall)
+      boolean hitWall = result.getDirection().getAxis().isHorizontal() || result.getDirection() == Direction.DOWN;
+      boolean bounceTowardsMob = false;
+      if (getRicochetLevel() > 0 && hitWall) {
+         BlockPos position = result.getBlockPos();
+         Direction hit = result.getDirection();
+         AxisAlignedBB mobSearch = switch(hit) {
+            case NORTH -> new AxisAlignedBB(position).expandTowards(0, 0, 3.5);
+            case SOUTH -> new AxisAlignedBB(position).expandTowards(0, 0, -3.5);
+            case WEST -> new AxisAlignedBB(position).expandTowards(3.5, 0, 0);
+            case EAST -> new AxisAlignedBB(position).expandTowards(-3.5, 0, 0);
+               default -> new AxisAlignedBB(position);
+         };
+         List<LivingEntity> mobs = this.level.getEntitiesOfClass(LivingEntity.class, mobSearch.inflate(0.5), entity -> entity instanceof Monster || entity instanceof PlayerEntity);
+         if(!mobs.isEmpty()) {
+            bounceTowardsMob = true;
+         }
+         // Calculate the ricochet vector
+         setRicochetLevel((byte) Math.max(0, getRicochetLevel() - 1));
+         Vector3d vector3d = result.getLocation().subtract(this.getX(), this.getY(), this.getZ());
+         double scaleFactor = -0.3 - (random.nextDouble() * 0.2); // Generates a value between -0.3 and -0.5
+         Vector3d ricochetVector = vector3d.normalize().scale(scaleFactor);
+         if (bounceTowardsMob && result.getDirection() != Direction.DOWN) {
+            // Reverse the direction based on the hit face direction
+            Direction hitDirection = result.getDirection();
+
+            ricochetVector = switch (hitDirection) {
+               case NORTH -> new Vector3d(0, 0.2, scaleFactor); // Towards South
+               case SOUTH -> new Vector3d(0, 0.2, -scaleFactor); // Towards North
+               case WEST -> new Vector3d(scaleFactor, 0.2, 0); // Towards East
+               case EAST -> new Vector3d(-scaleFactor, 0.2, 0); // Towards West
+               default -> ricochetVector.add(0, 0.2, 0);
+            };
+
+
+         } else {
+            ricochetVector = ricochetVector.add(0, 0.2, 0);
+         }
+
+
+         this.setDeltaMovement(ricochetVector);
+         this.setPosRaw(this.getX(), this.getY(), this.getZ());
+         this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+         this.inGround = false; // Make sure the arrow is not marked as in the ground
+      } else {
+         Vector3d vector3d = result.getLocation().subtract(this.getX(), this.getY(), this.getZ());
+         this.setDeltaMovement(vector3d);
+         Vector3d vector3d1 = vector3d.normalize().scale((double)0.05F);
+         this.setPosRaw(this.getX() - vector3d1.x, this.getY() - vector3d1.y, this.getZ() - vector3d1.z);
+         this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+         this.inGround = true;
+         this.shakeTime = 7;
+         this.setCritArrow(false);
+         this.setPierceLevel((byte)0);
+         this.setRicochetLevel((byte)0);
+         this.setGravityLevel((byte)0);
+         this.setSoundEvent(SoundEvents.ARROW_HIT);
+         this.setShotFromCrossbow(false);
+         this.resetPiercedEntities();
+      }
+   }
+
+
 
    protected SoundEvent getDefaultHitGroundSoundEvent() {
       return SoundEvents.ARROW_HIT;
@@ -435,6 +553,8 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
       p_213281_1_.putDouble("damage", this.baseDamage);
       p_213281_1_.putBoolean("crit", this.isCritArrow());
       p_213281_1_.putByte("PierceLevel", this.getPierceLevel());
+      p_213281_1_.putByte("RicochetLevel", this.getRicochetLevel());
+      p_213281_1_.putByte("GravityLevel", this.getGravityLevel());
       p_213281_1_.putString("SoundEvent", Registry.SOUND_EVENT.getKey(this.soundEvent).toString());
       p_213281_1_.putBoolean("ShotFromCrossbow", this.shotFromCrossbow());
    }
@@ -460,6 +580,8 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
 
       this.setCritArrow(p_70037_1_.getBoolean("crit"));
       this.setPierceLevel(p_70037_1_.getByte("PierceLevel"));
+      this.setRicochetLevel(p_70037_1_.getByte("RicochetLevel"));
+      this.setGravityLevel(p_70037_1_.getByte("GravityLevel"));
       if (p_70037_1_.contains("SoundEvent", 8)) {
          this.soundEvent = Registry.SOUND_EVENT.getOptional(new ResourceLocation(p_70037_1_.getString("SoundEvent"))).orElse(this.getDefaultHitGroundSoundEvent());
       }
@@ -500,6 +622,10 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
       this.baseDamage = p_70239_1_;
    }
 
+   public void addBaseDamage(double amount) {
+      this.baseDamage += amount;
+   }
+
    public double getBaseDamage() {
       return this.baseDamage;
    }
@@ -524,6 +650,14 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
       this.entityData.set(PIERCE_LEVEL, p_213872_1_);
    }
 
+   public void setRicochetLevel(byte level) {
+      this.entityData.set(RICOCHET_LEVEL, level);
+   }
+
+   public void setGravityLevel(byte level) {
+      this.entityData.set(GRAVITY_LEVEL, level);
+   }
+
    private void setFlag(int p_203049_1_, boolean p_203049_2_) {
       byte b0 = this.entityData.get(ID_FLAGS);
       if (p_203049_2_) {
@@ -546,6 +680,14 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
 
    public byte getPierceLevel() {
       return this.entityData.get(PIERCE_LEVEL);
+   }
+
+   public byte getRicochetLevel() {
+      return this.entityData.get(RICOCHET_LEVEL);
+   }
+
+   public byte getGravityLevel() {
+      return this.entityData.get(GRAVITY_LEVEL);
    }
 
    public void setEnchantmentEffectsFromEntity(LivingEntity p_190547_1_, float p_190547_2_) {

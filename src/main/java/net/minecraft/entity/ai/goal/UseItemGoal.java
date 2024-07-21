@@ -2,13 +2,13 @@ package net.minecraft.entity.ai.goal;
 
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
 
-public class UseItemGoal<T extends MobEntity> extends Goal {
+public class UseItemGoal<T extends Mob> extends Goal {
    private final T mob;
    private final ItemStack item;
    private final Predicate<? super T> canUseSelector;

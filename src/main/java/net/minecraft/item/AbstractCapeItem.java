@@ -2,7 +2,7 @@ package net.minecraft.item;
 
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.enchantment.IArmorVanishable;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.stats.Stats;
@@ -27,7 +27,7 @@ public class AbstractCapeItem extends Item implements IArmorVanishable {
    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
       super.use(world, player, hand);
       ItemStack itemstack = player.getItemInHand(hand);
-      EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(itemstack);
+      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
       ItemStack itemstack1 = player.getItemBySlot(equipmentslottype);
 
       if (itemstack1.isEmpty()) {

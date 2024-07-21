@@ -3,7 +3,7 @@ package net.minecraft.pathfinding;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 public class GroundPathNavigator extends PathNavigator {
    private boolean avoidSun;
 
-   public GroundPathNavigator(MobEntity p_i45875_1_, World p_i45875_2_) {
+   public GroundPathNavigator(Mob p_i45875_1_, World p_i45875_2_) {
       super(p_i45875_1_, p_i45875_2_);
    }
 

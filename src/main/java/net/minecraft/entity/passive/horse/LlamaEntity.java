@@ -25,7 +25,7 @@ import net.minecraft.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.entity.ai.goal.RunAroundLikeCrazyGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.LlamaSpitEntity;
@@ -332,7 +332,7 @@ public class LlamaEntity extends AbstractChestedHorseEntity implements IRangedAt
       return 30;
    }
 
-   public boolean canMate(AnimalEntity p_70878_1_) {
+   public boolean canMate(Animal p_70878_1_) {
       return p_70878_1_ != this && p_70878_1_ instanceof LlamaEntity && this.canParent() && ((LlamaEntity)p_70878_1_).canParent();
    }
 

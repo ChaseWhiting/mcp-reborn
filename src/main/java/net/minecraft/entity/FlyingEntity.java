@@ -5,7 +5,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
-public abstract class FlyingEntity extends MobEntity {
+public abstract class FlyingEntity extends Mob {
    protected FlyingEntity(EntityType<? extends FlyingEntity> p_i48578_1_, World p_i48578_2_) {
       super(p_i48578_1_, p_i48578_2_);
    }

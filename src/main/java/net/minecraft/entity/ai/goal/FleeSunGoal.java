@@ -3,21 +3,21 @@ package net.minecraft.entity.ai.goal;
 import java.util.EnumSet;
 import java.util.Random;
 import javax.annotation.Nullable;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 public class FleeSunGoal extends Goal {
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    private double wantedX;
    private double wantedY;
    private double wantedZ;
    private final double speedModifier;
    private final World level;
 
-   public FleeSunGoal(CreatureEntity p_i1623_1_, double p_i1623_2_) {
+   public FleeSunGoal(Creature p_i1623_1_, double p_i1623_2_) {
       this.mob = p_i1623_1_;
       this.speedModifier = p_i1623_2_;
       this.level = p_i1623_1_.level;

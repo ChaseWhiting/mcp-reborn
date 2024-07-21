@@ -1,14 +1,14 @@
 package net.minecraft.pathfinding;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ClimberPathNavigator extends GroundPathNavigator {
    private BlockPos pathToPosition;
 
-   public ClimberPathNavigator(MobEntity p_i45874_1_, World p_i45874_2_) {
+   public ClimberPathNavigator(Mob p_i45874_1_, World p_i45874_2_) {
       super(p_i45874_1_, p_i45874_2_);
    }
 

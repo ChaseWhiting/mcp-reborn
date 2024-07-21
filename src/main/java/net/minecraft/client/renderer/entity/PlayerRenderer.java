@@ -20,10 +20,7 @@ import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerModelPart;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.UseAction;
+import net.minecraft.item.*;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
@@ -123,6 +120,10 @@ public class PlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity, P
             }
          } else if (!p_241741_0_.swinging && itemstack.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(itemstack)) {
             return BipedModel.ArmPose.CROSSBOW_HOLD;
+         } else if (!p_241741_0_.swinging && itemstack.getItem() == Items.GILDED_CROSSBOW && GildedCrossbowItem.isCharged(itemstack)) {
+            return BipedModel.ArmPose.CROSSBOW_HOLD;
+         } else if (!p_241741_0_.swinging && itemstack.getItem() instanceof AbstractCrossbowItem && AbstractCrossbowItem.isCharged(itemstack)) {
+            return BipedModel.ArmPose.CROSSBOW_HOLD;
          }
 
          return BipedModel.ArmPose.ITEM;
@@ -176,36 +177,39 @@ public class PlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity, P
       p_229145_6_.render(p_229145_1_, p_229145_2_.getBuffer(RenderType.entityTranslucent(p_229145_4_.getSkinTextureLocation())), p_229145_3_, OverlayTexture.NO_OVERLAY);
    }
 
-   protected void setupRotations(AbstractClientPlayerEntity p_225621_1_, MatrixStack p_225621_2_, float p_225621_3_, float p_225621_4_, float p_225621_5_) {
-      float f = p_225621_1_.getSwimAmount(p_225621_5_);
-      if (p_225621_1_.isFallFlying()) {
-         super.setupRotations(p_225621_1_, p_225621_2_, p_225621_3_, p_225621_4_, p_225621_5_);
-         float f1 = (float)p_225621_1_.getFallFlyingTicks() + p_225621_5_;
-         float f2 = MathHelper.clamp(f1 * f1 / 100.0F, 0.0F, 1.0F);
-         if (!p_225621_1_.isAutoSpinAttack()) {
-            p_225621_2_.mulPose(Vector3f.XP.rotationDegrees(f2 * (-90.0F - p_225621_1_.xRot)));
+   protected void setupRotations(AbstractClientPlayerEntity player, MatrixStack matrixStack, float ageInTicks, float rotationYaw, float partialTicks) {
+      float swimAmount = player.getSwimAmount(partialTicks);
+
+      if (player.isFallFlying()) {
+         super.setupRotations(player, matrixStack, ageInTicks, rotationYaw, partialTicks);
+         float fallFlyingTicks = (float) player.getFallFlyingTicks() + partialTicks;
+         float fallFlyingProgress = MathHelper.clamp(fallFlyingTicks * fallFlyingTicks / 100.0F, 0.0F, 1.0F);
+
+         if (!player.isAutoSpinAttack()) {
+            matrixStack.mulPose(Vector3f.XP.rotationDegrees(fallFlyingProgress * (-90.0F - player.xRot)));
          }
 
-         Vector3d vector3d = p_225621_1_.getViewVector(p_225621_5_);
-         Vector3d vector3d1 = p_225621_1_.getDeltaMovement();
-         double d0 = Entity.getHorizontalDistanceSqr(vector3d1);
-         double d1 = Entity.getHorizontalDistanceSqr(vector3d);
-         if (d0 > 0.0D && d1 > 0.0D) {
-            double d2 = (vector3d1.x * vector3d.x + vector3d1.z * vector3d.z) / Math.sqrt(d0 * d1);
-            double d3 = vector3d1.x * vector3d.z - vector3d1.z * vector3d.x;
-            p_225621_2_.mulPose(Vector3f.YP.rotation((float)(Math.signum(d3) * Math.acos(d2))));
+         Vector3d viewVector = player.getViewVector(partialTicks);
+         Vector3d deltaMovement = player.getDeltaMovement();
+         double horizontalDistanceMovement = Entity.getHorizontalDistanceSqr(deltaMovement);
+         double horizontalDistanceView = Entity.getHorizontalDistanceSqr(viewVector);
+
+         if (horizontalDistanceMovement > 0.0D && horizontalDistanceView > 0.0D) {
+            double dotProduct = (deltaMovement.x * viewVector.x + deltaMovement.z * viewVector.z) / Math.sqrt(horizontalDistanceMovement * horizontalDistanceView);
+            double crossProduct = deltaMovement.x * viewVector.z - deltaMovement.z * viewVector.x;
+            matrixStack.mulPose(Vector3f.YP.rotation((float) (Math.signum(crossProduct) * Math.acos(dotProduct))));
          }
-      } else if (f > 0.0F) {
-         super.setupRotations(p_225621_1_, p_225621_2_, p_225621_3_, p_225621_4_, p_225621_5_);
-         float f3 = p_225621_1_.isInWater() ? -90.0F - p_225621_1_.xRot : -90.0F;
-         float f4 = MathHelper.lerp(f, 0.0F, f3);
-         p_225621_2_.mulPose(Vector3f.XP.rotationDegrees(f4));
-         if (p_225621_1_.isVisuallySwimming()) {
-            p_225621_2_.translate(0.0D, -1.0D, (double)0.3F);
+      } else if (swimAmount > 0.0F) {
+         super.setupRotations(player, matrixStack, ageInTicks, rotationYaw, partialTicks);
+         float swimRotation = player.isInWater() ? -90.0F - player.xRot : -90.0F;
+         float lerpedSwimRotation = MathHelper.lerp(swimAmount, 0.0F, swimRotation);
+         matrixStack.mulPose(Vector3f.XP.rotationDegrees(lerpedSwimRotation));
+
+         if (player.isVisuallySwimming()) {
+            matrixStack.translate(0.0D, -1.0D, 0.3D);
          }
       } else {
-         super.setupRotations(p_225621_1_, p_225621_2_, p_225621_3_, p_225621_4_, p_225621_5_);
+         super.setupRotations(player, matrixStack, ageInTicks, rotationYaw, partialTicks);
       }
-
    }
 }

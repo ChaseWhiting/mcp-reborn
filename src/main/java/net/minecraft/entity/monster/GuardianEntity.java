@@ -45,7 +45,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class GuardianEntity extends MonsterEntity {
+public class GuardianEntity extends Monster {
    private static final DataParameter<Boolean> DATA_ID_MOVING = EntityDataManager.defineId(GuardianEntity.class, DataSerializers.BOOLEAN);
    private static final DataParameter<Integer> DATA_ID_ATTACK_TARGET = EntityDataManager.defineId(GuardianEntity.class, DataSerializers.INT);
    private float clientSideTailAnimation;
@@ -82,7 +82,7 @@ public class GuardianEntity extends MonsterEntity {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MonsterEntity.createMonsterAttributes().add(Attributes.ATTACK_DAMAGE, 6.0D).add(Attributes.MOVEMENT_SPEED, 0.5D).add(Attributes.FOLLOW_RANGE, 16.0D).add(Attributes.MAX_HEALTH, 30.0D);
+      return Monster.createMonsterAttributes().add(Attributes.ATTACK_DAMAGE, 6.0D).add(Attributes.MOVEMENT_SPEED, 0.5D).add(Attributes.FOLLOW_RANGE, 16.0D).add(Attributes.MAX_HEALTH, 30.0D);
    }
 
    protected PathNavigator createNavigation(World p_175447_1_) {

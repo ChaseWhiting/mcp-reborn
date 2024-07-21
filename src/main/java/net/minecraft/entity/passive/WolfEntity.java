@@ -4,35 +4,23 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.goal.BegGoal;
-import net.minecraft.entity.ai.goal.BreedGoal;
-import net.minecraft.entity.ai.goal.FollowOwnerGoal;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
-import net.minecraft.entity.ai.goal.LeapAtTargetGoal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.NonTamedTargetGoal;
-import net.minecraft.entity.ai.goal.OwnerHurtByTargetGoal;
-import net.minecraft.entity.ai.goal.OwnerHurtTargetGoal;
-import net.minecraft.entity.ai.goal.ResetAngerGoal;
-import net.minecraft.entity.ai.goal.SitGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.monster.AbstractSkeletonEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.monster.ShamanEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -47,6 +35,9 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.pathfinding.PathNavigator;
+import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.pathfinding.WalkNodeProcessor;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
@@ -57,6 +48,7 @@ import net.minecraft.util.TickRangeConverter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -70,18 +62,174 @@ public class WolfEntity extends TameableEntity implements IAngerable {
       EntityType<?> entitytype = p_213440_0_.getType();
       return entitytype == EntityType.SHEEP || entitytype == EntityType.RABBIT || entitytype == EntityType.FOX;
    };
+
+   private final Predicate<LivingEntity> SHAMAN_SELECTOR = (entity) -> {
+      EntityType<?> entityType = entity.getType();
+      boolean flag = entityType == EntityType.VILLAGER || entityType == EntityType.IRON_GOLEM || entityType == EntityType.PLAYER;
+      return flag && this.isFromShaman();
+   };
    private float interestedAngle;
    private float interestedAngleO;
    private boolean isWet;
    private boolean isShaking;
+   private boolean fromShaman;
+   private int shamanSpawnTimer = 1200;
    private float shakeAnim;
    private float shakeAnimO;
+   private ShamanEntity shaman;
+   private WolfFollowShamanGoal followShamanGoal;
    private static final RangedInteger PERSISTENT_ANGER_TIME = TickRangeConverter.rangeOfSeconds(20, 39);
    private UUID persistentAngerTarget;
 
    public WolfEntity(EntityType<? extends WolfEntity> p_i50240_1_, World p_i50240_2_) {
       super(p_i50240_1_, p_i50240_2_);
       this.setTame(false);
+   }
+
+   public boolean isFromShaman() {
+      return fromShaman;
+   }
+
+   public boolean isShaman(LivingEntity entity) {
+      return SHAMAN_SELECTOR.test(entity) && isFromShaman();
+   }
+
+   public void setShaman(ShamanEntity shaman) {
+      this.shaman = shaman;
+   }
+   @Nullable
+   public ShamanEntity getShaman() {
+      if(shaman != null) {
+         return shaman;
+      } else {
+         return null;
+      }
+   }
+
+   public void setFromShaman(boolean val, int value) {
+      shamanSpawnTimer = value;
+      fromShaman = val;
+   }
+
+   public void setFromShaman(boolean val) {
+      fromShaman = val;
+   }
+
+   class WolfFollowShamanGoal extends Goal {
+      private WolfEntity wolf;
+      private ShamanEntity shaman;
+      private final IWorldReader level;
+      private final double speedModifier = 1.0D;
+      private final PathNavigator navigation;
+      private int timeToRecalcPath;
+      private final float stopDistance = 2.0F;
+      private final float startDistance = 7.0F;
+      private float oldWaterCost;
+      private final boolean canFly = false;
+
+      public WolfFollowShamanGoal(WolfEntity wolf) {
+         this.shaman = wolf.getShaman();
+         this.level = wolf.level;
+         this.navigation = wolf.getNavigation();
+         this.wolf = wolf;
+      }
+
+      public boolean canUse() {
+         if (shaman == null) {
+            return false;
+         } else if (shaman.isSpectator()) {
+            return false;
+         } else if (this.wolf.isOrderedToSit()) {
+            return false;
+         } else if (this.wolf.distanceToSqr(shaman) < (double)(this.startDistance * this.startDistance)) {
+            return false;
+         } else {
+             return true;
+         }
+      }
+
+      public boolean canContinueToUse() {
+         if (this.navigation.isDone()) {
+            return false;
+         } else if (this.wolf.isOrderedToSit()) {
+            return false;
+         } else {
+            return !(this.wolf.distanceToSqr(shaman) <= (double)(this.stopDistance * this.stopDistance));
+         }
+      }
+
+      public void start() {
+         this.timeToRecalcPath = 0;
+         this.oldWaterCost = this.wolf.getPathfindingMalus(PathNodeType.WATER);
+         this.wolf.setPathfindingMalus(PathNodeType.WATER, 0.0F);
+      }
+
+      public void stop() {
+         this.shaman = null;
+         this.navigation.stop();
+         this.wolf.setPathfindingMalus(PathNodeType.WATER, this.oldWaterCost);
+      }
+
+      public void tick() {
+         this.wolf.getLookControl().setLookAt(this.wolf, 10.0F, (float)this.wolf.getMaxHeadXRot());
+         if (--this.timeToRecalcPath <= 0) {
+            this.timeToRecalcPath = 10;
+            if (!this.wolf.isLeashed() && !this.wolf.isPassenger()) {
+               if (this.wolf.distanceToSqr(this.wolf) >= 144.0D) {
+                  this.teleportToShaman();
+               } else {
+                  this.navigation.moveTo(this.wolf, this.speedModifier);
+               }
+
+            }
+         }
+      }
+
+      private void teleportToShaman() {
+         BlockPos blockpos = this.shaman.blockPosition();
+
+         for(int i = 0; i < 10; ++i) {
+            int j = this.randomIntInclusive(-3, 3);
+            int k = this.randomIntInclusive(-1, 1);
+            int l = this.randomIntInclusive(-3, 3);
+            boolean flag = this.maybeTeleportTo(blockpos.getX() + j, blockpos.getY() + k, blockpos.getZ() + l);
+            if (flag) {
+               return;
+            }
+         }
+
+      }
+
+      private boolean maybeTeleportTo(int xCoord, int yCoord, int zCoord) {
+         if (Math.abs((double)xCoord - this.shaman.getX()) < 2.0D && Math.abs((double)zCoord - this.shaman.getZ()) < 2.0D) {
+            return false;
+         } else if (!this.canTeleportTo(new BlockPos(xCoord, yCoord, zCoord))) {
+            return false;
+         } else {
+            this.wolf.moveTo((double)xCoord + 0.5D, (double)yCoord, (double)zCoord + 0.5D, this.wolf.yRot, this.wolf.xRot);
+            this.navigation.stop();
+            return true;
+         }
+      }
+
+      private boolean canTeleportTo(BlockPos pos) {
+         PathNodeType pathnodetype = WalkNodeProcessor.getBlockPathTypeStatic(this.level, pos.mutable());
+         if (pathnodetype != PathNodeType.WALKABLE) {
+            return false;
+         } else {
+            BlockState blockstate = this.level.getBlockState(pos.below());
+            if (!this.canFly && blockstate.getBlock() instanceof LeavesBlock) {
+               return false;
+            } else {
+               BlockPos blockpos = pos.subtract(this.wolf.blockPosition());
+               return this.level.noCollision(this.wolf, this.wolf.getBoundingBox().move(blockpos));
+            }
+         }
+      }
+
+      private int randomIntInclusive(int min, int max) {
+         return this.wolf.getRandom().nextInt(max - min + 1) + min;
+      }
    }
 
    protected void registerGoals() {
@@ -100,14 +248,17 @@ public class WolfEntity extends TameableEntity implements IAngerable {
       this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
       this.targetSelector.addGoal(3, (new HurtByTargetGoal(this)).setAlertOthers());
       this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::isAngryAt));
-      this.targetSelector.addGoal(5, new NonTamedTargetGoal<>(this, AnimalEntity.class, false, PREY_SELECTOR));
+      this.targetSelector.addGoal(5, new NonTamedTargetGoal<>(this, Animal.class, false, PREY_SELECTOR));
       this.targetSelector.addGoal(6, new NonTamedTargetGoal<>(this, TurtleEntity.class, false, TurtleEntity.BABY_ON_LAND_SELECTOR));
+      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 12, true, false, this::isShaman));
+      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, 12, true, false, this::isShaman));
+      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, 12, true, false, this::isShaman));
       this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, AbstractSkeletonEntity.class, false));
       this.targetSelector.addGoal(8, new ResetAngerGoal<>(this, true));
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.ATTACK_DAMAGE, 2.0D);
+      return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.ATTACK_DAMAGE, 2.0D);
    }
 
    protected void defineSynchedData() {
@@ -123,17 +274,30 @@ public class WolfEntity extends TameableEntity implements IAngerable {
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
+      if (this.getShaman() != null)
+         p_213281_1_.putUUID("Shaman", this.getShaman().getUUID());
+      p_213281_1_.putBoolean("fromShaman", this.isFromShaman());
       p_213281_1_.putByte("CollarColor", (byte)this.getCollarColor().getId());
       this.addPersistentAngerSaveData(p_213281_1_);
    }
 
-   public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
-      super.readAdditionalSaveData(p_70037_1_);
-      if (p_70037_1_.contains("CollarColor", 99)) {
-         this.setCollarColor(DyeColor.byId(p_70037_1_.getInt("CollarColor")));
+   public void readAdditionalSaveData(CompoundNBT compound) {
+      super.readAdditionalSaveData(compound);
+      if(compound.contains("Shaman")) {
+         this.setShamanUUID(compound.getUUID("Shaman"));
+      }
+      if(compound.contains("fromShaman")) {
+         this.setFromShaman(compound.getBoolean("fromShaman"));
+      }
+      if (compound.contains("CollarColor", 99)) {
+         this.setCollarColor(DyeColor.byId(compound.getInt("CollarColor")));
       }
 
-      this.readPersistentAngerSaveData((ServerWorld)this.level, p_70037_1_);
+      this.readPersistentAngerSaveData((ServerWorld)this.level, compound);
+   }
+
+   private void setShamanUUID(UUID shaman) {
+      this.getShaman().setUUID(shaman);
    }
 
    protected SoundEvent getAmbientSound() {
@@ -175,6 +339,21 @@ public class WolfEntity extends TameableEntity implements IAngerable {
 
    public void tick() {
       super.tick();
+
+      if (shaman != null) {
+         followShamanGoal = new WolfFollowShamanGoal(this);
+         if(!this.goalSelector.getAvailableGoals().anyMatch(Predicate.isEqual(followShamanGoal))) {
+            this.goalSelector.addGoal(2, followShamanGoal);
+         }
+      } else {
+         this.goalSelector.removeGoal(followShamanGoal);
+      }
+
+      if(isFromShaman()) {
+         if (shamanSpawnTimer-- < 0) {
+            this.remove();
+         }
+      }
       if (this.isAlive()) {
          this.interestedAngleO = this.interestedAngle;
          if (this.isInterested()) {
@@ -440,7 +619,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
       this.entityData.set(DATA_INTERESTED_ID, p_70918_1_);
    }
 
-   public boolean canMate(AnimalEntity p_70878_1_) {
+   public boolean canMate(Animal p_70878_1_) {
       if (p_70878_1_ == this) {
          return false;
       } else if (!this.isTame()) {

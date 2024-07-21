@@ -9,7 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -129,14 +129,14 @@ public abstract class AbstractSpawner {
                      }
 
                      entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), world.random.nextFloat() * 360.0F, 0.0F);
-                     if (entity instanceof MobEntity) {
-                        MobEntity mobentity = (MobEntity)entity;
+                     if (entity instanceof Mob) {
+                        Mob mobentity = (Mob)entity;
                         if (!mobentity.checkSpawnRules(world, SpawnReason.SPAWNER) || !mobentity.checkSpawnObstruction(world)) {
                            continue;
                         }
 
                         if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8)) {
-                           ((MobEntity)entity).finalizeSpawn(serverworld, world.getCurrentDifficultyAt(entity.blockPosition()), SpawnReason.SPAWNER, (ILivingEntityData)null, (CompoundNBT)null);
+                           ((Mob)entity).finalizeSpawn(serverworld, world.getCurrentDifficultyAt(entity.blockPosition()), SpawnReason.SPAWNER, (ILivingEntityData)null, (CompoundNBT)null);
                         }
                      }
 
@@ -146,8 +146,8 @@ public abstract class AbstractSpawner {
                      }
 
                      world.levelEvent(2004, blockpos, 0);
-                     if (entity instanceof MobEntity) {
-                        ((MobEntity)entity).spawnAnim();
+                     if (entity instanceof Mob) {
+                        ((Mob)entity).spawnAnim();
                      }
 
                      flag = true;
@@ -248,7 +248,7 @@ public abstract class AbstractSpawner {
    public Entity getOrCreateDisplayEntity() {
       if (this.displayEntity == null) {
          this.displayEntity = EntityType.loadEntityRecursive(this.nextSpawnData.getTag(), this.getLevel(), Function.identity());
-         if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8) && this.displayEntity instanceof MobEntity) {
+         if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8) && this.displayEntity instanceof Mob) {
          }
       }
 

@@ -2,7 +2,7 @@ package net.minecraft.entity.ai.controller;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.pathfinding.NodeProcessor;
 import net.minecraft.pathfinding.PathNavigator;
@@ -14,7 +14,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.VoxelShape;
 
 public class MovementController {
-   protected final MobEntity mob;
+   protected final Mob mob;
    protected double wantedX;
    protected double wantedY;
    protected double wantedZ;
@@ -23,7 +23,7 @@ public class MovementController {
    protected float strafeRight;
    protected MovementController.Action operation = MovementController.Action.WAIT;
 
-   public MovementController(MobEntity p_i1614_1_) {
+   public MovementController(Mob p_i1614_1_) {
       this.mob = p_i1614_1_;
    }
 

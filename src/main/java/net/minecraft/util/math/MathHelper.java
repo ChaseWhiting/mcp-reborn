@@ -227,10 +227,10 @@ public class MathHelper {
       return abs(degreesDifference(p_203301_0_, p_203301_1_));
    }
 
-   public static float rotateIfNecessary(float p_219800_0_, float p_219800_1_, float p_219800_2_) {
-      float f = degreesDifference(p_219800_0_, p_219800_1_);
-      float f1 = clamp(f, -p_219800_2_, p_219800_2_);
-      return p_219800_1_ - f1;
+   public static float rotateIfNecessary(float currentRotation, float targetRotation, float maxRotationChange) {
+      float rotationDifference = degreesDifference(currentRotation, targetRotation);
+      float clampedRotationDifference = clamp(rotationDifference, -maxRotationChange, maxRotationChange);
+      return targetRotation - clampedRotationDifference;
    }
 
    public static float approach(float p_203300_0_, float p_203300_1_, float p_203300_2_) {
@@ -479,12 +479,28 @@ public class MathHelper {
       return p_199093_0_;
    }
 
-   public static float lerp(float p_219799_0_, float p_219799_1_, float p_219799_2_) {
-      return p_219799_1_ + p_219799_0_ * (p_219799_2_ - p_219799_1_);
+   /**
+    * Linearly interpolates between two float values.
+    *
+    * @param t the interpolation factor, typically between 0.0 and 1.0
+    * @param start the start value
+    * @param end the end value
+    * @return the interpolated value
+    */
+   public static float lerp(float t, float start, float end) {
+      return start + t * (end - start);
    }
 
-   public static double lerp(double p_219803_0_, double p_219803_2_, double p_219803_4_) {
-      return p_219803_2_ + p_219803_0_ * (p_219803_4_ - p_219803_2_);
+   /**
+    * Linearly interpolates between two double values.
+    *
+    * @param t the interpolation factor, typically between 0.0 and 1.0
+    * @param start the start value
+    * @param end the end value
+    * @return the interpolated value
+    */
+   public static double lerp(double t, double start, double end) {
+      return start + t * (end - start);
    }
 
    public static double lerp2(double p_219804_0_, double p_219804_2_, double p_219804_4_, double p_219804_6_, double p_219804_8_, double p_219804_10_) {
@@ -495,8 +511,14 @@ public class MathHelper {
       return lerp(p_219807_4_, lerp2(p_219807_0_, p_219807_2_, p_219807_6_, p_219807_8_, p_219807_10_, p_219807_12_), lerp2(p_219807_0_, p_219807_2_, p_219807_14_, p_219807_16_, p_219807_18_, p_219807_20_));
    }
 
-   public static double smoothstep(double p_219801_0_) {
-      return p_219801_0_ * p_219801_0_ * p_219801_0_ * (p_219801_0_ * (p_219801_0_ * 6.0D - 15.0D) + 10.0D);
+   /**
+    * Computes a smooth step interpolation between 0 and 1.
+    *
+    * @param x the input value, typically between 0.0 and 1.0
+    * @return the interpolated value
+    */
+   public static double smoothstep(double x) {
+      return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
    }
 
    public static int sign(double p_219802_0_) {

@@ -3,8 +3,8 @@ package net.minecraft.entity.ai.brain.task;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import net.minecraft.entity.CreatureEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Creature;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
@@ -16,7 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 
-public class WalkToTargetTask extends Task<MobEntity> {
+public class WalkToTargetTask extends Task<Mob> {
    private int remainingCooldown;
    @Nullable
    private Path path;
@@ -32,7 +32,7 @@ public class WalkToTargetTask extends Task<MobEntity> {
       super(ImmutableMap.of(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleStatus.REGISTERED, MemoryModuleType.PATH, MemoryModuleStatus.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleStatus.VALUE_PRESENT), p_i241908_1_, p_i241908_2_);
    }
 
-   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, MobEntity p_212832_2_) {
+   protected boolean checkExtraStartConditions(ServerWorld p_212832_1_, Mob p_212832_2_) {
       if (this.remainingCooldown > 0) {
          --this.remainingCooldown;
          return false;
@@ -54,7 +54,7 @@ public class WalkToTargetTask extends Task<MobEntity> {
       }
    }
 
-   protected boolean canStillUse(ServerWorld p_212834_1_, MobEntity p_212834_2_, long p_212834_3_) {
+   protected boolean canStillUse(ServerWorld p_212834_1_, Mob p_212834_2_, long p_212834_3_) {
       if (this.path != null && this.lastTargetPos != null) {
          Optional<WalkTarget> optional = p_212834_2_.getBrain().getMemory(MemoryModuleType.WALK_TARGET);
          PathNavigator pathnavigator = p_212834_2_.getNavigation();
@@ -64,7 +64,7 @@ public class WalkToTargetTask extends Task<MobEntity> {
       }
    }
 
-   protected void stop(ServerWorld p_212835_1_, MobEntity p_212835_2_, long p_212835_3_) {
+   protected void stop(ServerWorld p_212835_1_, Mob p_212835_2_, long p_212835_3_) {
       if (p_212835_2_.getBrain().hasMemoryValue(MemoryModuleType.WALK_TARGET) && !this.reachedTarget(p_212835_2_, p_212835_2_.getBrain().getMemory(MemoryModuleType.WALK_TARGET).get()) && p_212835_2_.getNavigation().isStuck()) {
          this.remainingCooldown = p_212835_1_.getRandom().nextInt(40);
       }
@@ -75,12 +75,12 @@ public class WalkToTargetTask extends Task<MobEntity> {
       this.path = null;
    }
 
-   protected void start(ServerWorld p_212831_1_, MobEntity p_212831_2_, long p_212831_3_) {
+   protected void start(ServerWorld p_212831_1_, Mob p_212831_2_, long p_212831_3_) {
       p_212831_2_.getBrain().setMemory(MemoryModuleType.PATH, this.path);
       p_212831_2_.getNavigation().moveTo(this.path, (double)this.speedModifier);
    }
 
-   protected void tick(ServerWorld p_212833_1_, MobEntity p_212833_2_, long p_212833_3_) {
+   protected void tick(ServerWorld p_212833_1_, Mob p_212833_2_, long p_212833_3_) {
       Path path = p_212833_2_.getNavigation().getPath();
       Brain<?> brain = p_212833_2_.getBrain();
       if (this.path != path) {
@@ -98,7 +98,7 @@ public class WalkToTargetTask extends Task<MobEntity> {
       }
    }
 
-   private boolean tryComputePath(MobEntity p_220487_1_, WalkTarget p_220487_2_, long p_220487_3_) {
+   private boolean tryComputePath(Mob p_220487_1_, WalkTarget p_220487_2_, long p_220487_3_) {
       BlockPos blockpos = p_220487_2_.getTarget().currentBlockPosition();
       this.path = p_220487_1_.getNavigation().createPath(blockpos, 0);
       this.speedModifier = p_220487_2_.getSpeedModifier();
@@ -117,7 +117,7 @@ public class WalkToTargetTask extends Task<MobEntity> {
             return true;
          }
 
-         Vector3d vector3d = RandomPositionGenerator.getPosTowards((CreatureEntity)p_220487_1_, 10, 7, Vector3d.atBottomCenterOf(blockpos));
+         Vector3d vector3d = RandomPositionGenerator.getPosTowards((Creature)p_220487_1_, 10, 7, Vector3d.atBottomCenterOf(blockpos));
          if (vector3d != null) {
             this.path = p_220487_1_.getNavigation().createPath(vector3d.x, vector3d.y, vector3d.z, 0);
             return this.path != null;
@@ -127,7 +127,7 @@ public class WalkToTargetTask extends Task<MobEntity> {
       return false;
    }
 
-   private boolean reachedTarget(MobEntity p_220486_1_, WalkTarget p_220486_2_) {
+   private boolean reachedTarget(Mob p_220486_1_, WalkTarget p_220486_2_) {
       return p_220486_2_.getTarget().currentBlockPosition().distManhattan(p_220486_1_.blockPosition()) <= p_220486_2_.getCloseEnoughDist();
    }
 }

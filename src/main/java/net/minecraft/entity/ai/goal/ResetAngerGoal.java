@@ -3,12 +3,12 @@ package net.minecraft.entity.ai.goal;
 import java.util.List;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IAngerable;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.GameRules;
 
-public class ResetAngerGoal<T extends MobEntity & IAngerable> extends Goal {
+public class ResetAngerGoal<T extends Mob & IAngerable> extends Goal {
    private final T mob;
    private final boolean alertOthersOfSameType;
    private int lastHurtByPlayerTimestamp;
@@ -40,7 +40,7 @@ public class ResetAngerGoal<T extends MobEntity & IAngerable> extends Goal {
       super.start();
    }
 
-   private List<MobEntity> getNearbyMobsOfSameType() {
+   private List<Mob> getNearbyMobsOfSameType() {
       double d0 = this.mob.getAttributeValue(Attributes.FOLLOW_RANGE);
       AxisAlignedBB axisalignedbb = AxisAlignedBB.unitCubeFromLowerCorner(this.mob.position()).inflate(d0, 10.0D, d0);
       return this.mob.level.getLoadedEntitiesOfClass(this.mob.getClass(), axisalignedbb);

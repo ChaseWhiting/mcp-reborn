@@ -41,6 +41,7 @@ public abstract class Biomes {
    public static final RegistryKey<Biome> GIANT_TREE_TAIGA_HILLS = register("giant_tree_taiga_hills");
    public static final RegistryKey<Biome> WOODED_MOUNTAINS = register("wooded_mountains");
    public static final RegistryKey<Biome> SAVANNA = register("savanna");
+   public static final RegistryKey<Biome> GOLDEN_SAVANNA = register("golden_savanna");
    public static final RegistryKey<Biome> SAVANNA_PLATEAU = register("savanna_plateau");
    public static final RegistryKey<Biome> BADLANDS = register("badlands");
    public static final RegistryKey<Biome> WOODED_BADLANDS_PLATEAU = register("wooded_badlands_plateau");

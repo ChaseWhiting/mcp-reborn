@@ -2,7 +2,7 @@ package net.minecraft.pathfinding;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockReader;
@@ -10,7 +10,7 @@ import net.minecraft.world.Region;
 
 public abstract class NodeProcessor {
    protected Region level;
-   protected MobEntity mob;
+   protected Mob mob;
    protected final Int2ObjectMap<PathPoint> nodes = new Int2ObjectOpenHashMap<>();
    protected int entityWidth;
    protected int entityHeight;
@@ -19,7 +19,7 @@ public abstract class NodeProcessor {
    protected boolean canOpenDoors;
    protected boolean canFloat;
 
-   public void prepare(Region p_225578_1_, MobEntity p_225578_2_) {
+   public void prepare(Region p_225578_1_, Mob p_225578_2_) {
       this.level = p_225578_1_;
       this.mob = p_225578_2_;
       this.nodes.clear();
@@ -49,7 +49,7 @@ public abstract class NodeProcessor {
 
    public abstract int getNeighbors(PathPoint[] p_222859_1_, PathPoint p_222859_2_);
 
-   public abstract PathNodeType getBlockPathType(IBlockReader p_186319_1_, int p_186319_2_, int p_186319_3_, int p_186319_4_, MobEntity p_186319_5_, int p_186319_6_, int p_186319_7_, int p_186319_8_, boolean p_186319_9_, boolean p_186319_10_);
+   public abstract PathNodeType getBlockPathType(IBlockReader p_186319_1_, int p_186319_2_, int p_186319_3_, int p_186319_4_, Mob p_186319_5_, int p_186319_6_, int p_186319_7_, int p_186319_8_, boolean p_186319_9_, boolean p_186319_10_);
 
    public abstract PathNodeType getBlockPathType(IBlockReader p_186330_1_, int p_186330_2_, int p_186330_3_, int p_186330_4_);
 

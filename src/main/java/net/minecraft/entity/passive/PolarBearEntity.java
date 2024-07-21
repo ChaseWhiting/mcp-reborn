@@ -15,7 +15,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -51,7 +51,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class PolarBearEntity extends AnimalEntity implements IAngerable {
+public class PolarBearEntity extends Animal implements IAngerable {
    private static final DataParameter<Boolean> DATA_STANDING_ID = EntityDataManager.defineId(PolarBearEntity.class, DataSerializers.BOOLEAN);
    private float clientSideStandAnimationO;
    private float clientSideStandAnimation;
@@ -89,7 +89,7 @@ public class PolarBearEntity extends AnimalEntity implements IAngerable {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 30.0D).add(Attributes.FOLLOW_RANGE, 20.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 6.0D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 30.0D).add(Attributes.FOLLOW_RANGE, 20.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 6.0D);
    }
 
    public static boolean checkPolarBearSpawnRules(EntityType<PolarBearEntity> p_223320_0_, IWorld p_223320_1_, SpawnReason p_223320_2_, BlockPos p_223320_3_, Random p_223320_4_) {
@@ -269,7 +269,7 @@ public class PolarBearEntity extends AnimalEntity implements IAngerable {
 
       }
 
-      protected void alertOther(MobEntity p_220793_1_, LivingEntity p_220793_2_) {
+      protected void alertOther(Mob p_220793_1_, LivingEntity p_220793_2_) {
          if (p_220793_1_ instanceof PolarBearEntity && !p_220793_1_.isBaby()) {
             super.alertOther(p_220793_1_, p_220793_2_);
          }

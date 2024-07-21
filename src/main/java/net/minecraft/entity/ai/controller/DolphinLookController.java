@@ -1,12 +1,12 @@
 package net.minecraft.entity.ai.controller;
 
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.MathHelper;
 
 public class DolphinLookController extends LookController {
    private final int maxYRotFromCenter;
 
-   public DolphinLookController(MobEntity p_i48942_1_, int p_i48942_2_) {
+   public DolphinLookController(Mob p_i48942_1_, int p_i48942_2_) {
       super(p_i48942_1_);
       this.maxYRotFromCenter = p_i48942_2_;
    }

@@ -109,9 +109,9 @@ public final class ItemStack {
       p_i231596_3_.ifPresent(this::setTag);
    }
 
-   public ItemStack(IItemProvider p_i48204_1_, int p_i48204_2_) {
-      this.item = p_i48204_1_ == null ? null : p_i48204_1_.asItem();
-      this.count = p_i48204_2_;
+   public ItemStack(IItemProvider itemProvider, int count) {
+      this.item = itemProvider == null ? null : itemProvider.asItem();
+      this.count = count;
       if (this.item != null && this.item.canBeDepleted()) {
          this.setDamageValue(this.getDamageValue());
       }
@@ -170,6 +170,14 @@ public final class ItemStack {
       return this.emptyCacheFlag ? Items.AIR : this.item;
    }
 
+   public Item Item() {
+      return this.emptyCacheFlag ? Items.AIR : this.item;
+   }
+
+   public Item get() {
+      return this.emptyCacheFlag ? Items.AIR : this.item;
+   }
+
    public ActionResultType useOn(ItemUseContext p_196084_1_) {
       PlayerEntity playerentity = p_196084_1_.getPlayer();
       BlockPos blockpos = p_196084_1_.getClickedPos();
@@ -199,8 +207,16 @@ public final class ItemStack {
       return this.getItem().finishUsingItem(this, p_77950_1_, p_77950_2_);
    }
 
+   public String getRegistryName() {
+      return this.getItem().getRegistryName();
+   }
+
+   public ResourceLocation getResourceLocationOfItem() {
+      return this.getItem().getResourceLocation();
+   }
+
    public CompoundNBT save(CompoundNBT p_77955_1_) {
-      ResourceLocation resourcelocation = Registry.ITEM.getKey(this.getItem());
+      ResourceLocation resourcelocation = this.getResourceLocationOfItem();
       p_77955_1_.putString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
       p_77955_1_.putByte("Count", (byte)this.count);
       if (this.tag != null) {
@@ -295,6 +311,14 @@ public final class ItemStack {
       Item item = this.getItem();
       if (item.hurtEnemy(this, p_77961_1_, p_77961_2_)) {
          p_77961_2_.awardStat(Stats.ITEM_USED.get(item));
+      }
+
+   }
+
+   public void hurtEnemy(LivingEntity p_77961_1_, LivingEntity p_77961_2_) {
+      Item item = this.getItem();
+      if (item.hurtEnemy(this, p_77961_1_, p_77961_2_)) {
+
       }
 
    }
@@ -483,6 +507,10 @@ public final class ItemStack {
          this.setDamageValue(this.getDamageValue());
       }
 
+   }
+
+   public void addTag(String name, CompoundNBT compoundNBT) {
+      this.tag.put(name, compoundNBT);
    }
 
    public ITextComponent getHoverName() {

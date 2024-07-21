@@ -1,7 +1,7 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -11,7 +11,7 @@ import net.minecraft.pathfinding.GroundPathNavigator;
 
 public class TemptGoal extends Goal {
    private static final EntityPredicate TEMP_TARGETING = (new EntityPredicate()).range(10.0D).allowInvulnerable().allowSameTeam().allowNonAttackable().allowUnseeable();
-   protected final CreatureEntity mob;
+   protected final Creature mob;
    private final double speedModifier;
    private double px;
    private double py;
@@ -24,11 +24,11 @@ public class TemptGoal extends Goal {
    private final Ingredient items;
    private final boolean canScare;
 
-   public TemptGoal(CreatureEntity p_i47822_1_, double p_i47822_2_, Ingredient p_i47822_4_, boolean p_i47822_5_) {
+   public TemptGoal(Creature p_i47822_1_, double p_i47822_2_, Ingredient p_i47822_4_, boolean p_i47822_5_) {
       this(p_i47822_1_, p_i47822_2_, p_i47822_5_, p_i47822_4_);
    }
 
-   public TemptGoal(CreatureEntity p_i47823_1_, double p_i47823_2_, boolean p_i47823_4_, Ingredient p_i47823_5_) {
+   public TemptGoal(Creature p_i47823_1_, double p_i47823_2_, boolean p_i47823_4_, Ingredient p_i47823_5_) {
       this.mob = p_i47823_1_;
       this.speedModifier = p_i47823_2_;
       this.items = p_i47823_5_;

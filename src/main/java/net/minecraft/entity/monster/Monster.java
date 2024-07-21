@@ -22,8 +22,8 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
-public abstract class MonsterEntity extends CreatureEntity implements IMob {
-   protected MonsterEntity(EntityType<? extends MonsterEntity> p_i48553_1_, World p_i48553_2_) {
+public abstract class Monster extends Creature implements IMob {
+   protected Monster(EntityType<? extends Monster> p_i48553_1_, World p_i48553_2_) {
       super(p_i48553_1_, p_i48553_2_);
       this.xpReward = 5;
    }
@@ -87,16 +87,16 @@ public abstract class MonsterEntity extends CreatureEntity implements IMob {
       }
    }
 
-   public static boolean checkMonsterSpawnRules(EntityType<? extends MonsterEntity> p_223325_0_, IServerWorld p_223325_1_, SpawnReason p_223325_2_, BlockPos p_223325_3_, Random p_223325_4_) {
+   public static boolean checkMonsterSpawnRules(EntityType<? extends Monster> p_223325_0_, IServerWorld p_223325_1_, SpawnReason p_223325_2_, BlockPos p_223325_3_, Random p_223325_4_) {
       return p_223325_1_.getDifficulty() != Difficulty.PEACEFUL && isDarkEnoughToSpawn(p_223325_1_, p_223325_3_, p_223325_4_) && checkMobSpawnRules(p_223325_0_, p_223325_1_, p_223325_2_, p_223325_3_, p_223325_4_);
    }
 
-   public static boolean checkAnyLightMonsterSpawnRules(EntityType<? extends MonsterEntity> p_223324_0_, IWorld p_223324_1_, SpawnReason p_223324_2_, BlockPos p_223324_3_, Random p_223324_4_) {
+   public static boolean checkAnyLightMonsterSpawnRules(EntityType<? extends Monster> p_223324_0_, IWorld p_223324_1_, SpawnReason p_223324_2_, BlockPos p_223324_3_, Random p_223324_4_) {
       return p_223324_1_.getDifficulty() != Difficulty.PEACEFUL && checkMobSpawnRules(p_223324_0_, p_223324_1_, p_223324_2_, p_223324_3_, p_223324_4_);
    }
 
    public static AttributeModifierMap.MutableAttribute createMonsterAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.ATTACK_DAMAGE);
+      return Mob.createMobAttributes().add(Attributes.ATTACK_DAMAGE);
    }
 
    protected boolean shouldDropExperience() {

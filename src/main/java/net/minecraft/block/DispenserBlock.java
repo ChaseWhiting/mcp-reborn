@@ -44,8 +44,8 @@ public class DispenserBlock extends ContainerBlock {
       p_212564_0_.defaultReturnValue(new DefaultDispenseItemBehavior());
    });
 
-   public static void registerBehavior(IItemProvider p_199774_0_, IDispenseItemBehavior p_199774_1_) {
-      DISPENSER_REGISTRY.put(p_199774_0_.asItem(), p_199774_1_);
+   public static void registerBehavior(IItemProvider item, IDispenseItemBehavior behaviour) {
+      DISPENSER_REGISTRY.put(item.asItem(), behaviour);
    }
 
    protected DispenserBlock(AbstractBlock.Properties p_i48414_1_) {

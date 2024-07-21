@@ -8,8 +8,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathPoint;
@@ -176,8 +175,8 @@ public class DebugUtils {
             return 0;
         }
 
-        if (entity instanceof MobEntity) {
-            MobEntity livingEntity = (MobEntity) entity;
+        if (entity instanceof Mob) {
+            Mob livingEntity = (Mob) entity;
 
             BlockPos targetPos = livingEntity.getNavigation().getTargetPos();
             if (targetPos != null) {
@@ -209,8 +208,8 @@ public class DebugUtils {
         float speed = FloatArgumentType.getFloat(context, "speed");
         try {
             Entity entity = EntityArgument.getEntity(context, "target");
-            if (entity instanceof MobEntity) {
-                MobEntity mob = (MobEntity) entity;
+            if (entity instanceof Mob) {
+                Mob mob = (Mob) entity;
                 mob.getNavigation().moveTo((double) X, (double) Y, (double) Z, (double) speed);
                 mob.getMoveControl().setWantedPosition((double) X, (double) Y, (double) Z, (double) speed);
                 String s = new String(X + " " + Y + " " + Z);
@@ -235,16 +234,16 @@ public class DebugUtils {
      */
     @Nullable
     public static BlockPos getWantedPos(LivingEntity entity) {
-        if (entity instanceof MobEntity) {
-            MobEntity entity1 = (MobEntity) entity;
+        if (entity instanceof Mob) {
+            Mob entity1 = (Mob) entity;
             return entity1.getNavigation().getTargetPos();
         }
         return null;
     }
 
     public static net.minecraft.pathfinding.Path getPath(LivingEntity entity, World world) {
-        if (entity instanceof MobEntity) {
-            MobEntity entity1 = (MobEntity) entity;
+        if (entity instanceof Mob) {
+            Mob entity1 = (Mob) entity;
 
             net.minecraft.pathfinding.Path path = entity1.getNavigation().getPath();
 

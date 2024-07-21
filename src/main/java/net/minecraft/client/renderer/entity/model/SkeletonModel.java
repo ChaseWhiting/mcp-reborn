@@ -4,7 +4,8 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.model.ModelHelper;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.IRangedAttackMob;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
+import net.minecraft.item.AbstractCrossbowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -15,7 +16,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SkeletonModel<T extends MobEntity & IRangedAttackMob> extends BipedModel<T> {
+public class SkeletonModel<T extends Mob & IRangedAttackMob> extends BipedModel<T> {
    public SkeletonModel() {
       this(0.0F, false);
    }
@@ -53,7 +54,7 @@ public class SkeletonModel<T extends MobEntity & IRangedAttackMob> extends Biped
          }
       }
 
-      if (itemstack.getItem() == Items.CROSSBOW && p_212843_1_.isAggressive()) {
+      if (itemstack.getItem() == Items.CROSSBOW && p_212843_1_.isAggressive() || itemstack.getItem() == Items.GILDED_CROSSBOW && p_212843_1_.isAggressive() || itemstack.getItem() instanceof AbstractCrossbowItem && p_212843_1_.isAggressive()) {
          boolean flag = CrossbowItem.isCharged(itemstack);
             if (p_212843_1_.getMainArm() == HandSide.RIGHT) {
                if (flag) {

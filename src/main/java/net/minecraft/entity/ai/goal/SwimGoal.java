@@ -1,13 +1,13 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.tags.FluidTags;
 
 public class SwimGoal extends Goal {
-   private final MobEntity mob;
+   private final Mob mob;
 
-   public SwimGoal(MobEntity p_i1624_1_) {
+   public SwimGoal(Mob p_i1624_1_) {
       this.mob = p_i1624_1_;
       this.setFlags(EnumSet.of(Goal.Flag.JUMP));
       p_i1624_1_.getNavigation().setCanFloat(true);

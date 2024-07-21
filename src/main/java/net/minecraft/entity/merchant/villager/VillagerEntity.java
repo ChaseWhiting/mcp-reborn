@@ -20,7 +20,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -44,7 +44,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.villager.IVillagerDataHolder;
 import net.minecraft.entity.villager.VillagerType;
 import net.minecraft.entity.villager.data.quest.Quest;
-import net.minecraft.entity.villager.data.quest.QuestManager;
 import net.minecraft.entity.villager.data.quest.QuestTypes;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.*;
@@ -218,7 +217,7 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return MobEntity.createMobAttributes().add(Attributes.MOVEMENT_SPEED, 0.5D).add(Attributes.FOLLOW_RANGE, 48.0D);
+      return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, 0.5D).add(Attributes.FOLLOW_RANGE, 48.0D);
    }
 
    public boolean assignProfessionWhenSpawned() {
@@ -284,8 +283,8 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
             boolean flag = this.getOffers().isEmpty();
             if (hand == Hand.MAIN_HAND) {
                if (flag && !this.level.isClientSide) {
-                  this.startQuests(player);
-                  //this.setUnhappy();
+
+                  this.setUnhappy();
                }
 
                player.awardStat(Stats.TALKED_TO_VILLAGER);

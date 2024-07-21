@@ -6,18 +6,18 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.pattern.BlockStateMatcher;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
 public class EatGrassGoal extends Goal {
    private static final Predicate<BlockState> IS_TALL_GRASS = BlockStateMatcher.forBlock(Blocks.GRASS);
-   private final MobEntity mob;
+   private final Mob mob;
    private final World level;
    private int eatAnimationTick;
 
-   public EatGrassGoal(MobEntity p_i45314_1_) {
+   public EatGrassGoal(Mob p_i45314_1_) {
       this.mob = p_i45314_1_;
       this.level = p_i45314_1_.level;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK, Goal.Flag.JUMP));

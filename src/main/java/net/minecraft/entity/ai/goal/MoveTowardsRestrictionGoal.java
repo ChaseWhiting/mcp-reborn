@@ -1,18 +1,18 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class MoveTowardsRestrictionGoal extends Goal {
-   private final CreatureEntity mob;
+   private final Creature mob;
    private double wantedX;
    private double wantedY;
    private double wantedZ;
    private final double speedModifier;
 
-   public MoveTowardsRestrictionGoal(CreatureEntity p_i2347_1_, double p_i2347_2_) {
+   public MoveTowardsRestrictionGoal(Creature p_i2347_1_, double p_i2347_2_) {
       this.mob = p_i2347_1_;
       this.speedModifier = p_i2347_2_;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE));

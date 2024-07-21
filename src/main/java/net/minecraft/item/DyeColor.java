@@ -3,6 +3,7 @@ package net.minecraft.item;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Random;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.block.material.MaterialColor;
@@ -70,6 +71,13 @@ public enum DyeColor implements IStringSerializable {
       this.textureDiffuseColors = new float[]{(float)i / 255.0F, (float)j / 255.0F, (float)k / 255.0F};
       this.fireworkColor = p_i50049_7_;
    }
+
+   public static DyeColor getRandomColor() {
+      DyeColor[] shapes = DyeColor.values();
+      int randomIndex = new Random().nextInt(shapes.length);
+      return shapes[randomIndex];
+   }
+
 
    public int getId() {
       return this.id;

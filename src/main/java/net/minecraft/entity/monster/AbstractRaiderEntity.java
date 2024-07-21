@@ -21,12 +21,13 @@ import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.PotionItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
+import net.minecraft.potion.*;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
@@ -34,15 +35,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.village.PointOfInterestManager;
 import net.minecraft.village.PointOfInterestType;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.raid.Raid;
 import net.minecraft.world.raid.RaidManager;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.builder.Diff;
 
 public abstract class AbstractRaiderEntity extends PatrollerEntity {
    protected static final DataParameter<Boolean> IS_CELEBRATING = EntityDataManager.defineId(AbstractRaiderEntity.class, DataSerializers.BOOLEAN);
@@ -61,10 +60,10 @@ public abstract class AbstractRaiderEntity extends PatrollerEntity {
 
    protected void registerGoals() {
       super.registerGoals();
-      this.goalSelector.addGoal(1, new AbstractRaiderEntity.PromoteLeaderGoal<>(this));
+      this.goalSelector.addGoal(1, new PromoteLeaderGoal<>(this));
       this.goalSelector.addGoal(3, new MoveTowardsRaidGoal<>(this));
-      this.goalSelector.addGoal(4, new AbstractRaiderEntity.InvadeHomeGoal(this, (double)1.05F, 1));
-      this.goalSelector.addGoal(5, new AbstractRaiderEntity.CelebrateRaidLossGoal(this));
+      this.goalSelector.addGoal(4, new InvadeHomeGoal(this, (double)1.05F, 1));
+      this.goalSelector.addGoal(5, new CelebrateRaidLossGoal(this));
    }
 
    protected void defineSynchedData() {
@@ -147,11 +146,19 @@ public abstract class AbstractRaiderEntity extends PatrollerEntity {
                } else {
                   --i;
                }
-
+               Difficulty difficulty = this.level.getDifficulty();
                i = MathHelper.clamp(i, 0, 4);
+               Potion potion = switch(difficulty) {
+                   case PEACEFUL, EASY -> Potions.BAD_OMEN;
+                   case NORMAL -> Potions.STRONG_BAD_OMEN;
+                   case HARD -> Potions.STRONGER_BAD_OMEN;
+               };
+               ItemStack itemStack = PotionUtils.setPotion(new ItemStack(Items.POTION), potion);
+
                EffectInstance effectinstance = new EffectInstance(Effects.BAD_OMEN, 120000, i, false, false, true);
                if (!this.level.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
-                  playerentity.addEffect(effectinstance);
+                  this.spawnAtLocation(itemStack);
+                 // playerentity.addEffect(effectinstance);
                }
             }
          }
@@ -283,7 +290,7 @@ public abstract class AbstractRaiderEntity extends PatrollerEntity {
 
       CelebrateRaidLossGoal(AbstractRaiderEntity p_i50571_2_) {
          this.mob = p_i50571_2_;
-         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+         this.setFlags(EnumSet.of(Flag.MOVE));
       }
 
       public boolean canUse() {
@@ -322,7 +329,7 @@ public abstract class AbstractRaiderEntity extends PatrollerEntity {
       public FindTargetGoal(AbstractIllagerEntity p_i50573_2_, float p_i50573_3_) {
          this.mob = p_i50573_2_;
          this.hostileRadiusSqr = p_i50573_3_ * p_i50573_3_;
-         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
       }
 
       public boolean canUse() {
@@ -383,7 +390,7 @@ public abstract class AbstractRaiderEntity extends PatrollerEntity {
          this.raider = p_i50570_1_;
          this.speedModifier = p_i50570_2_;
          this.distanceToPoi = p_i50570_4_;
-         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+         this.setFlags(EnumSet.of(Flag.MOVE));
       }
 
       public boolean canUse() {
@@ -472,7 +479,7 @@ public abstract class AbstractRaiderEntity extends PatrollerEntity {
 
       public PromoteLeaderGoal(T p_i50572_2_) {
          this.mob = p_i50572_2_;
-         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+         this.setFlags(EnumSet.of(Flag.MOVE));
       }
 
       public boolean canUse() {

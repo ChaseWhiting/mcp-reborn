@@ -10,7 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
@@ -163,7 +163,7 @@ public class ArmorStandEntity extends LivingEntity {
          equipmentslottype = EquipmentSlotType.FEET;
       }
 
-      if (!p_174820_2_.isEmpty() && !MobEntity.isValidSlotForItem(equipmentslottype, p_174820_2_) && equipmentslottype != EquipmentSlotType.HEAD) {
+      if (!p_174820_2_.isEmpty() && !Mob.isValidSlotForItem(equipmentslottype, p_174820_2_) && equipmentslottype != EquipmentSlotType.HEAD) {
          return false;
       } else {
          this.setItemSlot(equipmentslottype, p_174820_2_);
@@ -172,7 +172,7 @@ public class ArmorStandEntity extends LivingEntity {
    }
 
    public boolean canTakeItem(ItemStack p_213365_1_) {
-      EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(p_213365_1_);
+      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(p_213365_1_);
       return this.getItemBySlot(equipmentslottype).isEmpty() && !this.isDisabled(equipmentslottype);
    }
 
@@ -314,7 +314,7 @@ public class ArmorStandEntity extends LivingEntity {
          } else if (p_184199_1_.level.isClientSide) {
             return ActionResultType.CONSUME;
          } else {
-            EquipmentSlotType equipmentslottype = MobEntity.getEquipmentSlotForItem(itemstack);
+            EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
             if (itemstack.isEmpty()) {
                EquipmentSlotType equipmentslottype1 = this.getClickedSlot(p_184199_2_);
                EquipmentSlotType equipmentslottype2 = this.isDisabled(equipmentslottype1) ? equipmentslottype : equipmentslottype1;

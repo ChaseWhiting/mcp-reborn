@@ -95,6 +95,7 @@ public class GameSettings {
    public int biomeBlendRadius = 2;
    public double mouseWheelSensitivity = 1.0D;
    public boolean rawMouseInput = true;
+   public boolean showEntityHealth = false;
    public int glDebugVerbosity = 1;
    public boolean autoJump = true;
    public boolean autoSuggestions = true;
@@ -191,6 +192,10 @@ public class GameSettings {
       return (int)(this.getBackgroundOpacity(p_216841_1_) * 255.0F) << 24 & -16777216;
    }
 
+   public boolean showEntityHealth() {
+      return this.showEntityHealth;
+   }
+
    public int getBackgroundColor(int p_216839_1_) {
       return this.backgroundForChatOnly ? p_216839_1_ : (int)(this.textBackgroundOpacity * 255.0D) << 24 & -16777216;
    }
@@ -236,6 +241,10 @@ public class GameSettings {
             try {
                if ("autoJump".equals(s)) {
                   AbstractOption.AUTO_JUMP.set(this, s1);
+               }
+
+               if ("showEntityHealth".equals(s)) {
+                  AbstractOption.SHOW_ENTITY_HEALTH.set(this, s1);
                }
 
                if ("autoSuggestions".equals(s)) {
@@ -579,6 +588,7 @@ public class GameSettings {
       try (PrintWriter printwriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(this.optionsFile), StandardCharsets.UTF_8))) {
          printwriter.println("version:" + SharedConstants.getCurrentVersion().getWorldVersion());
          printwriter.println("autoJump:" + AbstractOption.AUTO_JUMP.get(this));
+         printwriter.println("showEntityHealth:" + AbstractOption.SHOW_ENTITY_HEALTH.get(this));
          printwriter.println("autoSuggestions:" + AbstractOption.AUTO_SUGGESTIONS.get(this));
          printwriter.println("chatColors:" + AbstractOption.CHAT_COLOR.get(this));
          printwriter.println("chatLinks:" + AbstractOption.CHAT_LINKS.get(this));

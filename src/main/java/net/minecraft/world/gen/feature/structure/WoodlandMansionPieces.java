@@ -1,6 +1,8 @@
 package net.minecraft.world.gen.feature.structure;
 
 import com.google.common.collect.Lists;
+
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -376,7 +378,7 @@ public class WoodlandMansionPieces {
          p_143011_1_.putString("Mi", this.placeSettings.getMirror().name());
       }
 
-      protected void handleDataMarker(String p_186175_1_, BlockPos p_186175_2_, IServerWorld p_186175_3_, Random p_186175_4_, MutableBoundingBox p_186175_5_) {
+      protected void handleDataMarker(String p_186175_1_, BlockPos p_186175_2_, IServerWorld world, Random p_186175_4_, MutableBoundingBox p_186175_5_) {
          if (p_186175_1_.startsWith("Chest")) {
             Rotation rotation = this.placeSettings.getRotation();
             BlockState blockstate = Blocks.CHEST.defaultBlockState();
@@ -390,15 +392,34 @@ public class WoodlandMansionPieces {
                blockstate = blockstate.setValue(ChestBlock.FACING, rotation.rotate(Direction.NORTH));
             }
 
-            this.createChest(p_186175_3_, p_186175_5_, p_186175_4_, p_186175_2_, LootTables.WOODLAND_MANSION, blockstate);
+            this.createChest(world, p_186175_5_, p_186175_4_, p_186175_2_, LootTables.WOODLAND_MANSION, blockstate);
          } else {
             AbstractIllagerEntity abstractillagerentity;
-            switch(p_186175_1_) {
+            SecureRandom secureRandom = new SecureRandom();
+            Random seededRandom = new Random(world.getLevel().getSeed());
+            Random random = new Random();
+            int seedValue = (int) world.getLevel().getSeed();
+            if (seedValue <= 0) {
+               while (seedValue <= 0)
+                  seedValue +=seedValue;
+            }
+            boolean flag = secureRandom.nextFloat() < 0.37F && random.nextFloat() > seededRandom.nextFloat() || random.nextBoolean() && secureRandom.nextGaussian() < random.nextGaussian();
+            boolean flag2 = random.nextFloat() < secureRandom.nextInt() && !seededRandom.nextBoolean() || seededRandom.nextFloat() > secureRandom.nextLong() && random.nextLong() < world.getLevel().getSeed() * -random.nextDouble();
+            boolean flag3 = random.nextLong() < world.getLevel().getSeed() && seededRandom.nextBoolean() || secureRandom.nextInt(seedValue) > random.nextInt() && seededRandom.nextLong() < world.getLevel().getSeed();            switch(p_186175_1_) {
             case "Mage":
-               abstractillagerentity = EntityType.EVOKER.create(p_186175_3_.getLevel());
+               abstractillagerentity = flag3 ? EntityType.SHAMAN.create(world.getLevel()) : EntityType.EVOKER.create(world.getLevel());
                break;
             case "Warrior":
-               abstractillagerentity = EntityType.VINDICATOR.create(p_186175_3_.getLevel());
+               if(flag) {
+                  if (random.nextBoolean()) {
+                     abstractillagerentity = flag2 ? EntityType.PILLAGER_CAPTAIN.create(world.getLevel()) : EntityType.PILLAGER.create(world.getLevel());
+                     break;
+                  } else {
+                     abstractillagerentity = EntityType.MARAUDER.create(world.getLevel());
+                     break;
+                  }
+               }
+               abstractillagerentity = EntityType.VINDICATOR.create(world.getLevel());
                break;
             default:
                return;
@@ -406,9 +427,9 @@ public class WoodlandMansionPieces {
 
             abstractillagerentity.setPersistenceRequired();
             abstractillagerentity.moveTo(p_186175_2_, 0.0F, 0.0F);
-            abstractillagerentity.finalizeSpawn(p_186175_3_, p_186175_3_.getCurrentDifficultyAt(abstractillagerentity.blockPosition()), SpawnReason.STRUCTURE, (ILivingEntityData)null, (CompoundNBT)null);
-            p_186175_3_.addFreshEntityWithPassengers(abstractillagerentity);
-            p_186175_3_.setBlock(p_186175_2_, Blocks.AIR.defaultBlockState(), 2);
+            abstractillagerentity.finalizeSpawn(world, world.getCurrentDifficultyAt(abstractillagerentity.blockPosition()), SpawnReason.STRUCTURE, (ILivingEntityData)null, (CompoundNBT)null);
+            world.addFreshEntityWithPassengers(abstractillagerentity);
+            world.setBlock(p_186175_2_, Blocks.AIR.defaultBlockState(), 2);
          }
 
       }
