@@ -11,7 +11,7 @@ public enum SpawnReason {
    EVENT,
    CONVERSION,
    REINFORCEMENT,
-   TRIGGERED,
+   TRAP_TRIGGERED,
    BUCKET,
    SPAWN_EGG,
    COMMAND,

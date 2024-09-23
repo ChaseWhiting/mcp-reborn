@@ -62,6 +62,6 @@ public enum EntityClassification implements IStringSerializable {
    }
 
    public int getNoDespawnDistance() {
-      return 32;
+      return noDespawnDistance;
    }
 }

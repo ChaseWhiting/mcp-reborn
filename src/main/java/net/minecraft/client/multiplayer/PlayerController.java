@@ -43,7 +43,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -61,8 +61,8 @@ public class PlayerController {
    private float destroyTicks;
    private int destroyDelay;
    private boolean isDestroying;
-   private GameType localPlayerMode = GameType.SURVIVAL;
-   private GameType previousLocalPlayerMode = GameType.NOT_SET;
+   private Gamemode localPlayerMode = Gamemode.SURVIVAL;
+   private Gamemode previousLocalPlayerMode = Gamemode.NOT_SET;
    private final Object2ObjectLinkedOpenHashMap<Pair<BlockPos, CPlayerDiggingPacket.Action>, Vector3d> unAckedActions = new Object2ObjectLinkedOpenHashMap<>();
    private int carriedIndex;
 
@@ -75,11 +75,11 @@ public class PlayerController {
       this.localPlayerMode.updatePlayerAbilities(p_78748_1_.abilities);
    }
 
-   public void setPreviousLocalMode(GameType p_241675_1_) {
+   public void setPreviousLocalMode(Gamemode p_241675_1_) {
       this.previousLocalPlayerMode = p_241675_1_;
    }
 
-   public void setLocalMode(GameType p_78746_1_) {
+   public void setLocalMode(Gamemode p_78746_1_) {
       if (p_78746_1_ != this.localPlayerMode) {
          this.previousLocalPlayerMode = this.localPlayerMode;
       }
@@ -257,7 +257,7 @@ public class PlayerController {
          return ActionResultType.FAIL;
       } else {
          ItemStack itemstack = p_217292_1_.getItemInHand(p_217292_3_);
-         if (this.localPlayerMode == GameType.SPECTATOR) {
+         if (this.localPlayerMode == Gamemode.SPECTATOR) {
             this.connection.send(new CPlayerTryUseItemOnBlockPacket(p_217292_3_, p_217292_4_));
             return ActionResultType.SUCCESS;
          } else {
@@ -292,7 +292,7 @@ public class PlayerController {
    }
 
    public ActionResultType useItem(PlayerEntity p_187101_1_, World p_187101_2_, Hand p_187101_3_) {
-      if (this.localPlayerMode == GameType.SPECTATOR) {
+      if (this.localPlayerMode == Gamemode.SPECTATOR) {
          return ActionResultType.PASS;
       } else {
          this.ensureHasSentCarriedItem();
@@ -324,7 +324,7 @@ public class PlayerController {
    public void attack(PlayerEntity p_78764_1_, Entity p_78764_2_) {
       this.ensureHasSentCarriedItem();
       this.connection.send(new CUseEntityPacket(p_78764_2_, p_78764_1_.isShiftKeyDown()));
-      if (this.localPlayerMode != GameType.SPECTATOR) {
+      if (this.localPlayerMode != Gamemode.SPECTATOR) {
          p_78764_1_.attack(p_78764_2_);
          p_78764_1_.resetAttackStrengthTicker();
       }
@@ -334,14 +334,14 @@ public class PlayerController {
    public ActionResultType interact(PlayerEntity p_187097_1_, Entity p_187097_2_, Hand p_187097_3_) {
       this.ensureHasSentCarriedItem();
       this.connection.send(new CUseEntityPacket(p_187097_2_, p_187097_3_, p_187097_1_.isShiftKeyDown()));
-      return this.localPlayerMode == GameType.SPECTATOR ? ActionResultType.PASS : p_187097_1_.interactOn(p_187097_2_, p_187097_3_);
+      return this.localPlayerMode == Gamemode.SPECTATOR ? ActionResultType.PASS : p_187097_1_.interactOn(p_187097_2_, p_187097_3_);
    }
 
    public ActionResultType interactAt(PlayerEntity p_187102_1_, Entity p_187102_2_, EntityRayTraceResult p_187102_3_, Hand p_187102_4_) {
       this.ensureHasSentCarriedItem();
       Vector3d vector3d = p_187102_3_.getLocation().subtract(p_187102_2_.getX(), p_187102_2_.getY(), p_187102_2_.getZ());
       this.connection.send(new CUseEntityPacket(p_187102_2_, p_187102_4_, vector3d, p_187102_1_.isShiftKeyDown()));
-      return this.localPlayerMode == GameType.SPECTATOR ? ActionResultType.PASS : p_187102_2_.interactAt(p_187102_1_, vector3d, p_187102_4_);
+      return this.localPlayerMode == Gamemode.SPECTATOR ? ActionResultType.PASS : p_187102_2_.interactAt(p_187102_1_, vector3d, p_187102_4_);
    }
 
    public ItemStack handleInventoryMouseClick(int p_187098_1_, int p_187098_2_, int p_187098_3_, ClickType p_187098_4_, PlayerEntity p_187098_5_) {
@@ -400,14 +400,14 @@ public class PlayerController {
    }
 
    public boolean isAlwaysFlying() {
-      return this.localPlayerMode == GameType.SPECTATOR;
+      return this.localPlayerMode == Gamemode.SPECTATOR;
    }
 
-   public GameType getPreviousPlayerMode() {
+   public Gamemode getPreviousPlayerMode() {
       return this.previousLocalPlayerMode;
    }
 
-   public GameType getPlayerMode() {
+   public Gamemode getPlayerMode() {
       return this.localPlayerMode;
    }
 

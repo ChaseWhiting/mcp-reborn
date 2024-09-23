@@ -11,7 +11,7 @@ import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 
 public class SpectateCommand {
    private static final SimpleCommandExceptionType ERROR_SELF = new SimpleCommandExceptionType(new TranslationTextComponent("commands.spectate.self"));
@@ -34,7 +34,7 @@ public class SpectateCommand {
    private static int spectate(CommandSource p_229829_0_, @Nullable Entity p_229829_1_, ServerPlayerEntity p_229829_2_) throws CommandSyntaxException {
       if (p_229829_2_ == p_229829_1_) {
          throw ERROR_SELF.create();
-      } else if (p_229829_2_.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
+      } else if (p_229829_2_.gameMode.getGameModeForPlayer() != Gamemode.SPECTATOR) {
          throw ERROR_NOT_SPECTATOR.create(p_229829_2_.getDisplayName());
       } else {
          p_229829_2_.setCamera(p_229829_1_);

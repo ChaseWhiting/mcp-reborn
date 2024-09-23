@@ -118,7 +118,7 @@ import net.minecraft.world.Dimension;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.ForcedChunksSaveData;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.BiomeManager;
@@ -159,7 +159,7 @@ import org.apache.logging.log4j.Logger;
 public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask> implements ISnooperInfo, ICommandSource, AutoCloseable {
    private static final Logger LOGGER = LogManager.getLogger();
    public static final File USERID_CACHE_FILE = new File("usercache.json");
-   public static final WorldSettings DEMO_SETTINGS = new WorldSettings("Demo World", GameType.SURVIVAL, false, Difficulty.NORMAL, false, new GameRules(), DatapackCodec.DEFAULT);
+   public static final WorldSettings DEMO_SETTINGS = new WorldSettings("Demo World", Gamemode.SURVIVAL, false, Difficulty.NORMAL, false, new GameRules(), DatapackCodec.DEFAULT);
    protected final SaveFormat.LevelSave storageSource;
    protected final PlayerData playerDataStorage;
    private final Snooper snooper = new Snooper("server", this, Util.getMillis());
@@ -448,7 +448,7 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
       iserverworldinfo.setThundering(false);
       iserverworldinfo.setClearWeatherTime(1000000000);
       iserverworldinfo.setDayTime(6000L);
-      iserverworldinfo.setGameType(GameType.SPECTATOR);
+      iserverworldinfo.setGameType(Gamemode.SPECTATOR);
    }
 
    private void prepareLevels(IChunkStatusListener p_213186_1_) {
@@ -503,7 +503,7 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
 
    }
 
-   public GameType getDefaultGameType() {
+   public Gamemode getDefaultGameType() {
       return this.worldData.getGameType();
    }
 
@@ -1152,7 +1152,7 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
 
    public abstract boolean isPublished();
 
-   public void setDefaultGameType(GameType p_71235_1_) {
+   public void setDefaultGameType(Gamemode p_71235_1_) {
       this.worldData.setGameType(p_71235_1_);
    }
 
@@ -1170,7 +1170,7 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
       return false;
    }
 
-   public abstract boolean publishServer(GameType p_195565_1_, boolean p_195565_2_, int p_195565_3_);
+   public abstract boolean publishServer(Gamemode p_195565_1_, boolean p_195565_2_, int p_195565_3_);
 
    public int getTickCount() {
       return this.tickCount;
@@ -1387,6 +1387,7 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
    }
 
    public LootTableManager getLootTables() {
+      LootTableManager lootTableManager = this.resources.getLootTables();
       return this.resources.getLootTables();
    }
 

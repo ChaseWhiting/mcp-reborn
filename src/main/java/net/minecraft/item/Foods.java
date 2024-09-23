@@ -23,11 +23,14 @@ public class Foods {
    public static final Food COOKED_RABBIT = (new Food.Builder()).nutrition(5).saturationMod(0.6F).meat().build();
    public static final Food COOKED_SALMON = (new Food.Builder()).nutrition(6).saturationMod(0.8F).build();
    public static final Food COOKIE = (new Food.Builder()).nutrition(2).saturationMod(0.1F).build();
+   public static final Food HONEYCOMB_COOKIE = (new Food.Builder()).nutrition(4).saturationMod(0.25F).build();
+   public static final Food TOFFEE_APPLE = (new Food.Builder()).nutrition(4).saturationMod(0.35F).build();
    public static final Food DRIED_KELP = (new Food.Builder()).nutrition(1).saturationMod(0.3F).fast().build();
    public static final Food ENCHANTED_GOLDEN_APPLE = (new Food.Builder()).nutrition(4).saturationMod(1.2F).effect(new EffectInstance(Effects.REGENERATION, 400, 1), 1.0F).effect(new EffectInstance(Effects.DAMAGE_RESISTANCE, 6000, 0), 1.0F).effect(new EffectInstance(Effects.FIRE_RESISTANCE, 6000, 0), 1.0F).effect(new EffectInstance(Effects.ABSORPTION, 2400, 3), 1.0F).alwaysEat().build();
    public static final Food GOLDEN_APPLE = (new Food.Builder()).nutrition(4).saturationMod(1.2F).effect(new EffectInstance(Effects.REGENERATION, 100, 1), 1.0F).effect(new EffectInstance(Effects.ABSORPTION, 2400, 0), 1.0F).alwaysEat().build();
    public static final Food GOLDEN_CARROT = (new Food.Builder()).nutrition(6).saturationMod(1.2F).build();
    public static final Food HONEY_BOTTLE = (new Food.Builder()).nutrition(6).saturationMod(0.1F).build();
+   public static final Food ROYAL_JELLY = (new Food.Builder()).nutrition(8).saturationMod(0.55F).effect(new EffectInstance(Effects.REGENERATION, 20 * 20, 0), 1.0F).build();
    public static final Food MELON_SLICE = (new Food.Builder()).nutrition(2).saturationMod(0.3F).build();
    public static final Food MUSHROOM_STEW = stew(6);
    public static final Food MUTTON = (new Food.Builder()).nutrition(2).saturationMod(0.3F).meat().build();

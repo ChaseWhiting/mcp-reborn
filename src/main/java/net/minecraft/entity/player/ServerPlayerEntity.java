@@ -123,7 +123,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.filter.IChatFilter;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.server.ServerWorld;
@@ -189,7 +189,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
 
    private void fudgeSpawnLocation(ServerWorld p_205734_1_) {
       BlockPos blockpos = p_205734_1_.getSharedSpawnPos();
-      if (p_205734_1_.dimensionType().hasSkyLight() && p_205734_1_.getServer().getWorldData().getGameType() != GameType.ADVENTURE) {
+      if (p_205734_1_.dimensionType().hasSkyLight() && p_205734_1_.getServer().getWorldData().getGameType() != Gamemode.ADVENTURE) {
          int i = Math.max(0, this.server.getSpawnRadius(p_205734_1_));
          int j = MathHelper.floor(p_205734_1_.getWorldBorder().getDistanceToBorder((double)blockpos.getX(), (double)blockpos.getZ()));
          if (j < i) {
@@ -236,9 +236,9 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
       super.readAdditionalSaveData(p_70037_1_);
       if (p_70037_1_.contains("playerGameType", 99)) {
          if (this.getServer().getForceGameType()) {
-            this.gameMode.setGameModeForPlayer(this.getServer().getDefaultGameType(), GameType.NOT_SET);
+            this.gameMode.setGameModeForPlayer(this.getServer().getDefaultGameType(), Gamemode.NOT_SET);
          } else {
-            this.gameMode.setGameModeForPlayer(GameType.byId(p_70037_1_.getInt("playerGameType")), p_70037_1_.contains("previousPlayerGameType", 3) ? GameType.byId(p_70037_1_.getInt("previousPlayerGameType")) : GameType.NOT_SET);
+            this.gameMode.setGameModeForPlayer(Gamemode.byId(p_70037_1_.getInt("playerGameType")), p_70037_1_.contains("previousPlayerGameType", 3) ? Gamemode.byId(p_70037_1_.getInt("previousPlayerGameType")) : Gamemode.NOT_SET);
          }
       }
 
@@ -753,7 +753,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
             return Either.left(PlayerEntity.SleepResult.OBSTRUCTED);
          } else {
             this.setRespawnPosition(this.level.dimension(), p_213819_1_, this.yRot, false, true);
-            if (this.level.isDay()) {
+            if (this.level.isDay() && !this.level.getGameRules().getBoolean(GameRules.RULE_SLEEP_DAY)) {
                return Either.left(PlayerEntity.SleepResult.NOT_POSSIBLE_NOW);
             } else {
                if (!this.isCreative()) {
@@ -1142,10 +1142,10 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
       return (ServerWorld)this.level;
    }
 
-   public void setGameMode(GameType p_71033_1_) {
+   public void setGameMode(Gamemode p_71033_1_) {
       this.gameMode.setGameModeForPlayer(p_71033_1_);
       this.connection.send(new SChangeGameStatePacket(SChangeGameStatePacket.CHANGE_GAME_MODE, (float)p_71033_1_.getId()));
-      if (p_71033_1_ == GameType.SPECTATOR) {
+      if (p_71033_1_ == Gamemode.SPECTATOR) {
          this.removeEntitiesOnShoulder();
          this.stopRiding();
       } else {
@@ -1157,11 +1157,11 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
    }
 
    public boolean isSpectator() {
-      return this.gameMode.getGameModeForPlayer() == GameType.SPECTATOR;
+      return this.gameMode.getGameModeForPlayer() == Gamemode.SPECTATOR;
    }
 
    public boolean isCreative() {
-      return this.gameMode.getGameModeForPlayer() == GameType.CREATIVE;
+      return this.gameMode.getGameModeForPlayer() == Gamemode.CREATIVE;
    }
 
    public void sendMessage(ITextComponent p_145747_1_, UUID p_145747_2_) {
@@ -1262,7 +1262,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
    }
 
    public void attack(Entity p_71059_1_) {
-      if (this.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
+      if (this.gameMode.getGameModeForPlayer() == Gamemode.SPECTATOR) {
          this.setCamera(p_71059_1_);
       } else {
          super.attack(p_71059_1_);

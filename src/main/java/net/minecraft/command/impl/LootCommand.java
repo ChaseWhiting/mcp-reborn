@@ -22,6 +22,7 @@ import net.minecraft.command.arguments.ResourceLocationArgument;
 import net.minecraft.command.arguments.SlotArgument;
 import net.minecraft.command.arguments.Vec3Argument;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.IDropsCustomLoot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -289,6 +290,9 @@ public class LootCommand {
          lootcontext$builder.withParameter(LootParameters.ORIGIN, commandsource.getPosition());
          LootTable loottable = commandsource.getServer().getLootTables().get(resourcelocation);
          List<ItemStack> list = loottable.getRandomItems(lootcontext$builder.create(LootParameterSets.ENTITY));
+         if (p_218869_1_ instanceof IDropsCustomLoot && entity instanceof PlayerEntity) {
+            entity.asPlayer().dropLoot(((IDropsCustomLoot)p_218869_1_).getDropItems(), 0.7F, lootcontext$builder.create(LootParameterSets.ENTITY));
+         }
          return p_218869_2_.accept(p_218869_0_, list, (p_218863_2_) -> {
             callback(commandsource, p_218863_2_, resourcelocation);
          });

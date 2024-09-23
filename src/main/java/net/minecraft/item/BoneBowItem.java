@@ -22,164 +22,166 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.Heightmap;
 
 public class BoneBowItem extends BowItem implements IVanishable {
+
+    private static final float MAX_POWER = 1.3F;
+    private static final int DEFAULT_USE_DURATION = 72000;
+    private static final int SCARED_MOB_RADIUS = 12;
+    private static final float SCARED_MOB_SPEED = 1.12F;
+
     public BoneBowItem(Item.Properties properties) {
         super(properties);
     }
+
     @Override
     public void releaseUsing(ItemStack item, World world, LivingEntity entity, int releaseTime) {
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity playerentity = (PlayerEntity)entity;
-            boolean flag = playerentity.abilities.instabuild || EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, item) > 0;
-            float saveArrowChance = 0.0F;
-            float chanceRoll = new Random().nextFloat();
-            ItemStack itemstack = playerentity.getProjectile(item);
-            if (!itemstack.isEmpty() || flag) {
-                if (itemstack.isEmpty()) {
-                    itemstack = new ItemStack(Items.ARROW);
-                }
+        if (!(entity instanceof PlayerEntity)) {
+            return;
+        }
 
-                int i = this.getUseDuration(item) - releaseTime;
-                float f = getPowerForTime(i);
-                if (!((double)f < 0.1D)) {
-                    boolean flag1 = flag && itemstack.getItem() == Items.ARROW || flag && itemstack.getItem() == Items.BONE_ARROW;
-                    AbstractArrowEntity abstractarrowentity = null;
-                    if (!world.isClientSide) {
-                        ArrowItem arrowitem = (ArrowItem) (itemstack.getItem() instanceof ArrowItem ? itemstack.getItem() : Items.BONE_ARROW);
-                        abstractarrowentity = arrowitem.createArrow(world, itemstack, playerentity);
-                        abstractarrowentity.shootFromRotation(playerentity, playerentity.xRot, playerentity.yRot, 0.0F, f * 3.0F, 1.0F);
-                        if (f >= 1F) {
-                            if (itemstack.getItem() == Items.BONE_ARROW && !(entity instanceof SkeletonEntity)) {
-                                AxisAlignedBB area = new AxisAlignedBB(playerentity.blockPosition()).inflate(12D, 5D, 12D);
-                                List<Mob> mobs = world.getEntitiesOfClass(Mob.class, area, e -> e instanceof CreeperEntity || e instanceof SpiderEntity);
-                                world.playSound(null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), SoundEvents.SKELETON_AMBIENT, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                                if (!mobs.isEmpty()) {
-                                    for (LivingEntity mob : mobs) {
-                                        scareMobs(mobs, 1.12F, 12, world);
-                                    }
-                                }
-                            }
-                            if (f >= 1.3F && abstractarrowentity instanceof BoneArrowEntity) {
-                                f = 1.3F;
-                            } else {
-                                f = 1.0F;
-                            }
+        PlayerEntity player = (PlayerEntity) entity;
+        boolean hasInfinityEnchantment = player.abilities.instabuild || EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, item) > 0;
+        ItemStack arrowStack = player.getProjectile(item);
 
-                            abstractarrowentity.setCritArrow(true);
-                            abstractarrowentity.setBaseDamage(abstractarrowentity.getBaseDamage() * f);
-                        }
+        if (arrowStack.isEmpty() && !hasInfinityEnchantment) {
+            return;
+        }
 
-                        int j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, item);
-                        if (j > 0) {
-                                abstractarrowentity.setBaseDamage(abstractarrowentity.getBaseDamage() + (double) j * 0.5D + 1.0D);
-                                abstractarrowentity.setBaseDamage(
-                                        abstractarrowentity instanceof BoneArrowEntity
-                                                ? abstractarrowentity.getBaseDamage() + (double) j * 0.5D + 1.0D
-                                                : abstractarrowentity.getBaseDamage() + (double) j * 0.5D
-                                );
-                        }
+        if (arrowStack.isEmpty()) {
+            arrowStack = new ItemStack(Items.ARROW);
+        }
 
-                     //   DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity, world, String.format("Arrow base damage after power: %.1f", abstractarrowentity.getBaseDamage()));
+        int chargeTime = this.getUseDuration(item) - releaseTime;
+        float power = getPowerForTime(chargeTime);
 
-                        int x = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MARROW_QUIVER, item);
-                        if (x > 0) {
-                            saveArrowChance = 0.1F * x;
-                        }
+        if (power < 0.1D) {
+            return;
+        }
 
-                        int k = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PUNCH_ARROWS, item);
-                        if (k > 0) {
-                            abstractarrowentity.setKnockback(k);
-                        }
+        if (!world.isClientSide) {
+            AbstractArrowEntity arrowEntity = createArrowEntity(world, player, arrowStack, power);
+            customizeArrowEntity(arrowEntity, item, power, player);
+            world.addFreshEntity(arrowEntity);
+            world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, getPitch(power));
 
-                        item.hurtAndBreak(1, playerentity, (p_220009_1_) -> {
-                            p_220009_1_.broadcastBreakEvent(playerentity.getUsedItemHand());
-                        });
-                        if (flag1 || playerentity.abilities.instabuild && (itemstack.getItem() == Items.SPECTRAL_ARROW || itemstack.getItem() == Items.TIPPED_ARROW)) {
-                            abstractarrowentity.pickup = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
-                        }
-                        abstractarrowentity.setBoundingBox(new AxisAlignedBB(
-                                abstractarrowentity.getX() - 0.57F / 2,
-                                abstractarrowentity.getY() - 0.57F / 2,
-                                abstractarrowentity.getZ() - 0.57F / 2,
-                                abstractarrowentity.getX() + 0.57F / 2,
-                                abstractarrowentity.getY() + 0.57F / 2,
-                                abstractarrowentity.getZ() + 0.57F / 2));
-                        world.addFreshEntity(abstractarrowentity);
-                    }
+            handleArrowUsage(player, item, arrowStack, arrowEntity, world);
+        }
 
-                    world.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), SoundEvents.ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
-                    dealWithItem(playerentity, itemstack, abstractarrowentity, flag1, chanceRoll, saveArrowChance, world);
-                    playerentity.awardStat(Stats.ITEM_USED.get(this));
-                }
+        player.awardStat(Stats.ITEM_USED.get(this));
+    }
+
+    private AbstractArrowEntity createArrowEntity(World world, PlayerEntity player, ItemStack arrowStack, float power) {
+        ArrowItem arrowItem = (ArrowItem) (arrowStack.getItem() instanceof ArrowItem ? arrowStack.getItem() : Items.BONE_ARROW);
+        AbstractArrowEntity arrowEntity = arrowItem.createArrow(world, arrowStack, player);
+        arrowEntity.shootFromRotation(player, player.xRot, player.yRot, 0.0F, power * 3.0F, 1.0F);
+
+        if (arrowStack.getItem() == Items.BONE_ARROW && power >= 1F) {
+            scareNearbyMobs(player, world);
+        }
+
+        return arrowEntity;
+    }
+
+    private void customizeArrowEntity(AbstractArrowEntity arrowEntity, ItemStack bow, float power, PlayerEntity player) {
+        boolean isBoneArrow = arrowEntity instanceof BoneArrowEntity;
+        if (power >= MAX_POWER) {
+            power = MAX_POWER;
+        }
+
+        arrowEntity.setCritArrow(true);
+        arrowEntity.setBaseDamage(arrowEntity.getBaseDamage() * power);
+
+        int powerEnchantment = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, bow);
+        if (powerEnchantment > 0) {
+            arrowEntity.setBaseDamage(arrowEntity.getBaseDamage() + (double) powerEnchantment * 0.5D + 1.0D);
+        }
+
+        int punchEnchantment = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PUNCH_ARROWS, bow);
+        if (punchEnchantment > 0) {
+            arrowEntity.setKnockback(punchEnchantment);
+        }
+
+        int marrowEnchantment = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MARROW_QUIVER, bow);
+        if (marrowEnchantment > 0) {
+            arrowEntity.setCritArrow(isBoneArrow);
+        }
+
+        arrowEntity.setBoundingBox(new AxisAlignedBB(
+                arrowEntity.getX() - 0.285F, arrowEntity.getY() - 0.285F, arrowEntity.getZ() - 0.285F,
+                arrowEntity.getX() + 0.285F, arrowEntity.getY() + 0.285F, arrowEntity.getZ() + 0.285F));
+    }
+
+    private void scareNearbyMobs(PlayerEntity player, World world) {
+        AxisAlignedBB area = new AxisAlignedBB(player.blockPosition()).inflate(SCARED_MOB_RADIUS, 5D, SCARED_MOB_RADIUS);
+        List<Mob> mobs = world.getEntitiesOfClass(Mob.class, area, e -> e instanceof CreeperEntity || e instanceof SpiderEntity);
+
+        if (!mobs.isEmpty()) {
+            for (Mob mob : mobs) {
+                double targetX = mob.getRandomX(SCARED_MOB_RADIUS);
+                double targetZ = mob.getRandomZ(SCARED_MOB_RADIUS);
+                int targetY = world.getHeight(Heightmap.Type.WORLD_SURFACE, (int) targetX, (int) targetZ);
+                mob.getNavigation().moveTo(targetX, targetY, targetZ, SCARED_MOB_SPEED);
             }
+
+            world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SKELETON_AMBIENT, SoundCategory.PLAYERS, 1.0F, 1.0F);
         }
     }
 
-    public void dealWithItem(PlayerEntity playerentity, ItemStack itemstack, AbstractArrowEntity abstractarrowentity, boolean flag1, float roll, float saveArrowChance, World world) {
-        boolean isArrowSaved = roll < saveArrowChance;
+    private void handleArrowUsage(PlayerEntity player, ItemStack bow, ItemStack arrowStack, AbstractArrowEntity arrowEntity, World world) {
+        float saveArrowChance = 0.1F * EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MARROW_QUIVER, bow);
+        boolean arrowSaved = new Random().nextFloat() < saveArrowChance;
 
-        ItemStack itemstack2 = ItemStack.EMPTY;
-        if (isArrowSaved && itemstack.getCount() >= 1) {
-            itemstack2 = itemstack.copy();
-            itemstack2.setCount(1);
-        }
-
-        if (!flag1 && !playerentity.abilities.instabuild) {
-            itemstack.shrink(1);
-            if (itemstack.isEmpty()) {
-                playerentity.inventory.removeItem(itemstack);
-            }
-            if (!itemstack2.isEmpty() && itemstack2.getCount() != 0 && !itemstack.isEmpty()) {
-                playerentity.addItem(itemstack2);
-                abstractarrowentity.pickup = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
-            } else {
-                    playerentity.inventory.removeItem(itemstack2);
+        if (!player.abilities.instabuild && !arrowSaved) {
+            arrowStack.shrink(1);
+            if (arrowStack.isEmpty()) {
+                player.inventory.removeItem(arrowStack);
             }
         }
-    }
 
-    public static float getPowerForTime(int power) {
-        float f = (float)power / 20.0F;
-        f = (f * f + f * 2.0F) / 3.0F;  // Decrease this denominator to increase output power
-        if (f > 1.3F) {
-            f = 1.3F;
+        if (arrowEntity.pickup != AbstractArrowEntity.PickupStatus.CREATIVE_ONLY && player.abilities.instabuild) {
+            arrowEntity.pickup = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
         }
 
-        return f;
+        bow.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(player.getUsedItemHand()));
     }
 
+    private float getPitch(float power) {
+        return 1.0F / (random.nextFloat() * 0.4F + 1.2F) + power * 0.5F;
+    }
+
+    public static float getPowerForTime(int charge) {
+        float f = (float) charge / 20.0F;
+        f = (f * f + f * 2.0F) / 3.0F;
+        return Math.min(f, MAX_POWER);
+    }
+
+    @Override
     public int getUseDuration(ItemStack item) {
-        return 72000;
+        return DEFAULT_USE_DURATION;
     }
 
+    @Override
     public UseAction getUseAnimation(ItemStack item) {
         return UseAction.BOW;
     }
 
+    @Override
     public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
-        boolean flag = !player.getProjectile(itemstack).isEmpty();
-        if (!player.abilities.instabuild && !flag) {
-            return ActionResult.fail(itemstack);
-        } else {
+        boolean hasProjectile = !player.getProjectile(itemstack).isEmpty();
+
+        if (player.abilities.instabuild || hasProjectile) {
             player.startUsingItem(hand);
             return ActionResult.consume(itemstack);
+        } else {
+            return ActionResult.fail(itemstack);
         }
     }
 
-    private static void scareMobs(List<Mob> mobs, float speed, int radius, World world) {
-        int count = 0;
-        for (Mob mob : mobs) {
-            ++count;
-            double X = mob.getRandomX((double) radius);
-            double Z = mob.getRandomZ((double) radius);
-            int Y = world.getHeight(Heightmap.Type.WORLD_SURFACE, (int) X, (int) Z);
-            mob.getNavigation().moveTo(X, Y, Z, speed);
-        }
-    }
-
+    @Override
     public Predicate<ItemStack> getAllSupportedProjectiles() {
         return ARROW_OR_BONE_ARROW;
     }
+
     @Override
     public int getDefaultProjectileRange() {
         return 20;

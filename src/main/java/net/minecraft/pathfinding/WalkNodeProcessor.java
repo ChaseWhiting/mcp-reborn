@@ -309,9 +309,7 @@ public class WalkNodeProcessor extends NodeProcessor {
    }
 
    private boolean hasCollisions(AxisAlignedBB p_237236_1_) {
-      return this.collisionCache.computeIfAbsent(p_237236_1_, (p_237237_2_) -> {
-         return !this.level.noCollision(this.mob, p_237236_1_);
-      });
+      return this.collisionCache.computeIfAbsent(p_237236_1_, (p_237237_2_) -> !this.level.noCollision(this.mob, p_237236_1_));
    }
 
    public PathNodeType getBlockPathType(IBlockReader p_186319_1_, int p_186319_2_, int p_186319_3_, int p_186319_4_, Mob p_186319_5_, int p_186319_6_, int p_186319_7_, int p_186319_8_, boolean p_186319_9_, boolean p_186319_10_) {

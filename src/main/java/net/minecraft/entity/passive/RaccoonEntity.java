@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.*;
 import net.minecraft.entity.*;
@@ -20,6 +21,7 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.passive.fish.AbstractGroupFishEntity;
@@ -112,7 +114,6 @@ public class RaccoonEntity extends TameableEntity {
     private int ticksSinceEaten;
 
 
-
     private static final Map<Block, Item> CROP_DROP_MAP = new HashMap<>();
 
     static {
@@ -121,6 +122,7 @@ public class RaccoonEntity extends TameableEntity {
         CROP_DROP_MAP.put(Blocks.CARROTS, Items.CARROT);
         CROP_DROP_MAP.put(Blocks.SWEET_BERRY_BUSH, Items.SWEET_BERRIES);
     }
+
     // dirty blocks, each block that is dirty has a float value of how dirty it is
     private static final Map<Block, Float> DIRTY_BLOCKS = new HashMap<>();
 
@@ -175,9 +177,9 @@ public class RaccoonEntity extends TameableEntity {
         List<Float> roundingBonus = new ArrayList<>();
         BlockPos currentPosition = new BlockPos.Mutable(this.getX(), this.getY(), this.getZ());
 
-        for(int k = (int)this.getX() - 6; k < (int)this.getX() + 6 && count < 14; ++k) {
-            for(int l = (int)this.getY() - 6; l < (int)this.getY() + 6 && count < 14; ++l) {
-                for(int i1 = (int)this.getZ() - 6; i1 < (int)this.getZ() + 6 && count < 14; ++i1) {
+        for (int k = (int) this.getX() - 6; k < (int) this.getX() + 6 && count < 14; ++k) {
+            for (int l = (int) this.getY() - 6; l < (int) this.getY() + 6 && count < 14; ++l) {
+                for (int i1 = (int) this.getZ() - 6; i1 < (int) this.getZ() + 6 && count < 14; ++i1) {
                     Block block = this.level.getBlockState(currentPosition.offset(k, l, i1)).getBlock();
                     // Check if the block is in the DIRTY_ENVIRONMENT map
                     if (DIRTY_ENVIRONMENT.containsKey(block)) {
@@ -193,7 +195,7 @@ public class RaccoonEntity extends TameableEntity {
         }
 
         float sum = 0F;
-        for(Float bonuses : roundingBonus) {
+        for (Float bonuses : roundingBonus) {
             sum += bonuses;
         }
         int roundedSum = (int) Math.ceil(sum);
@@ -248,9 +250,7 @@ public class RaccoonEntity extends TameableEntity {
     ));
 
 
-    private static final List<Item> FOOD_ITEMS = Arrays.stream(ALL_ITEMS)
-            .filter(item -> isFoodItem(new ItemStack(item)))
-            .collect(Collectors.toList());
+    private static final List<Item> FOOD_ITEMS = Registry.ITEM.stream().filter(item -> item.isEdible()).collect(Collectors.toList());
 
 
     private static final Ingredient TEMPT_INGREDIENT = Ingredient.of(
@@ -260,9 +260,6 @@ public class RaccoonEntity extends TameableEntity {
     public static boolean isFoodItem(ItemStack itemStack) {
         return itemStack.getItem().isEdible();
     }
-
-
-
 
 
     public double HOME_POS_X;
@@ -317,7 +314,7 @@ public class RaccoonEntity extends TameableEntity {
         this.timeBeforeRegroup = 600;
         this.setCanHaveHome(true);
         this.setCanHome(true);
-        this.setHome(0,0,0);
+        this.setHome(0, 0, 0);
         this.isDirty = false;
         this.dirtyCountdown = 600;
     }
@@ -327,7 +324,7 @@ public class RaccoonEntity extends TameableEntity {
 //            return true;
 //        }
 //        if (entity instanceof PlayerEntity) {
-//            return RaccoonEntity.this.getRaccoonType() == Type.RABID;
+//            return RaccoonEntity.this.getRaccoonType() == BoggedType.RABID;
 //        }
 //        return false;
 //    };
@@ -402,7 +399,7 @@ public class RaccoonEntity extends TameableEntity {
                     && !(animal instanceof OcelotEntity)
                     && !(animal instanceof RaccoonEntity)
                     && !(animal instanceof FoxEntity);
-            return RaccoonEntity.this.getHunger() <= 10 && flag;
+            return RaccoonEntity.this.getHunger() <= 30 && flag;
         });
         this.turtleEggTargetGoal = new NearestAttackableTargetGoal<>(this, TurtleEntity.class, 10, false, false, TurtleEntity.BABY_ON_LAND_SELECTOR);
         this.fishTargetGoal = new NearestAttackableTargetGoal<>(this, AbstractFishEntity.class, 20, false, false, (p_213456_0_) -> {
@@ -412,7 +409,8 @@ public class RaccoonEntity extends TameableEntity {
         // Target selector goals
         this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
         this.targetSelector.addGoal(2, new OwnerHurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new findFoodGoal());
+        this.targetSelector.addGoal(2, new FindFoodGoal());
+        //this.goalSelector.addGoal(3, new RaccoonDropOffItemsGoal(this, 1.2));
 
         this.targetSelector.addGoal(3, new TemptGoal(this, 1D, TEMPT_INGREDIENT, true));
         this.targetSelector.addGoal(3, new RevengeGoal(LivingEntity.class, false, false, (p_234193_1_) -> {
@@ -420,6 +418,9 @@ public class RaccoonEntity extends TameableEntity {
         }));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 20, false, false, (p_28600_) -> {
             return RaccoonEntity.this.getRaccoonType() == Type.RABID;
+        }));
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Mob.class, 20, false, true, entity -> {
+            return this.getOwner() != null && entity.as(Mob.class).getTarget() == this.getOwner();
         }));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, WolfEntity.class, 20, false, false, (p_28600_) -> {
             return RaccoonEntity.this.getRaccoonType() == Type.RABID;
@@ -432,7 +433,7 @@ public class RaccoonEntity extends TameableEntity {
         this.goalSelector.addGoal(3, new RaccoonRaidGardenGoal(this));
 
         this.goalSelector.addGoal(2, new RaccoonMoveToWaterGoal(this, 1.22F));
-        this.goalSelector.addGoal(4, new RaccoonPracticeGoal(this, 1.0D));
+       // this.goalSelector.addGoal(4, new RaccoonPracticeGoal(this, 1.0D));
         this.goalSelector.addGoal(5, new RaccoonLieOnBedGoal(this, 1.3D, 16));
         this.goalSelector.addGoal(1, new RaccoonEntity.SwimGoal());
         this.goalSelector.addGoal(1, new RaccoonGoHomeGoal(this, 1.3F, 30, 30));
@@ -492,11 +493,11 @@ public class RaccoonEntity extends TameableEntity {
         boolean result = super.hurt(source, amount);
         // Added debug statement
         //System.out.println("Raccoon got hurt. Source: " + source + " Amount: " + amount + " Health: " + this.getHealth());
-      //  try {
-       //     logger.log(Level.INFO, "Raccoon ({0}) Attacker: {1}", new Object[]{this.getUUID(), source.getEntity().getUUID()});
-       // } catch (NullPointerException n) {
-      //      logger.log(Level.SEVERE, "NullPointerException: No attacker was found.");
-      //  }
+        //  try {
+        //     logger.log(Level.INFO, "Raccoon ({0}) Attacker: {1}", new Object[]{this.getUUID(), source.getEntity().getUUID()});
+        // } catch (NullPointerException n) {
+        //      logger.log(Level.SEVERE, "NullPointerException: No attacker was found.");
+        //  }
         return result;
     }
 
@@ -550,7 +551,7 @@ public class RaccoonEntity extends TameableEntity {
         }
 
         @Override
-        public boolean canContinueToUse(){
+        public boolean canContinueToUse() {
             if (this.countdown > 0) {
                 --this.countdown;
                 return false;
@@ -698,7 +699,7 @@ public class RaccoonEntity extends TameableEntity {
                         if (this.getTarget() != null) {
                             try {
                                 this.setTarget(null);
-                               // System.out.println("Target set to null successfully");
+                                // System.out.println("Target set to null successfully");
                             } catch (Exception e) {
                                 logger.log(Level.SEVERE, "Error while setting target to null", e);
                             }
@@ -836,19 +837,23 @@ public class RaccoonEntity extends TameableEntity {
 
     class RaccoonDropOffItemsGoal extends MoveToBlockGoal {
         private final RaccoonEntity raccoon;
-        private final ServerPlayerEntity owner;
+        private LivingEntity owner;
         private final double speed;
 
 
-        public RaccoonDropOffItemsGoal(RaccoonEntity raccoon, double speed, ServerPlayerEntity owner) {
+        public RaccoonDropOffItemsGoal(RaccoonEntity raccoon, double speed) {
             super(raccoon, speed, 10);
             this.raccoon = raccoon;
             this.speed = speed;
-            this.owner = owner;
         }
 
         @Override
         public boolean canUse() {
+            if (raccoon.getOwner() != null) {
+                this.owner = raccoon.getOwner();
+            } else {
+                return false;
+            }
             if (raccoon.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) {
                 return false;
             }
@@ -915,12 +920,12 @@ public class RaccoonEntity extends TameableEntity {
                     int hungerIncrease = MIN_HUNGER_INCREASE + this.random.nextInt(MAX_HUNGER_INCREASE - MIN_HUNGER_INCREASE + 1);
                     this.setHunger(this.hunger + hungerIncrease);
 
-                        try {
-                            this.setTarget(null);
-                            //System.out.println("Target set to null successfully");
-                        } catch (Exception e) {
-                            logger.log(Level.SEVERE, "Error while setting target to null", e);
-                        }
+                    try {
+                        this.setTarget(null);
+                        //System.out.println("Target set to null successfully");
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Error while setting target to null", e);
+                    }
 
                     if (!itemstack1.isEmpty()) {
                         this.setItemSlot(EquipmentSlotType.MAINHAND, itemstack1);
@@ -1123,7 +1128,7 @@ public class RaccoonEntity extends TameableEntity {
         compound.putInt("Thirst", thirst);
         compound.put("Trusted", listnbt);
         compound.putBoolean("Sleeping", this.isSleeping());
-        compound.putString("Type", this.getRaccoonType().getName());
+        compound.putString("BoggedType", this.getRaccoonType().getName());
         compound.putBoolean("Sitting", this.isSitting());
         compound.putBoolean("Crouching", this.isCrouching());
 
@@ -1168,7 +1173,7 @@ public class RaccoonEntity extends TameableEntity {
         }
         this.setDirty(compound.getBoolean("Dirty"));
         this.setSleeping(compound.getBoolean("Sleeping"));
-        this.setRaccoonType(Type.byName(compound.getString("Type")));
+        this.setRaccoonType(Type.byName(compound.getString("BoggedType")));
         this.setSitting(compound.getBoolean("Sitting"));
         this.setIsCrouching(compound.getBoolean("Crouching"));
 
@@ -1260,34 +1265,7 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         public boolean canUse() {
-            // Check for nearby survival players
-            List<PlayerEntity> players = this.entity.level.getEntitiesOfClass(PlayerEntity.class, this.entity.getBoundingBox().inflate(12.0D));
-            for (PlayerEntity player : players) {
-                if (!player.isSpectator() && !player.isCreative()) {
-                    return false;
-                }
-            }
-
-            // Check for crops within 7 blocks
-            BlockPos entityPos = entity.blockPosition();
-            int radius = 7;
-            for (int x = -radius; x <= radius; x++) {
-                for (int y = -radius; y <= radius; y++) {
-                    for (int z = -radius; z <= radius; z++) {
-                        BlockPos checkPos = entityPos.offset(x, y, z);
-                        BlockState blockState = entity.level.getBlockState(checkPos);
-                        if (blockState.getBlock() instanceof CropsBlock) {
-                            return false; // Found a CropBlock within 7 blocks
-                        }
-                    }
-                }
-            }
-
-            if (entity.isTame() || entity.getTarget() != null || entity.isLeader()) {
-                return false;
-            }
-
-            if (entity.getHunger() <= 40 || entity.getThirst() <= 40) {
+            if (isPlayerNearby() || isCropNearby() || entity.isTame() || entity.getTarget() != null || entity.isLeader() || entity.getHunger() <= 40 || entity.getThirst() <= 40) {
                 return false;
             }
 
@@ -1300,70 +1278,19 @@ public class RaccoonEntity extends TameableEntity {
             if (!(leaderEntity instanceof RaccoonEntity)) {
                 return false;
             }
+
             this.leader = (RaccoonEntity) leaderEntity;
-
-            if (this.leader.isSleeping()) {
-                return false;
-            }
-
-            return true;
+            return !this.leader.isSleeping();
         }
 
         @Override
         public boolean canContinueToUse() {
-            // Check for nearby survival players
-            List<PlayerEntity> players = this.entity.level.getEntitiesOfClass(PlayerEntity.class, this.entity.getBoundingBox().inflate(12.0D));
-            for (PlayerEntity player : players) {
-                if (!player.isSpectator() && !player.isCreative()) {
-                    return false;
-                }
-            }
-
-            // Check for crops within 7 blocks
-            BlockPos entityPos = entity.blockPosition();
-            int radius = 7;
-            for (int x = -radius; x <= radius; x++) {
-                for (int y = -radius; y <= radius; y++) {
-                    for (int z = -radius; z <= radius; z++) {
-                        BlockPos checkPos = entityPos.offset(x, y, z);
-                        BlockState blockState = entity.level.getBlockState(checkPos);
-                        if (blockState.getBlock() instanceof CropsBlock) {
-                            return false; // Found a CropBlock within 7 blocks
-                        }
-                    }
-                }
-            }
-
-            if (entity.getTarget() != null || entity.isLeader() || this.leader == null) {
-                return false;
-            }
-
-            if (entity.getHunger() <= 40 || entity.getThirst() <= 40) {
-                if (leader != null) {
-                    List<Animal> nearbyAnimals = this.leader.level.getEntitiesOfClass(Animal.class, this.leader.getBoundingBox().inflate(8D,8D,8D));
-                    List<Animal> filteredAnimals = nearbyAnimals.stream()
-                            .filter(animal -> !entitiesToExclude.isPresent() || !entitiesToExclude.get().contains(animal.getClass()))
-                            .collect(Collectors.toList());
-
-                    if (!filteredAnimals.isEmpty() && leader.getTarget() != null) {
-                        return true;
-                    }
-                    return false;
-                }
-                return false;
-            }
-
-
-
-            if (this.leader.isSleeping()) {
+            if (isPlayerNearby() || isCropNearby() || entity.getTarget() != null || entity.isLeader() || this.leader == null || entity.getHunger() <= 40 || entity.getThirst() <= 40 || this.leader.isSleeping()) {
                 return false;
             }
 
             double distanceToLeader = this.entity.distanceTo(this.leader);
-            if (distanceToLeader < this.minDist) {
-                return false;
-            }
-            return distanceToLeader > this.minDist && distanceToLeader < 8.0D && !this.entity.getNavigation().isDone();
+            return distanceToLeader >= this.minDist && distanceToLeader <= 8.0D && !this.entity.getNavigation().isDone();
         }
 
         @Override
@@ -1377,19 +1304,17 @@ public class RaccoonEntity extends TameableEntity {
         public void tick() {
             if (this.leader != null) {
                 double distanceToLeader = this.entity.distanceTo(this.leader);
-                if (leader.getTarget() != null) {
-                    this.entity.setTarget(leader.getTarget());
+                if (this.leader.getTarget() != null) {
+                    this.entity.setTarget(this.leader.getTarget());
                 }
                 if (distanceToLeader > this.maxDist || distanceToLeader < this.minDist) {
                     this.entity.getNavigation().moveTo(this.leader, this.speed);
                 } else {
-                    // Move to a position near the leader within the desired range
                     Vector3d moveToPos = RandomPositionGenerator.getPosTowards(this.entity, 10, 7, new Vector3d(this.leader.getX(), this.leader.getY(), this.leader.getZ()));
                     if (moveToPos != null) {
                         this.entity.getNavigation().moveTo(moveToPos.x, moveToPos.y, moveToPos.z, this.speed);
                     }
                 }
-
             }
         }
 
@@ -1397,7 +1322,29 @@ public class RaccoonEntity extends TameableEntity {
         public void stop() {
             this.entity.getNavigation().stop();
         }
+
+        private boolean isPlayerNearby() {
+            return this.entity.level.getEntitiesOfClass(PlayerEntity.class, this.entity.getBoundingBox().inflate(12.0D))
+                    .stream().anyMatch(player -> !player.isSpectator() && !player.isCreative());
+        }
+
+        private boolean isCropNearby() {
+            BlockPos entityPos = entity.blockPosition();
+            int radius = 7;
+            for (int x = -radius; x <= radius; x++) {
+                for (int y = -radius; y <= radius; y++) {
+                    for (int z = -radius; z <= radius; z++) {
+                        BlockState blockState = entity.level.getBlockState(entityPos.offset(x, y, z));
+                        if (blockState.getBlock() instanceof CropsBlock) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
     }
+
 
     public void setGoHomeCooldown(int ticks) {
         this.goHomeCooldown = ticks;
@@ -1412,79 +1359,6 @@ public class RaccoonEntity extends TameableEntity {
     public boolean isGoHomeCooldownActive() {
         return this.goHomeCooldown > 0;
     }
-
-    public class RaccoonGoHomeGoal extends Goal {
-        private final RaccoonEntity raccoon;
-        private final float speed;
-        private final double minHunger;
-        private final double minThirst;
-
-        public RaccoonGoHomeGoal(RaccoonEntity raccoon, float speed, double minHunger, double minThirst) {
-            this.raccoon = raccoon;
-            this.speed = speed;
-            this.minHunger = minHunger;
-            this.minThirst = minThirst;
-        }
-
-        @Override
-        public boolean canUse() {
-            if (this.raccoon.isGoHomeCooldownActive()) {
-                return false;
-            }
-            if (this.raccoon.level.isDay() && this.raccoon.getHomePos() != null && this.raccoon.isLeader()) {
-                return true;
-            }
-            if (this.raccoon.level.isRaining() && this.raccoon.getHomePos() != null) {
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public void start() {
-            this.raccoon.GoToHome(this.speed);
-        }
-
-        @Override
-        public boolean canContinueToUse() {
-            if (this.raccoon.getHunger() < this.minHunger || this.raccoon.getThirst() < this.minThirst) {
-                return false;
-            }
-            return !this.raccoon.IsAtHome();
-        }
-
-        @Override
-        public void tick() {
-            if (this.raccoon.isHome(8D)) {
-                this.stop();
-                this.raccoon.setGoHomeCooldown(1200);
-            }
-            BlockPos homePos = this.raccoon.getHomePos();
-            if (homePos.getX() != 0 && homePos.getY() != 0 && homePos.getZ() != 0) {
-                if (this.raccoon.IsAtHome()) {
-                    this.raccoon.setGoHomeCooldown(1200); // Set cooldown to 1200 ticks
-                    this.stop();
-                    return;
-                }
-                if (!this.raccoon.getNavigation().isInProgress() || this.raccoon.getNavigation().getTargetPos() != null && !this.raccoon.getNavigation().getTargetPos().equals(homePos)) {
-                    this.raccoon.getNavigation().stop();
-                    this.raccoon.GoToHome(this.speed);
-                }
-            }
-
-            if (this.raccoon.level.isRaining()) {
-                this.raccoon.PrioritizeHomeOverOthers(this.speed);
-            }
-        }
-
-        @Override
-        public void stop() {
-            this.raccoon.getNavigation().stop();
-        }
-    }
-
-
-
 
 
     public BlockPos getHomePos() {
@@ -1544,6 +1418,9 @@ public class RaccoonEntity extends TameableEntity {
 
     public void setSitting(boolean p_213466_1_) {
         this.setFlag(1, p_213466_1_);
+        if (p_213466_1_) {
+            this.getNavigation().stop();
+        }
     }
 
     public boolean isFaceplanted() {
@@ -1595,7 +1472,7 @@ public class RaccoonEntity extends TameableEntity {
     public boolean canHoldItem(ItemStack p_175448_1_) {
         Item item = p_175448_1_.getItem();
         ItemStack itemstack = this.getItemBySlot(EquipmentSlotType.MAINHAND);
-        return itemstack.isEmpty()  && !item.equals(Items.POISONOUS_POTATO) || !item.equals(Items.POISONOUS_POTATO) && this.ticksSinceEaten > 0 && item.isEdible() && !itemstack.getItem().isEdible();
+        return itemstack.isEmpty() && !item.equals(Items.POISONOUS_POTATO) || !item.equals(Items.POISONOUS_POTATO) && this.ticksSinceEaten > 0 && item.isEdible() && !itemstack.getItem().isEdible();
     }
 
     private void spitOutItem(ItemStack p_213495_1_) {
@@ -1734,13 +1611,17 @@ public class RaccoonEntity extends TameableEntity {
                         // If main hand is empty, steal an item
                         if (RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) {
                             performSteal(chestInventory, i, EquipmentSlotType.MAINHAND);
-                            if(!RaccoonEntity.this.getItemBySlot(EquipmentSlotType.OFFHAND).isEmpty()) { return; } // If both hands are full, return
+                            if (!RaccoonEntity.this.getItemBySlot(EquipmentSlotType.OFFHAND).isEmpty()) {
+                                return;
+                            } // If both hands are full, return
                         }
 
                         // If off hand is empty, steal an item
                         if (RaccoonEntity.this.getItemBySlot(EquipmentSlotType.OFFHAND).isEmpty()) {
                             performSteal(chestInventory, i, EquipmentSlotType.OFFHAND);
-                            if(!RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) { return; } // If both hands are full, return
+                            if (!RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) {
+                                return;
+                            } // If both hands are full, return
                         }
                     }
                 }
@@ -1755,7 +1636,6 @@ public class RaccoonEntity extends TameableEntity {
             RaccoonEntity.this.setItemSlot(hand, stolenItem);
             chestInventory.setItem(i, stack.isEmpty() ? ItemStack.EMPTY : stack);
         }
-
 
 
         @Override
@@ -1807,7 +1687,6 @@ public class RaccoonEntity extends TameableEntity {
     }
 
 
-
     public double getHomePosX() {
         return HOME_POS_X;
     }
@@ -1836,8 +1715,6 @@ public class RaccoonEntity extends TameableEntity {
     class FindHomeGoal extends Goal {
         private final RaccoonEntity raccoon;
 
-
-
         public FindHomeGoal(RaccoonEntity raccoon) {
             this.raccoon = raccoon;
         }
@@ -1852,37 +1729,19 @@ public class RaccoonEntity extends TameableEntity {
             World world = raccoon.level;
             BlockPos pos = getRandomPosition(30, 50, 120);
 
-                if (pos != null && hasShelterAtThisLocation(pos) && canReachPosition(pos)) {
-                    try {
-                        AlreadyChosenHome = true;
-                        BlockPos homePos = new BlockPos(pos.getX(), pos.getY() - 3 + raccoon.getRandom().nextInt(12), pos.getZ());
-                        System.out.println("Attempting to clear target, if it exists.");
-                        System.out.println("Setting home.");
-                        raccoon.setHome(homePos.getX(), homePos.getY(), homePos.getZ());
-
-                        // Log the home position
-                        logger.log(Level.INFO, "Raccoon has found Home! {0} {1} {2}", new Object[]{homePos.getX(), homePos.getY(), homePos.getZ()});
-
-                        raccoon.playSound(SoundEvents.FOX_SNIFF, 1.0F, 1.0F);
-                        raccoon.getNavigation().moveTo(homePos.getX(), homePos.getY(), homePos.getZ(), 1.3);
-                    } catch (NullPointerException e) {
-                        logger.log(Level.SEVERE, "NullPointerException in FindHomeGoal tick", e);
-                    } catch (Exception e) {
-                        logger.log(Level.SEVERE, "Unexpected error in FindHomeGoal tick", e);
-                    }
-                }
-
+            if (pos != null && isSuitableHome(pos)) {
+                setHome(pos);
+            }
         }
 
         private BlockPos getRandomPosition(int range, int minY, int maxY) {
             World world = raccoon.level;
             BlockPos pos;
+
             do {
                 int x = (int) (raccoon.getX() + raccoon.getRandom().nextInt(range * 2) - range);
                 int z = (int) (raccoon.getZ() + raccoon.getRandom().nextInt(range * 2) - range);
-
                 pos = new BlockPos(x, world.getHeight(Heightmap.Type.WORLD_SURFACE, x, z), z);
-
             } while (!isSuitableHomePosition(pos, world));
 
             return pos;
@@ -1894,16 +1753,97 @@ public class RaccoonEntity extends TameableEntity {
             return pos.getY() > 60 && world.isEmptyBlock(pos) && blockStateBelow.isSolidRender(world, blockBelow);
         }
 
-        private boolean hasShelterAtThisLocation(BlockPos pos) {
+        private boolean isSuitableHome(BlockPos pos) {
             World world = raccoon.level;
-            return !world.canSeeSky(pos) && isSuitableHomePosition(pos, world);
+            return !world.canSeeSky(pos) && isSuitableHomePosition(pos, world) && canReachPosition(pos);
         }
 
         private boolean canReachPosition(BlockPos pos) {
             Path path = raccoon.getNavigation().createPath(pos, 0);
             return path != null && path.canReach();
         }
+
+        private void setHome(BlockPos pos) {
+            try {
+                AlreadyChosenHome = true;
+                BlockPos homePos = pos.offset(0, -3 + raccoon.getRandom().nextInt(12), 0);
+                raccoon.setHome(homePos.getX(), homePos.getY(), homePos.getZ());
+
+                logger.log(Level.INFO, "Raccoon has found Home! {0} {1} {2}",
+                        new Object[]{homePos.getX(), homePos.getY(), homePos.getZ()});
+
+                raccoon.playSound(SoundEvents.FOX_SNIFF, 1.0F, 1.0F);
+                raccoon.getNavigation().moveTo(homePos.getX(), homePos.getY(), homePos.getZ(), 1.3);
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Error in FindHomeGoal tick", e);
+            }
+        }
     }
+
+
+    public class RaccoonGoHomeGoal extends Goal {
+        private final RaccoonEntity raccoon;
+        private final float speed;
+        private final double minHunger;
+        private final double minThirst;
+
+        public RaccoonGoHomeGoal(RaccoonEntity raccoon, float speed, double minHunger, double minThirst) {
+            this.raccoon = raccoon;
+            this.speed = speed;
+            this.minHunger = minHunger;
+            this.minThirst = minThirst;
+        }
+
+        @Override
+        public boolean canUse() {
+            return !raccoon.isGoHomeCooldownActive() && isTimeToGoHome();
+        }
+
+        private boolean isTimeToGoHome() {
+            return (raccoon.level.isDay() && raccoon.isLeader() && raccoon.getHomePos() != null)
+                    || (raccoon.level.isRaining() && raccoon.getHomePos() != null);
+        }
+
+        @Override
+        public void start() {
+            raccoon.GoToHome(this.speed);
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return raccoon.getHunger() >= minHunger && raccoon.getThirst() >= minThirst && !raccoon.IsAtHome();
+        }
+
+        @Override
+        public void tick() {
+            if (raccoon.isHome(8D)) {
+                stopAndSetCooldown();
+            } else if (shouldNavigateHome()) {
+                raccoon.getNavigation().stop();
+                raccoon.GoToHome(this.speed);
+            }
+
+            if (raccoon.level.isRaining()) {
+                raccoon.PrioritizeHomeOverOthers(this.speed);
+            }
+        }
+
+        private boolean shouldNavigateHome() {
+            BlockPos homePos = raccoon.getHomePos();
+            return !raccoon.getNavigation().isInProgress() || raccoon.getNavigation().getTargetPos() != null && raccoon.getNavigation().getTargetPos().getX() != homePos.getX();
+        }
+
+        private void stopAndSetCooldown() {
+            stop();
+            raccoon.setGoHomeCooldown(1200); // Set cooldown to 1200 ticks
+        }
+
+        @Override
+        public void stop() {
+            raccoon.getNavigation().stop();
+        }
+    }
+
 
     public void Regroup(RaccoonEntity leader) {
         // Get the leader's position
@@ -1927,78 +1867,56 @@ public class RaccoonEntity extends TameableEntity {
         if (player != null)
             DebugPacketSender.sendRaccoonDebugData(player, this);
 
-           // DebugPacketSender.testCalculateOptimalNodes(player, this, this.level, 20);
+        // DebugPacketSender.testCalculateOptimalNodes(player, this, this.level, 20);
 
     }
 
     private RaccoonEntity getRaccoonByID(UUID id) {
-        return (RaccoonEntity) this.getEntityByUUID(uuid);
+        return (RaccoonEntity) this.getEntityByUUID(id);
     }
 
     private void synchronizeHomeMembers(RaccoonEntity raccoon1, RaccoonEntity raccoon2) {
-        List<UUID> homeMembers1 = raccoon1.getHomeMembers();
-        List<UUID> homeMembers2 = raccoon2.getHomeMembers();
+        Set<UUID> combinedMembers = new HashSet<>(raccoon1.getHomeMembers());
+        combinedMembers.addAll(raccoon2.getHomeMembers());
 
-        // Add raccoon2's members to raccoon1's list
-        for (UUID member : homeMembers2) {
-            if (!homeMembers1.contains(member)) {
-                raccoon1.addHomeMember(member);
-            }
-        }
+        raccoon1.homeMembers = (new ArrayList<>(combinedMembers));
+        raccoon2.homeMembers = (new ArrayList<>(combinedMembers));
 
-        // Add raccoon1's members to raccoon2's list
-        for (UUID member : homeMembers1) {
-            if (!homeMembers2.contains(member)) {
-                raccoon2.addHomeMember(member);
-            }
-        }
-
-        // Ensure there is only one leader in the group
+        // Determine and set a single leader
         UUID leader1 = raccoon1.getLeader();
         UUID leader2 = raccoon2.getLeader();
-        RaccoonEntity leaderEntity = null;
+
+        RaccoonEntity leaderEntity = (leader1 != null) ? raccoon1 : ((leader2 != null) ? raccoon2 : null);
 
         if (leader1 != null && leader2 != null && !leader1.equals(leader2)) {
-            // Randomly keep one leader
-            if (raccoon1.random.nextBoolean()) {
-                raccoon2.setLeader(null);
-                leaderEntity = raccoon1;
-            } else {
-                raccoon1.setLeader(null);
-                leaderEntity = raccoon2;
-            }
-        } else if (leader1 != null) {
-            leaderEntity = raccoon1;
-        } else if (leader2 != null) {
-            leaderEntity = raccoon2;
+            leaderEntity = raccoon1.random.nextBoolean() ? raccoon1 : raccoon2;
+            (leaderEntity == raccoon1 ? raccoon2 : raccoon1).setLeader(null);
         }
 
-        // If there's a leader, set the home position of all members to the leader's home position
+        // Update the home position of all members
         if (leaderEntity != null) {
             BlockPos leaderHomePos = leaderEntity.getHomePos();
-            for (UUID memberId : leaderEntity.getHomeMembers()) {
-                RaccoonEntity member = getRaccoonByID(memberId);
-                if (member != null) {
-                    member.setHome(leaderHomePos);
-                }
-            }
+            leaderEntity.getHomeMembers().stream()
+                    .map(this::getRaccoonByID)
+                    .filter(Objects::nonNull)
+                    .forEach(member -> member.setHome(leaderHomePos));
         }
     }
+
     @Override
-    public void die(DamageSource dmgs) {
-        super.die(dmgs);
+    public void die(DamageSource dmgSource) {
+        super.die(dmgSource);
 
-        // Get this raccoon's UUID
-        UUID raccoonUUID = this.getUUID();
+        // Clear this raccoon's home members and remove this raccoon from other members' lists
+        List<RaccoonEntity> groupMembers = this.getHomeMembers().stream()
+                .map(this::getRaccoonByID)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-        // Remove this raccoon from the home members list of other raccoons
-
-
-        // Clear this raccoon's home members list
+        groupMembers.forEach(member -> member.getHomeMembers().remove(this.getUUID()));
         this.getHomeMembers().clear();
     }
 
-    
 
     public static int Cooldown;
 
@@ -2008,8 +1926,7 @@ public class RaccoonEntity extends TameableEntity {
         ItemStack itemstack = this.getItemBySlot(EquipmentSlotType.MAINHAND);
 
 
-
-        if (itemstack.isEdible() && !itemstack.isEmpty()) {
+        if (itemstack.isEdible() && !itemstack.isEmpty() && this.getHunger() <= 40) {
             eatFood(itemstack);
         }
 
@@ -2048,346 +1965,260 @@ public class RaccoonEntity extends TameableEntity {
         }
     }
 
+    @Override
     public void tick() {
         super.tick();
+        handleDirtyEnvironment();
+        handleHungerAndThirst();
+        handleHunger();
+        //manageNearbyRaccoons();
+        handleSittingBehavior();
+       // manageLeaderHomePosition();
+        manageCooldowns();
+        manageEquipment();
+        handleSpecialItems();
+       // handleRaccoonBehavior();
+        updateMovementStates();
+    }
+
+    private void handleDirtyEnvironment() {
         BlockPos pos = this.getOnPos();
         Block currentBlock = this.level.getBlockState(pos).getBlock();
-        Registry<Biome> biomeRegistry = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-        RegistryKey<Biome> currentBiomeKey = biomeRegistry.getResourceKey(this.level.getBiome(this.blockPosition())).orElse(null);
-        boolean flag2 = DIRTY_BIOMES.contains(currentBiomeKey);
+        RegistryKey<Biome> currentBiomeKey = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY)
+                .getResourceKey(this.level.getBiome(this.blockPosition())).orElse(null);
+        boolean isDirtyBiome = DIRTY_BIOMES.contains(currentBiomeKey);
         int dirtyEnvironmentBonus = getDirtyEnvironmentBonus();
+
         if (this.isOnGround() && DIRTY_BLOCKS.containsKey(currentBlock)) {
-            float dirtiness = DIRTY_BLOCKS.get(currentBlock);
-            if (!this.isDirty() && this.getRaccoonType() == Type.RED) {
-                if (new Random().nextFloat() <= dirtiness) {
-                    this.dirtyCountdown -= dirtyEnvironmentBonus;
-                }
-            }
-        } else if (this.isInWaterOrBubble() && flag2) {
-            if (!this.isDirty() && this.getRaccoonType() == Type.RED)
-                this.dirtyCountdown -= dirtyEnvironmentBonus;
+            updateDirtyCountdown(DIRTY_BLOCKS.get(currentBlock), dirtyEnvironmentBonus);
+        } else if (this.isInWaterOrBubble() && isDirtyBiome) {
+            updateDirtyCountdown(1.0f, dirtyEnvironmentBonus);
         }
 
-        if (this.isInWaterRainOrBubble() && this.getRaccoonType() == Type.DIRTY && !flag2){
+        if (this.isInWaterRainOrBubble() && this.getRaccoonType() == Type.DIRTY && !isDirtyBiome) {
             cleanRaccoon(this);
         }
 
         if (this.dirtyCountdown <= 0) {
-            this.setDirty(true);
-            this.playSound(SoundEvents.GRAVEL_STEP, 1.0F, 1.0F);
-            this.spawnSprintParticle();
-            this.resetDirtyCountdown();
+            setDirty(true);
+            playSound(SoundEvents.GRAVEL_STEP, 1.0F, 1.0F);
+            spawnSprintParticle();
+            resetDirtyCountdown();
         }
+    }
 
-        if (hunger <= HUNGER_THRESHOLD + 20) {
-            handleHunger();
-        } else {
+    private void updateDirtyCountdown(float dirtiness, int dirtyEnvironmentBonus) {
+        if (!this.isDirty() && this.getRaccoonType() == Type.RED) {
+            if (this.random.nextFloat() <= dirtiness) {
+                this.dirtyCountdown -= dirtyEnvironmentBonus;
+            }
         }
+    }
 
+    private void handleHungerAndThirst() {
+        if (!this.level.isClientSide) {
+            if (!this.isTame()) {
+                if (this.tickCount % 100 == 0) this.setThirst(this.getThirst() - 1);
+                if (this.tickCount % 80 == 0) this.setHunger(this.getHunger() - 1);
+            }
 
+            if (this.getHunger() <= 10 && this.tick(60)) this.hurt(DamageSource.STARVE, 1.0F);
+            if (this.getHunger() > 20 && this.tickCount % 50 == 0) this.heal(1.0F);
+            if (this.getThirst() < 10 && this.tickCount % 80 == 0) this.hurt(DamageSource.DRY_OUT, 1.0F);
+        }
+    }
+
+    private void manageNearbyRaccoons() {
         if (!this.level.isClientSide && this.random.nextInt(30) == 0) {
-            // Check for nearby raccoons within 8 blocks
             List<RaccoonEntity> nearbyRaccoons = this.level.getEntitiesOfClass(RaccoonEntity.class, this.getBoundingBox().inflate(8.0D), raccoon -> raccoon != this);
 
             for (RaccoonEntity nearbyRaccoon : nearbyRaccoons) {
-                // If both raccoons don't have a leader
-                if (nearbyRaccoon.getLeader() == null && this.getLeader() == null && !this.isLeader()) {
-                    // Randomly decide which raccoon becomes the leader
-                    if (this.random.nextBoolean()) {
-                        this.setLeader(this.getUUID());
-                        this.addHomeMember(this.getUUID());
-                    } else {
-                        nearbyRaccoon.setLeader(nearbyRaccoon.getUUID());
-                        nearbyRaccoon.addHomeMember(nearbyRaccoon.getUUID());
-                    }
-                }
-
-                // If the nearby raccoon is a leader and this one doesn't have a leader and isn't a leader
-                if (nearbyRaccoon.isLeader() && this.getLeader() == null && !this.isLeader()) {
-                    // Check if the group already has the maximum number of home members
-                    if (nearbyRaccoon.getHomeMembers().size() < 5) {
-                        nearbyRaccoon.addHomeMember(this.getUUID());
-                        this.setLeader(nearbyRaccoon.getUUID());
-                        this.addHomeMember(nearbyRaccoon.getUUID());
-                        this.setHome(nearbyRaccoon.getHomePosX(), nearbyRaccoon.getHomePosY(), nearbyRaccoon.getHomePosZ());
-                    }
-                }
-
-                // Synchronize home members between this raccoon and nearby raccoon
+                handleRaccoonLeadership(nearbyRaccoon);
                 synchronizeHomeMembers(this, nearbyRaccoon);
             }
         }
+    }
+
+    private void handleRaccoonLeadership(RaccoonEntity nearbyRaccoon) {
+        if (nearbyRaccoon.getLeader() == null && this.getLeader() == null && !this.isLeader()) {
+            if (this.random.nextBoolean()) {
+                setAsLeader(this);
+            } else {
+                setAsLeader(nearbyRaccoon);
+            }
+        } else if (nearbyRaccoon.isLeader() && this.getLeader() == null && !this.isLeader()) {
+            if (nearbyRaccoon.getHomeMembers().size() < 5) {
+                joinLeaderGroup(nearbyRaccoon);
+            }
+        }
+    }
+
+    private void setAsLeader(RaccoonEntity raccoon) {
+        raccoon.setLeader(raccoon.getUUID());
+        raccoon.addHomeMember(raccoon.getUUID());
+    }
+
+    private void joinLeaderGroup(RaccoonEntity leaderRaccoon) {
+        leaderRaccoon.addHomeMember(this.getUUID());
+        this.setLeader(leaderRaccoon.getUUID());
+        this.addHomeMember(leaderRaccoon.getUUID());
+        this.setHome(leaderRaccoon.getHomePosX(), leaderRaccoon.getHomePosY(), leaderRaccoon.getHomePosZ());
+    }
+
+    private void handleSittingBehavior() {
         if (this.isSitting()) {
             this.navigation.stop();
         }
 
+        if (this.isSitting() || this.isOrderedToSit()) {
+            applySittingEffects();
+        }
 
+        if (this.age < -20000) {
+            this.setSleeping(true);
+            this.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 30, 40, false, false, true));
+        }
+    }
 
+    private void applySittingEffects() {
+        this.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 30, 80, false, false, true));
+        if (this.TIME_FOR_SITTING > 0) {
+            this.TIME_FOR_SITTING--;
+        } else {
+            this.setOrderedToSit(false);
+            this.setSitting(false);
+            this.TIME_FOR_SITTING = 1200;
+        }
+    }
 
+    private void manageLeaderHomePosition() {
         if (this.isLeader()) {
             BlockPos leaderHomePos = this.getHomePos();
             if (leaderHomePos.getX() != 0 && leaderHomePos.getY() != 0 && leaderHomePos.getZ() != 0) {
-                for (UUID memberId : this.getHomeMembers()) {
-                    RaccoonEntity member = getRaccoonByID(memberId);
-                    if (member != null) {
-                        member.setHome(leaderHomePos);
-                    }
-                }
+                this.getHomeMembers().stream()
+                        .map(this::getRaccoonByID)
+                        .filter(Objects::nonNull)
+                        .forEach(member -> member.setHome(leaderHomePos));
             }
         }
+    }
 
-
-
-
-
-
-
+    private void manageCooldowns() {
         if (this.entityData.get(COOLDOWN_BEFORE_GOING_HOME) > 0) {
             this.entityData.set(COOLDOWN_BEFORE_GOING_HOME, this.entityData.get(COOLDOWN_BEFORE_GOING_HOME) - 1);
         }
+    }
 
-
-       // if (this.tickCount % 100 == 0) {
-          //  if (this.getNavigation().isInProgress()) {
-              //  double x = getX();
-               // double y = getY();
-               // double z = getZ();
-               // double wantedX = this.navigation.getTargetPos().getX();
-              //  double wantedZ = this.navigation.getTargetPos().getZ();
-               // double wantedY = this.navigation.getTargetPos().getY();
-               // BlockPos homePos = HOME_POS; // Assume HomePosition is the type of HOME_POS
-
-                //logger.log(Level.FINE, "Entity is navigating. Current position: X: {0}, Y: {1}, Z: {2}", new Object[]{x, y, z});
-                //logger.log(Level.INFO, "Entity is wanting to move to: X: {0}, Y: {1}, Z: {2}", new Object[]{wantedX, wantedY, wantedZ});
-               // logger.log(Level.ALL, "Entity's home position: {0}", homePos);
-           // }
-      //  }
-
-
-
-        ItemStack itemstack = this.getItemBySlot(EquipmentSlotType.MAINHAND);
-
-//        if (itemstack.isEdible() && !itemstack.isEmpty()) {
-//            eatFood(itemstack);
-//        }
-
-
-
-        if (RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty() && !RaccoonEntity.this.getItemBySlot(EquipmentSlotType.OFFHAND).isEmpty()) {
-            ItemStack itemstack2 = RaccoonEntity.this.getItemBySlot(EquipmentSlotType.OFFHAND);
-            this.setItemSlot(EquipmentSlotType.MAINHAND, itemstack2);
-            itemstack2.shrink(1);
+    private void manageEquipment() {
+        ItemStack mainHandItem = this.getItemBySlot(EquipmentSlotType.MAINHAND);
+        if (mainHandItem.isEmpty() && !this.getItemBySlot(EquipmentSlotType.OFFHAND).isEmpty()) {
+            ItemStack offHandItem = this.getItemBySlot(EquipmentSlotType.OFFHAND);
+            // Move the offhand item to the main hand
+            this.setItemSlot(EquipmentSlotType.MAINHAND, offHandItem);
+            // Clear the offhand slot explicitly
+            this.setItemSlot(EquipmentSlotType.OFFHAND, ItemStack.EMPTY);
         }
+    }
 
-
-
-        if (this.isSitting() || this.isOrderedToSit() ) {
-            this.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 30, 80,false,false,true));
-            if (!(this.TIME_FOR_SITTING == 0)) {
-                this.TIME_FOR_SITTING = this.TIME_FOR_SITTING -1;
-            } else {
-                this.setOrderedToSit(false);
-                this.setSitting(false);
-                this.TIME_FOR_SITTING = 1200;
-            }
+    private void handleSpecialItems() {
+        ItemStack mainHandItem = this.getItemBySlot(EquipmentSlotType.MAINHAND);
+        if (mainHandItem.getItem() == Items.TNT && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && this.random.nextInt(60) == 0) {
+            deployTNT(mainHandItem);
+        } else if (mainHandItem.getItem() == Items.EMERALD_BLOCK && !this.isSitting() && !this.level.isClientSide) {
+            moveToVillage();
         }
-        if (this.age < -20000) {
-            this.setSleeping(true);
-            this.setSleeping(true);
-            this.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 30, 40,false,false,true));
-        }
+    }
 
-        List<AbstractFishEntity> list2 = this.level.getEntitiesOfClass(AbstractFishEntity.class, this.getBoundingBox().inflate(12.0D, 12.0D, 12.0D), EntityPredicates.NO_SPECTATORS);
-        if (!list2.isEmpty()) {
-            this.addEffect(new EffectInstance(Effects.DOLPHINS_GRACE, 30, 1,false,false,true));
-        } else {
-            this.removeEffect(Effects.DOLPHINS_GRACE);
-        }
-        if (this.getRaccoonType() == Type.RABID && !this.isBaby()) {
-            if (!(this.TIME_FOR_BREED == 0)) {
-                this.TIME_FOR_BREED = this.TIME_FOR_BREED - 1;
-            } else {
-                this.TIME_FOR_BREED = 700;
-                this.setInLoveTime(1000);
-                this.setAge(0);
-            }
-        }
-
-        if (RaccoonEntity.this.tickCount % 35 == 0) {
-            List<CatEntity> list = RaccoonEntity.this.level.getEntitiesOfClass(CatEntity.class, RaccoonEntity.this.getBoundingBox().inflate(8.0D), EntityPredicates.ENTITY_STILL_ALIVE);
-            if (!list.isEmpty()) {
-
-                for(CatEntity catentity : list) {
-                    if (catentity.getSensing().canSee(this))
-                        catentity.hiss();
-                }
-            }
-        }
-
-        if (!this.level.isClientSide) {
-            if (this.tickCount % 100 == 0) { // Every 80 ticks (4 seconds)
-                this.setThirst(this.getThirst() - 1);
-            }
-            if (this.tickCount % 80 == 0) {
-                this.setHunger(this.getHunger() - 1);
-            }
-            if (this.getHunger() <= 10) {
-                if (this.tickCount % 60 == 0) {
-                    this.hurt(DamageSource.STARVE, 1.0F);
-                }
-
-
-            }
-
-            if (this.getHunger() > 20) {
-                if (this.tickCount % 50 == 0) {
-                    this.heal(1.0F);
-                }
-            }
-
-            if (this.getThirst() < 10) {
-                if (this.tickCount % 80 == 0) { // Every 30 ticks (1.5 seconds)
-                     this.hurt(DamageSource.DRY_OUT, 1.0F); // Adjust damage as needed
-                }
-            }
-        }
-/*
-        if (this.hurt(DamageSource.GENERIC, 0.0F)) {
-            System.out.println("Raccoon experienced damage from a generic source. Attacker: " + this.getLastHurtByMob());
-            if (this.getLastHurtByMob() == this) {
-                System.out.println("Preventing self-damage during tick.");
-                this.setLastHurtByMob(null); // Clear self-attacker reference
-            }
-        }
-
-*/
-
-        ++this.ticksSinceEaten;
-
-     // Drop off items goal, conditional based on owner presence
-        if (this.getOwner() != null) {
-            LivingEntity ownerEntity = this.getOwner();
-            if (ownerEntity instanceof ServerPlayerEntity) {
-                ServerPlayerEntity owner = (ServerPlayerEntity) ownerEntity;
-                if (this.dropOffItemsGoal == null) {
-                    this.dropOffItemsGoal = new RaccoonDropOffItemsGoal(this, 1.1F, owner);
-                    this.goalSelector.addGoal(2, this.dropOffItemsGoal);
-                }
-            } else {
-                this.goalSelector.removeGoal(this.dropOffItemsGoal);
-            }
-        }
-
-
-
-
-
-
-
-
-        ItemStack itemstack2 = this.getItemBySlot(EquipmentSlotType.MAINHAND);
-        if (itemstack2.getItem() == Items.TNT && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && this.random.nextInt(60) == 0) {
-            TNTEntity primedtnt = EntityType.TNT.create(this.level);
-            if (primedtnt != null) {
-                primedtnt.setFuse(80);
-            }
-            primedtnt.setPos(this.getX(), this.getY() + 0.3, this.getZ());
-            itemstack2.shrink(1);
+    private void deployTNT(ItemStack mainHandItem) {
+        TNTEntity primedTNT = EntityType.TNT.create(this.level);
+        if (primedTNT != null) {
+            primedTNT.setFuse(80);
+            primedTNT.setPos(this.getX(), this.getY() + 0.3, this.getZ());
+            this.level.addFreshEntity(primedTNT);
+            mainHandItem.shrink(1);
             this.playSound(SoundEvents.TNT_PRIMED, 1F, 1F);
-            this.level.addFreshEntity(primedtnt);
-            this.navigation.moveTo(this.getRandomX(30),this.getY() + 0.4,this.getRandomZ(30), 1.4);
+            this.navigation.moveTo(this.getRandomX(30), this.getY() + 0.4, this.getRandomZ(30), 1.4);
         }
-///*
-        if (itemstack2.getItem() == Items.EMERALD_BLOCK && !this.isSitting() && !this.isSitting() && !this.level.isClientSide) {
-            BlockPos entityPos = new BlockPos(this.getX(), this.getY(), this.getZ());
+    }
 
-            ServerWorld serverWorld = (ServerWorld) this.level;
-            BlockPos blockpos = serverWorld.findNearestMapFeature(Structure.VILLAGE, entityPos, 100, false);
-            if (blockpos != null && !this.isSitting()) {
-                if (this.ShouldContinueFindingStructure() == true) {
-                    // this.setAttackTarget((LivingEntity)null);
-                    this.navigation.moveTo(blockpos.getX(), blockpos.getY(), blockpos.getZ(), 1.2);
-                    if (this.random.nextInt(40) == 0) {
-                        //System.out.println("Raccoon," + " is pathfinding to Village " + this.navigation.getPath() + " Near " + this.navigation.getPath().getFinalPathPoint().distanceTo(this.navigation.getPath().getCurrentPos()));
-                    }
-                    if (this.random.nextInt(40) == 0) {
-                        this.playSound(SoundEvents.FOX_SCREECH, 1F, 1F);
-                    }
-                } else {
-                    this.navigation.stop();
-                }
-            }
+    private void moveToVillage() {
+        BlockPos entityPos = new BlockPos(this.getX(), this.getY(), this.getZ());
+        ServerWorld serverWorld = (ServerWorld) this.level;
+        BlockPos villagePos = serverWorld.findNearestMapFeature(Structure.VILLAGE, entityPos, 100, false);
+        if (villagePos != null && this.ShouldContinueFindingStructure()) {
+            this.navigation.moveTo(villagePos.getX(), villagePos.getY(), villagePos.getZ(), 1.2);
+            playRandomSound(SoundEvents.FOX_SCREECH, 40);
+        } else {
+            this.navigation.stop();
         }
-        //  */
+    }
+
+    private void playRandomSound(SoundEvent soundEvent, int chance) {
+        if (this.random.nextInt(chance) == 0) {
+            this.playSound(soundEvent, 1F, 1F);
+        }
+    }
+
+    private void handleRaccoonBehavior() {
         if (this.isEffectiveAi()) {
-            boolean flag = this.isInWater();
-            if (flag || this.getTarget() != null || this.level.isThundering()) {
+            boolean isInWater = this.isInWater();
+            if (isInWater || this.getTarget() != null || this.level.isThundering()) {
                 this.wakeUp();
             }
 
-            if (flag || this.isSleeping()) {
+            if (isInWater || this.isSleeping()) {
                 this.setOrderedToSit(false);
                 this.setSitting(false);
             }
 
             if (this.isFaceplanted() && this.level.random.nextFloat() < 0.2F) {
-                BlockPos blockpos = this.blockPosition();
-                BlockState blockstate = this.level.getBlockState(blockpos);
-                this.level.levelEvent(2001, blockpos, Block.getId(blockstate));
+                BlockPos blockPos = this.blockPosition();
+                BlockState blockState = this.level.getBlockState(blockPos);
+                this.level.levelEvent(2001, blockPos, Block.getId(blockState));
             }
         }
-
-        this.interestedAngleO = this.interestedAngle;
-        if (this.isInterested()) {
-            this.interestedAngle += (1.0F - this.interestedAngle) * 0.4F;
-        } else {
-            this.interestedAngle += (0.0F - this.interestedAngle) * 0.4F;
-        }
-
-        this.crouchAmountO = this.crouchAmount;
-        if (this.isCrouching()) {
-            this.crouchAmount += 0.2F;
-            if (this.crouchAmount > 3.0F) {
-                this.crouchAmount = 3.0F;
-            }
-        } else {
-            this.crouchAmount = 0.0F;
-        }
-
-
-
     }
 
+    private void updateMovementStates() {
+        this.interestedAngleO = this.interestedAngle;
+        this.interestedAngle += (this.isInterested() ? 1.0F : 0.0F) - this.interestedAngle * 0.4F;
 
-
-
-
-
-
+        this.crouchAmountO = this.crouchAmount;
+        this.crouchAmount += this.isCrouching() ? 0.2F : -this.crouchAmount;
+        if (this.crouchAmount > 3.0F) {
+            this.crouchAmount = 3.0F;
+        }
+    }
 
 
     public void eatFood(ItemStack itemstack) {
         this.eat(this.level, itemstack);
         this.setItemSlot(EquipmentSlotType.MAINHAND, itemstack.finishUsingItem(this.level, this));
+
+        increaseHunger();
+        increaseThirst();
+
+        clearTargetIfNeeded();
+    }
+
+    private void increaseHunger() {
         int hungerIncrease = MIN_HUNGER_INCREASE + this.random.nextInt(MAX_HUNGER_INCREASE - MIN_HUNGER_INCREASE + 1);
         this.setHunger(this.hunger + hungerIncrease);
+    }
+
+    private void increaseThirst() {
         this.setThirst(this.thirst + this.level.random.nextInt(8));
+    }
 
-        // Debugging the target
-
+    private void clearTargetIfNeeded() {
         if (this.getTarget() != null) {
             try {
                 this.setTarget(null);
-            } catch (NullPointerException n) {
-                logger.log(Level.SEVERE, "NullPointerException: No target found.");
+            } catch (NullPointerException e) {
+                logger.log(Level.SEVERE, "NullPointerException: No target found.", e);
             }
         }
-
     }
-
-
-
-
 
     public class RaccoonMoveToWaterGoal extends MoveToBlockGoal {
         private final RaccoonEntity raccoon;
@@ -2399,37 +2230,27 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         public double acceptedDistance() {
-            return 2D;
+            return 2.4D;
         }
 
         @Override
         public boolean isInterruptable() {
             return false;
-//            if (findWaterGoal != null && swimGoal != null) {
-//                return shouldInterrupt(findWaterGoal, swimGoal);
-//            }
-//            return true;
         }
 
-        public boolean shouldInterrupt(Goal goal1, Goal goal2) {
-            return this.raccoon.goalSelector.shouldInterrupt(goal1, goal2);
-        }
         @Override
         protected void moveMobToBlock() {
             this.raccoon.getNavigation().moveTo(
-                    (double)((float)this.blockPos.getX()) + 0.5D,
-                    (double)(this.blockPos.getY() - 0.5D),
-                    (double)((float)this.blockPos.getZ()) + 0.5D,
+                    this.blockPos.getX() + 0.5D,
+                    this.blockPos.getY(),
+                    this.blockPos.getZ() + 0.5D,
                     this.speedModifier
             );
         }
 
         @Override
         public boolean canUse() {
-            if (this.raccoon.getThirst() < 40 || this.raccoon.isDirty()) {
-                return super.canUse();
-            }
-            return false;
+            return (this.raccoon.getThirst() < 40 || this.raccoon.isDirty()) && super.canUse();
         }
 
         @Override
@@ -2439,28 +2260,36 @@ public class RaccoonEntity extends TameableEntity {
 
         @Override
         protected boolean isValidTarget(IWorldReader world, BlockPos pos) {
-            BlockPos currentBlock = pos;
-            Registry<Biome> biomeRegistry = this.raccoon.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-            RegistryKey<Biome> currentBiomeKey = biomeRegistry.getResourceKey(this.raccoon.level.getBiome(pos)).orElse(null);
-            boolean flag2 = DIRTY_BIOMES.contains(currentBiomeKey);
+            return isWaterSource(world, pos) && !isInDirtyBiome(pos);
+        }
 
-            // Added debug statement
-            boolean isWater = world.getBlockState(pos).is(Blocks.WATER) && !flag2;
-           // System.out.println("Checking isValidTarget: Pos = " + pos + " isWater = " + isWater);
-            return isWater;
+        private boolean isWaterSource(IWorldReader world, BlockPos pos) {
+            return world.getBlockState(pos).is(Blocks.WATER);
+        }
+
+        private boolean isInDirtyBiome(BlockPos pos) {
+            RegistryKey<Biome> currentBiomeKey = this.raccoon.level.registryAccess()
+                    .registryOrThrow(Registry.BIOME_REGISTRY)
+                    .getResourceKey(this.raccoon.level.getBiome(pos))
+                    .orElse(null);
+            return DIRTY_BIOMES.contains(currentBiomeKey);
         }
 
         @Override
         public void tick() {
             super.tick();
-            if (this.isReachedTarget()) {
-                if (this.raccoon.getThirst() < 40) {
-                    this.raccoon.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
-                    this.raccoon.setThirst(this.raccoon.getThirst() + this.raccoon.getRandom().nextInt(21) + 40); // Random number between 40 and 60
-                }
+            if (this.isReachedTarget() && this.raccoon.getThirst() < 40) {
+                drinkWater();
             }
         }
+
+        private void drinkWater() {
+            this.raccoon.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
+            int thirstIncrease = this.raccoon.getRandom().nextInt(21) + 40; // Random number between 40 and 60
+            this.raccoon.setThirst(this.raccoon.getThirst() + thirstIncrease);
+        }
     }
+
 
     public void cleanRaccoon(RaccoonEntity raccoon) {
         if (raccoon.getRaccoonType() == Type.DIRTY) {
@@ -2474,7 +2303,7 @@ public class RaccoonEntity extends TameableEntity {
     }
 
     protected void onOffspringSpawnedFromEgg(PlayerEntity p_213406_1_, Mob p_213406_2_) {
-        ((RaccoonEntity)p_213406_2_).addTrustedUUID(p_213406_1_.getUUID());
+        ((RaccoonEntity) p_213406_2_).addTrustedUUID(p_213406_1_.getUUID());
     }
 
     public boolean isPouncing() {
@@ -2507,7 +2336,7 @@ public class RaccoonEntity extends TameableEntity {
 
     @OnlyIn(Dist.CLIENT)
     public float getHeadRollAngle(float p_213475_1_) {
-        return MathHelper.lerp(p_213475_1_, this.interestedAngleO, this.interestedAngle) * 0.11F * (float)Math.PI;
+        return MathHelper.lerp(p_213475_1_, this.interestedAngleO, this.interestedAngle) * 0.11F * (float) Math.PI;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -2606,12 +2435,12 @@ public class RaccoonEntity extends TameableEntity {
         double d2 = d0 / d1;
         int i = 6;
 
-        for(int j = 0; j < 6; ++j) {
-            double d3 = d2 == 0.0D ? 0.0D : d0 * (double)((float)j / 6.0F);
-            double d4 = d2 == 0.0D ? d1 * (double)((float)j / 6.0F) : d3 / d2;
+        for (int j = 0; j < 6; ++j) {
+            double d3 = d2 == 0.0D ? 0.0D : d0 * (double) ((float) j / 6.0F);
+            double d4 = d2 == 0.0D ? d1 * (double) ((float) j / 6.0F) : d3 / d2;
 
-            for(int k = 1; k < 4; ++k) {
-                if (!p_213481_0_.level.getBlockState(new BlockPos(p_213481_0_.getX() + d4, p_213481_0_.getY() + (double)k, p_213481_0_.getZ() + d3)).getMaterial().isReplaceable()) {
+            for (int k = 1; k < 4; ++k) {
+                if (!p_213481_0_.level.getBlockState(new BlockPos(p_213481_0_.getX() + d4, p_213481_0_.getY() + (double) k, p_213481_0_.getZ() + d3)).getMaterial().isReplaceable()) {
                     return false;
                 }
             }
@@ -2622,7 +2451,7 @@ public class RaccoonEntity extends TameableEntity {
 
     @OnlyIn(Dist.CLIENT)
     public Vector3d getLeashOffset() {
-        return new Vector3d(0.0D, (double)(0.55F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
+        return new Vector3d(0.0D, (double) (0.55F * this.getEyeHeight()), (double) (this.getBbWidth() * 0.4F));
     }
 
     public class AlertablePredicate implements Predicate<LivingEntity> {
@@ -2631,8 +2460,8 @@ public class RaccoonEntity extends TameableEntity {
                 return false;
             } else if (!(p_test_1_ instanceof ChickenEntity) && !(p_test_1_ instanceof RabbitEntity) && !(p_test_1_ instanceof Monster)) {
                 if (p_test_1_ instanceof TameableEntity) {
-                    return !((TameableEntity)p_test_1_).isTame();
-                } else if (!(p_test_1_ instanceof PlayerEntity) || !p_test_1_.isSpectator() && !((PlayerEntity)p_test_1_).isCreative()) {
+                    return !((TameableEntity) p_test_1_).isTame();
+                } else if (!(p_test_1_ instanceof PlayerEntity) || !p_test_1_.isSpectator() && !((PlayerEntity) p_test_1_).isCreative()) {
                     if (RaccoonEntity.this.trusts(p_test_1_.getUUID())) {
                         return false;
                     } else {
@@ -2687,6 +2516,7 @@ public class RaccoonEntity extends TameableEntity {
             return !RaccoonEntity.this.isSitting() && RaccoonEntity.this.isOrderedToSit() == false && !RaccoonEntity.this.isSleeping() && !RaccoonEntity.this.isCrouching() && !RaccoonEntity.this.isFaceplanted() && super.canUse();
         }
     }
+
     public class RaccoonRaidGardenGoal extends MoveToBlockGoal {
         private final RaccoonEntity raccoon;
         private boolean wantsToRaid;
@@ -2696,114 +2526,128 @@ public class RaccoonEntity extends TameableEntity {
             super(raccoon, 1.2F, 32);
             this.raccoon = raccoon;
         }
+
         @Override
         public double acceptedDistance() {
             return 1.5D;
         }
 
+        @Override
         public boolean canUse() {
-           // if (this.raccoon.getHunger() <= 40)
-                //return true;
+            if (this.nextStartTick > 0) return false;
 
-            if (this.nextStartTick <= 0) {
-                if (!this.raccoon.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-                    return false;
-                }
-
-                this.canRaid = false;
-                this.wantsToRaid = this.raccoon.getHunger() < 60;
+            if (!this.raccoon.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+                return false;
             }
 
+            this.canRaid = false;
+            this.wantsToRaid = this.raccoon.getHunger() < 60;
             return super.canUse();
         }
 
+        @Override
         public boolean canContinueToUse() {
-            if (this.raccoon.getHunger() >= 200)
-                return false;
-
-            return this.canRaid && super.canContinueToUse();
+            return this.canRaid && this.raccoon.getHunger() < 200 && super.canContinueToUse();
         }
+
+        @Override
         public void tick() {
             super.tick();
             this.raccoon.getLookControl().setLookAt(
-                    (double) this.blockPos.getX() + 0.5D,
-                    (double) (this.blockPos.getY() + 1),
-                    (double) this.blockPos.getZ() + 0.5D,
+                    this.blockPos.getX() + 0.5D,
+                    this.blockPos.getY() + 1,
+                    this.blockPos.getZ() + 0.5D,
                     10.0F,
-                    (float) this.raccoon.getMaxHeadXRot()
+                    this.raccoon.getMaxHeadXRot()
             );
+
             if (this.isReachedTarget()) {
-                ServerPlayerEntity player = DebugUtils.findLocalPlayer(this.raccoon.level);
-              //  DebugUtils.sendErrorMessage(player, this.raccoon.level, "Reached target.");
-                World level = this.raccoon.level;
-                BlockPos blockpos = this.blockPos.above();
-                BlockState blockstate = level.getBlockState(blockpos);
-                Block block = blockstate.getBlock();
-                Item dropItem = CROP_DROP_MAP.get(block);
-                if (dropItem != null && this.canRaid && blockstate.getValue(CropsBlock.AGE) >= 2) {
-                    int age = blockstate.getValue(CropsBlock.AGE);
-                    blockstate = blockstate.setValue(CropsBlock.AGE, Integer.valueOf(1));
+                handleRaid();
+            }
+        }
 
-                    int dropCount = 1 + level.random.nextInt(2) + (age >= 3 ? 1 : 0);
-                    ItemStack retrieveItem = this.raccoon.getItemBySlot(EquipmentSlotType.MAINHAND);
-                    ItemStack retrieveItem2 = this.raccoon.getItemBySlot(EquipmentSlotType.OFFHAND);
-                    ItemStack itemStack = new ItemStack(dropItem);
-                    itemStack.setCount(level.random.nextInt(6));
+        private void handleRaid() {
+            World level = this.raccoon.level;
+            BlockPos blockPos = this.blockPos.above();
+            BlockState blockState = level.getBlockState(blockPos);
+            Block block = blockState.getBlock();
+            Item dropItem = CROP_DROP_MAP.get(block);
 
-                    if (retrieveItem.isEmpty() || !retrieveItem.isEdible()) {
-                        spitOutItem(retrieveItem);
-                        this.raccoon.setItemSlot(EquipmentSlotType.MAINHAND, itemStack);
-                        --dropCount;
-                    } else if (retrieveItem2.isEmpty() || !retrieveItem2.isEdible()) {
-                        spitOutItem(retrieveItem2);
-                        this.raccoon.setItemSlot(EquipmentSlotType.OFFHAND, itemStack);
-                        --dropCount;
-                    }
-
-                    if (dropCount > 0) {
-                        Block.popResource(level, blockpos, new ItemStack(dropItem, dropCount));
-                    }
-                    this.raccoon.playSound(SoundEvents.CROP_BREAK, 1.0F, 1.0F);
-                    level.setBlock(blockpos, blockstate.setValue(CropsBlock.AGE, Integer.valueOf(age - 1)), 2);
-                }
-
+            if (dropItem != null && this.canRaid && blockState.getValue(CropsBlock.AGE) >= 2) {
+                harvestCrops(level, blockPos, blockState, dropItem);
                 this.canRaid = true;
                 this.nextStartTick = 30;
             }
         }
 
-        protected boolean isValidTarget(IWorldReader world, BlockPos pos) {
-            ServerPlayerEntity player = DebugUtils.findLocalPlayer(this.raccoon.level);
-         //   DebugUtils.sendErrorMessage(player, this.raccoon.level, "Debug started");
-            BlockState blockstate = world.getBlockState(pos);
-            if (blockstate.is(Blocks.FARMLAND) && this.wantsToRaid && !this.canRaid) {
-                blockstate = world.getBlockState(pos.above());
-                if (blockstate.getBlock() instanceof CropsBlock && !(blockstate.getBlock() instanceof BeetrootBlock)) {
-                   // DebugUtils.sendErrorMessage(player, this.raccoon.level, "Valid target");
-                    int age = blockstate.getValue(CropsBlock.AGE);
-                    if (age >= 3) {
-                       // DebugUtils.sendErrorMessage(player, this.raccoon.level, "Age value over 3");
-                        this.canRaid = true;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
+        private void harvestCrops(World level, BlockPos blockPos, BlockState blockState, Item dropItem) {
+            int age = blockState.getValue(CropsBlock.AGE);
+            blockState = blockState.setValue(CropsBlock.AGE, 1);
+
+            int dropCount = calculateDropCount(level, age);
+            handleItemRetrieval(level, blockPos, dropItem, dropCount);
+
+            this.raccoon.playSound(SoundEvents.CROP_BREAK, 1.0F, 1.0F);
+            level.setBlock(blockPos, blockState.setValue(CropsBlock.AGE, age - 1), 2);
+        }
+
+        private int calculateDropCount(World level, int age) {
+            return 1 + level.random.nextInt(2) + (age >= 3 ? 1 : 0);
+        }
+
+        private void handleItemRetrieval(World level, BlockPos blockPos, Item dropItem, int dropCount) {
+            ItemStack mainHandItem = this.raccoon.getItemBySlot(EquipmentSlotType.MAINHAND);
+            ItemStack offHandItem = this.raccoon.getItemBySlot(EquipmentSlotType.OFFHAND);
+            ItemStack itemStack = new ItemStack(dropItem);
+            itemStack.setCount(level.random.nextInt(6));
+
+            if (mainHandItem.isEmpty() || !mainHandItem.isEdible()) {
+                spitOutItem(mainHandItem);
+                this.raccoon.setItemSlot(EquipmentSlotType.MAINHAND, itemStack);
+                dropCount--;
+            } else if (offHandItem.isEmpty() || !offHandItem.isEdible()) {
+                spitOutItem(offHandItem);
+                this.raccoon.setItemSlot(EquipmentSlotType.OFFHAND, itemStack);
+                dropCount--;
             }
 
+            if (dropCount > 0) {
+                Block.popResource(level, blockPos, new ItemStack(dropItem, dropCount));
+            }
+        }
+
+        @Override
+        protected boolean isValidTarget(IWorldReader world, BlockPos pos) {
+            BlockState blockState = world.getBlockState(pos);
+            if (blockState.is(Blocks.FARMLAND) && this.wantsToRaid && !this.canRaid) {
+                return checkCropState(world, pos.above());
+            }
+            return false;
+        }
+
+        private boolean checkCropState(IWorldReader world, BlockPos cropPos) {
+            BlockState blockState = world.getBlockState(cropPos);
+            if (blockState.getBlock() instanceof CropsBlock && !(blockState.getBlock() instanceof BeetrootBlock)) {
+                int age = blockState.getValue(CropsBlock.AGE);
+                if (age >= 3) {
+                    this.canRaid = true;
+                    return true;
+                }
+            }
             return false;
         }
     }
 
 
+    abstract class AbstractFindItemsGoal extends Goal {
+        protected final Predicate<ItemEntity> itemFilter;
 
-
-
-    class FindItemsGoal extends Goal {
-        public FindItemsGoal() {
+        public AbstractFindItemsGoal(Predicate<ItemEntity> itemFilter) {
+            this.itemFilter = itemFilter;
             this.setFlags(EnumSet.of(Flag.MOVE));
         }
 
+        @Override
         public boolean canUse() {
             if (!RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) {
                 return false;
@@ -2813,74 +2657,73 @@ public class RaccoonEntity extends TameableEntity {
                 } else if (RaccoonEntity.this.getRandom().nextInt(10) != 0) {
                     return false;
                 } else {
-                    List<ItemEntity> list = RaccoonEntity.this.level.getEntitiesOfClass(ItemEntity.class, RaccoonEntity.this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D), RaccoonEntity.ALLOWED_ITEMS);
-                    return !list.isEmpty() && RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty();
+                    List<ItemEntity> list = findNearbyItems();
+                    return !list.isEmpty() && itemFilter.test(list.get(0));
                 }
             } else {
                 return false;
             }
         }
 
+        @Override
         public void tick() {
-            List<ItemEntity> list = RaccoonEntity.this.level.getEntitiesOfClass(ItemEntity.class, RaccoonEntity.this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D), RaccoonEntity.ALLOWED_ITEMS);
-            ItemStack itemstack = RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND);
-
-            if (itemstack.isEmpty() && !list.isEmpty()) {
-                RaccoonEntity.this.getNavigation().moveTo(list.get(0), 1.2F);
+            List<ItemEntity> list = findNearbyItems();
+            if (!list.isEmpty() && itemFilter.test(list.get(0))) {
+                RaccoonEntity.this.getNavigation().moveTo(list.get(0), getMoveSpeed());
             }
-
         }
 
+        @Override
         public void start() {
-            List<ItemEntity> list = RaccoonEntity.this.level.getEntitiesOfClass(ItemEntity.class, RaccoonEntity.this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D), RaccoonEntity.ALLOWED_ITEMS);
-            if (!list.isEmpty()) {
-                RaccoonEntity.this.getNavigation().moveTo(list.get(0), 1.2F);
+            List<ItemEntity> list = findNearbyItems();
+            if (!list.isEmpty() && itemFilter.test(list.get(0))) {
+                RaccoonEntity.this.getNavigation().moveTo(list.get(0), getMoveSpeed());
             }
+        }
 
+        protected List<ItemEntity> findNearbyItems() {
+            return RaccoonEntity.this.level.getEntitiesOfClass(
+                    ItemEntity.class,
+                    RaccoonEntity.this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D),
+                    RaccoonEntity.ALLOWED_ITEMS
+            );
+        }
+
+        protected abstract float getMoveSpeed();
+    }
+
+    class FindItemsGoal extends AbstractFindItemsGoal {
+        public FindItemsGoal() {
+            super(item -> true);
+        }
+
+        @Override
+        protected float getMoveSpeed() {
+            return 1.2F;
         }
     }
 
-    class findFoodGoal extends FindItemsGoal {
-
-        public findFoodGoal(){
-            this.setFlags(EnumSet.of(Flag.MOVE));
+    class FindFoodGoal extends AbstractFindItemsGoal {
+        public FindFoodGoal() {
+            super(item -> item.getItem().isEdible());
         }
 
+        @Override
+        protected float getMoveSpeed() {
+            return 1.22F;
+        }
+
+        @Override
         public boolean canUse() {
-            if (!RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEdible()) {
-                return false;
-            } else if (RaccoonEntity.this.getTarget() == null && RaccoonEntity.this.getLastHurtByMob() == null) {
-                if (!RaccoonEntity.this.canMove()) {
-                    return false;
-                } else if (RaccoonEntity.this.getRandom().nextInt(10) != 0) {
-                    return false;
-                } else {
-                    List<ItemEntity> list = RaccoonEntity.this.level.getEntitiesOfClass(ItemEntity.class, RaccoonEntity.this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D), RaccoonEntity.ALLOWED_ITEMS);
-                    return !list.isEmpty() && list.get(0).getItem().isEdible() && RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEdible();
-                }
-            } else {
+            if (RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND).isEdible()) {
                 return false;
             }
+            return super.canUse();
         }
+    }
 
-        public void tick() {
-            List<ItemEntity> list = RaccoonEntity.this.level.getEntitiesOfClass(ItemEntity.class, RaccoonEntity.this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D), RaccoonEntity.ALLOWED_ITEMS);
-            ItemStack itemstack = RaccoonEntity.this.getItemBySlot(EquipmentSlotType.MAINHAND);
-
-            if (!itemstack.isEdible() && !list.isEmpty() && list.get(0).getItem().isEdible()) {
-                RaccoonEntity.this.getNavigation().moveTo(list.get(0), 1.22F);
-            }
-
-        }
-
-        public void start() {
-            List<ItemEntity> list = RaccoonEntity.this.level.getEntitiesOfClass(ItemEntity.class, RaccoonEntity.this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D), RaccoonEntity.ALLOWED_ITEMS);
-            if (!list.isEmpty() && list.get(0).getItem().isEdible()) {
-                RaccoonEntity.this.getNavigation().moveTo(list.get(0), 1.22F);
-            }
-
-        }
-
+    public boolean emptyHand() {
+        return this.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty();
     }
 
 
@@ -2918,7 +2761,8 @@ public class RaccoonEntity extends TameableEntity {
                 LivingEntity livingentity = RaccoonEntity.this.getTarget();
                 return livingentity != null && livingentity.isAlive() && RaccoonEntity.this.getStalkablePreyPredicate().test(livingentity)
                         && RaccoonEntity.this.distanceToSqr(livingentity) > 36.0D && !RaccoonEntity.this.isCrouching() && !RaccoonEntity.this.isInterested()
-                        && !RaccoonEntity.this.jumping;            }
+                        && !RaccoonEntity.this.jumping;
+            }
         }
 
         public void start() {
@@ -2933,7 +2777,7 @@ public class RaccoonEntity extends TameableEntity {
                 RaccoonEntity.this.setIsInterested(true);
                 RaccoonEntity.this.setIsCrouching(true);
                 RaccoonEntity.this.getNavigation().stop();
-                RaccoonEntity.this.getLookControl().setLookAt(livingentity, (float)RaccoonEntity.this.getMaxHeadYRot(), (float)RaccoonEntity.this.getMaxHeadXRot());
+                RaccoonEntity.this.getLookControl().setLookAt(livingentity, (float) RaccoonEntity.this.getMaxHeadYRot(), (float) RaccoonEntity.this.getMaxHeadXRot());
             } else {
                 RaccoonEntity.this.setIsInterested(false);
                 RaccoonEntity.this.setIsCrouching(false);
@@ -2943,7 +2787,7 @@ public class RaccoonEntity extends TameableEntity {
 
         public void tick() {
             LivingEntity livingentity = RaccoonEntity.this.getTarget();
-            RaccoonEntity.this.getLookControl().setLookAt(livingentity, (float)RaccoonEntity.this.getMaxHeadYRot(), (float)RaccoonEntity.this.getMaxHeadXRot());
+            RaccoonEntity.this.getLookControl().setLookAt(livingentity, (float) RaccoonEntity.this.getMaxHeadYRot(), (float) RaccoonEntity.this.getMaxHeadXRot());
             if (RaccoonEntity.this.distanceToSqr(livingentity) <= 36.0D) {
                 RaccoonEntity.this.setIsInterested(true);
                 RaccoonEntity.this.setIsCrouching(true);
@@ -3129,7 +2973,7 @@ public class RaccoonEntity extends TameableEntity {
             LivingEntity livingentity = RaccoonEntity.this.getTarget();
             if (livingentity != null && livingentity.isAlive()) {
                 double d0 = RaccoonEntity.this.getDeltaMovement().y;
-                return (!(d0 * d0 < (double)0.05F) || !(Math.abs(RaccoonEntity.this.xRot) < 15.0F) || !RaccoonEntity.this.onGround) && !RaccoonEntity.this.isFaceplanted();
+                return (!(d0 * d0 < (double) 0.05F) || !(Math.abs(RaccoonEntity.this.xRot) < 15.0F) || !RaccoonEntity.this.onGround) && !RaccoonEntity.this.isFaceplanted();
             } else {
                 return false;
             }
@@ -3166,18 +3010,18 @@ public class RaccoonEntity extends TameableEntity {
 
             if (!RaccoonEntity.this.isFaceplanted()) {
                 Vector3d vector3d = RaccoonEntity.this.getDeltaMovement();
-                if (vector3d.y * vector3d.y < (double)0.03F && RaccoonEntity.this.xRot != 0.0F) {
+                if (vector3d.y * vector3d.y < (double) 0.03F && RaccoonEntity.this.xRot != 0.0F) {
                     RaccoonEntity.this.xRot = MathHelper.rotlerp(RaccoonEntity.this.xRot, 0.0F, 0.2F);
                 } else {
                     double d0 = Math.sqrt(Entity.getHorizontalDistanceSqr(vector3d));
-                    double d1 = Math.signum(-vector3d.y) * Math.acos(d0 / vector3d.length()) * (double)(180F / (float)Math.PI);
-                    RaccoonEntity.this.xRot = (float)d1;
+                    double d1 = Math.signum(-vector3d.y) * Math.acos(d0 / vector3d.length()) * (double) (180F / (float) Math.PI);
+                    RaccoonEntity.this.xRot = (float) d1;
                 }
             }
 
             if (livingentity != null && RaccoonEntity.this.distanceTo(livingentity) <= 2.0F) {
                 RaccoonEntity.this.doHurtTarget(livingentity);
-            } else if (RaccoonEntity.this.xRot > 0.0F && RaccoonEntity.this.onGround && (float)RaccoonEntity.this.getDeltaMovement().y != 0.0F && RaccoonEntity.this.level.getBlockState(RaccoonEntity.this.blockPosition()).is(Blocks.SNOW)) {
+            } else if (RaccoonEntity.this.xRot > 0.0F && RaccoonEntity.this.onGround && (float) RaccoonEntity.this.getDeltaMovement().y != 0.0F && RaccoonEntity.this.level.getBlockState(RaccoonEntity.this.blockPosition()).is(Blocks.SNOW)) {
                 RaccoonEntity.this.xRot = 60.0F;
                 if (RaccoonEntity.this.getTarget() != null) {
                     try {
@@ -3196,22 +3040,25 @@ public class RaccoonEntity extends TameableEntity {
         }
     }
 
+
     public class RaccoonPracticeGoal extends Goal {
         private final RaccoonEntity raccoon;
         private final double speed;
         private ArmorStandEntity target;
+        private long lastJumpTime; // Tracks the last time the raccoon jumped
+        private static final long COOLDOWN_PERIOD = 3000; // 3 seconds cooldown in milliseconds
 
         public RaccoonPracticeGoal(RaccoonEntity raccoon, double speed) {
             this.raccoon = raccoon;
             this.speed = speed;
+            this.lastJumpTime = 0;
         }
 
-        // The goal should only start if there is an ArmorStand present.
         @Override
         public boolean canUse() {
             List<ArmorStandEntity> list = this.raccoon.level.getEntitiesOfClass(ArmorStandEntity.class, this.raccoon.getBoundingBox().inflate(10.0D, 8.0D, 10.0D));
             if (!list.isEmpty()) {
-                for(ArmorStandEntity armorstand : list) {
+                for (ArmorStandEntity armorstand : list) {
                     if (raccoon.canSee(armorstand)) {
                         this.target = armorstand;
                         return true;
@@ -3221,38 +3068,63 @@ public class RaccoonEntity extends TameableEntity {
             return false;
         }
 
-        // The goal should continue as long as the ArmorStand is not 'dead'.
         @Override
         public boolean canContinueToUse() {
-            return target.isAlive() && raccoon.distanceTo(target) < 10.0D;
+            return target != null && target.isAlive() && raccoon.distanceTo(target) < 10.0D;
         }
 
-        // Initiate the goal
         @Override
         public void start() {
-            raccoon.getNavigation().moveTo(this.target, this.speed);
+            raccoon.setTarget(target);
             raccoon.setIsInterested(true);
             raccoon.setIsCrouching(true);
         }
 
-        // What the goal should do every tick
         @Override
         public void tick() {
             raccoon.getLookControl().setLookAt(target, 60.0F, 30.0F);
             double distance = raccoon.distanceTo(this.target);
-            if (distance < 2.0D) {
-                raccoon.doHurtTarget(target);
-                 // Simulates the raccoon "attacking" the ArmorStand
+            if (distance <= 1.2 && raccoon.onGround && !raccoon.level.isClientSide) {
+                target.brokenByAnything(DamageSource.mobAttack(raccoon));
+            }
+            long currentTime = System.currentTimeMillis();
+            if (distance <= 6.0D && currentTime - lastJumpTime >= COOLDOWN_PERIOD) {
+                // Ensure cooldown has passed before jumping again
+                if (raccoon.isFullyCrouched() && raccoon.onGround) {
+                    raccoon.setJumping(true);
+                    raccoon.setIsPouncing(true);
+
+                    Vector3d pounceDirection = (new Vector3d(target.getX() - raccoon.getX(), target.getY() - raccoon.getY(), target.getZ() - raccoon.getZ())).normalize();
+                    Vector3d newVelocity = raccoon.getDeltaMovement().add(pounceDirection.x * 0.8D, Math.min(0.5D, 0.9D), pounceDirection.z * 0.8D); // Limit vertical velocity
+                    raccoon.setDeltaMovement(newVelocity);
+
+                    raccoon.getNavigation().stop();
+
+                    lastJumpTime = currentTime; // Update the last jump time
+                }
             } else {
+                // Move towards the target if not close enough
                 raccoon.getNavigation().moveTo(this.target, this.speed);
+            }
+
+            // Adjust the raccoon's rotation during pounce
+            Vector3d movement = raccoon.getDeltaMovement();
+            if (!raccoon.isFaceplanted()) {
+                if (movement.y * movement.y < 0.03F && raccoon.xRot != 0.0F) {
+                    raccoon.xRot = MathHelper.rotlerp(raccoon.xRot, 0.0F, 0.2F);
+                } else {
+                    double horizontalDistance = Math.sqrt(Entity.getHorizontalDistanceSqr(movement));
+                    double angle = Math.signum(-movement.y) * Math.acos(horizontalDistance / movement.length()) * (180F / (float) Math.PI);
+                    raccoon.xRot = (float) angle;
+                }
             }
         }
 
-        // Reset the goal
         @Override
         public void stop() {
             raccoon.setIsInterested(false);
             raccoon.setIsCrouching(false);
+            raccoon.setIsPouncing(false);
 
             try {
                 raccoon.setTarget(null);
@@ -3261,6 +3133,8 @@ public class RaccoonEntity extends TameableEntity {
             }
         }
     }
+
+
 
     class RevengeGoal extends NearestAttackableTargetGoal<LivingEntity> {
         @Nullable
@@ -3276,11 +3150,11 @@ public class RaccoonEntity extends TameableEntity {
             if (this.randomInterval > 0 && this.mob.getRandom().nextInt(this.randomInterval) != 0) {
                 return false;
             } else {
-                for(UUID uuid : RaccoonEntity.this.getTrustedUUIDs()) {
+                for (UUID uuid : RaccoonEntity.this.getTrustedUUIDs()) {
                     if (uuid != null && RaccoonEntity.this.level instanceof ServerWorld) {
-                        Entity entity = ((ServerWorld)RaccoonEntity.this.level).getEntity(uuid);
+                        Entity entity = ((ServerWorld) RaccoonEntity.this.level).getEntity(uuid);
                         if (entity instanceof LivingEntity) {
-                            LivingEntity livingentity = (LivingEntity)entity;
+                            LivingEntity livingentity = (LivingEntity) entity;
                             this.trustedLastHurt = livingentity;
                             this.trustedLastHurtBy = livingentity.getLastHurtByMob();
                             int i = livingentity.getLastHurtByMobTimestamp();
@@ -3351,7 +3225,7 @@ public class RaccoonEntity extends TameableEntity {
                 this.resetLook();
             }
 
-            RaccoonEntity.this.getLookControl().setLookAt(RaccoonEntity.this.getX() + this.relX, RaccoonEntity.this.getEyeY(), RaccoonEntity.this.getZ() + this.relZ, (float)RaccoonEntity.this.getMaxHeadYRot(), (float)RaccoonEntity.this.getMaxHeadXRot());
+            RaccoonEntity.this.getLookControl().setLookAt(RaccoonEntity.this.getX() + this.relX, RaccoonEntity.this.getEyeY(), RaccoonEntity.this.getZ() + this.relZ, (float) RaccoonEntity.this.getMaxHeadYRot(), (float) RaccoonEntity.this.getMaxHeadXRot());
         }
 
         private void resetLook() {
@@ -3454,8 +3328,8 @@ public class RaccoonEntity extends TameableEntity {
 
     public static enum Type {
         RED(0, "red"),
-        SNOW(1,"snow"),
-        RABID(2,"rabid"),
+        SNOW(1, "snow"),
+        RABID(2, "rabid"),
         DIRTY(3, "dirty");
 
 

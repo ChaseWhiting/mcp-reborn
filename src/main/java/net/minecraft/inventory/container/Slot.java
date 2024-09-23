@@ -9,6 +9,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Optional;
+
 public class Slot {
    private final int slot;
    public final IInventory container;
@@ -92,4 +94,62 @@ public class Slot {
    public boolean isActive() {
       return true;
    }
+
+
+
+   public ItemStack safeInsert(ItemStack p_150660_) {
+      return this.safeInsert(p_150660_, p_150660_.getCount());
+   }
+
+   public ItemStack safeInsert(ItemStack p_150657_, int p_150658_) {
+      if (!p_150657_.isEmpty() && this.mayPlace(p_150657_)) {
+         ItemStack itemstack = this.getItem();
+         int i = Math.min(Math.min(p_150658_, p_150657_.getCount()), this.getMaxStackSize(p_150657_) - itemstack.getCount());
+         if (itemstack.isEmpty()) {
+            this.set(p_150657_.split(i));
+         } else if (ItemStack.tagMatches(itemstack, p_150657_)) {
+            p_150657_.shrink(i);
+            itemstack.grow(i);
+            this.set(itemstack);
+         }
+
+         return p_150657_;
+      } else {
+         return p_150657_;
+      }
+   }
+
+   public ItemStack safeTake(int p_150648_, int p_150649_, PlayerEntity p_150650_) {
+      Optional<ItemStack> optional = this.tryRemove(p_150648_, p_150649_, p_150650_);
+      optional.ifPresent((p_150655_) -> {
+         this.onTake(p_150650_, p_150655_);
+      });
+      return optional.orElse(ItemStack.EMPTY);
+   }
+
+   public Optional<ItemStack> tryRemove(int p_150642_, int p_150643_, PlayerEntity p_150644_) {
+      if (!this.mayPickup(p_150644_)) {
+         return Optional.empty();
+      } else if (!this.allowModification(p_150644_) && p_150643_ < this.getItem().getCount()) {
+         return Optional.empty();
+      } else {
+         p_150642_ = Math.min(p_150642_, p_150643_);
+         ItemStack itemstack = this.remove(p_150642_);
+         if (itemstack.isEmpty()) {
+            return Optional.empty();
+         } else {
+            if (this.getItem().isEmpty()) {
+               this.set(itemstack);
+            }
+
+            return Optional.of(itemstack);
+         }
+      }
+   }
+
+   public boolean allowModification(PlayerEntity p_150652_) {
+      return this.mayPickup(p_150652_) && this.mayPlace(this.getItem());
+   }
+
+
 }

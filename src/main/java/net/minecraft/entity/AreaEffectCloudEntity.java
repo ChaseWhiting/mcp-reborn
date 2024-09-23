@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.command.arguments.ParticleArgument;
@@ -48,6 +49,8 @@ public class AreaEffectCloudEntity extends Entity {
    private int durationOnUse;
    private float radiusOnUse;
    private float radiusPerTick;
+   private Class<? extends LivingEntity>[] targetClasses = null;
+   private Predicate<LivingEntity> targetPredicate = null;
    private LivingEntity owner;
    private UUID ownerUUID;
 
@@ -56,6 +59,38 @@ public class AreaEffectCloudEntity extends Entity {
       this.noPhysics = true;
       this.setRadius(3.0F);
    }
+
+   @SafeVarargs
+   public final void setTargetClasses(Predicate<LivingEntity> predicate, Class<? extends LivingEntity>... classes) {
+      this.targetClasses = classes;
+      this.targetPredicate = predicate;
+   }
+
+   private boolean canAffect(LivingEntity entity) {
+      // Check if the entity matches one of the target classes
+      if (targetClasses != null) {
+         boolean matchesClass = false;
+         for (Class<?> clazz : targetClasses) {
+            if (clazz.isInstance(entity)) {
+               matchesClass = true;
+               break;
+            }
+         }
+         if (!matchesClass) {
+            // If the entity doesn't match any of the target classes, return false
+            return false;
+         }
+      }
+
+      // If a predicate is specified, apply it
+      if (targetPredicate != null) {
+         return targetPredicate.test(entity);
+      }
+
+      // If no targetClasses or predicate, allow all entities
+      return true;
+   }
+
 
    public AreaEffectCloudEntity(World p_i46810_1_, double p_i46810_2_, double p_i46810_4_, double p_i46810_6_) {
       this(EntityType.AREA_EFFECT_CLOUD, p_i46810_1_);
@@ -236,15 +271,16 @@ public class AreaEffectCloudEntity extends Entity {
             } else {
                List<LivingEntity> list1 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
                if (!list1.isEmpty()) {
-                  for(LivingEntity livingentity : list1) {
-                     if (!this.victims.containsKey(livingentity) && livingentity.isAffectedByPotions()) {
+                  for (LivingEntity livingentity : list1) {
+                     // Check if the entity's class matches one of the target classes
+                     if (this.canAffect(livingentity) && !this.victims.containsKey(livingentity) && livingentity.isAffectedByPotions()) {
                         double d0 = livingentity.getX() - this.getX();
                         double d1 = livingentity.getZ() - this.getZ();
                         double d2 = d0 * d0 + d1 * d1;
                         if (d2 <= (double)(f * f)) {
                            this.victims.put(livingentity, this.tickCount + this.reapplicationDelay);
 
-                           for(EffectInstance effectinstance : list) {
+                           for (EffectInstance effectinstance : list) {
                               if (effectinstance.getEffect().isInstantenous()) {
                                  effectinstance.getEffect().applyInstantenousEffect(this, this.getOwner(), livingentity, effectinstance.getAmplifier(), 0.5D);
                               } else {

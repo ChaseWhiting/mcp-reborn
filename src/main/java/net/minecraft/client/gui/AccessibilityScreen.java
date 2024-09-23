@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class AccessibilityScreen extends WithNarratorSettingsScreen {
-   private static final AbstractOption[] OPTIONS = new AbstractOption[]{AbstractOption.NARRATOR, AbstractOption.SHOW_SUBTITLES, AbstractOption.TEXT_BACKGROUND_OPACITY, AbstractOption.TEXT_BACKGROUND, AbstractOption.CHAT_OPACITY, AbstractOption.CHAT_LINE_SPACING, AbstractOption.CHAT_DELAY, AbstractOption.AUTO_JUMP, AbstractOption.TOGGLE_CROUCH, AbstractOption.TOGGLE_SPRINT, AbstractOption.SCREEN_EFFECTS_SCALE, AbstractOption.FOV_EFFECTS_SCALE, AbstractOption.SHOW_ENTITY_HEALTH};
+   private static final AbstractOption[] OPTIONS = new AbstractOption[]{AbstractOption.NARRATOR, AbstractOption.SHOW_SUBTITLES, AbstractOption.TEXT_BACKGROUND_OPACITY, AbstractOption.TEXT_BACKGROUND, AbstractOption.CHAT_OPACITY, AbstractOption.CHAT_LINE_SPACING, AbstractOption.CHAT_DELAY, AbstractOption.AUTO_JUMP, AbstractOption.TOGGLE_CROUCH, AbstractOption.TOGGLE_SPRINT, AbstractOption.SCREEN_EFFECTS_SCALE, AbstractOption.FOV_EFFECTS_SCALE, AbstractOption.SHOW_ENTITY_HEALTH, AbstractOption.ENABLE_SHADERS, AbstractOption.SHADER_SELECTION, AbstractOption.AMOUNT_BUNDLE_LINE_SHOW, AbstractOption.MOBS_SEE_THROUGH_WALLS};
 
    public AccessibilityScreen(Screen p_i51123_1_, GameSettings p_i51123_2_) {
       super(p_i51123_1_, p_i51123_2_, new TranslationTextComponent("options.accessibility.title"), OPTIONS);

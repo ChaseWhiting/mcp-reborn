@@ -35,12 +35,7 @@ import net.minecraft.tags.ITagCollectionSupplier;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -89,6 +84,7 @@ public abstract class World implements IWorld, AutoCloseable {
    protected final ISpawnWorldInfo levelData;
    private final Supplier<IProfiler> profiler;
    public final boolean isClientSide;
+   public final boolean isServerSide;
    protected boolean updatingBlockEntities;
    private final WorldBorder worldBorder;
    private final BiomeManager biomeManager;
@@ -102,6 +98,7 @@ public abstract class World implements IWorld, AutoCloseable {
       this.dimensionType = p_i241925_3_;
       this.dimension = p_i241925_2_;
       this.isClientSide = p_i241925_5_;
+      this.isServerSide = !this.isClientSide;
       if (p_i241925_3_.coordinateScale() != 1.0D) {
          this.worldBorder = new WorldBorder() {
             public double getCenterX() {
@@ -379,7 +376,7 @@ public abstract class World implements IWorld, AutoCloseable {
    public void playLocalSound(double p_184134_1_, double p_184134_3_, double p_184134_5_, SoundEvent p_184134_7_, SoundCategory p_184134_8_, float p_184134_9_, float p_184134_10_, boolean p_184134_11_) {
    }
 
-   public void addParticle(IParticleData p_195594_1_, double p_195594_2_, double p_195594_4_, double p_195594_6_, double p_195594_8_, double p_195594_10_, double p_195594_12_) {
+   public void addParticle(IParticleData p_195594_1_, double x, double y, double z, double p_195594_8_, double p_195594_10_, double p_195594_12_) {
    }
 
    @OnlyIn(Dist.CLIENT)
@@ -521,6 +518,13 @@ public abstract class World implements IWorld, AutoCloseable {
 
    public Explosion explode(@Nullable Entity p_230546_1_, @Nullable DamageSource p_230546_2_, @Nullable ExplosionContext p_230546_3_, double p_230546_4_, double p_230546_6_, double p_230546_8_, float p_230546_10_, boolean p_230546_11_, Explosion.Mode p_230546_12_) {
       Explosion explosion = new Explosion(this, p_230546_1_, p_230546_2_, p_230546_3_, p_230546_4_, p_230546_6_, p_230546_8_, p_230546_10_, p_230546_11_, p_230546_12_);
+      explosion.explode();
+      explosion.finalizeExplosion(true);
+      return explosion;
+   }
+
+   public NuclearExplosion explode(@Nullable Entity p_230546_1_, @Nullable DamageSource p_230546_2_, @Nullable ExplosionContext p_230546_3_, double p_230546_4_, double p_230546_6_, double p_230546_8_, float p_230546_10_, boolean p_230546_11_, NuclearExplosion.Mode p_230546_12_) {
+      NuclearExplosion explosion = new NuclearExplosion(this, p_230546_1_, p_230546_2_, p_230546_3_, p_230546_4_, p_230546_6_, p_230546_8_, p_230546_10_, p_230546_11_, p_230546_12_);
       explosion.explode();
       explosion.finalizeExplosion(true);
       return explosion;
@@ -889,6 +893,7 @@ public abstract class World implements IWorld, AutoCloseable {
       return (double)this.getRainLevel(1.0F) > 0.2D;
    }
 
+
    public boolean isRainingAt(BlockPos p_175727_1_) {
       if (!this.isRaining()) {
          return false;
@@ -971,7 +976,7 @@ public abstract class World implements IWorld, AutoCloseable {
          i = this.getChunkAt(p_175649_1_).getInhabitedTime();
       }
 
-      return new DifficultyInstance(this.getDifficulty(), this.getDayTime(), i, f);
+      return new DifficultyInstance(this.getDifficulty(), this.getDayTime(), i, f, this.getGameRules().getBoolean(GameRules.RULE_VERYHARD));
    }
 
    public int getSkyDarken() {

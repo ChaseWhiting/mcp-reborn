@@ -22,7 +22,7 @@ public class SalmonEntity extends AbstractGroupFishEntity {
    }
 
    protected SoundEvent getAmbientSound() {
-      return SoundEvents.SALMON_AMBIENT;
+      return null;
    }
 
    protected SoundEvent getDeathSound() {

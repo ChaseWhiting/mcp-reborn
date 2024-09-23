@@ -138,7 +138,7 @@ public class MouseHelper {
                   if (this.minecraft.gui.getSpectatorGui().isMenuActive()) {
                      this.minecraft.gui.getSpectatorGui().onMouseScrolled((double)(-f1));
                   } else {
-                     float f = MathHelper.clamp(this.minecraft.player.abilities.getFlyingSpeed() + f1 * 0.005F, 0.0F, 0.2F);
+                     float f = MathHelper.clamp(this.minecraft.player.abilities.getFlyingSpeed() + f1 * 0.005F, 0.0F, 2F);
                      this.minecraft.player.abilities.setFlyingSpeed(f);
                   }
                } else {

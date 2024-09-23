@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.NuclearExplosion;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
@@ -47,6 +48,13 @@ public class SilverfishBlock extends Block {
    }
 
    public void wasExploded(World p_180652_1_, BlockPos p_180652_2_, Explosion p_180652_3_) {
+      if (p_180652_1_ instanceof ServerWorld) {
+         this.spawnInfestation((ServerWorld)p_180652_1_, p_180652_2_);
+      }
+
+   }
+
+   public void wasExploded(World p_180652_1_, BlockPos p_180652_2_, NuclearExplosion p_180652_3_) {
       if (p_180652_1_ instanceof ServerWorld) {
          this.spawnInfestation((ServerWorld)p_180652_1_, p_180652_2_);
       }

@@ -35,16 +35,19 @@ public class CustomCommand {
 
     private static void giveEnchantedArmor(ServerPlayerEntity player) {
         ItemStack[] armor = new ItemStack[]{
-                new ItemStack(Items.DIAMOND_HELMET),
-                new ItemStack(Items.DIAMOND_CHESTPLATE),
-                new ItemStack(Items.DIAMOND_LEGGINGS),
-                new ItemStack(Items.DIAMOND_BOOTS)
+                new ItemStack(Items.NETHERITE_HELMET),
+                new ItemStack(Items.NETHERITE_CHESTPLATE),
+                new ItemStack(Items.NETHERITE_LEGGINGS),
+                new ItemStack(Items.NETHERITE_BOOTS)
         };
 
         for (ItemStack piece : armor) {
             piece.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 4);
+            piece.enchant(Enchantments.BLAST_PROTECTION, 4);
+            piece.enchant(Enchantments.FIRE_PROTECTION, 4);
+            piece.enchant(Enchantments.PROJECTILE_PROTECTION, 4);
             piece.enchant(Enchantments.UNBREAKING, 5);
-            piece.enchant(Enchantments.MENDING, 1);
+            piece.enchant(Enchantments.MENDING, 3);
             player.setItemSlot(Mob.getEquipmentSlotForItem(piece), piece);
         }
     }

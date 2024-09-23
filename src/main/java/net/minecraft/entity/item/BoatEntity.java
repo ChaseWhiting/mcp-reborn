@@ -685,12 +685,12 @@ public class BoatEntity extends Entity {
    }
 
    protected void addAdditionalSaveData(CompoundNBT p_213281_1_) {
-      p_213281_1_.putString("Type", this.getBoatType().getName());
+      p_213281_1_.putString("BoggedType", this.getBoatType().getName());
    }
 
    protected void readAdditionalSaveData(CompoundNBT p_70037_1_) {
-      if (p_70037_1_.contains("Type", 8)) {
-         this.setType(BoatEntity.Type.byName(p_70037_1_.getString("Type")));
+      if (p_70037_1_.contains("BoggedType", 8)) {
+         this.setType(BoatEntity.Type.byName(p_70037_1_.getString("BoggedType")));
       }
 
    }

@@ -131,12 +131,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.settings.PointOfView;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.client.tutorial.Tutorial;
-import net.minecraft.client.util.IMutableSearchTree;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.client.util.SearchTree;
-import net.minecraft.client.util.SearchTreeManager;
-import net.minecraft.client.util.SearchTreeReloadable;
-import net.minecraft.client.util.Splashes;
+import net.minecraft.client.util.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.command.Commands;
 import net.minecraft.crash.CrashReport;
@@ -296,6 +291,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
    private final MusicTicker musicManager;
    private final FontResourceManager fontManager;
    private final Splashes splashManager;
+   private final ScriptLoader scriptManager;
    private final GPUWarning gpuWarnlistManager;
    private final MinecraftSessionService minecraftSessionService;
    private final SocialInteractionsService socialInteractionsService;
@@ -453,6 +449,8 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
       this.resourceManager.registerReloadListener(this.soundManager);
       this.splashManager = new Splashes(this.user);
       this.resourceManager.registerReloadListener(this.splashManager);
+      this.scriptManager = new ScriptLoader();
+      this.resourceManager.registerReloadListener(this.scriptManager);
       this.musicManager = new MusicTicker(this);
       this.fontManager = new FontResourceManager(this.textureManager);
       this.font = this.fontManager.createFont();
@@ -1644,103 +1642,112 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
       }
    }
 
-   public void loadLevel(String p_238191_1_) {
-      this.doLoadLevel(p_238191_1_, DynamicRegistries.builtin(), Minecraft::loadDataPacks, Minecraft::loadWorldData, false, Minecraft.WorldSelectionType.BACKUP);
+   public void loadLevel(String levelName) {
+      this.doLoadLevel(levelName, DynamicRegistries.builtin(), Minecraft::loadDataPacks, Minecraft::loadWorldData, false, Minecraft.WorldSelectionType.BACKUP);
    }
 
-   public void createLevel(String p_238192_1_, WorldSettings p_238192_2_, DynamicRegistries.Impl p_238192_3_, DimensionGeneratorSettings p_238192_4_) {
-      this.doLoadLevel(p_238192_1_, p_238192_3_, (p_238179_1_) -> {
-         return p_238192_2_.getDataPackConfig();
-      }, (p_238187_3_, p_238187_4_, p_238187_5_, p_238187_6_) -> {
-         WorldGenSettingsExport<JsonElement> worldgensettingsexport = WorldGenSettingsExport.create(JsonOps.INSTANCE, p_238192_3_);
-         WorldSettingsImport<JsonElement> worldsettingsimport = WorldSettingsImport.create(JsonOps.INSTANCE, p_238187_5_, p_238192_3_);
-         DataResult<DimensionGeneratorSettings> dataresult = DimensionGeneratorSettings.CODEC.encodeStart(worldgensettingsexport, p_238192_4_).setLifecycle(Lifecycle.stable()).flatMap((p_243209_1_) -> {
-            return DimensionGeneratorSettings.CODEC.parse(worldsettingsimport, p_243209_1_);
-         });
-         DimensionGeneratorSettings dimensiongeneratorsettings = dataresult.resultOrPartial(Util.prefix("Error reading worldgen settings after loading data packs: ", LOGGER::error)).orElse(p_238192_4_);
-         return new ServerWorldInfo(p_238192_2_, dimensiongeneratorsettings, dataresult.lifecycle());
+
+   public void createLevel(String levelName, WorldSettings worldSettings, DynamicRegistries.Impl dynamicRegistries, DimensionGeneratorSettings dimensionSettings) {
+      this.doLoadLevel(levelName, dynamicRegistries, (levelSave) -> {
+         return worldSettings.getDataPackConfig();
+      }, (levelSave, dynamicRegistriesImpl, resourceManager, dataPackCodec) -> {
+         WorldGenSettingsExport<JsonElement> worldGenSettingsExport = WorldGenSettingsExport.create(JsonOps.INSTANCE, dynamicRegistries);
+         WorldSettingsImport<JsonElement> worldSettingsImport = WorldSettingsImport.create(JsonOps.INSTANCE, resourceManager, dynamicRegistries);
+         DataResult<DimensionGeneratorSettings> dataResult = DimensionGeneratorSettings.CODEC.encodeStart(worldGenSettingsExport, dimensionSettings)
+                 .setLifecycle(Lifecycle.stable())
+                 .flatMap((jsonElement) -> {
+                    return DimensionGeneratorSettings.CODEC.parse(worldSettingsImport, jsonElement);
+                 });
+         DimensionGeneratorSettings finalDimensionSettings = dataResult
+                 .resultOrPartial(Util.prefix("Error reading worldgen settings after loading data packs: ", LOGGER::error))
+                 .orElse(dimensionSettings);
+         return new ServerWorldInfo(worldSettings, finalDimensionSettings, dataResult.lifecycle());
       }, false, Minecraft.WorldSelectionType.CREATE);
    }
 
-   private void doLoadLevel(String p_238195_1_, DynamicRegistries.Impl p_238195_2_, Function<SaveFormat.LevelSave, DatapackCodec> p_238195_3_, Function4<SaveFormat.LevelSave, DynamicRegistries.Impl, IResourceManager, DatapackCodec, IServerConfiguration> p_238195_4_, boolean p_238195_5_, Minecraft.WorldSelectionType p_238195_6_) {
-      SaveFormat.LevelSave saveformat$levelsave;
+
+   private void doLoadLevel(String levelName, DynamicRegistries.Impl dynamicRegistries, Function<SaveFormat.LevelSave, DatapackCodec> loadDataPacks,
+                            Function4<SaveFormat.LevelSave, DynamicRegistries.Impl, IResourceManager, DatapackCodec, IServerConfiguration> loadWorldData,
+                            boolean isReload, Minecraft.WorldSelectionType worldSelectionType) {
+
+      SaveFormat.LevelSave levelSave;
       try {
-         saveformat$levelsave = this.levelSource.createAccess(p_238195_1_);
-      } catch (IOException ioexception2) {
-         LOGGER.warn("Failed to read level {} data", p_238195_1_, ioexception2);
-         SystemToast.onWorldAccessFailure(this, p_238195_1_);
-         this.setScreen((Screen)null);
+         levelSave = this.levelSource.createAccess(levelName);
+      } catch (IOException e) {
+         LOGGER.warn("Failed to read level {} data", levelName, e);
+         SystemToast.onWorldAccessFailure(this, levelName);
+         this.setScreen(null);
          return;
       }
 
-      Minecraft.PackManager minecraft$packmanager;
+      Minecraft.PackManager packManager;
       try {
-         minecraft$packmanager = this.makeServerStem(p_238195_2_, p_238195_3_, p_238195_4_, p_238195_5_, saveformat$levelsave);
-      } catch (Exception exception) {
-         LOGGER.warn("Failed to load datapacks, can't proceed with server load", (Throwable)exception);
+         packManager = this.makeServerStem(dynamicRegistries, loadDataPacks, loadWorldData, isReload, levelSave);
+      } catch (Exception e) {
+         LOGGER.warn("Failed to load datapacks, can't proceed with server load", e);
          this.setScreen(new DatapackFailureScreen(() -> {
-            this.doLoadLevel(p_238195_1_, p_238195_2_, p_238195_3_, p_238195_4_, true, p_238195_6_);
+            this.doLoadLevel(levelName, dynamicRegistries, loadDataPacks, loadWorldData, true, worldSelectionType);
          }));
 
          try {
-            saveformat$levelsave.close();
-         } catch (IOException ioexception) {
-            LOGGER.warn("Failed to unlock access to level {}", p_238195_1_, ioexception);
+            levelSave.close();
+         } catch (IOException e1) {
+            LOGGER.warn("Failed to unlock access to level {}", levelName, e1);
          }
 
          return;
       }
 
-      IServerConfiguration iserverconfiguration = minecraft$packmanager.worldData();
-      boolean flag = iserverconfiguration.worldGenSettings().isOldCustomizedWorld();
-      boolean flag1 = iserverconfiguration.worldGenSettingsLifecycle() != Lifecycle.stable();
-      if (p_238195_6_ == Minecraft.WorldSelectionType.NONE || !flag && !flag1) {
+      IServerConfiguration serverConfiguration = packManager.worldData();
+      boolean isOldCustomizedWorld = serverConfiguration.worldGenSettings().isOldCustomizedWorld();
+      boolean needsExperimentalConfirmation = serverConfiguration.worldGenSettingsLifecycle() != Lifecycle.stable();
+
+      if (worldSelectionType == Minecraft.WorldSelectionType.NONE || (!isOldCustomizedWorld && !needsExperimentalConfirmation)) {
          this.clearLevel();
-         this.progressListener.set((TrackingChunkStatusListener)null);
+         this.progressListener.set(null);
 
          try {
-            saveformat$levelsave.saveDataTag(p_238195_2_, iserverconfiguration);
-            minecraft$packmanager.serverResources().updateGlobals();
-            YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(this.proxy);
-            MinecraftSessionService minecraftsessionservice = yggdrasilauthenticationservice.createMinecraftSessionService();
-            GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
-            PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository, new File(this.gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
-            SkullTileEntity.setProfileCache(playerprofilecache);
-            SkullTileEntity.setSessionService(minecraftsessionservice);
+            levelSave.saveDataTag(dynamicRegistries, serverConfiguration);
+            packManager.serverResources().updateGlobals();
+            YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(this.proxy);
+            MinecraftSessionService sessionService = authService.createMinecraftSessionService();
+            GameProfileRepository profileRepository = authService.createProfileRepository();
+            PlayerProfileCache profileCache = new PlayerProfileCache(profileRepository, new File(this.gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
+            SkullTileEntity.setProfileCache(profileCache);
+            SkullTileEntity.setSessionService(sessionService);
             PlayerProfileCache.setUsesAuthentication(false);
-            this.singleplayerServer = MinecraftServer.spin((p_238188_8_) -> {
-               return new IntegratedServer(p_238188_8_, this, p_238195_2_, saveformat$levelsave, minecraft$packmanager.packRepository(), minecraft$packmanager.serverResources(), iserverconfiguration, minecraftsessionservice, gameprofilerepository, playerprofilecache, (p_238211_1_) -> {
-                  TrackingChunkStatusListener trackingchunkstatuslistener = new TrackingChunkStatusListener(p_238211_1_ + 0);
-                  trackingchunkstatuslistener.start();
-                  this.progressListener.set(trackingchunkstatuslistener);
-                  return new ChainedChunkStatusListener(trackingchunkstatuslistener, this.progressTasks::add);
+            this.singleplayerServer = MinecraftServer.spin((thread) -> {
+               return new IntegratedServer(thread, this, dynamicRegistries, levelSave, packManager.packRepository(), packManager.serverResources(), serverConfiguration, sessionService, profileRepository, profileCache, (progressListener) -> {
+                  TrackingChunkStatusListener chunkStatusListener = new TrackingChunkStatusListener(progressListener + 0);
+                  chunkStatusListener.start();
+                  this.progressListener.set(chunkStatusListener);
+                  return new ChainedChunkStatusListener(chunkStatusListener, this.progressTasks::add);
                });
             });
             this.isLocalServer = true;
          } catch (Throwable throwable) {
-            CrashReport crashreport = CrashReport.forThrowable(throwable, "Starting integrated server");
-            CrashReportCategory crashreportcategory = crashreport.addCategory("Starting integrated server");
-            crashreportcategory.setDetail("Level ID", p_238195_1_);
-            crashreportcategory.setDetail("Level Name", iserverconfiguration.getLevelName());
-            throw new ReportedException(crashreport);
+            CrashReport crashReport = CrashReport.forThrowable(throwable, "Starting integrated server");
+            CrashReportCategory crashCategory = crashReport.addCategory("Starting integrated server");
+            crashCategory.setDetail("Level ID", levelName);
+            crashCategory.setDetail("Level Name", serverConfiguration.getLevelName());
+            throw new ReportedException(crashReport);
          }
 
          while(this.progressListener.get() == null) {
             Thread.yield();
          }
 
-         WorldLoadProgressScreen worldloadprogressscreen = new WorldLoadProgressScreen(this.progressListener.get());
-         this.setScreen(worldloadprogressscreen);
+         WorldLoadProgressScreen loadProgressScreen = new WorldLoadProgressScreen(this.progressListener.get());
+         this.setScreen(loadProgressScreen);
          this.profiler.push("waitForServer");
 
          while(!this.singleplayerServer.isReady()) {
-            worldloadprogressscreen.tick();
+            loadProgressScreen.tick();
             this.runTick(false);
 
             try {
                Thread.sleep(16L);
-            } catch (InterruptedException interruptedexception) {
-            }
+            } catch (InterruptedException e) {}
 
             if (this.delayedCrash != null) {
                crash(this.delayedCrash);
@@ -1749,27 +1756,26 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
          }
 
          this.profiler.pop();
-         SocketAddress socketaddress = this.singleplayerServer.getConnection().startMemoryChannel();
-         NetworkManager networkmanager = NetworkManager.connectToLocalServer(socketaddress);
-         networkmanager.setListener(new ClientLoginNetHandler(networkmanager, this, (Screen)null, (p_229998_0_) -> {
-         }));
-         networkmanager.send(new CHandshakePacket(socketaddress.toString(), 0, ProtocolType.LOGIN));
-         networkmanager.send(new CLoginStartPacket(this.getUser().getGameProfile()));
-         this.pendingConnection = networkmanager;
+         SocketAddress socketAddress = this.singleplayerServer.getConnection().startMemoryChannel();
+         NetworkManager networkManager = NetworkManager.connectToLocalServer(socketAddress);
+         networkManager.setListener(new ClientLoginNetHandler(networkManager, this, null, (packet) -> {}));
+         networkManager.send(new CHandshakePacket(socketAddress.toString(), 0, ProtocolType.LOGIN));
+         networkManager.send(new CLoginStartPacket(this.getUser().getGameProfile()));
+         this.pendingConnection = networkManager;
       } else {
-         this.displayExperimentalConfirmationDialog(p_238195_6_, p_238195_1_, flag, () -> {
-            this.doLoadLevel(p_238195_1_, p_238195_2_, p_238195_3_, p_238195_4_, p_238195_5_, Minecraft.WorldSelectionType.NONE);
+         this.displayExperimentalConfirmationDialog(worldSelectionType, levelName, isOldCustomizedWorld, () -> {
+            this.doLoadLevel(levelName, dynamicRegistries, loadDataPacks, loadWorldData, isReload, Minecraft.WorldSelectionType.NONE);
          });
-         minecraft$packmanager.close();
+         packManager.close();
 
          try {
-            saveformat$levelsave.close();
-         } catch (IOException ioexception1) {
-            LOGGER.warn("Failed to unlock access to level {}", p_238195_1_, ioexception1);
+            levelSave.close();
+         } catch (IOException e1) {
+            LOGGER.warn("Failed to unlock access to level {}", levelName, e1);
          }
-
       }
    }
+
 
    private void displayExperimentalConfirmationDialog(Minecraft.WorldSelectionType p_241559_1_, String p_241559_2_, boolean p_241559_3_, Runnable p_241559_4_) {
       if (p_241559_1_ == Minecraft.WorldSelectionType.BACKUP) {
@@ -2424,6 +2430,10 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
 
    public Splashes getSplashManager() {
       return this.splashManager;
+   }
+
+   public ScriptLoader getScriptManager() {
+      return scriptManager;
    }
 
    @Nullable

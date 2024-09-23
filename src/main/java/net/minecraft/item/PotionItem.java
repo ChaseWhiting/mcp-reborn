@@ -31,18 +31,22 @@ public class PotionItem extends Item {
       return PotionUtils.setPotion(super.getDefaultInstance(), Potions.WATER);
    }
 
-   public ItemStack finishUsingItem(ItemStack p_77654_1_, World p_77654_2_, LivingEntity p_77654_3_) {
-      PlayerEntity playerentity = p_77654_3_ instanceof PlayerEntity ? (PlayerEntity)p_77654_3_ : null;
+   public int getWeight(ItemStack bundle) {
+      return 5;
+   }
+
+   public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity entity) {
+      PlayerEntity playerentity = entity instanceof PlayerEntity ? (PlayerEntity) entity : null;
       if (playerentity instanceof ServerPlayerEntity) {
-         CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity)playerentity, p_77654_1_);
+         CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity)playerentity, itemStack);
       }
 
-      if (!p_77654_2_.isClientSide) {
-         for(EffectInstance effectinstance : PotionUtils.getMobEffects(p_77654_1_)) {
+      if (!world.isClientSide) {
+         for(EffectInstance effectinstance : PotionUtils.getMobEffects(itemStack)) {
             if (effectinstance.getEffect().isInstantenous()) {
-               effectinstance.getEffect().applyInstantenousEffect(playerentity, playerentity, p_77654_3_, effectinstance.getAmplifier(), 1.0D);
+               effectinstance.getEffect().applyInstantenousEffect(playerentity, playerentity, entity, effectinstance.getAmplifier(), 1.0D);
             } else {
-               p_77654_3_.addEffect(new EffectInstance(effectinstance));
+               entity.addEffect(new EffectInstance(effectinstance));
             }
          }
       }
@@ -50,12 +54,12 @@ public class PotionItem extends Item {
       if (playerentity != null) {
          playerentity.awardStat(Stats.ITEM_USED.get(this));
          if (!playerentity.abilities.instabuild) {
-            p_77654_1_.shrink(1);
+            itemStack.shrink(1);
          }
       }
 
       if (playerentity == null || !playerentity.abilities.instabuild) {
-         if (p_77654_1_.isEmpty()) {
+         if (itemStack.isEmpty()) {
             return new ItemStack(Items.GLASS_BOTTLE);
          }
 
@@ -64,7 +68,7 @@ public class PotionItem extends Item {
          }
       }
 
-      return p_77654_1_;
+      return itemStack;
    }
 
    public int getUseDuration(ItemStack p_77626_1_) {
@@ -89,7 +93,8 @@ public class PotionItem extends Item {
    }
 
    public boolean isFoil(ItemStack p_77636_1_) {
-      return super.isFoil(p_77636_1_) || !PotionUtils.getMobEffects(p_77636_1_).isEmpty();
+      return super.isFoil(p_77636_1_);
+//      return super.isFoil(p_77636_1_) || !PotionUtils.getMobEffects(p_77636_1_).isEmpty();
    }
 
    public void fillItemCategory(ItemGroup p_150895_1_, NonNullList<ItemStack> p_150895_2_) {

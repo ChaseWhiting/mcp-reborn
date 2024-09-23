@@ -501,7 +501,7 @@ public class HerobrineEntity extends Monster implements ICrossbowUser {
             Vector3d vecToTarget = new Vector3d(entity1.getX() - this.herobrine.getX(), entity1.getEyeY() - this.herobrine.getEyeY(), entity1.getZ() - this.herobrine.getZ()).normalize();
 
             double dotProduct = lookVec.dot(vecToTarget);
-            double threshold = Math.cos(Math.toRadians(30)); // 30 degrees field of view to consider "facing"
+            double threshold = Math.cos(Math.toRadians(48)); // 30 degrees field of view to consider "facing"
 
             return dotProduct > threshold;
         }
@@ -554,7 +554,7 @@ public class HerobrineEntity extends Monster implements ICrossbowUser {
                         );
 
                         // Move Herobrine to the position behind the target
-                        this.herobrine.getNavigation().moveTo(behindPosition.x, behindPosition.y, behindPosition.z, 1.0);
+                        this.herobrine.getNavigation().moveTo(behindPosition.x, behindPosition.y, behindPosition.z, 0.5);
 
                         // Ensure Herobrine is sprinting while trying to move behind the target
                         this.herobrine.setSprinting(true);

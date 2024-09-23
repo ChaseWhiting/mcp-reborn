@@ -79,8 +79,16 @@ public class WitherSkullEntity extends DamagingProjectileEntity {
                i = 40;
             }
 
+            if (this.veryHardmode()) {
+               i = switch (this.level.getDifficulty()) {
+                   case PEACEFUL, EASY -> 20;
+                   case NORMAL -> 35;
+                   case HARD -> 60;
+               };
+            }
+
             if (i > 0) {
-               ((LivingEntity)entity).addEffect(new EffectInstance(Effects.WITHER, 20 * i, 1));
+               ((LivingEntity)entity).addEffect(new EffectInstance(Effects.WITHER, 20 * i, veryHardmode() ? 2 : 1));
             }
          }
 
@@ -91,7 +99,7 @@ public class WitherSkullEntity extends DamagingProjectileEntity {
       super.onHit(p_70227_1_);
       if (!this.level.isClientSide) {
          Explosion.Mode explosion$mode = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
-         this.level.explode(this, this.getX(), this.getY(), this.getZ(), 1.0F, false, explosion$mode);
+         this.level.explode(this, this.getX(), this.getY(), this.getZ(), veryHardmode() ? isDangerous() ? 2.4F : 1.8F : 1F, false, explosion$mode);
          this.remove();
       }
 

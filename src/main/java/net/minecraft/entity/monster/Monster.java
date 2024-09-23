@@ -15,12 +15,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 
 public abstract class Monster extends Creature implements IMob {
    protected Monster(EntityType<? extends Monster> p_i48553_1_, World p_i48553_2_) {
@@ -47,7 +42,7 @@ public abstract class Monster extends Creature implements IMob {
    }
 
    protected boolean shouldDespawnInPeaceful() {
-      return true;
+      return !this.veryHardmode();
    }
 
    protected SoundEvent getSwimSound() {
@@ -96,7 +91,7 @@ public abstract class Monster extends Creature implements IMob {
    }
 
    public static AttributeModifierMap.MutableAttribute createMonsterAttributes() {
-      return Mob.createMobAttributes().add(Attributes.ATTACK_DAMAGE);
+      return Mob.createMobAttributes().add(Attributes.ATTACK_DAMAGE).add(Attributes.FOLLOW_RANGE, 20);
    }
 
    protected boolean shouldDropExperience() {

@@ -28,6 +28,9 @@ public enum ArmorMaterial implements IArmorMaterial {
    TURTLE("turtle", 25, new int[]{2, 5, 6, 2}, 9, SoundEvents.ARMOR_EQUIP_TURTLE, 0.0F, 0.0F, () -> {
       return Ingredient.of(Items.SCUTE);
    }),
+   BEESWAX("beeswax", 17, new int[]{3, 4, 5, 2}, 14, SoundEvents.ARMOR_EQUIP_TURTLE, 0.5F, 0.005F, () -> {
+      return Ingredient.of(Items.HONEYCOMB_BLOCK);
+   }),
    NETHERITE("netherite", 37, new int[]{3, 6, 8, 3}, 15, SoundEvents.ARMOR_EQUIP_NETHERITE, 3.0F, 0.1F, () -> {
       return Ingredient.of(Items.NETHERITE_INGOT);
    });

@@ -5,7 +5,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +19,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
+
 import net.minecraft.client.renderer.StitcherException;
 import net.minecraft.client.resources.data.AnimationMetadataSection;
 import net.minecraft.crash.CrashReport;
@@ -31,6 +37,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 @OnlyIn(Dist.CLIENT)
 public class AtlasTexture extends Texture implements ITickable {
@@ -60,6 +68,7 @@ public class AtlasTexture extends Texture implements ITickable {
       TextureUtil.prepareImage(this.getId(), p_215260_1_.mipLevel, p_215260_1_.width, p_215260_1_.height);
       this.clearTextureData();
 
+
       for(TextureAtlasSprite textureatlassprite : p_215260_1_.regions) {
          this.texturesByName.put(textureatlassprite.getName(), textureatlassprite);
 
@@ -78,6 +87,74 @@ public class AtlasTexture extends Texture implements ITickable {
          }
       }
 
+
+      saveAtlasImage(p_215260_1_.width, p_215260_1_.height);
+   }
+
+   private void saveAtlasImage(int width, int height) {
+
+      RenderSystem.bindTexture(this.getId());
+
+
+      ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4); // RGBA = 4 bytes per pixel
+
+
+      GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL12.GL_RGBA, GL12.GL_UNSIGNED_BYTE, buffer);
+
+
+      BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+
+      for (int y = 0; y < height; y++) {
+         for (int x = 0; x < width; x++) {
+            int i = (x + (width * y)) * 4;
+            int r = buffer.get(i) & 0xFF;
+            int g = buffer.get(i + 1) & 0xFF;
+            int b = buffer.get(i + 2) & 0xFF;
+            int a = buffer.get(i + 3) & 0xFF;
+            image.setRGB(x, height - (y + 1), ((a << 24) | (r << 16) | (g << 8) | b));
+         }
+      }
+
+
+      saveTextureAtlas(image, this.location.toString());
+   }
+
+   public static void saveTextureAtlas(BufferedImage image, String location) {
+
+      String baseName = location.replace("minecraft:textures/atlas/", "atlas-")
+              .replace(".png-atlas", "");
+
+
+      String directoryPath = "Atlas PNGs";
+
+
+      if (baseName.endsWith(".png")) {
+         baseName = baseName.substring(0, baseName.length() - 4);
+      }
+
+
+      String extension = ".png";
+      File directory = new File(directoryPath);
+      File file = new File(directory, baseName + extension);
+
+      try {
+
+         if (!directory.exists()) {
+            if (directory.mkdirs()) {
+               LOGGER.info("Directory created: " + directoryPath);
+            } else {
+               LOGGER.error("Failed to create directory: " + directoryPath);
+               return;
+            }
+         }
+
+         // Write the image to the file, replacing it if it exists
+         ImageIO.write(image, "PNG", file);
+         LOGGER.info("Texture atlas saved as " + file.getName());
+      } catch (IOException e) {
+         LOGGER.error("Failed to save texture atlas image", e);
+      }
    }
 
    public AtlasTexture.SheetData prepareToStitch(IResourceManager p_229220_1_, Stream<ResourceLocation> p_229220_2_, IProfiler p_229220_3_, int p_229220_4_) {

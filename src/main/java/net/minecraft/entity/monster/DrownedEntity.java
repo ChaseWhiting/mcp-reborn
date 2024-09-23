@@ -32,6 +32,9 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathNodeType;
@@ -55,13 +58,14 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 
 public class DrownedEntity extends ZombieEntity implements IRangedAttackMob {
+   private static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(DrownedEntity.class, DataSerializers.BYTE);
    private boolean searchingForLand;
    protected final SwimmerPathNavigator waterNavigation;
    protected final GroundPathNavigator groundNavigation;
 
    public DrownedEntity(EntityType<? extends DrownedEntity> p_i50212_1_, World p_i50212_2_) {
       super(p_i50212_1_, p_i50212_2_);
-      this.maxUpStep = 1.0F;
+      this.maxUpStep = this.veryHardmode() ? 1.6F : 1.0F;
       this.moveControl = new DrownedEntity.MoveHelperController(this);
       this.setPathfindingMalus(PathNodeType.WATER, 0.0F);
       this.waterNavigation = new SwimmerPathNavigator(this, p_i50212_2_);
@@ -69,11 +73,12 @@ public class DrownedEntity extends ZombieEntity implements IRangedAttackMob {
    }
 
    protected void addBehaviourGoals() {
-      this.goalSelector.addGoal(1, new DrownedEntity.GoToWaterGoal(this, 1.0D));
-      this.goalSelector.addGoal(2, new DrownedEntity.TridentAttackGoal(this, 1.0D, 40, 10.0F));
-      this.goalSelector.addGoal(2, new DrownedEntity.AttackGoal(this, 1.0D, false));
+      boolean h = this.veryHardmode();
+      this.goalSelector.addGoal(1, new DrownedEntity.GoToWaterGoal(this, h ? 1.14D : 1D));
+      this.goalSelector.addGoal(2, new DrownedEntity.TridentAttackGoal(this, h ? 1.14D : 1D, h ? 25 : 40, 10.0F));
+      this.goalSelector.addGoal(2, new DrownedEntity.AttackGoal(this, h ? 1.16D : 1D, false));
       this.goalSelector.addGoal(5, new DrownedEntity.GoToBeachGoal(this, 1.0D));
-      this.goalSelector.addGoal(6, new DrownedEntity.SwimUpGoal(this, 1.0D, this.level.getSeaLevel()));
+      this.goalSelector.addGoal(6, new DrownedEntity.SwimUpGoal(this, h ? 1.16D : 1D, this.level.getSeaLevel()));
       this.goalSelector.addGoal(7, new RandomWalkingGoal(this, 1.0D));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, DrownedEntity.class)).setAlertOthers(ZombifiedPiglinEntity.class));
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::okTarget));
@@ -100,6 +105,11 @@ public class DrownedEntity extends ZombieEntity implements IRangedAttackMob {
       } else {
          return p_223332_4_.nextInt(15) == 0 && flag;
       }
+   }
+
+   protected void defineSynchedData() {
+      super.defineSynchedData();
+      this.entityData.define(DATA_FLAGS_ID, (byte)0);
    }
 
    private static boolean isDeepEnoughToSpawn(IWorld p_223333_0_, BlockPos p_223333_1_) {
@@ -205,12 +215,20 @@ public class DrownedEntity extends ZombieEntity implements IRangedAttackMob {
          if (this.isEffectiveAi() && this.isInWater() && this.wantsToSwim()) {
             this.navigation = this.waterNavigation;
             this.setSwimming(true);
+
          } else {
             this.navigation = this.groundNavigation;
             this.setSwimming(false);
          }
       }
 
+   }
+
+   public void tick() {
+      super.tick();
+      if (this.level.isServerSide && this.navigation == groundNavigation) {
+         this.setClimbing(this.horizontalCollision);
+      }
    }
 
    protected boolean closeToNextPos() {
@@ -347,6 +365,18 @@ public class DrownedEntity extends ZombieEntity implements IRangedAttackMob {
 
          return null;
       }
+   }
+
+
+   public void setClimbing(boolean p_70839_1_) {
+      byte b0 = this.entityData.get(DATA_FLAGS_ID);
+      if (p_70839_1_) {
+         b0 = (byte)(b0 | 1);
+      } else {
+         b0 = (byte)(b0 & -2);
+      }
+
+      this.entityData.set(DATA_FLAGS_ID, b0);
    }
 
    static class MoveHelperController extends MovementController {

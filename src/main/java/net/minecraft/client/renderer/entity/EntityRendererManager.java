@@ -70,7 +70,9 @@ public class EntityRendererManager {
    private void registerRenderers(net.minecraft.client.renderer.ItemRenderer p_229097_1_, IReloadableResourceManager p_229097_2_) {
       this.register(EntityType.AREA_EFFECT_CLOUD, new AreaEffectCloudRenderer(this));
      // this.register(EntityType.BLACKHOLE, new BlackholeRenderer(this));
+      this.register(EntityType.COLETTE, new ColetteRenderer(this));
       this.register(EntityType.HEROBRINE, new HerobrineRenderer(this));
+      this.register(EntityType.ENDSTONE_BLOCK, new BlockEntityRenderer(this, new ResourceLocation("textures/entity/block/endstone.png")));
       this.register(EntityType.ARMOR_STAND, new ArmorStandRenderer(this));
       this.register(EntityType.ARROW, new TippedArrowRenderer(this));
       this.register(EntityType.BONE_ARROW, new BoneArrowRenderer(this));
@@ -99,6 +101,7 @@ public class EntityRendererManager {
       this.register(EntityType.ENDERMAN, new EndermanRenderer(this));
       this.register(EntityType.ENDERMITE, new EndermiteRenderer(this));
       this.register(EntityType.ENDER_PEARL, new SpriteRenderer<>(this, p_229097_1_));
+      this.register(EntityType.FRISBEE, new SpriteRenderer<>(this, p_229097_1_));
       this.register(EntityType.BLACKHOLE, new SpriteRenderer<>(this, p_229097_1_));
       this.register(EntityType.EVOKER_FANGS, new EvokerFangsRenderer(this));
       this.register(EntityType.EVOKER, new EvokerRenderer<>(this));
@@ -157,6 +160,7 @@ public class EntityRendererManager {
       this.register(EntityType.SILVERFISH, new SilverfishRenderer(this));
       this.register(EntityType.SKELETON_HORSE, new UndeadHorseRenderer(this));
       this.register(EntityType.SKELETON, new SkeletonRenderer(this));
+      this.register(EntityType.BOGGED, new BoggedRenderer(this));
       this.register(EntityType.SLIME, new SlimeRenderer(this));
       this.register(EntityType.SMALL_FIREBALL, new SpriteRenderer<>(this, p_229097_1_, 0.75F, true));
       this.register(EntityType.SNOWBALL, new SpriteRenderer<>(this, p_229097_1_));
@@ -185,7 +189,6 @@ public class EntityRendererManager {
       this.register(EntityType.ZOGLIN, new ZoglinRenderer(this));
       this.register(EntityType.ZOMBIE_HORSE, new UndeadHorseRenderer(this));
       this.register(EntityType.ZOMBIE, new ZombieRenderer(this));
-      this.register(EntityType.CROSSBONE_SKELETON, new CrossboneSkeletonRenderer(this));
       this.register(EntityType.ZOMBIFIED_PIGLIN, new PiglinRenderer(this, true));
       this.register(EntityType.ZOMBIE_VILLAGER, new ZombieVillagerRenderer(this, p_229097_2_));
       this.register(EntityType.STRIDER, new StriderRenderer(this));

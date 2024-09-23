@@ -7,12 +7,13 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.play.server.SPlayerListItemPacket;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -20,7 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class NetworkPlayerInfo {
    private final GameProfile profile;
    private final Map<Type, ResourceLocation> textureLocations = Maps.newEnumMap(Type.class);
-   private GameType gameMode;
+   private Gamemode gameMode;
    private int latency;
    private boolean pendingTextures;
    @Nullable
@@ -45,11 +46,11 @@ public class NetworkPlayerInfo {
    }
 
    @Nullable
-   public GameType getGameMode() {
+   public Gamemode getGameMode() {
       return this.gameMode;
    }
 
-   protected void setGameMode(GameType p_178839_1_) {
+   protected void setGameMode(Gamemode p_178839_1_) {
       this.gameMode = p_178839_1_;
    }
 
@@ -71,7 +72,7 @@ public class NetworkPlayerInfo {
 
    public ResourceLocation getSkinLocation() {
       this.registerTextures();
-      return MoreObjects.firstNonNull(this.textureLocations.get(Type.SKIN), DefaultPlayerSkin.getDefaultSkin(this.profile.getId()));
+      return MoreObjects.firstNonNull(this.textureLocations.get(Type.SKIN), AbstractClientPlayerEntity.trySkinGet(this.profile.getId()));
    }
 
    @Nullable

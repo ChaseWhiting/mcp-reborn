@@ -73,7 +73,7 @@ public class PortalSize {
 
    private int calculateWidth() {
       int i = this.getDistanceUntilEdgeAboveFrame(this.bottomLeft, this.rightDir);
-      return i >= 2 && i <= 21 ? i : 0;
+      return i >= 2 && i <= 28 ? i : 0;
    }
 
    private int getDistanceUntilEdgeAboveFrame(BlockPos p_242972_1_, Direction p_242972_2_) {
@@ -101,7 +101,7 @@ public class PortalSize {
    private int calculateHeight() {
       BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
       int i = this.getDistanceUntilTop(blockpos$mutable);
-      return i >= 3 && i <= 21 && this.hasTopFrame(blockpos$mutable, i) ? i : 0;
+      return i >= 3 && i <= 28 && this.hasTopFrame(blockpos$mutable, i) ? i : 0;
    }
 
    private boolean hasTopFrame(BlockPos.Mutable p_242970_1_, int p_242970_2_) {

@@ -80,6 +80,7 @@ public class Commands {
       ScheduleCommand.register(this.dispatcher);
       ScoreboardCommand.register(this.dispatcher);
       SeedCommand.register(this.dispatcher, p_i232148_1_ != Commands.EnvironmentType.INTEGRATED);
+      SetSeedCommand.register(this.dispatcher, p_i232148_1_ != EnvironmentType.INTEGRATED);
       SetBlockCommand.register(this.dispatcher);
       SpawnPointCommand.register(this.dispatcher);
       SetWorldSpawnCommand.register(this.dispatcher);
@@ -109,14 +110,25 @@ public class Commands {
       QuestCommand.register(this.dispatcher);
       CreateCustomCommand.register(this.dispatcher);
       CreateCommand.register(this.dispatcher);
+      RegistryCommand.register(this.dispatcher);
+      SkillCommand.register(this.dispatcher);
       CustomCommand.register(this.dispatcher);
       RandomEntityCommand.register(this.dispatcher);
       RandomItemCommand.register(this.dispatcher);
       GiveSpawnDispenserCommand.register(this.dispatcher);
+      UUIDCommand.register(this.dispatcher);
+      PercentageCommand.register(this.dispatcher);
+      WallCommand.register(this.dispatcher);
+      AutowallCommand.register(this.dispatcher);
+      PlaceCommand.register(this.dispatcher);
+      EntityCommand.register(this.dispatcher);
+      TargetCommand.register(this.dispatcher);
+      ArenaCommand.register(this.dispatcher);
+      CustomFunctionCommand.register(this.dispatcher);
       //PlaceCommand.register(this.dispatcher);
-//      if (SharedConstants.IS_RUNNING_IN_IDE) {
-//         TestCommand.register(this.dispatcher);
-//      }
+      if (SharedConstants.IS_RUNNING_IN_IDE) {
+         TestCommand.register(this.dispatcher);
+      }
 
       if (p_i232148_1_.includeDedicated) {
          BanIpCommand.register(this.dispatcher);

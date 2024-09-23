@@ -1062,6 +1062,7 @@ public class BlockLootTables implements Consumer<BiConsumer<ResourceLocation, Lo
       this.addNetherVinesDropTable(Blocks.TWISTING_VINES, Blocks.TWISTING_VINES_PLANT);
       this.add(Blocks.CAKE, noDrop());
       this.add(Blocks.FROSTED_ICE, noDrop());
+      this.add(Blocks.COOLED_MAGMA, noDrop());
       this.add(Blocks.SPAWNER, noDrop());
       this.add(Blocks.FIRE, noDrop());
       this.add(Blocks.SOUL_FIRE, noDrop());

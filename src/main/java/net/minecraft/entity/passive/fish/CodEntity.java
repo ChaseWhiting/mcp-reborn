@@ -18,7 +18,7 @@ public class CodEntity extends AbstractGroupFishEntity {
    }
 
    protected SoundEvent getAmbientSound() {
-      return SoundEvents.COD_AMBIENT;
+      return null;
    }
 
    protected SoundEvent getDeathSound() {

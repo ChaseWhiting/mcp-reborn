@@ -41,6 +41,16 @@ public class EndermanRenderer extends MobRenderer<EndermanEntity, EndermanModel<
       }
    }
 
+   @Override
+   protected void scale(EndermanEntity p_225620_1_, MatrixStack p_225620_2_, float p_225620_3_) {
+      if (p_225620_1_.veryHardmode()) {
+         p_225620_2_.scale(0.05F);
+         this.shadowStrength = 0F;
+      } else {
+         this.shadowStrength = 1F;
+      }
+   }
+
    public ResourceLocation getTextureLocation(EndermanEntity p_110775_1_) {
       return ENDERMAN_LOCATION;
    }

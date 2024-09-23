@@ -41,6 +41,10 @@ public class TridentItem extends Item implements IVanishable {
       return !p_195938_4_.isCreative();
    }
 
+   public int getWeight(ItemStack bundle) {
+      return 24;
+   }
+
    public UseAction getUseAnimation(ItemStack p_77661_1_) {
       return UseAction.SPEAR;
    }
@@ -130,9 +134,9 @@ public class TridentItem extends Item implements IVanishable {
       return true;
    }
 
-   public boolean mineBlock(ItemStack p_179218_1_, World p_179218_2_, BlockState p_179218_3_, BlockPos p_179218_4_, LivingEntity p_179218_5_) {
-      if ((double)p_179218_3_.getDestroySpeed(p_179218_2_, p_179218_4_) != 0.0D) {
-         p_179218_1_.hurtAndBreak(2, p_179218_5_, (p_220046_0_) -> {
+   public boolean mineBlock(ItemStack itemStack, World world, BlockState state, BlockPos pos, LivingEntity entity) {
+      if ((double) state.getDestroySpeed(world, pos) != 0.0D) {
+         itemStack.hurtAndBreak(2, entity, (p_220046_0_) -> {
             p_220046_0_.broadcastBreakEvent(EquipmentSlotType.MAINHAND);
          });
       }

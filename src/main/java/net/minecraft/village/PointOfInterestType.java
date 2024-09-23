@@ -53,9 +53,11 @@ public class PointOfInterestType {
    public static final PointOfInterestType TOOLSMITH = register("toolsmith", getBlockStates(Blocks.SMITHING_TABLE), 1, 1);
    public static final PointOfInterestType WEAPONSMITH = register("weaponsmith", getBlockStates(Blocks.GRINDSTONE), 1, 1);
    public static final PointOfInterestType BEEKEEPER = register("beekeeper", getBlockStates(Blocks.HONEY_EXTRACTOR), 1, 1);
+   public static final PointOfInterestType WAX_WORKER = register("wax_worker", getBlockStates(Blocks.WAX_MELTER), 1, 1);
+
    public static final PointOfInterestType HOME = register("home", BEDS, 1, 1);
    public static final PointOfInterestType MEETING = register("meeting", getBlockStates(Blocks.BELL), 32, 6);
-   public static final PointOfInterestType BEEHIVE = register("beehive", getBlockStates(Blocks.BEEHIVE), 0, 1);
+   public static final PointOfInterestType BEEHIVE = register("beehive", getBlockStates(Blocks.BEEHIVE), 1, 1);
    public static final PointOfInterestType BEE_NEST = register("bee_nest", getBlockStates(Blocks.BEE_NEST), 0, 1);
    public static final PointOfInterestType NETHER_PORTAL = register("nether_portal", getBlockStates(Blocks.NETHER_PORTAL), 0, 1);
    public static final PointOfInterestType LODESTONE = register("lodestone", getBlockStates(Blocks.LODESTONE), 0, 1);

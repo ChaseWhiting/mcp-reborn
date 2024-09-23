@@ -22,6 +22,7 @@ import net.minecraft.util.WeightedSpawnerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -64,7 +65,16 @@ public abstract class AbstractSpawner {
 
    private boolean isNearPlayer() {
       BlockPos blockpos = this.getPos();
-      return this.getLevel().hasNearbyAlivePlayer((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D, (double)this.requiredPlayerRange);
+      boolean flag = this.getLevel().hasNearbyAlivePlayer((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D, (double)this.requiredPlayerRange);
+      boolean flag2 = this.getLevel().getGameRules().getBoolean(GameRules.RULE_SPAWNER_FARTHER_RANGE) && hasNearbyAlivePlayer(42);
+      return flag || flag2;
+   }
+
+   private boolean hasNearbyAlivePlayer(double range) {
+      BlockPos blockpos = this.getPos();
+      boolean flag = this.getLevel().hasNearbyAlivePlayer((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D, (double)range);
+
+      return flag;
    }
 
    public void tick() {
@@ -164,11 +174,14 @@ public abstract class AbstractSpawner {
    }
 
    private void delay() {
-      if (this.maxSpawnDelay <= this.minSpawnDelay) {
-         this.spawnDelay = this.minSpawnDelay;
+      int maxSpawnDelay = this.getLevel().getGameRules().getInt(GameRules.SPAWNER_MAX_SPAWN_DELAY);
+      int minSpawnDelay = this.getLevel().getGameRules().getInt(GameRules.SPAWNER_MIN_SPAWN_DELAY);
+
+      if (maxSpawnDelay <= minSpawnDelay) {
+         this.spawnDelay = minSpawnDelay;
       } else {
-         int i = this.maxSpawnDelay - this.minSpawnDelay;
-         this.spawnDelay = this.minSpawnDelay + this.getLevel().random.nextInt(i);
+         int i = maxSpawnDelay - minSpawnDelay;
+         this.spawnDelay = minSpawnDelay + this.getLevel().random.nextInt(i);
       }
 
       if (!this.spawnPotentials.isEmpty()) {

@@ -10,7 +10,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -29,7 +29,7 @@ public class PunchTreeStep implements ITutorialStep {
 
    public void tick() {
       ++this.timeWaiting;
-      if (this.tutorial.getGameMode() != GameType.SURVIVAL) {
+      if (this.tutorial.getGameMode() != Gamemode.SURVIVAL) {
          this.tutorial.setStep(TutorialSteps.NONE);
       } else {
          if (this.timeWaiting == 1) {

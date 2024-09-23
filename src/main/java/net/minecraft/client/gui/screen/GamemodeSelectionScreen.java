@@ -18,7 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -39,14 +39,14 @@ public class GamemodeSelectionScreen extends Screen {
       this.previousHovered = GamemodeSelectionScreen.Mode.getFromGameType(this.getDefaultSelected());
    }
 
-   private GameType getDefaultSelected() {
-      GameType gametype = Minecraft.getInstance().gameMode.getPlayerMode();
-      GameType gametype1 = Minecraft.getInstance().gameMode.getPreviousPlayerMode();
-      if (gametype1 == GameType.NOT_SET) {
-         if (gametype == GameType.CREATIVE) {
-            gametype1 = GameType.SURVIVAL;
+   private Gamemode getDefaultSelected() {
+      Gamemode gametype = Minecraft.getInstance().gameMode.getPlayerMode();
+      Gamemode gametype1 = Minecraft.getInstance().gameMode.getPreviousPlayerMode();
+      if (gametype1 == Gamemode.NOT_SET) {
+         if (gametype == Gamemode.CREATIVE) {
+            gametype1 = Gamemode.SURVIVAL;
          } else {
-            gametype1 = GameType.CREATIVE;
+            gametype1 = Gamemode.CREATIVE;
          }
       }
 
@@ -181,7 +181,7 @@ public class GamemodeSelectionScreen extends Screen {
          }
       }
 
-      private static Optional<GamemodeSelectionScreen.Mode> getFromGameType(GameType p_238731_0_) {
+      private static Optional<GamemodeSelectionScreen.Mode> getFromGameType(Gamemode p_238731_0_) {
          switch(p_238731_0_) {
          case SPECTATOR:
             return Optional.of(SPECTATOR);

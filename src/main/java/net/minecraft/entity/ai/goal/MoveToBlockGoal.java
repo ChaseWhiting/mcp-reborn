@@ -13,8 +13,8 @@ public abstract class MoveToBlockGoal extends Goal {
    private int maxStayTicks;
    protected BlockPos blockPos = BlockPos.ZERO;
    private boolean reachedTarget;
-   private final int searchRange;
-   private final int verticalSearchRange;
+   final int searchRange;
+   final int verticalSearchRange;
    protected int verticalSearchStart;
 
    public MoveToBlockGoal(Creature p_i45888_1_, double p_i45888_2_, int p_i45888_4_) {

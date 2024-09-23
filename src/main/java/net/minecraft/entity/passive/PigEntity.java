@@ -13,14 +13,7 @@ import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.goal.BreedGoal;
-import net.minecraft.entity.ai.goal.FollowParentGoal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.PanicGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.TemptGoal;
-import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.monster.ZombifiedPiglinEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -49,6 +42,8 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Random;
+
 public class PigEntity extends Animal implements IRideable, IEquipable {
    private static final DataParameter<Boolean> DATA_SADDLE_ID = EntityDataManager.defineId(PigEntity.class, DataSerializers.BOOLEAN);
    private static final DataParameter<Integer> DATA_BOOST_TIME = EntityDataManager.defineId(PigEntity.class, DataSerializers.INT);
@@ -72,7 +67,7 @@ public class PigEntity extends Animal implements IRideable, IEquipable {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 5);
    }
 
    @Nullable
@@ -239,7 +234,10 @@ public class PigEntity extends Animal implements IRideable, IEquipable {
       return this.steering.boost(this.getRandom());
    }
 
-   public PigEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
+   public AgeableEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
+      if (new Random().nextFloat() < 0.3F) {
+         return EntityType.SHEEP.create(p_241840_1_);
+      }
       return EntityType.PIG.create(p_241840_1_);
    }
 

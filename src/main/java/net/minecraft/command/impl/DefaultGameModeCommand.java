@@ -7,7 +7,7 @@ import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 
 public class DefaultGameModeCommand {
    public static void register(CommandDispatcher<CommandSource> p_198340_0_) {
@@ -15,8 +15,8 @@ public class DefaultGameModeCommand {
          return p_198342_0_.hasPermission(2);
       });
 
-      for(GameType gametype : GameType.values()) {
-         if (gametype != GameType.NOT_SET) {
+      for(Gamemode gametype : Gamemode.values()) {
+         if (gametype != Gamemode.NOT_SET) {
             literalargumentbuilder.then(Commands.literal(gametype.getName()).executes((p_198343_1_) -> {
                return setMode(p_198343_1_.getSource(), gametype);
             }));
@@ -26,7 +26,7 @@ public class DefaultGameModeCommand {
       p_198340_0_.register(literalargumentbuilder);
    }
 
-   private static int setMode(CommandSource p_198341_0_, GameType p_198341_1_) {
+   private static int setMode(CommandSource p_198341_0_, Gamemode p_198341_1_) {
       int i = 0;
       MinecraftServer minecraftserver = p_198341_0_.getServer();
       minecraftserver.setDefaultGameType(p_198341_1_);

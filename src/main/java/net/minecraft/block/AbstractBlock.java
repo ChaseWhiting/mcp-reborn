@@ -482,6 +482,10 @@ public abstract class AbstractBlock {
          return this.destroySpeed;
       }
 
+      public float getDestroySpeed() {
+         return this.destroySpeed;
+      }
+
       public float getDestroyProgress(PlayerEntity p_185903_1_, IBlockReader p_185903_2_, BlockPos p_185903_3_) {
          return this.getBlock().getDestroyProgress(this.asState(), p_185903_1_, p_185903_2_, p_185903_3_);
       }
@@ -499,7 +503,7 @@ public abstract class AbstractBlock {
             return this.cache.solidRender;
          } else {
             BlockState blockstate = this.asState();
-            return blockstate.canOcclude() ? Block.isShapeFullBlock(blockstate.getOcclusionShape(p_200015_1_, p_200015_2_)) : false;
+            return blockstate.canOcclude() && Block.isShapeFullBlock(blockstate.getOcclusionShape(p_200015_1_, p_200015_2_));
          }
       }
 
@@ -895,6 +899,10 @@ public abstract class AbstractBlock {
       public AbstractBlock.Properties sound(SoundType p_200947_1_) {
          this.soundType = p_200947_1_;
          return this;
+      }
+
+      public Properties lantern() {
+         return this.sound(SoundType.LANTERN);
       }
 
       public AbstractBlock.Properties lightLevel(ToIntFunction<BlockState> p_235838_1_) {

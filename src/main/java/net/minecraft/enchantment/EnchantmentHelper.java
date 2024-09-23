@@ -55,6 +55,13 @@ public class EnchantmentHelper {
       return deserializeEnchantments(listnbt);
    }
 
+   public static boolean has(ItemStack stack, Enchantment enchantment) {
+      if (stack == null) {
+         return false;
+      }
+      return getItemEnchantmentLevel(enchantment, stack) > 0;
+   }
+
    public static Map<Enchantment, Integer> deserializeEnchantments(ListNBT p_226652_0_) {
       Map<Enchantment, Integer> map = Maps.newLinkedHashMap();
 
@@ -220,6 +227,10 @@ public class EnchantmentHelper {
 
    public static boolean hasFrostWalker(LivingEntity p_189869_0_) {
       return getEnchantmentLevel(Enchantments.FROST_WALKER, p_189869_0_) > 0;
+   }
+
+   public static boolean hasLavaWalker(LivingEntity p_189869_0_) {
+      return getEnchantmentLevel(Enchantments.LAVA_WALKER, p_189869_0_) > 0;
    }
 
    public static boolean hasSoulSpeed(LivingEntity p_234846_0_) {

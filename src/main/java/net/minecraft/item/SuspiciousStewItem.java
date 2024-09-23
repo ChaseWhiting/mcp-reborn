@@ -23,9 +23,9 @@ public class SuspiciousStewItem extends Item {
       compoundnbt.put("Effects", listnbt);
    }
 
-   public ItemStack finishUsingItem(ItemStack p_77654_1_, World p_77654_2_, LivingEntity p_77654_3_) {
-      ItemStack itemstack = super.finishUsingItem(p_77654_1_, p_77654_2_, p_77654_3_);
-      CompoundNBT compoundnbt = p_77654_1_.getTag();
+   public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity entity) {
+      ItemStack itemstack = super.finishUsingItem(itemStack, world, entity);
+      CompoundNBT compoundnbt = itemStack.getTag();
       if (compoundnbt != null && compoundnbt.contains("Effects", 9)) {
          ListNBT listnbt = compoundnbt.getList("Effects", 10);
 
@@ -38,11 +38,11 @@ public class SuspiciousStewItem extends Item {
 
             Effect effect = Effect.byId(compoundnbt1.getByte("EffectId"));
             if (effect != null) {
-               p_77654_3_.addEffect(new EffectInstance(effect, j));
+               entity.addEffect(new EffectInstance(effect, j));
             }
          }
       }
 
-      return p_77654_3_ instanceof PlayerEntity && ((PlayerEntity)p_77654_3_).abilities.instabuild ? itemstack : new ItemStack(Items.BOWL);
+      return entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.instabuild ? itemstack : new ItemStack(Items.BOWL);
    }
 }

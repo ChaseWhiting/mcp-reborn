@@ -7,6 +7,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,7 +31,7 @@ public class PlayerMenuObject implements ISpectatorMenuObject {
       if (map.containsKey(Type.SKIN)) {
          this.location = minecraft.getSkinManager().registerTexture(map.get(Type.SKIN), Type.SKIN);
       } else {
-         this.location = DefaultPlayerSkin.getDefaultSkin(PlayerEntity.createPlayerUUID(p_i45498_1_));
+         this.location = AbstractClientPlayerEntity.trySkinGet(PlayerEntity.createPlayerUUID(p_i45498_1_));
       }
 
       this.name = new StringTextComponent(p_i45498_1_.getName());

@@ -3,6 +3,7 @@ package net.minecraft.client.entity.player;
 import com.google.common.hash.Hashing;
 import com.mojang.authlib.GameProfile;
 import java.io.File;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
@@ -17,7 +18,7 @@ import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -36,12 +37,12 @@ public abstract class AbstractClientPlayerEntity extends PlayerEntity {
 
    public boolean isSpectator() {
       NetworkPlayerInfo networkplayerinfo = Minecraft.getInstance().getConnection().getPlayerInfo(this.getGameProfile().getId());
-      return networkplayerinfo != null && networkplayerinfo.getGameMode() == GameType.SPECTATOR;
+      return networkplayerinfo != null && networkplayerinfo.getGameMode() == Gamemode.SPECTATOR;
    }
 
    public boolean isCreative() {
       NetworkPlayerInfo networkplayerinfo = Minecraft.getInstance().getConnection().getPlayerInfo(this.getGameProfile().getId());
-      return networkplayerinfo != null && networkplayerinfo.getGameMode() == GameType.CREATIVE;
+      return networkplayerinfo != null && networkplayerinfo.getGameMode() == Gamemode.CREATIVE;
    }
 
    public boolean isCapeLoaded() {
@@ -64,7 +65,17 @@ public abstract class AbstractClientPlayerEntity extends PlayerEntity {
 
    public ResourceLocation getSkinTextureLocation() {
       NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
-      return networkplayerinfo == null ? DefaultPlayerSkin.getDefaultSkin(this.getUUID()) : networkplayerinfo.getSkinLocation();
+      return networkplayerinfo == null ? trySkinGet(this.getUUID()) : networkplayerinfo.getSkinLocation();
+   }
+
+   public static ResourceLocation trySkinGet(UUID uuid) {
+      try {
+         return DefaultPlayerSkin.tryGetPlayerSkin(uuid);
+      } catch (Exception e) {
+         // Handle the exception and return the default skin
+         System.err.println("Error fetching skin for UUID " + uuid + ": " + e.getMessage());
+         return DefaultPlayerSkin.getDefaultSkin(uuid);
+      }
    }
 
    @Nullable

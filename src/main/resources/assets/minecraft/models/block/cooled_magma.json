@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "minecraft:block/magma_block"
+    },
+    "age=1": {
+      "model": "minecraft:block/magma_block"
+    },
+    "age=2": {
+      "model": "minecraft:block/magma_block"
+    },
+    "age=3": {
+      "model": "minecraft:block/magma_block"
+    }
+  }
+}

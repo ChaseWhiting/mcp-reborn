@@ -68,7 +68,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TextProcessing;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraftforge.api.distmarker.Dist;
@@ -164,7 +164,7 @@ public class IngameGui extends AbstractGui {
          this.renderPortalOverlay(f);
       }
 
-      if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR) {
+      if (this.minecraft.gameMode.getPlayerMode() == Gamemode.SPECTATOR) {
          this.spectatorGui.renderHotbar(p_238445_1_, p_238445_2_);
       } else if (!this.minecraft.options.hideGui) {
          this.renderHotbar(p_238445_2_, p_238445_1_);
@@ -195,7 +195,7 @@ public class IngameGui extends AbstractGui {
             this.renderExperienceBar(p_238445_1_, i);
          }
 
-         if (this.minecraft.options.heldItemTooltips && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
+         if (this.minecraft.options.heldItemTooltips && this.minecraft.gameMode.getPlayerMode() != Gamemode.SPECTATOR) {
             this.renderSelectedItemName(p_238445_1_);
          } else if (this.minecraft.player.isSpectator()) {
             this.spectatorGui.renderTooltip(p_238445_1_);
@@ -351,7 +351,7 @@ public class IngameGui extends AbstractGui {
    private void renderCrosshair(MatrixStack p_238456_1_) {
       GameSettings gamesettings = this.minecraft.options;
       if (gamesettings.getCameraType().isFirstPerson()) {
-         if (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || this.canRenderCrosshairForSpectator(this.minecraft.hitResult)) {
+         if (this.minecraft.gameMode.getPlayerMode() != Gamemode.SPECTATOR || this.canRenderCrosshairForSpectator(this.minecraft.hitResult)) {
             if (gamesettings.renderDebug && !gamesettings.hideGui && !this.minecraft.player.isReducedDebugInfo() && !gamesettings.reducedDebugInfo) {
                RenderSystem.pushMatrix();
                RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), (float)this.getBlitOffset());

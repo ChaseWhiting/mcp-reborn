@@ -8,10 +8,11 @@ import java.time.Duration;
 import net.minecraft.command.TranslatableExceptionProvider;
 
 public class SharedConstants {
-   public static final Level NETTY_LEAK_DETECTION = Level.DISABLED;
+   public static final Level NETTY_LEAK_DETECTION = Level.PARANOID;
    public static final long MAXIMUM_TICK_TIME_NANOS = Duration.ofMillis(300L).toNanos();
    public static boolean CHECK_DATA_FIXER_SCHEMA = true;
-   public static boolean IS_RUNNING_IN_IDE;
+   public static boolean IS_RUNNING_IN_IDE = true;
+   public static boolean TEST_CELLULAR_NOISE = false;
    public static final char[] ILLEGAL_FILE_CHARACTERS = new char[]{'/', '\n', '\r', '\t', '\u0000', '\f', '`', '?', '*', '\\', '<', '>', '|', '"', ':'};
    private static GameVersion CURRENT_VERSION;
 
@@ -40,12 +41,12 @@ public class SharedConstants {
    }
 
    public static int getProtocolVersion() {
-      return 754;
+      return 834;
    }
 
    static {
       ResourceLeakDetector.setLevel(NETTY_LEAK_DETECTION);
-      CommandSyntaxException.ENABLE_COMMAND_STACK_TRACES = false;
+      CommandSyntaxException.ENABLE_COMMAND_STACK_TRACES = true;
       CommandSyntaxException.BUILT_IN_EXCEPTIONS = new TranslatableExceptionProvider();
    }
 }

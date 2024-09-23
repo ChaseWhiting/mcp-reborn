@@ -10,12 +10,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -24,6 +19,8 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.bundle.BundleItem;
+import net.minecraft.bundle.SlotAccess;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.command.arguments.BlockPredicateArgument;
 import net.minecraft.command.arguments.BlockStateParser;
@@ -33,14 +30,19 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.enchantment.UnbreakingEnchantment;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.container.ClickAction;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -100,6 +102,17 @@ public final class ItemStack {
    private CachedBlockInfo cachedPlaceBlock;
    private boolean cachedPlaceBlockResult;
 
+
+
+   public ItemEntity toEntity(World world) {
+      ItemEntity entity = EntityType.ITEM.create(world);
+      if (entity != null) {
+         entity.setItem(this);
+         return entity;
+      }
+      return null;
+   }
+
    public ItemStack(IItemProvider p_i48203_1_) {
       this(p_i48203_1_, 1);
    }
@@ -107,6 +120,74 @@ public final class ItemStack {
    private ItemStack(IItemProvider p_i231596_1_, int p_i231596_2_, Optional<CompoundNBT> p_i231596_3_) {
       this(p_i231596_1_, p_i231596_2_);
       p_i231596_3_.ifPresent(this::setTag);
+   }
+
+   public void onDestroyed(ItemEntity p_150925_) {
+      this.getItem().onDestroyed(p_150925_);
+   }
+
+   public boolean overrideStackedOnOther(Slot p_150927_, ClickAction p_150928_, PlayerEntity p_150929_, ClickType clickType) {
+      return this.getItem().overrideStackedOnOther(this, p_150927_, p_150928_, p_150929_, clickType);
+   }
+
+   public boolean overrideOtherStackedOnMe(ItemStack p_150933_, Slot p_150934_, ClickAction p_150935_, PlayerEntity p_150936_, SlotAccess p_150937_, ClickType clickType) {
+      return this.getItem().overrideOtherStackedOnMe(this, p_150933_, p_150934_, p_150935_, p_150936_, p_150937_, clickType);
+   }
+
+   public int getWeight(ItemStack stack, ItemStack bundle) {
+      int defaultWeight = this.getItem().getWeight(bundle);
+
+      // Calculate the durability lost as a percentage
+      if (stack.isDamageableItem()) {
+         int maxDurability = stack.getMaxDamage();
+         int currentDurability = maxDurability - stack.getDamageValue();
+         double durabilityPercentageLost = 1.0 - ((double) currentDurability / maxDurability);
+
+         // Reduce the weight by 1% for every 1% of durability lost
+         defaultWeight = (int) (defaultWeight * (1.0 - durabilityPercentageLost));
+      }
+
+      if (this.getItem() instanceof EnchantedBookItem) {
+         return this.getItem().getWeight(bundle, stack);
+      }
+
+      CompoundNBT weight = stack.getOrCreateTag();
+      if (weight.contains("ItemWeight")) {
+         defaultWeight = weight.getInt("ItemWeight");
+      }
+
+      if (stack.isEnchanted()) {
+         int lightweightLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.LIGHTWEIGHT, stack);
+         if (lightweightLevel > 0) {
+            return (int) (defaultWeight / (lightweightLevel + 0.5));
+         }
+         ListNBT enchantments = this.getEnchantmentTags();
+         int mWeight = EnchantedBookItem.returnWeightOfEnchantments(enchantments, stack);
+
+         return (int) (defaultWeight * 1.25) + mWeight;
+      }
+
+      return Math.max(1, defaultWeight);
+   }
+
+   public int getMaxWeight(ItemStack stack) {
+      if (stack.getItem() instanceof BundleItem) {
+         BundleItem bundleItem = (BundleItem) stack.getItem();
+         return bundleItem.getMaxWeight(stack);
+      }
+      return 64;
+   }
+
+   public boolean isBarVisible() {
+      return this.getItem().isBarVisible(this);
+   }
+
+   public int getBarWidth() {
+      return this.getItem().getBarWidth(this);
+   }
+
+   public int getBarColor() {
+      return this.getItem().getBarColor(this);
    }
 
    public ItemStack(IItemProvider itemProvider, int count) {
@@ -119,10 +200,20 @@ public final class ItemStack {
       this.updateEmptyCacheFlag();
    }
 
+   public ItemStack(BundleItem bundle, int weight, int count) {
+      this.item = bundle == null ? null : bundle;
+      this.count = count;
+      ItemStack item = new ItemStack(bundle, 1);
+      bundle.setMaxWeight(item, weight);
+      this.updateEmptyCacheFlag();
+   }
+
    private void updateEmptyCacheFlag() {
       this.emptyCacheFlag = false;
       this.emptyCacheFlag = this.isEmpty();
    }
+
+
 
    private ItemStack(CompoundNBT p_i47263_1_) {
       this.item = Registry.ITEM.get(new ResourceLocation(p_i47263_1_.getString("id")));
@@ -146,6 +237,10 @@ public final class ItemStack {
          LOGGER.debug("Tried to load invalid item: {}", p_199557_0_, runtimeexception);
          return EMPTY;
       }
+   }
+
+   public static ItemStack read(CompoundNBT nbt) {
+      return of(nbt);
    }
 
    public boolean isEmpty() {
@@ -226,8 +321,15 @@ public final class ItemStack {
       return p_77955_1_;
    }
 
+
+
    public int getMaxStackSize() {
-      return this.getItem().getMaxStackSize();
+      CompoundNBT nbt = this.getOrCreateTag();
+      if (nbt.contains("MaxStackSize")) {
+         return nbt.getInt("MaxStackSize");
+      } else {
+         return this.getItem().getMaxStackSize();
+      }
    }
 
    public boolean isStackable() {
@@ -287,6 +389,10 @@ public final class ItemStack {
          this.setDamageValue(l);
          return l >= this.getMaxDamage();
       }
+   }
+
+   public <T extends LivingEntity> void hurt(int val, T entity) {
+      this.hurtAndBreak(val, entity, p -> p.broadcastBreakEvent(entity.getUsedItemHand()));
    }
 
    public <T extends LivingEntity> void hurtAndBreak(int p_222118_1_, T p_222118_2_, Consumer<T> p_222118_3_) {
@@ -353,14 +459,23 @@ public final class ItemStack {
       }
    }
 
-   public static boolean tagMatches(ItemStack p_77970_0_, ItemStack p_77970_1_) {
-      if (p_77970_0_.isEmpty() && p_77970_1_.isEmpty()) {
+   public static boolean tagMatches(ItemStack stack1, ItemStack stack2) {
+      if (stack1.isEmpty() && stack2.isEmpty()) {
          return true;
-      } else if (!p_77970_0_.isEmpty() && !p_77970_1_.isEmpty()) {
-         if (p_77970_0_.tag == null && p_77970_1_.tag != null) {
-            return false;
+      } else if (!stack1.isEmpty() && !stack2.isEmpty()) {
+         CompoundNBT tag1 = stack1.getTag();
+         CompoundNBT tag2 = stack2.getTag();
+
+         boolean tag1IsEmpty = tag1 == null || tag1.isEmpty();
+         boolean tag2IsEmpty = tag2 == null || tag2.isEmpty();
+
+         if (tag1IsEmpty && tag2IsEmpty) {
+            return true;
+         } else if (!tag1IsEmpty && !tag2IsEmpty) {
+            return tag1.equals(tag2);
          } else {
-            return p_77970_0_.tag == null || p_77970_0_.tag.equals(p_77970_1_.tag);
+            // One tag is empty/null, the other is not
+            return false;
          }
       } else {
          return false;
@@ -392,6 +507,14 @@ public final class ItemStack {
          return true;
       } else {
          return !p_179545_0_.isEmpty() && !p_179545_1_.isEmpty() ? p_179545_0_.sameItem(p_179545_1_) : false;
+      }
+   }
+
+   public boolean isSame(ItemStack otherStack) {
+      if (this == otherStack) {
+         return true;
+      } else {
+         return !this.isEmpty() && !otherStack.isEmpty() ? otherStack.sameItem(this) : false;
       }
    }
 
@@ -613,6 +736,63 @@ public final class ItemStack {
             }
          }
       }
+      TranslationTextComponent text = new TranslationTextComponent("attribute.name.generic.attack_damage");
+      TranslationTextComponent text2 = new TranslationTextComponent("attribute.name.generic.movement_speed");
+      if (this.getItem() instanceof FrisbeeItem) {
+         list.add(StringTextComponent.EMPTY);
+
+         FrisbeeItem frisbeeItem = (FrisbeeItem) this.getItem();
+         double damage = frisbeeItem.getData(frisbeeItem).getBaseDamage();
+         int speed = frisbeeItem.getData(frisbeeItem).getSpeed();
+         double reduction = frisbeeItem.getData(frisbeeItem).convertPercentageToReductionValue();
+
+
+         // Adding "When Thrown" text
+         list.add((new StringTextComponent("When Thrown")).withStyle(TextFormatting.GRAY));
+
+         list.add((new StringTextComponent(" ")).append(new TranslationTextComponent("attribute.modifier.equals.0", damage, text)).withStyle(TextFormatting.DARK_GREEN));
+
+         // Adding speed information
+         list.add((new StringTextComponent(" ")).append(new TranslationTextComponent("attribute.modifier.equals.0", speed, text2)).withStyle(TextFormatting.DARK_GREEN));
+
+         // Adding damage information
+         list.add((new StringTextComponent(" ")).append(new TranslationTextComponent("attribute.modifier.equals.0", reduction + "%", new StringTextComponent("Speed Reduction on hitting mob"))).withStyle(TextFormatting.DARK_GREEN));
+
+         if (frisbeeItem.getData(frisbeeItem).phase()) {
+            list.add((new StringTextComponent("Goes through blocks")).withStyle(TextFormatting.BLUE));
+         }
+
+         if (frisbeeItem.getData(frisbeeItem).isFireResistant()) {
+            list.add((new StringTextComponent("Fire Proof")).withStyle(TextFormatting.BLUE));
+         }
+
+      } else if ((this.getItem() instanceof MusicDiscItem && ((MusicDiscItem) this.getItem()).isFrisbee)) {
+         list.add(StringTextComponent.EMPTY);
+
+         MusicDiscItem discItem = (MusicDiscItem) this.getItem();
+         double damage = discItem.data.getBaseDamage();
+         int speed = discItem.data.getSpeed();
+         double reduction = discItem.data.convertPercentageToReductionValue();
+
+
+         list.add((new StringTextComponent("When Thrown:")).withStyle(TextFormatting.GRAY));
+
+         list.add((new StringTextComponent(" ")).append(new TranslationTextComponent("attribute.modifier.equals.0", damage, text)).withStyle(TextFormatting.DARK_GREEN));
+
+         // Adding speed information
+         list.add((new StringTextComponent(" ")).append(new TranslationTextComponent("attribute.modifier.equals.0", speed, text2)).withStyle(TextFormatting.DARK_GREEN));
+
+         list.add((new StringTextComponent(" ")).append(new TranslationTextComponent("attribute.modifier.equals.0", reduction + "%", new StringTextComponent("Speed Reduction on hitting mob"))).withStyle(TextFormatting.DARK_GREEN));
+
+         // Adding damage information
+         if (discItem.data.phase()) {
+            list.add((new StringTextComponent("Goes through blocks")).withStyle(TextFormatting.BLUE));
+         }
+
+         if (discItem.data.isFireResistant()) {
+            list.add((new StringTextComponent("Fire Proof")).withStyle(TextFormatting.BLUE));
+         }
+      }
 
       if (shouldShowInTooltip(i, ItemStack.TooltipDisplayFlags.MODIFIERS)) {
          for(EquipmentSlotType equipmentslottype : EquipmentSlotType.values()) {
@@ -693,6 +873,10 @@ public final class ItemStack {
       if (p_82840_2_.isAdvanced()) {
          if (this.isDamaged()) {
             list.add(new TranslationTextComponent("item.durability", this.getMaxDamage() - this.getDamageValue(), this.getMaxDamage()));
+         }
+
+         if (this.getWeight(this, new ItemStack(Items.BUNDLE)) > 1 && this.getItem() != Items.BUNDLE) {
+            list.add(new TranslationTextComponent("item.weight", this.getWeight(this, new ItemStack(Items.BUNDLE))));
          }
 
          list.add((new StringTextComponent(Registry.ITEM.getKey(this.getItem()).toString())).withStyle(TextFormatting.DARK_GRAY));

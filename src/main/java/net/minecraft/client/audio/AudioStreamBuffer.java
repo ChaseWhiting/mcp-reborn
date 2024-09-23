@@ -12,7 +12,7 @@ import org.lwjgl.openal.AL10;
 public class AudioStreamBuffer {
    @Nullable
    private ByteBuffer data;
-   private final AudioFormat format;
+   public final AudioFormat format;
    private boolean hasAlBuffer;
    private int alBuffer;
 
@@ -63,4 +63,22 @@ public class AudioStreamBuffer {
       this.hasAlBuffer = false;
       return optionalint;
    }
+
+   // New method to get byte array from ByteBuffer
+   public byte[] getByteArray() {
+      if (this.data != null) {
+         byte[] byteArray = new byte[this.data.remaining()];
+         this.data.get(byteArray);
+         return byteArray;
+      }
+      return new byte[0]; // or throw an exception if data is null
+   }
+
+   public static ByteBuffer convertToByteBuffer(byte[] byteArray) {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(byteArray.length);
+      byteBuffer.put(byteArray);
+      byteBuffer.flip(); // Flip the buffer to prepare it for reading
+      return byteBuffer;
+   }
+
 }

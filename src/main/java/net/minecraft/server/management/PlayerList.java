@@ -72,7 +72,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.border.IBorderListener;
@@ -107,7 +107,7 @@ public abstract class PlayerList {
    private final DynamicRegistries.Impl registryHolder;
    protected final int maxPlayers;
    private int viewDistance;
-   private GameType overrideGameMode;
+   private Gamemode overrideGameMode;
    private boolean allowCheatsForAllPlayers;
    private int sendAllPlayerInfoIn;
 
@@ -708,7 +708,7 @@ public abstract class PlayerList {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public void setOverrideGameMode(GameType p_152604_1_) {
+   public void setOverrideGameMode(Gamemode p_152604_1_) {
       this.overrideGameMode = p_152604_1_;
    }
 
@@ -716,7 +716,7 @@ public abstract class PlayerList {
       if (p_72381_2_ != null) {
          p_72381_1_.gameMode.setGameModeForPlayer(p_72381_2_.gameMode.getGameModeForPlayer(), p_72381_2_.gameMode.getPreviousGameModeForPlayer());
       } else if (this.overrideGameMode != null) {
-         p_72381_1_.gameMode.setGameModeForPlayer(this.overrideGameMode, GameType.NOT_SET);
+         p_72381_1_.gameMode.setGameModeForPlayer(this.overrideGameMode, Gamemode.NOT_SET);
       }
 
       p_72381_1_.gameMode.updateGameMode(p_72381_3_.getServer().getWorldData().getGameType());

@@ -50,6 +50,11 @@ public enum EnchantmentType {
          return p_77557_1_ instanceof TridentItem;
       }
    },
+   FRISBEE {
+      public boolean canEnchant(Item p_77557_1_) {
+         return p_77557_1_ instanceof FrisbeeItem || p_77557_1_ instanceof MusicDiscItem;
+      }
+   },
    BREAKABLE {
       public boolean canEnchant(Item p_77557_1_) {
          return p_77557_1_.canBeDepleted() /*&& p_77557_1_ != Items.GILDED_CROSSBOW*/;
@@ -104,6 +109,18 @@ public enum EnchantmentType {
    VANISHABLE {
       public boolean canEnchant(Item p_77557_1_) {
          return p_77557_1_ instanceof IVanishable || Block.byItem(p_77557_1_) instanceof IVanishable || BREAKABLE.canEnchant(p_77557_1_);
+      }
+   },
+   BUNDLE {
+      @Override
+      public boolean canEnchant(Item p_77557_1_) {
+         return p_77557_1_ == Items.BUNDLE;
+      }
+   },
+   ANY {
+      @Override
+      public boolean canEnchant(Item item) {
+         return item.getWeight() != 1 && item != Items.BUNDLE;
       }
    };
 

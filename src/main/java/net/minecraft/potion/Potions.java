@@ -9,6 +9,8 @@ public class Potions {
    public static final Potion THICK = register("thick", new Potion());
    public static final Potion AWKWARD = register("awkward", new Potion());
    public static final Potion NIGHT_VISION = register("night_vision", new Potion(new EffectInstance(Effects.NIGHT_VISION, 3600)));
+   public static final Potion BLINDNESS = register("blindness", new Potion(new EffectInstance(Effects.BLINDNESS, 3600)));
+   public static final Potion SHORT_BLINDNESS = register("short_blindness", new Potion(new EffectInstance(Effects.BLINDNESS, 30 * 20)));
    public static final Potion LONG_NIGHT_VISION = register("long_night_vision", new Potion("night_vision", new EffectInstance(Effects.NIGHT_VISION, 9600)));
    public static final Potion INVISIBILITY = register("invisibility", new Potion(new EffectInstance(Effects.INVISIBILITY, 3600)));
    public static final Potion LONG_INVISIBILITY = register("long_invisibility", new Potion("invisibility", new EffectInstance(Effects.INVISIBILITY, 9600)));

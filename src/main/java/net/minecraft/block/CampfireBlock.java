@@ -55,11 +55,20 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
    private static final VoxelShape VIRTUAL_FENCE_POST = Block.box(6.0D, 0.0D, 6.0D, 10.0D, 16.0D, 10.0D);
    private final boolean spawnParticles;
    private final int fireDamage;
+   private Effects effects = null;
 
    public CampfireBlock(boolean p_i241174_1_, int p_i241174_2_, AbstractBlock.Properties p_i241174_3_) {
       super(p_i241174_3_);
       this.spawnParticles = p_i241174_1_;
       this.fireDamage = p_i241174_2_;
+      this.registerDefaultState(this.stateDefinition.any().setValue(LIT, Boolean.valueOf(true)).setValue(SIGNAL_FIRE, Boolean.valueOf(false)).setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(FACING, Direction.NORTH));
+   }
+
+   public CampfireBlock(boolean p_i241174_1_, int p_i241174_2_, AbstractBlock.Properties p_i241174_3_, Effects effects) {
+      super(p_i241174_3_);
+      this.spawnParticles = p_i241174_1_;
+      this.fireDamage = p_i241174_2_;
+      this.effects = effects;
       this.registerDefaultState(this.stateDefinition.any().setValue(LIT, Boolean.valueOf(true)).setValue(SIGNAL_FIRE, Boolean.valueOf(false)).setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(FACING, Direction.NORTH));
    }
 
@@ -132,6 +141,9 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
    @OnlyIn(Dist.CLIENT)
    public void animateTick(BlockState p_180655_1_, World p_180655_2_, BlockPos p_180655_3_, Random p_180655_4_) {
       if (p_180655_1_.getValue(LIT)) {
+         if (effects != null) {
+            effects.worldEffects(p_180655_2_, p_180655_3_, p_180655_1_);
+         }
          if (p_180655_4_.nextInt(10) == 0) {
             p_180655_2_.playLocalSound((double)p_180655_3_.getX() + 0.5D, (double)p_180655_3_.getY() + 0.5D, (double)p_180655_3_.getZ() + 0.5D, SoundEvents.CAMPFIRE_CRACKLE, SoundCategory.BLOCKS, 0.5F + p_180655_4_.nextFloat(), p_180655_4_.nextFloat() * 0.7F + 0.6F, false);
          }
@@ -144,6 +156,8 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
 
       }
    }
+
+
 
    public static void dowse(IWorld p_235475_0_, BlockPos p_235475_1_, BlockState p_235475_2_) {
       if (p_235475_0_.isClientSide()) {
@@ -250,5 +264,10 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
       return p_241470_0_.is(BlockTags.CAMPFIRES, (p_241469_0_) -> {
          return p_241469_0_.hasProperty(BlockStateProperties.WATERLOGGED) && p_241469_0_.hasProperty(BlockStateProperties.LIT);
       }) && !p_241470_0_.getValue(BlockStateProperties.WATERLOGGED) && !p_241470_0_.getValue(BlockStateProperties.LIT);
+   }
+
+   @FunctionalInterface
+   public interface Effects {
+      void worldEffects(World world, BlockPos pos, BlockState state);
    }
 }

@@ -8,6 +8,10 @@ public class BedItem extends BlockItem {
       super(p_i48528_1_, p_i48528_2_);
    }
 
+   public int getWeight(ItemStack bundle) {
+      return 3;
+   }
+
    protected boolean placeBlock(BlockItemUseContext p_195941_1_, BlockState p_195941_2_) {
       return p_195941_1_.getLevel().setBlock(p_195941_1_.getClickedPos(), p_195941_2_, 26);
    }

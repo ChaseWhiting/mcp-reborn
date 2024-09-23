@@ -7,6 +7,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.SuggestionProviders;
 import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -31,7 +32,7 @@ public class CreateCommand {
                 Commands.literal("create")
                         .requires(source -> source.hasPermission(2))
                         .then(Commands.argument("entity", StringArgumentType.greedyString())
-                                .suggests(CreateCommand::suggestEntityTypes)
+                                .suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
                                 .executes(context -> {
                                     String entityName = StringArgumentType.getString(context, "entity");
                                     if (entityName.equalsIgnoreCase("all")) {
@@ -47,10 +48,6 @@ public class CreateCommand {
     }
 
     private static CompletableFuture<Suggestions> suggestEntityTypes(CommandContext<CommandSource> context, SuggestionsBuilder builder) {
-        StreamSupport.stream(Registry.ENTITY_TYPE.spliterator(), false)
-                .map(EntityType::getRegistryName)
-                .map(ResourceLocation::toString)
-                .forEach(builder::suggest);
         builder.suggest("all");
         builder.suggest("monsters");
         return builder.buildFuture();

@@ -7,7 +7,7 @@ import net.minecraft.util.HTTPUtil;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -32,7 +32,7 @@ public class ShareToLanScreen extends Screen {
          this.minecraft.setScreen((Screen)null);
          int i = HTTPUtil.getAvailablePort();
          ITextComponent itextcomponent;
-         if (this.minecraft.getSingleplayerServer().publishServer(GameType.byName(this.gameModeName), this.commands, i)) {
+         if (this.minecraft.getSingleplayerServer().publishServer(Gamemode.byName(this.gameModeName), this.commands, i)) {
             itextcomponent = new TranslationTextComponent("commands.publish.started", i);
          } else {
             itextcomponent = new TranslationTextComponent("commands.publish.failed");

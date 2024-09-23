@@ -21,6 +21,7 @@ import net.minecraft.client.settings.SliderPercentageOption;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.player.ChatVisibility;
 import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
@@ -87,12 +88,12 @@ public abstract class AbstractOption {
       double d0 = p_216673_1_.toPct(p_216673_1_.get(p_216673_0_));
       return p_216673_1_.pixelValueLabel(NewChatGui.getWidth(d0));
    });
-   public static final SliderPercentageOption CHAT_LINE_SPACING = new SliderPercentageOption("options.chat.line_spacing", 0.0D, 1.0D, 0.0F, (p_238287_0_) -> {
-      return p_238287_0_.chatLineSpacing;
-   }, (p_238282_0_, p_238282_1_) -> {
-      p_238282_0_.chatLineSpacing = p_238282_1_;
-   }, (p_238297_0_, p_238297_1_) -> {
-      return p_238297_1_.percentValueLabel(p_238297_1_.toPct(p_238297_1_.get(p_238297_0_)));
+   public static final SliderPercentageOption CHAT_LINE_SPACING = new SliderPercentageOption("options.chat.line_spacing", 0.0D, 1.0D, 0.0F, (settings) -> {
+      return settings.chatLineSpacing;
+   }, (settings, value) -> {
+      settings.chatLineSpacing = value;
+   }, (settings, slider) -> {
+      return slider.percentValueLabel(slider.toPct(slider.get(settings)));
    });
    public static final SliderPercentageOption CHAT_DELAY = new SliderPercentageOption("options.chat.delay_instant", 0.0D, 6.0D, 0.1F, (p_238271_0_) -> {
       return p_238271_0_.chatDelay;
@@ -143,7 +144,7 @@ public abstract class AbstractOption {
       double d0 = p_244413_1_.get(p_244413_0_);
       return d0 == p_244413_1_.getMaxValue() ? p_244413_1_.genericValueLabel(new TranslationTextComponent("options.framerateLimit.max")) : p_244413_1_.genericValueLabel(new TranslationTextComponent("options.framerate", (int)d0));
    });
-   public static final SliderPercentageOption GAMMA = new SliderPercentageOption("options.gamma", 0.0D, 1.0D, 0.0F, (p_216636_0_) -> {
+   public static final SliderPercentageOption GAMMA = new SliderPercentageOption("options.gamma", 0D, 1.0D, 0.0F, (p_216636_0_) -> {
       return p_216636_0_.gamma;
    }, (p_216651_0_, p_216651_1_) -> {
       p_216651_0_.gamma = p_216651_1_;
@@ -318,6 +319,49 @@ public abstract class AbstractOption {
       return settings.showEntityHealth;
    }, (settings, value) -> {
       settings.showEntityHealth = value;
+   });
+   public static final BooleanOption MOBS_SEE_THROUGH_WALLS = new BooleanOption("options.hardmode.MobSeeThroughWall", (settings) -> {
+      return settings.mobsSeeThroughWalls;
+   }, (settings, value) -> {
+      settings.mobsSeeThroughWalls = value;
+   });
+   public static final ResourceLocation[] SHADERS = new ResourceLocation[]{new ResourceLocation("shaders/post/notch.json"), new ResourceLocation("shaders/post/fxaa.json"), new ResourceLocation("shaders/post/art.json"), new ResourceLocation("shaders/post/bumpy.json"), new ResourceLocation("shaders/post/blobs2.json"), new ResourceLocation("shaders/post/pencil.json"), new ResourceLocation("shaders/post/color_convolve.json"), new ResourceLocation("shaders/post/deconverge.json"), new ResourceLocation("shaders/post/flip.json"), new ResourceLocation("shaders/post/invert.json"), new ResourceLocation("shaders/post/ntsc.json"), new ResourceLocation("shaders/post/outline.json"), new ResourceLocation("shaders/post/phosphor.json"), new ResourceLocation("shaders/post/scan_pincushion.json"), new ResourceLocation("shaders/post/sobel.json"), new ResourceLocation("shaders/post/bits.json"), new ResourceLocation("shaders/post/desaturate.json"), new ResourceLocation("shaders/post/green.json"), new ResourceLocation("shaders/post/blur.json"), new ResourceLocation("shaders/post/wobble.json"), new ResourceLocation("shaders/post/blobs.json"), new ResourceLocation("shaders/post/antialias.json"), new ResourceLocation("shaders/post/creeper.json"), new ResourceLocation("shaders/post/spider.json")};
+
+   public static final IteratableOption SHADER_SELECTION = new IteratableOption("options.shader",
+           (options, step) -> {
+              // Change the current shader based on the step value
+              int newIndex = (options.selectedShaderIndex + step) % SHADERS.length;
+              if (newIndex < 0) {
+                 newIndex += SHADERS.length; // Handle negative wrap-around
+              }
+              options.selectedShaderIndex = newIndex;
+           },
+           (options, option) -> {
+              // Display the name of the currently selected shader
+              return option.genericValueLabel(new StringTextComponent(SHADERS[options.selectedShaderIndex].getPath().toString().replace("shaders/post/", "")));
+           }
+   );
+   public static final IteratableOption AMOUNT_BUNDLE_LINE_SHOW = new IteratableOption("options.bundle.line_show",
+           (options, step) -> {
+              // Change the current value based on the step value
+              int newIndex = (int)options.amountBundleLineShow + step;
+              if (newIndex > 10) {
+                 newIndex = 0; // Wrap around if above maximum
+              } else if (newIndex < 0) {
+                 newIndex = 10; // Wrap around if below minimum
+              }
+              options.amountBundleLineShow = newIndex;
+           },
+           (options, option) -> {
+              // Display the current value
+              return option.genericValueLabel(new StringTextComponent(String.valueOf((int)options.amountBundleLineShow)));
+           }
+   );
+
+   public static final BooleanOption ENABLE_SHADERS = new BooleanOption("options.enableShaders", (settings) -> {
+      return settings.enableCustomShaders;
+   }, (settings, value) -> {
+      settings.enableCustomShaders = value;
    });
    public static final BooleanOption AUTO_SUGGESTIONS = new BooleanOption("options.autoSuggestCommands", (p_216643_0_) -> {
       return p_216643_0_.autoSuggestions;

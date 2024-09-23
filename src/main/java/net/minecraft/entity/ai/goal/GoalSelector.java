@@ -125,4 +125,8 @@ public class GoalSelector {
       }
 
    }
+
+    public boolean hasGoal(Goal targetGoal) {
+      return this.getAvailableGoals().anyMatch((goal) -> goal.getGoal() == targetGoal);
+    }
 }

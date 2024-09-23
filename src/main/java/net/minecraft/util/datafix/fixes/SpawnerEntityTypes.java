@@ -34,10 +34,10 @@ public class SpawnerEntityTypes extends DataFix {
          Optional<? extends Stream<? extends Dynamic<?>>> optional1 = p_209659_1_.get("SpawnPotentials").asStreamOpt().result();
          if (optional1.isPresent()) {
             p_209659_1_ = p_209659_1_.set("SpawnPotentials", p_209659_1_.createList(optional1.get().map((p_209657_0_) -> {
-               Optional<String> optional2 = p_209657_0_.get("Type").asString().result();
+               Optional<String> optional2 = p_209657_0_.get("BoggedType").asString().result();
                if (optional2.isPresent()) {
                   Dynamic<?> dynamic1 = DataFixUtils.orElse(p_209657_0_.get("Properties").result(), p_209657_0_.emptyMap()).set("id", p_209657_0_.createString(optional2.get()));
-                  return p_209657_0_.set("Entity", dynamic1).remove("Type").remove("Properties");
+                  return p_209657_0_.set("Entity", dynamic1).remove("BoggedType").remove("Properties");
                } else {
                   return p_209657_0_;
                }

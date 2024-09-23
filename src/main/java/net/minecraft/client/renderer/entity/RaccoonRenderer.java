@@ -1,7 +1,9 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.entity.layers.RaccoonEyesLayer;
 import net.minecraft.client.renderer.entity.layers.RaccoonHeldItemLayer;
+import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.client.renderer.entity.model.RaccoonModel;
 import net.minecraft.entity.passive.RaccoonEntity;
 import net.minecraft.util.ResourceLocation;
@@ -34,6 +36,7 @@ public class RaccoonRenderer extends MobRenderer<RaccoonEntity, RaccoonModel<Rac
     public RaccoonRenderer(EntityRendererManager p_i50969_1_) {
         super(p_i50969_1_, new RaccoonModel<>(), 0.4F);
         this.addLayer(new RaccoonHeldItemLayer(this));
+        //this.addLayer(new RaccoonEyesLayer<>(this));
     }
 
     protected void setupRotations(RaccoonEntity p_225621_1_, MatrixStack p_225621_2_, float p_225621_3_, float p_225621_4_, float p_225621_5_) {

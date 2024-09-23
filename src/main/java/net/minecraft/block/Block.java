@@ -27,12 +27,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockVoxelShape;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ObjectIntIdentityMap;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -42,12 +37,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -271,6 +261,9 @@ public class Block extends AbstractBlock implements IItemProvider {
          p_180635_0_.addFreshEntity(itementity);
       }
    }
+   public static void popResource(World world, BlockPos pos, Item item) {
+      popResource(world, pos, new ItemStack(item));
+   }
 
    protected void popExperience(ServerWorld p_180637_1_, BlockPos p_180637_2_, int p_180637_3_) {
       if (p_180637_1_.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
@@ -288,6 +281,9 @@ public class Block extends AbstractBlock implements IItemProvider {
    }
 
    public void wasExploded(World p_180652_1_, BlockPos p_180652_2_, Explosion p_180652_3_) {
+   }
+
+   public void wasExploded(World world, BlockPos pos, NuclearExplosion explosion) {
    }
 
    public void stepOn(World p_176199_1_, BlockPos p_176199_2_, Entity p_176199_3_) {
@@ -364,7 +360,11 @@ public class Block extends AbstractBlock implements IItemProvider {
    public void handleRain(World p_176224_1_, BlockPos p_176224_2_) {
    }
 
-   public boolean dropFromExplosion(Explosion p_149659_1_) {
+   public boolean dropFromExplosion(Explosion explosion) {
+      return true;
+   }
+
+   public boolean dropFromExplosion(NuclearExplosion explosion) {
       return true;
    }
 
@@ -401,6 +401,18 @@ public class Block extends AbstractBlock implements IItemProvider {
 
    public String toString() {
       return "Block{" + Registry.BLOCK.getKey(this) + "}";
+   }
+
+   public Block fromString(String block) {
+      if (block.startsWith("Block{") && block.endsWith("}")) {
+         String format = block.replace("Block{", "").replace("}", "");
+         ResourceLocation resourceLocation = new ResourceLocation(format);
+
+         if (Registry.BLOCK.containsKey(resourceLocation)) {
+            return Registry.BLOCK.get(resourceLocation);
+         }
+      }
+      return Blocks.AIR;
    }
 
    @OnlyIn(Dist.CLIENT)

@@ -1,25 +1,41 @@
 buildscript {
     repositories {
         mavenLocal()
-        maven { url = 'http://files.minecraftforge.net/maven' }
+        maven { url = 'https://files.minecraftforge.net/maven' } // Changed to HTTPS
         mavenCentral()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.+'
-
     }
 }
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'java'
+}
+
+sourceCompatibility = '15'
+targetCompatibility = '15'
 
 import net.minecraftforge.forge.tasks.*
 
 apply plugin: 'eclipse'
 apply plugin: 'net.minecraftforge.gradle.patcher'
 apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 configurations {
     shade
     compile.extendsFrom shade
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_15
+    targetCompatibility = JavaVersion.VERSION_15
+}
+
+
 
 group = 'me.yourname'
 version = '1.0.0'
@@ -32,13 +48,23 @@ ext {
     spi_version = '3.2.0'
 }
 
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
     shade 'net.minecraftforge:forgespi:' + spi_version
+    shade 'org.codehaus.groovy:groovy:3.0.9'
     implementation 'org.codehaus.groovy:groovy:3.0.9'
+    implementation 'org.jetbrains:annotations:24.0.1'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+
+
+
+
+    implementation 'org.json:json:20210307'
 //    Use the shade to add the lib to the jar
 //    or use compile if you want to load the lib from the version.json
 //    from a maven repo
@@ -61,6 +87,18 @@ patcher {
     patchedSrc = file('src/main/java')
     mappings channel: mappings_channel, version: mappings_version
     mcVersion = minecraft_version
+}
+
+shadowJar {
+    archiveClassifier.set('all')
+    configurations = [project.configurations.shade]
+    mergeServiceFiles()
+    from(sourceSets.main.resources.srcDirs) {
+        include '**/*'
+    }
+    from('src/main/resources') {
+        include '**/*'
+    }
 }
 
 jar {

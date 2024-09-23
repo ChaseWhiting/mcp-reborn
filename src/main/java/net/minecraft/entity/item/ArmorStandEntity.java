@@ -498,7 +498,7 @@ public class ArmorStandEntity extends LivingEntity {
       this.brokenByAnything(p_213815_1_);
    }
 
-   private void brokenByAnything(DamageSource p_213816_1_) {
+   public void brokenByAnything(DamageSource p_213816_1_) {
       this.playBrokenSound();
       this.dropAllDeathLoot(p_213816_1_);
 

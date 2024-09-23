@@ -38,24 +38,36 @@ public class SpawnEggItem extends Item {
    private final int color1;
    private final int color2;
    private final EntityType<?> defaultType;
+   @Nullable
+   private final MobSpawnHandler spawnHandler; // New handler
 
-   public SpawnEggItem(EntityType<?> p_i48465_1_, int p_i48465_2_, int p_i48465_3_, Item.Properties p_i48465_4_) {
-      super(p_i48465_4_);
-      this.defaultType = p_i48465_1_;
-      this.color1 = p_i48465_2_;
-      this.color2 = p_i48465_3_;
-      BY_ID.put(p_i48465_1_, this);
+   // Existing constructor
+   public SpawnEggItem(EntityType<?> entityType, int color1, int color2, Item.Properties properties) {
+      this(entityType, color1, color2, properties, null);
    }
 
-   public ActionResultType useOn(ItemUseContext p_195939_1_) {
-      World world = p_195939_1_.getLevel();
+   // New constructor with the functional interface
+   public SpawnEggItem(EntityType<?> entityType, int color1, int color2, Item.Properties properties, @Nullable MobSpawnHandler spawnHandler) {
+      super(properties);
+      this.defaultType = entityType;
+      this.color1 = color1;
+      this.color2 = color2;
+      this.spawnHandler = spawnHandler;
+      BY_ID.put(entityType, this);
+   }
+
+   // Modify the existing spawn logic to call the handler
+   public ActionResultType useOn(ItemUseContext context) {
+      World world = context.getLevel();
       if (!(world instanceof ServerWorld)) {
          return ActionResultType.SUCCESS;
       } else {
-         ItemStack itemstack = p_195939_1_.getItemInHand();
-         BlockPos blockpos = p_195939_1_.getClickedPos();
-         Direction direction = p_195939_1_.getClickedFace();
+         ItemStack itemstack = context.getItemInHand();
+         BlockPos blockpos = context.getClickedPos();
+         Direction direction = context.getClickedFace();
          BlockState blockstate = world.getBlockState(blockpos);
+
+         // Spawner logic
          if (blockstate.is(Blocks.SPAWNER)) {
             TileEntity tileentity = world.getBlockEntity(blockpos);
             if (tileentity instanceof MobSpawnerTileEntity) {
@@ -77,43 +89,55 @@ public class SpawnEggItem extends Item {
          }
 
          EntityType<?> entitytype = this.getType(itemstack.getTag());
-         if (entitytype.spawn((ServerWorld)world, itemstack, p_195939_1_.getPlayer(), blockpos1, SpawnReason.SPAWN_EGG, true, !Objects.equals(blockpos, blockpos1) && direction == Direction.UP) != null) {
+         Mob mob = (Mob) entitytype.spawn((ServerWorld)world, itemstack, context.getPlayer(), blockpos1, SpawnReason.SPAWN_EGG, true, !Objects.equals(blockpos, blockpos1) && direction == Direction.UP);
+
+         // If mob is successfully spawned, call the custom spawn handler if present
+         if (mob != null) {
             itemstack.shrink(1);
+            if (this.spawnHandler != null) {
+               this.spawnHandler.onMobSpawn(mob, (ServerWorld) world, blockpos1, context.getPlayer());
+            }
          }
 
          return ActionResultType.CONSUME;
       }
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-      RayTraceResult raytraceresult = getPlayerPOVHitResult(p_77659_1_, p_77659_2_, RayTraceContext.FluidMode.SOURCE_ONLY);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      RayTraceResult raytraceresult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
       if (raytraceresult.getType() != RayTraceResult.Type.BLOCK) {
          return ActionResult.pass(itemstack);
-      } else if (!(p_77659_1_ instanceof ServerWorld)) {
+      } else if (!(world instanceof ServerWorld)) {
          return ActionResult.success(itemstack);
       } else {
          BlockRayTraceResult blockraytraceresult = (BlockRayTraceResult)raytraceresult;
          BlockPos blockpos = blockraytraceresult.getBlockPos();
-         if (!(p_77659_1_.getBlockState(blockpos).getBlock() instanceof FlowingFluidBlock)) {
+         if (!(world.getBlockState(blockpos).getBlock() instanceof FlowingFluidBlock)) {
             return ActionResult.pass(itemstack);
-         } else if (p_77659_1_.mayInteract(p_77659_2_, blockpos) && p_77659_2_.mayUseItemAt(blockpos, blockraytraceresult.getDirection(), itemstack)) {
+         } else if (world.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos, blockraytraceresult.getDirection(), itemstack)) {
             EntityType<?> entitytype = this.getType(itemstack.getTag());
-            if (entitytype.spawn((ServerWorld)p_77659_1_, itemstack, p_77659_2_, blockpos, SpawnReason.SPAWN_EGG, false, false) == null) {
-               return ActionResult.pass(itemstack);
-            } else {
-               if (!p_77659_2_.abilities.instabuild) {
+            Mob mob = (Mob) entitytype.spawn((ServerWorld)world, itemstack, player, blockpos, SpawnReason.SPAWN_EGG, false, false);
+
+            // Call the custom spawn handler if mob is successfully spawned
+            if (mob != null) {
+               if (!player.abilities.instabuild) {
                   itemstack.shrink(1);
                }
-
-               p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
+               player.awardStat(Stats.ITEM_USED.get(this));
+               if (this.spawnHandler != null) {
+                  this.spawnHandler.onMobSpawn(mob, (ServerWorld) world, blockpos, player);
+               }
                return ActionResult.consume(itemstack);
+            } else {
+               return ActionResult.pass(itemstack);
             }
          } else {
             return ActionResult.fail(itemstack);
          }
       }
    }
+
 
    public boolean spawnsEntity(@Nullable CompoundNBT p_208077_1_, EntityType<?> p_208077_2_) {
       return Objects.equals(this.getType(p_208077_1_), p_208077_2_);

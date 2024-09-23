@@ -81,6 +81,7 @@ public class ArgumentTypes {
       register("dimension", DimensionArgument.class, new ArgumentSerializer<>(DimensionArgument::dimension));
       register("time", TimeArgument.class, new ArgumentSerializer<>(TimeArgument::time));
       register("uuid", UUIDArgument.class, new ArgumentSerializer<>(UUIDArgument::uuid));
+      register("number", NumberArgumentType.class, new NumberArgumentType.Serializer());
       if (SharedConstants.IS_RUNNING_IN_IDE) {
          register("test_argument", TestArgArgument.class, new ArgumentSerializer<>(TestArgArgument::testFunctionArgument));
          register("test_class", TestTypeArgument.class, new ArgumentSerializer<>(TestTypeArgument::testClassName));

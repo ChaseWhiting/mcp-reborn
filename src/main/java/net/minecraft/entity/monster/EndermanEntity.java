@@ -35,6 +35,8 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.DamageSource;
@@ -71,6 +73,13 @@ public class EndermanEntity extends Monster implements IAngerable {
 
    public EndermanEntity(EntityType<? extends EndermanEntity> p_i50210_1_, World p_i50210_2_) {
       super(p_i50210_1_, p_i50210_2_);
+      if (this.veryHardmode()) {
+         this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(90D);
+         this.setHealth(this.getMaxHealth());
+         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.35F);
+         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(9D);
+         this.xpReward = 20;
+      }
       this.maxUpStep = 1.0F;
       this.setPathfindingMalus(PathNodeType.WATER, -1.0F);
    }
@@ -93,26 +102,7 @@ public class EndermanEntity extends Monster implements IAngerable {
    public static AttributeModifierMap.MutableAttribute createAttributes() {
       return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 40.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.ATTACK_DAMAGE, 7.0D).add(Attributes.FOLLOW_RANGE, 64.0D);
    }
-   public void Tick() {
-      super.tick();
 
-      if (this.level.isNight()) {
-         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)0.34F);
-         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(12F);
-      } else {
-         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)0.3F);
-         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(7F);
-      }
-
-      List<EndermanEntity> endermanEntities = this.level.getEntitiesOfClass(EndermanEntity.class, this.getBoundingBox().inflate(16.0D, 8.0D, 16.0D), enderman -> enderman != this);
-
-      if (this.isAngry() && this.getTarget() != null) {
-         for (EndermanEntity enderman : endermanEntities) {
-               enderman.setRemainingPersistentAngerTime(this.getRemainingPersistentAngerTime());
-               enderman.setPersistentAngerTarget(this.getTarget().getUUID());
-         }
-      }
-   }
 
 
 
@@ -173,11 +163,29 @@ public class EndermanEntity extends Monster implements IAngerable {
    }
 
    public void onSyncedDataUpdated(DataParameter<?> p_184206_1_) {
-      if (DATA_CREEPY.equals(p_184206_1_) && this.hasBeenStaredAt() && this.level.isClientSide) {
-         this.playStareSound();
+      if (DATA_CREEPY.equals(p_184206_1_) && this.hasBeenStaredAt()) {
+         if (this.level.isClientSide) {
+            this.playStareSound();
+         }
+         if (this.veryHardmode()) {
+            this.level.getNearbyPlayers((new EntityPredicate()).range(32.0D).allowUnseeable().ignoreInvisibilityTesting(), this, this.getBoundingBox().inflate(32, 20, 32)).forEach(this::addBlindness);
+         }
       }
 
       super.onSyncedDataUpdated(p_184206_1_);
+   }
+
+   public void addBlindness(PlayerEntity player) {
+      player.addEffect(new EffectInstance(Effects.BLINDNESS, 15 * 20, 0));
+
+// Set a random body rotation (yaw) between -180 and 180 degrees (full circle)
+      player.yRot = (MathHelper.nextFloat(this.random, -180F, 180F));
+
+// Set the head yaw to match the body so that the head faces the same random direction
+      player.setYHeadRot(player.yBodyRot);
+
+// Set the head pitch to look up randomly between 0 (straight ahead) and -90 (looking up)
+      player.xRot = (MathHelper.nextFloat(new Random(), -90F, 0F));
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
@@ -238,32 +246,10 @@ public class EndermanEntity extends Monster implements IAngerable {
    }
 
    public boolean isSensitiveToWater() {
-      return true;
-   }
-   private void alertOthers() {
-      double d0 = 32D;
-      AxisAlignedBB axisalignedbb = AxisAlignedBB.unitCubeFromLowerCorner(this.position()).inflate(d0, 10.0D, d0);
-      this.level.getLoadedEntitiesOfClass(EndermanEntity.class, axisalignedbb).stream().filter((enderman) -> {
-         return enderman != this;
-      }).filter((enderman2) -> {
-         return enderman2.getTarget() == null;
-      }).filter((enderman3) -> {
-         return !enderman3.isAlliedTo(this.getTarget());
-      }).forEach((enderman) -> {
-         enderman.setTarget(this.getTarget());
-      });
-   }
-
-   public void maybeAlertOthers() {
-      if (this.getSensing().canSee(this.getTarget())) {
-         this.alertOthers();
-      }
+      return Boolean.TRUE;
    }
 
    protected void customServerAiStep() {
-      if (this.getTarget() != null) {
-         this.maybeAlertOthers();
-      }
       if (this.level.isDay() && this.tickCount >= this.targetChangeTime + 600) {
          float f = this.getBrightness();
          if (f > 0.5F && this.level.canSeeSky(this.blockPosition()) && this.random.nextFloat() * 30.0F < (f - 0.4F) * 2.0F) {
@@ -290,10 +276,31 @@ public class EndermanEntity extends Monster implements IAngerable {
       Vector3d vector3d = new Vector3d(this.getX() - p_70816_1_.getX(), this.getY(0.5D) - p_70816_1_.getEyeY(), this.getZ() - p_70816_1_.getZ());
       vector3d = vector3d.normalize();
       double d0 = 16.0D;
-      double d1 = this.getX() + (this.random.nextDouble() - 0.5D) * 8.0D - vector3d.x * 16.0D;
-      double d2 = this.getY() + (double)(this.random.nextInt(16) - 8) - vector3d.y * 16.0D;
-      double d3 = this.getZ() + (this.random.nextDouble() - 0.5D) * 8.0D - vector3d.z * 16.0D;
+      double d1 = this.getX() + (this.random.nextDouble() - 0.5D) * 8.0D - vector3d.x * d0;
+      double d2 = this.getY() + (double)(this.random.nextInt((int) d0) - 8) - vector3d.y * d0;
+      double d3 = this.getZ() + (this.random.nextDouble() - 0.5D) * 8.0D - vector3d.z * d0;
       return this.teleport(d1, d2, d3);
+   }
+
+   private boolean teleportBehind(Entity target) {
+      // Get the target's forward direction vector
+      Vector3d forwardVector = target.getLookAngle().normalize();
+
+      // Define the distance behind the target to teleport to
+      double distanceBehind = 5.0D; // Adjust this value for how far behind you want to teleport
+
+      // Calculate the position to teleport to, behind the target
+      double targetX = target.getX() - forwardVector.x * distanceBehind;
+      double targetY = target.getY() + 0.5D; // You can adjust this based on the height difference
+      double targetZ = target.getZ() - forwardVector.z * distanceBehind;
+
+      // Add some randomness to make it more natural (optional)
+      double dX = targetX + (this.random.nextDouble() - 0.5D) * 2.0D; // Adjust randomness as needed
+      double dY = targetY + (this.random.nextDouble() - 0.5D) * 2.0D;
+      double dZ = targetZ + (this.random.nextDouble() - 0.5D) * 2.0D;
+
+      // Perform the teleport and return the result
+      return this.teleport(dX, dY, dZ);
    }
 
    private boolean teleport(double p_70825_1_, double p_70825_3_, double p_70825_5_) {
@@ -360,23 +367,13 @@ public class EndermanEntity extends Monster implements IAngerable {
          }
          return false;
       } else {
+
          boolean flag = super.hurt(source, amount);
          if (!this.level.isClientSide() && !(source.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
             this.teleport();
          }
 
-         // Start of added code
-         if (this.isAngry() && this.getTarget() != null && !this.level.isClientSide()) {
-            List<EndermanEntity> endermanEntities = this.level.getEntitiesOfClass(EndermanEntity.class, this.getBoundingBox().inflate(32.0D, 16.0D, 32.0D), test -> test != this);
 
-            for (EndermanEntity enderman : endermanEntities) {
-               if (enderman.getTarget() == null) {
-                  enderman.setRemainingPersistentAngerTime(this.getRemainingPersistentAngerTime());
-                  enderman.setPersistentAngerTarget(this.getTarget().getUUID());
-               }
-            }
-         }
-         // End of added code
 
          return flag;
       }
@@ -398,20 +395,20 @@ public class EndermanEntity extends Monster implements IAngerable {
       return super.requiresCustomPersistence() || this.getCarriedBlock() != null;
    }
 
-   static class FindPlayerGoal extends NearestAttackableTargetGoal<PlayerEntity> {
+   public class FindPlayerGoal extends NearestAttackableTargetGoal<PlayerEntity> {
       private final EndermanEntity enderman;
       private PlayerEntity pendingTarget;
       private int aggroTime;
       private int teleportTime;
+      private int stareGracePeriod; // Add a grace period to keep aggro for a short time
       private final EntityPredicate startAggroTargetConditions;
       private final EntityPredicate continueAggroTargetConditions = (new EntityPredicate()).allowUnseeable();
 
-      public FindPlayerGoal(EndermanEntity p_i241912_1_, @Nullable Predicate<LivingEntity> p_i241912_2_) {
-         super(p_i241912_1_, PlayerEntity.class, 10, false, false, p_i241912_2_);
-         this.enderman = p_i241912_1_;
-         this.startAggroTargetConditions = (new EntityPredicate()).range(this.getFollowDistance()).selector((p_220790_1_) -> {
-            return p_i241912_1_.isLookingAtMe((PlayerEntity)p_220790_1_);
-         });
+      public FindPlayerGoal(EndermanEntity enderman, @Nullable Predicate<LivingEntity> targetPredicate) {
+         super(enderman, PlayerEntity.class, 10, false, false, targetPredicate);
+         this.enderman = enderman;
+         this.startAggroTargetConditions = (new EntityPredicate()).range(this.getFollowDistance()).selector((player) -> enderman.isLookingAtMe((PlayerEntity) player));
+         this.stareGracePeriod = 20; // This can be adjusted for how long the Enderman stays aggro after looking away
       }
 
       public boolean canUse() {
@@ -423,16 +420,27 @@ public class EndermanEntity extends Monster implements IAngerable {
          this.aggroTime = 5;
          this.teleportTime = 0;
          this.enderman.setBeingStaredAt();
+         this.stareGracePeriod = 20; // Reset the grace period when the player first stares at the enderman
+         if (this.enderman.veryHardmode()) {
+            this.enderman.addEffect(new EffectInstance(Effects.INVISIBILITY, 30 * 20, 0, false, true));
+         }
       }
 
       public void stop() {
+         if (this.enderman.veryHardmode()) {
+            if (this.pendingTarget != null) {
+               this.enderman.teleportBehind(this.pendingTarget);
+            }
+            this.enderman.removeEffect(Effects.INVISIBILITY);
+         }
          this.pendingTarget = null;
          super.stop();
       }
 
       public boolean canContinueToUse() {
          if (this.pendingTarget != null) {
-            if (!this.enderman.isLookingAtMe(this.pendingTarget)) {
+            // Check if the stare grace period is still active
+            if (!this.enderman.isLookingAtMe(this.pendingTarget) && --this.stareGracePeriod <= 0) {
                return false;
             } else {
                this.enderman.lookAt(this.pendingTarget, 10.0F, 10.0F);
@@ -445,7 +453,7 @@ public class EndermanEntity extends Monster implements IAngerable {
 
       public void tick() {
          if (this.enderman.getTarget() == null) {
-            super.setTarget((LivingEntity)null);
+            super.setTarget((LivingEntity) null);
          }
 
          if (this.pendingTarget != null) {
@@ -456,23 +464,22 @@ public class EndermanEntity extends Monster implements IAngerable {
             }
          } else {
             if (this.target != null && !this.enderman.isPassenger()) {
-               if (this.enderman.isLookingAtMe((PlayerEntity)this.target)) {
+               if (this.enderman.isLookingAtMe((PlayerEntity) this.target)) {
                   if (this.target.distanceToSqr(this.enderman) < 16.0D) {
                      this.enderman.teleport();
                   }
 
                   this.teleportTime = 0;
-               } else if (this.target.distanceToSqr(this.enderman) > 256.0D && this.teleportTime++ >= 30 && this.enderman.teleportTowards(this.target)) {
+               } else if (this.target.distanceToSqr(this.enderman) > 256.0D && this.teleportTime++ >= 30
+                       && (this.enderman.teleportTowards(this.target) || this.enderman.teleportBehind(this.target) && this.enderman.veryHardmode())) {
                   this.teleportTime = 0;
                }
             }
-
-
             super.tick();
          }
-
       }
    }
+
 
    static class PlaceBlockGoal extends Goal {
       private final EndermanEntity enderman;
@@ -487,7 +494,7 @@ public class EndermanEntity extends Monster implements IAngerable {
          } else if (!this.enderman.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
             return false;
          } else {
-            return this.enderman.getRandom().nextInt(2000) == 0;
+            return this.enderman.getRandom().nextInt(this.enderman.getTarget() != null && this.enderman.veryHardmode() ? 150 : 2000) == 0;
          }
       }
 
@@ -558,7 +565,7 @@ public class EndermanEntity extends Monster implements IAngerable {
          } else if (!this.enderman.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
             return false;
          } else {
-            return this.enderman.getRandom().nextInt(20) == 0;
+            return this.enderman.getRandom().nextInt(this.enderman.veryHardmode() ? 5 : 20) == 0;
          }
       }
 

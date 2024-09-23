@@ -63,6 +63,7 @@ public class EntityId extends DataFix {
       p_209312_0_.put("ShulkerBullet", "minecraft:shulker_bullet");
       p_209312_0_.put("Silverfish", "minecraft:silverfish");
       p_209312_0_.put("Skeleton", "minecraft:skeleton");
+      p_209312_0_.put("CrossboneSkeleton", "minecraft:crossbone_skeleton");
       p_209312_0_.put("SkeletonHorse", "minecraft:skeleton_horse");
       p_209312_0_.put("Slime", "minecraft:slime");
       p_209312_0_.put("SmallFireball", "minecraft:small_fireball");

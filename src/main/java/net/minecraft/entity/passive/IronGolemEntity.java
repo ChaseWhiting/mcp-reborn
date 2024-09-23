@@ -65,6 +65,9 @@ public class IronGolemEntity extends GolemEntity implements IAngerable {
 
    public IronGolemEntity(EntityType<? extends IronGolemEntity> p_i50267_1_, World p_i50267_2_) {
       super(p_i50267_1_, p_i50267_2_);
+      if (this.veryHardmode()) {
+         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(10D);
+      }
       this.maxUpStep = 1.0F;
    }
 
@@ -80,7 +83,7 @@ public class IronGolemEntity extends GolemEntity implements IAngerable {
       this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::isAngryAt));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class, 5, false, false, (p_234199_0_) -> {
-         return p_234199_0_ instanceof IMob && !(p_234199_0_ instanceof CreeperEntity);
+         return p_234199_0_ instanceof IMob;
       }));
       this.targetSelector.addGoal(4, new ResetAngerGoal<>(this, false));
    }
@@ -136,7 +139,7 @@ public class IronGolemEntity extends GolemEntity implements IAngerable {
       if (this.isPlayerCreated() && p_213358_1_ == EntityType.PLAYER) {
          return false;
       } else {
-         return p_213358_1_ == EntityType.CREEPER ? false : super.canAttackType(p_213358_1_);
+         return super.canAttackType(p_213358_1_);
       }
    }
 
@@ -244,27 +247,47 @@ public class IronGolemEntity extends GolemEntity implements IAngerable {
       return SoundEvents.IRON_GOLEM_DEATH;
    }
 
-   protected ActionResultType mobInteract(PlayerEntity p_230254_1_, Hand p_230254_2_) {
-      ItemStack itemstack = p_230254_1_.getItemInHand(p_230254_2_);
+   protected ActionResultType mobInteract(PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
       Item item = itemstack.getItem();
-      if (item != Items.IRON_INGOT) {
+
+      // Check if the item is either an iron ingot or an iron block
+      if (item != Items.IRON_INGOT && item != Items.IRON_BLOCK) {
          return ActionResultType.PASS;
       } else {
-         float f = this.getHealth();
-         this.heal(25.0F);
-         if (this.getHealth() == f) {
+         float currentHealth = this.getHealth();
+         float maxHealth = this.getMaxHealth();
+
+         // If the item is an iron ingot and max health is not 200
+         if (item == Items.IRON_INGOT && maxHealth != 200.0F) {
+            // Set max health to 100 and heal for either 5 or 25 depending on the game mode
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100.0F);
+            this.heal(veryHardmode() ? 5F : 25F);
+         }
+         // If the item is an iron block
+         else if (item == Items.IRON_BLOCK) {
+            // Set max health to 200 if it's not already, and heal for 200 health
+            if (maxHealth != 200.0F) {
+               this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200.0F);
+            }
+            this.heal(veryHardmode() ? 130F : 200F);
+         }
+
+         // If the health hasn't changed, return PASS
+         if (this.getHealth() == currentHealth) {
             return ActionResultType.PASS;
          } else {
-            float f1 = 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F;
-            this.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, f1);
-            if (!p_230254_1_.abilities.instabuild) {
+            // Play the sound and reduce the item stack
+            float pitch = 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F;
+            this.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, pitch);
+            if (!player.abilities.instabuild) {
                itemstack.shrink(1);
             }
-
             return ActionResultType.sidedSuccess(this.level.isClientSide);
          }
       }
    }
+
 
    protected void playStepSound(BlockPos p_180429_1_, BlockState p_180429_2_) {
       this.playSound(SoundEvents.IRON_GOLEM_STEP, 1.0F, 1.0F);

@@ -45,6 +45,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PhantomEntity extends FlyingEntity implements IMob {
    private static final DataParameter<Integer> ID_SIZE = EntityDataManager.defineId(PhantomEntity.class, DataSerializers.INT);
    private Vector3d moveTargetPoint = Vector3d.ZERO;
+   private int timeWithPassenger = 0;
    private BlockPos anchorPoint = BlockPos.ZERO;
    private PhantomEntity.AttackPhase attackPhase = PhantomEntity.AttackPhase.CIRCLE;
 
@@ -117,14 +118,32 @@ public class PhantomEntity extends FlyingEntity implements IMob {
          this.level.addParticle(ParticleTypes.MYCELIUM, this.getX() - (double)f2, this.getY() + (double)f4, this.getZ() - (double)f3, 0.0D, 0.0D, 0.0D);
       }
 
+      if (!this.getPassengers().isEmpty()) {
+         if (this.getPassengers().get(0) != null && this.getPassengers().get(0) instanceof PlayerEntity) {
+            if (this.getY() > 80 && this.veryHardmode() || ++timeWithPassenger >= 90 && this.veryHardmode()) {
+               this.getPassengers().get(0).asPlayer().stopRiding();
+            }
+         }
+      }
+
    }
 
    public void aiStep() {
       if (this.isAlive() && this.isSunBurnTick()) {
-         this.setSecondsOnFire(8);
+         this.setSecondsOnFire(4);
       }
 
       super.aiStep();
+   }
+
+   public boolean doHurtTarget(Entity entity) {
+      if (this.getPassengers().isEmpty()) {
+         if (entity instanceof PlayerEntity && !this.hasPassenger(entity) && this.veryHardmode()) {
+            entity.startRiding(this);
+            this.timeWithPassenger = 0;
+         }
+      }
+      return super.doHurtTarget(entity);
    }
 
    protected void customServerAiStep() {
@@ -142,6 +161,9 @@ public class PhantomEntity extends FlyingEntity implements IMob {
       if (p_70037_1_.contains("AX")) {
          this.anchorPoint = new BlockPos(p_70037_1_.getInt("AX"), p_70037_1_.getInt("AY"), p_70037_1_.getInt("AZ"));
       }
+      if (p_70037_1_.contains("TimeWithPassenger")) {
+         this.timeWithPassenger = p_70037_1_.getInt("TimeWithPassenger");
+      }
 
       this.setPhantomSize(p_70037_1_.getInt("Size"));
    }
@@ -149,6 +171,7 @@ public class PhantomEntity extends FlyingEntity implements IMob {
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
       p_213281_1_.putInt("AX", this.anchorPoint.getX());
+      p_213281_1_.putInt("TimeWithPassenger", timeWithPassenger);
       p_213281_1_.putInt("AY", this.anchorPoint.getY());
       p_213281_1_.putInt("AZ", this.anchorPoint.getZ());
       p_213281_1_.putInt("Size", this.getPhantomSize());
@@ -265,7 +288,7 @@ public class PhantomEntity extends FlyingEntity implements IMob {
    }
 
    class MoveHelperController extends MovementController {
-      private float speed = 0.1F;
+      private float speed = PhantomEntity.this.veryHardmode() ? 0.5f : 0.1f;
 
       public MoveHelperController(Mob p_i48801_2_) {
          super(p_i48801_2_);
@@ -274,7 +297,7 @@ public class PhantomEntity extends FlyingEntity implements IMob {
       public void tick() {
          if (PhantomEntity.this.horizontalCollision) {
             PhantomEntity.this.yRot += 180.0F;
-            this.speed = 0.1F;
+            this.speed = PhantomEntity.this.veryHardmode() ? 0.5f : 0.1f;
          }
 
          float f = (float)(PhantomEntity.this.moveTargetPoint.x - PhantomEntity.this.getX());
@@ -475,4 +498,6 @@ public class PhantomEntity extends FlyingEntity implements IMob {
 
       }
    }
+
+
 }

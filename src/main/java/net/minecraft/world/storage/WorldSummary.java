@@ -8,7 +8,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.WorldSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -68,7 +68,7 @@ public class WorldSummary implements Comparable<WorldSummary> {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public GameType getGameMode() {
+   public Gamemode getGameMode() {
       return this.settings.gameType();
    }
 

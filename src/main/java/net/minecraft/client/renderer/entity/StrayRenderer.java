@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import net.minecraft.client.renderer.entity.layers.StayClothingLayer;
+import net.minecraft.client.renderer.entity.layers.StrayClothingLayer;
 import net.minecraft.entity.monster.AbstractSkeletonEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,7 +12,7 @@ public class StrayRenderer extends SkeletonRenderer {
 
    public StrayRenderer(EntityRendererManager p_i47191_1_) {
       super(p_i47191_1_);
-      this.addLayer(new StayClothingLayer<>(this));
+      this.addLayer(new StrayClothingLayer<>(this));
    }
 
    public ResourceLocation getTextureLocation(AbstractSkeletonEntity p_110775_1_) {

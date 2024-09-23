@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.entity.layers.WolfArmorLayer;
 import net.minecraft.client.renderer.entity.layers.WolfCollarLayer;
 import net.minecraft.client.renderer.entity.model.WolfModel;
 import net.minecraft.entity.passive.WolfEntity;
@@ -18,6 +19,7 @@ public class WolfRenderer extends MobRenderer<WolfEntity, WolfModel<WolfEntity>>
    public WolfRenderer(EntityRendererManager p_i47187_1_) {
       super(p_i47187_1_, new WolfModel<>(), 0.5F);
       this.addLayer(new WolfCollarLayer(this));
+      //this.addLayer(new WolfArmorLayer<>(this));
    }
 
    protected float getBob(WolfEntity p_77044_1_, float p_77044_2_) {

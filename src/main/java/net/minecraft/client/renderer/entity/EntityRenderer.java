@@ -10,12 +10,15 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.item.*;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -26,7 +29,10 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.LightType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.compress.utils.IOUtils;
 
+import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
@@ -34,6 +40,7 @@ public abstract class EntityRenderer<T extends Entity> {
    protected final EntityRendererManager entityRenderDispatcher;
    protected float shadowRadius;
    protected float shadowStrength = 1.0F;
+   protected boolean output = false;
    private Minecraft minecraft = Minecraft.getInstance();
 
    protected EntityRenderer(EntityRendererManager p_i46179_1_) {
@@ -123,7 +130,41 @@ public abstract class EntityRenderer<T extends Entity> {
       }
    }
 
+   public void extractAndSaveTexture(T entity) {
+      // Get the texture location from the entity
+      ResourceLocation textureLocation = getTextureLocation(entity);
+
+      // Get the resource manager from Minecraft instance
+      IResourceManager resourceManager = minecraft.getResourceManager();
+
+      // Get the resource (texture) as an input stream
+      try (IResource resource = resourceManager.getResource(textureLocation)) {
+         InputStream inputStream = resource.getInputStream();
+         String textureFileName = textureLocation.getPath().substring(textureLocation.getPath().lastIndexOf('/') + 1);
+
+         // Define the output file path
+         File outputFile = new File("C:\\Users\\infow\\Downloads\\texture\\" + textureFileName);
+
+         // Ensure the directories exist
+         Files.createDirectories(outputFile.toPath().getParent());
+
+         // Write the texture to the specified output file
+         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            IOUtils.copy(inputStream, outputStream);
+            System.out.println("Texture saved to " + outputFile.getAbsolutePath());
+         } catch (IOException e) {
+             throw new RuntimeException(e);
+         }
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
+
    protected void renderHealth(T entity, ITextComponent displayName, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+//      if (!output) {
+//         extractAndSaveTexture(entity);
+//         output = true;
+//      }
       double distanceSquared = this.entityRenderDispatcher.distanceToSqr(entity);
       double distance = Math.sqrt(distanceSquared);
 
@@ -135,11 +176,16 @@ public abstract class EntityRenderer<T extends Entity> {
                       && !(entity1 instanceof ItemEntity)
                       && !(entity1 instanceof AbstractArrowEntity)
                       && !(entity1 instanceof ArmorStandEntity)
-                      && !(entity1 instanceof AbstractMinecartEntity));
+                      && !(entity1 instanceof AbstractMinecartEntity)
+                      && !(entity1 instanceof ExperienceOrbEntity)
+                      && !(entity1 instanceof FishingBobberEntity)
+                      && !(entity1 instanceof BoatEntity)
+                      && !(entity1 instanceof HangingEntity)
+                      && !(entity1 instanceof EnderDragonPartEntity)
+                      && !(entity1 instanceof LightningBoltEntity));
       ITextComponent maxHealthComponent = new TranslationTextComponent("attribute.name.generic.max_health");
 
-      if (minecraft.options.showEntityHealth() && entities.isEmpty() && !(distance > 6.0D) && !(entity instanceof WitherEntity) && !(entity instanceof EnderDragonEntity) && !displayName.getString().equals(minecraft.getUser().getName())) {
-
+      if (minecraft.options.showEntityHealth() && !minecraft.options.hideGui && entities.isEmpty() && !(distance > 8.5D) && !(entity instanceof WitherEntity) && !(entity instanceof EnderDragonEntity) && !displayName.getString().equals(minecraft.getUser().getName())) {
          boolean isDiscrete = !entity.isDiscrete();
          FontRenderer fontRenderer = this.getFont();
          float yOffset = entity.getBbHeight() + 0.5F;

@@ -109,14 +109,14 @@ public class LlamaFollowCaravanGoal extends Goal {
       }
    }
 
-   private boolean firstIsLeashed(LlamaEntity p_190858_1_, int p_190858_2_) {
-      if (p_190858_2_ > 8) {
+   private boolean firstIsLeashed(LlamaEntity llamaEntity, int p_190858_2_) {
+      if (p_190858_2_ > 800) {
          return false;
-      } else if (p_190858_1_.inCaravan()) {
-         if (p_190858_1_.getCaravanHead().isLeashed()) {
+      } else if (llamaEntity.inCaravan()) {
+         if (llamaEntity.getCaravanHead().isLeashed()) {
             return true;
          } else {
-            LlamaEntity llamaentity = p_190858_1_.getCaravanHead();
+            LlamaEntity llamaentity = llamaEntity.getCaravanHead();
             ++p_190858_2_;
             return this.firstIsLeashed(llamaentity, p_190858_2_);
          }

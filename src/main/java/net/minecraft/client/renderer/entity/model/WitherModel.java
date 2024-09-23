@@ -31,7 +31,7 @@ public class WitherModel<T extends WitherEntity> extends SegmentedModel<T> {
         this.upperBodyParts[1].texOffs(24, 22).addBox(-4.0F, 6.5F, 0.5F, 11.0F, 2.0F, 2.0F, p_i46302_1_);
         this.upperBodyParts[2] = new ModelRenderer(this, 12, 22);
         this.upperBodyParts[2].addBox(0.0F, 0.0F, 0.0F, 3.0F, 6.0F, 3.0F, p_i46302_1_);
-        this.heads = new ModelRenderer[4]; // Increase the array size to 4
+        this.heads = new ModelRenderer[3]; // Increase the array size to 4
         this.heads[0] = new ModelRenderer(this, 0, 0);
         this.heads[0].addBox(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F, p_i46302_1_);
         this.heads[1] = new ModelRenderer(this, 32, 0);
@@ -42,11 +42,6 @@ public class WitherModel<T extends WitherEntity> extends SegmentedModel<T> {
         this.heads[2].addBox(-4.0F, -4.0F, -4.0F, 6.0F, 6.0F, 6.0F, p_i46302_1_);
         this.heads[2].x = 10.0F;
         this.heads[2].y = 4.0F;
-        // Add the fourth head
-        this.heads[3] = new ModelRenderer(this, 32, 0);
-        this.heads[3].addBox(-4.0F, -4.0F, -4.0F, 6.0F, 6.0F, 6.0F, p_i46302_1_);
-        this.heads[3].x = -15F; // Midway between head 0 and head 1
-        this.heads[3].y = 4.0F;
         Builder<ModelRenderer> builder = ImmutableList.builder();
         builder.addAll(Arrays.asList(this.heads));
         builder.addAll(Arrays.asList(this.upperBodyParts));
@@ -67,7 +62,7 @@ public class WitherModel<T extends WitherEntity> extends SegmentedModel<T> {
     }
 
     public void prepareMobModel(T p_212843_1_, float p_212843_2_, float p_212843_3_, float p_212843_4_) {
-        for (int i = 1; i < 4; ++i) { // Update loop to handle the fourth head
+        for (int i = 1; i < 3; ++i) { // Update loop to handle the fourth head
             this.heads[i].yRot = (p_212843_1_.getHeadYRot(i - 1) - p_212843_1_.yBodyRot) * ((float) Math.PI / 180F);
             this.heads[i].xRot = p_212843_1_.getHeadXRot(i - 1) * ((float) Math.PI / 180F);
         }

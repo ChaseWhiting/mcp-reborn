@@ -19,4 +19,10 @@ public class SkeletonRenderer extends BipedRenderer<AbstractSkeletonEntity, Skel
    public ResourceLocation getTextureLocation(AbstractSkeletonEntity p_110775_1_) {
       return SKELETON_LOCATION;
    }
+
+   protected boolean isShaking(AbstractSkeletonEntity p_230495_1_) {
+      return p_230495_1_.isUnderWaterConverting();
+   }
+
+
 }

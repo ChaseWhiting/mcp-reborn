@@ -10,7 +10,7 @@ import net.minecraft.util.RegistryKey;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.DimensionType;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,8 +19,8 @@ public class SJoinGamePacket implements IPacket<IClientPlayNetHandler> {
    private int playerId;
    private long seed;
    private boolean hardcore;
-   private GameType gameType;
-   private GameType previousGameType;
+   private Gamemode gameType;
+   private Gamemode previousGameType;
    private Set<RegistryKey<World>> levels;
    private DynamicRegistries.Impl registryHolder;
    private DimensionType dimensionType;
@@ -35,7 +35,7 @@ public class SJoinGamePacket implements IPacket<IClientPlayNetHandler> {
    public SJoinGamePacket() {
    }
 
-   public SJoinGamePacket(int p_i242082_1_, GameType p_i242082_2_, GameType p_i242082_3_, long p_i242082_4_, boolean p_i242082_6_, Set<RegistryKey<World>> p_i242082_7_, DynamicRegistries.Impl p_i242082_8_, DimensionType p_i242082_9_, RegistryKey<World> p_i242082_10_, int p_i242082_11_, int p_i242082_12_, boolean p_i242082_13_, boolean p_i242082_14_, boolean p_i242082_15_, boolean p_i242082_16_) {
+   public SJoinGamePacket(int p_i242082_1_, Gamemode p_i242082_2_, Gamemode p_i242082_3_, long p_i242082_4_, boolean p_i242082_6_, Set<RegistryKey<World>> p_i242082_7_, DynamicRegistries.Impl p_i242082_8_, DimensionType p_i242082_9_, RegistryKey<World> p_i242082_10_, int p_i242082_11_, int p_i242082_12_, boolean p_i242082_13_, boolean p_i242082_14_, boolean p_i242082_15_, boolean p_i242082_16_) {
       this.playerId = p_i242082_1_;
       this.levels = p_i242082_7_;
       this.registryHolder = p_i242082_8_;
@@ -56,8 +56,8 @@ public class SJoinGamePacket implements IPacket<IClientPlayNetHandler> {
    public void read(PacketBuffer p_148837_1_) throws IOException {
       this.playerId = p_148837_1_.readInt();
       this.hardcore = p_148837_1_.readBoolean();
-      this.gameType = GameType.byId(p_148837_1_.readByte());
-      this.previousGameType = GameType.byId(p_148837_1_.readByte());
+      this.gameType = Gamemode.byId(p_148837_1_.readByte());
+      this.previousGameType = Gamemode.byId(p_148837_1_.readByte());
       int i = p_148837_1_.readVarInt();
       this.levels = Sets.newHashSet();
 
@@ -122,12 +122,12 @@ public class SJoinGamePacket implements IPacket<IClientPlayNetHandler> {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public GameType getGameType() {
+   public Gamemode getGameType() {
       return this.gameType;
    }
 
    @OnlyIn(Dist.CLIENT)
-   public GameType getPreviousGameType() {
+   public Gamemode getPreviousGameType() {
       return this.previousGameType;
    }
 

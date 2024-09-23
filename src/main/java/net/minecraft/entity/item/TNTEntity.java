@@ -1,6 +1,9 @@
 package net.minecraft.entity.item;
 
 import javax.annotation.Nullable;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
@@ -28,6 +31,8 @@ public class TNTEntity extends Entity {
       this.blocksBuilding = true;
    }
 
+   private BlockState blockState = Blocks.TNT.defaultBlockState(); // Default to TNT
+
    public TNTEntity(World p_i1730_1_, double p_i1730_2_, double p_i1730_4_, double p_i1730_6_, @Nullable LivingEntity p_i1730_8_) {
       this(EntityType.TNT, p_i1730_1_);
       this.setPos(p_i1730_2_, p_i1730_4_, p_i1730_6_);
@@ -50,6 +55,16 @@ public class TNTEntity extends Entity {
 
    public boolean isPickable() {
       return !this.removed;
+   }
+
+   // Getter for BlockState
+   public BlockState getBlockState() {
+      return this.blockState;
+   }
+
+   // Setter for BlockState
+   public void setBlockState(BlockState blockState) {
+      this.blockState = blockState;
    }
 
    public void tick() {
@@ -79,8 +94,8 @@ public class TNTEntity extends Entity {
    }
 
    private void explode() {
-      float f = 4.0F;
-      this.level.explode(this, this.getX(), this.getY(0.0625D), this.getZ(), 4.0F, Explosion.Mode.BREAK);
+      float explosionPower = 4.0F;
+      this.level.explode(this, this.getX(), this.getY(0.0625D), this.getZ(), explosionPower, Explosion.Mode.BREAK);
    }
 
    protected void addAdditionalSaveData(CompoundNBT p_213281_1_) {

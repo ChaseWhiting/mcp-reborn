@@ -11,7 +11,7 @@ public class AbstractCrossbowBuilder {
 
     public static class Builder {
         private Item.Properties properties;
-        private int id;
+        private int id = 0;
         private float[] shootingPower;
         private int[] chargeDuration;
         private int extraDamage = 0;
@@ -83,7 +83,7 @@ public class AbstractCrossbowBuilder {
     }
 
     private static CrossbowConfig registerCrossbowConfig(int id, String name, CrossbowConfig config) {
-        return Registry.registerMapping(Registry.CROSSBOW_CONFIG, id, name, config);
+        return Registry.register(Registry.CROSSBOW_CONFIG, name, config);
     }
 
 
@@ -91,4 +91,5 @@ public class AbstractCrossbowBuilder {
     private static Item registerCrossbow(String resource, AbstractCrossbowItem crossbow) {
         return Items.registerItem(new ResourceLocation(resource), crossbow);
     }
+
 }

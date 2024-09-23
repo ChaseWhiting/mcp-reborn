@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -36,7 +37,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CrossbowItem extends ShootableItem implements IVanishable {
+public class CrossbowItem extends ShootableItem implements IVanishable, ICrossbowItem {
    private boolean startSoundPlayed = false;
    private boolean midLoadSoundPlayed = false;
 
@@ -46,6 +47,10 @@ public class CrossbowItem extends ShootableItem implements IVanishable {
 
    public Predicate<ItemStack> getSupportedHeldProjectiles() {
       return FIRE_WORK_OR_BONE_ARROW;
+   }
+
+   public int getWeight(ItemStack bundle) {
+      return 12;
    }
 
    public Predicate<ItemStack> getAllSupportedProjectiles() {

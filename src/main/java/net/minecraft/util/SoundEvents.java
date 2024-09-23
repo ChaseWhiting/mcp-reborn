@@ -4,10 +4,16 @@ import net.minecraft.util.registry.Registry;
 
 public class SoundEvents {
    public static final SoundEvent AMBIENT_CAVE = register("ambient.cave");
+
+
+
    public static final SoundEvent AMBIENT_BASALT_DELTAS_ADDITIONS = register("ambient.basalt_deltas.additions");
    public static final SoundEvent AMBIENT_BASALT_DELTAS_LOOP = register("ambient.basalt_deltas.loop");
    public static final SoundEvent AMBIENT_BASALT_DELTAS_MOOD = register("ambient.basalt_deltas.mood");
    public static final SoundEvent AMBIENT_CRIMSON_FOREST_ADDITIONS = register("ambient.crimson_forest.additions");
+   public static final SoundEvent BUNDLE_DROP_CONTENTS = register("item.bundle.drop_contents");
+   public static final SoundEvent BUNDLE_INSERT = register("item.bundle.insert");
+   public static final SoundEvent BUNDLE_REMOVE_ONE = register("item.bundle.remove_one");
    public static final SoundEvent AMBIENT_CRIMSON_FOREST_LOOP = register("ambient.crimson_forest.loop");
    public static final SoundEvent AMBIENT_CRIMSON_FOREST_MOOD = register("ambient.crimson_forest.mood");
    public static final SoundEvent AMBIENT_NETHER_WASTES_ADDITIONS = register("ambient.nether_wastes.additions");
@@ -85,6 +91,7 @@ public class SoundEvents {
    public static final SoundEvent BEE_LOOP = register("entity.bee.loop");
    public static final SoundEvent BEE_STING = register("entity.bee.sting");
    public static final SoundEvent BEE_POLLINATE = register("entity.bee.pollinate");
+   public static final SoundEvent PIP_RADIATION = register("pipboy.loop.radiation");
    public static final SoundEvent BEEHIVE_DRIP = register("block.beehive.drip");
    public static final SoundEvent BEEHIVE_ENTER = register("block.beehive.enter");
    public static final SoundEvent BEEHIVE_EXIT = register("block.beehive.exit");
@@ -775,6 +782,15 @@ public class SoundEvents {
    public static final SoundEvent SKELETON_HURT = register("entity.skeleton.hurt");
    public static final SoundEvent SKELETON_SHOOT = register("entity.skeleton.shoot");
    public static final SoundEvent SKELETON_STEP = register("entity.skeleton.step");
+
+
+   public static final SoundEvent BOGGED_STEP = register("entity.bogged.step");
+   public static final SoundEvent BOGGED_SHOOT = register("entity.bogged.shoot");
+   public static final SoundEvent BOGGED_DEATH = register("entity.bogged.death");
+   public static final SoundEvent BOGGED_AMBIENT = register("entity.bogged.ambient");
+   public static final SoundEvent BOGGED_HURT = register("entity.bogged.hurt");
+
+
    public static final SoundEvent SLIME_ATTACK = register("entity.slime.attack");
    public static final SoundEvent SLIME_DEATH = register("entity.slime.death");
    public static final SoundEvent SLIME_HURT = register("entity.slime.hurt");

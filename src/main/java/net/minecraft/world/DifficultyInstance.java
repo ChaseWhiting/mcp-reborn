@@ -7,10 +7,16 @@ import net.minecraft.util.math.MathHelper;
 public class DifficultyInstance {
    private final Difficulty base;
    private final float effectiveDifficulty;
+   private final boolean veryDifficult;
 
-   public DifficultyInstance(Difficulty p_i45904_1_, long p_i45904_2_, long p_i45904_4_, float p_i45904_6_) {
+   public DifficultyInstance(Difficulty p_i45904_1_, long p_i45904_2_, long p_i45904_4_, float p_i45904_6_, boolean veryDifficult) {
       this.base = p_i45904_1_;
-      this.effectiveDifficulty = this.calculateDifficulty(p_i45904_1_, p_i45904_2_, p_i45904_4_, p_i45904_6_);
+      this.effectiveDifficulty = this.calculateDifficulty(p_i45904_1_, p_i45904_2_, p_i45904_4_, p_i45904_6_, veryDifficult);
+      this.veryDifficult = veryDifficult;
+   }
+
+   public boolean isVeryDifficult() {
+      return veryDifficult;
    }
 
    public Difficulty getDifficulty() {
@@ -29,11 +35,16 @@ public class DifficultyInstance {
       if (this.effectiveDifficulty < 2.0F) {
          return 0.0F;
       } else {
-         return this.effectiveDifficulty > 4.0F ? 1.0F : (this.effectiveDifficulty - 2.0F) / 2.0F;
+         float f = this.effectiveDifficulty > 4.0F ? 1.0F : (this.effectiveDifficulty - 2.0F) / 2.0F;
+         if (this.veryDifficult) {
+            return f * f;
+         } else {
+            return f;
+         }
       }
    }
 
-   private float calculateDifficulty(Difficulty p_180169_1_, long p_180169_2_, long p_180169_4_, float p_180169_6_) {
+   private float calculateDifficulty(Difficulty p_180169_1_, long p_180169_2_, long p_180169_4_, float p_180169_6_, boolean veryHard) {
       if (p_180169_1_ == Difficulty.PEACEFUL) {
          return 0.0F;
       } else {
@@ -49,6 +60,9 @@ public class DifficultyInstance {
          }
 
          f = f + f2;
+         if (veryHard) {
+            return (float) p_180169_1_.getId() * f * 4;
+         }
          return (float)p_180169_1_.getId() * f;
       }
    }

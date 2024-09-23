@@ -29,7 +29,7 @@ public class FireworkStarItem extends Item {
 
    @OnlyIn(Dist.CLIENT)
    public static void appendHoverText(CompoundNBT p_195967_0_, List<ITextComponent> p_195967_1_) {
-      FireworkRocketItem.Shape fireworkrocketitem$shape = FireworkRocketItem.Shape.byId(p_195967_0_.getByte("Type"));
+      FireworkRocketItem.Shape fireworkrocketitem$shape = FireworkRocketItem.Shape.byId(p_195967_0_.getByte("BoggedType"));
       p_195967_1_.add((new TranslationTextComponent("item.minecraft.firework_star.shape." + fireworkrocketitem$shape.getName())).withStyle(TextFormatting.GRAY));
       int[] aint = p_195967_0_.getIntArray("Colors");
       if (aint.length > 0) {

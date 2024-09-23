@@ -4,7 +4,7 @@ import net.minecraft.client.gui.toasts.TutorialToast;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -60,7 +60,7 @@ public class MovementStep implements ITutorialStep {
       }
 
       if (this.moveCompleted != -1 && this.lookCompleted != -1) {
-         if (this.tutorial.getGameMode() == GameType.SURVIVAL) {
+         if (this.tutorial.getGameMode() == Gamemode.SURVIVAL) {
             this.tutorial.setStep(TutorialSteps.FIND_TREE);
          } else {
             this.tutorial.setStep(TutorialSteps.NONE);

@@ -10,13 +10,20 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.bundle.BundleItem;
+import net.minecraft.bundle.SlotAccess;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.container.ClickAction;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.*;
@@ -41,6 +48,7 @@ public class Item implements IItemProvider {
    private final Rarity rarity;
    private final int maxStackSize;
    private final int maxDamage;
+   private final int weight;
    private final boolean isFireResistant;
    private final Item craftingRemainingItem;
    @Nullable
@@ -56,6 +64,18 @@ public class Item implements IItemProvider {
       return Registry.ITEM.byId(p_150899_0_);
    }
 
+   public static Item byStringID(String string) {
+      return Registry.ITEM.get(new ResourceLocation(string));
+   }
+
+   public <T extends Item> T as(Class<T> clazz) throws ClassCastException {
+      if (clazz.isInstance(this)) {
+         return clazz.cast(this);
+      } else {
+         throw new ClassCastException("Cannot cast " + this.getClass().getName() + " to " + clazz.getName());
+      }
+   }
+
    @Deprecated
    public static Item byBlock(Block p_150898_0_) {
       return BY_BLOCK.getOrDefault(p_150898_0_, Items.AIR);
@@ -69,6 +89,7 @@ public class Item implements IItemProvider {
       this.maxStackSize = p_i48487_1_.maxStackSize;
       this.foodProperties = p_i48487_1_.foodProperties;
       this.isFireResistant = p_i48487_1_.isFireResistant;
+      this.weight = p_i48487_1_.weight;
    }
 
    public String getRegistryName() {
@@ -116,8 +137,8 @@ public class Item implements IItemProvider {
       }
    }
 
-   public ItemStack finishUsingItem(ItemStack p_77654_1_, World p_77654_2_, LivingEntity p_77654_3_) {
-      return this.isEdible() ? p_77654_3_.eat(p_77654_2_, p_77654_1_) : p_77654_1_;
+   public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity entity) {
+      return this.isEdible() ? entity.eat(world, itemStack) : itemStack;
    }
 
    public final int getMaxStackSize() {
@@ -136,7 +157,7 @@ public class Item implements IItemProvider {
       return false;
    }
 
-   public boolean mineBlock(ItemStack p_179218_1_, World p_179218_2_, BlockState p_179218_3_, BlockPos p_179218_4_, LivingEntity p_179218_5_) {
+   public boolean mineBlock(ItemStack itemStack, World world, BlockState state, BlockPos pos, LivingEntity entity) {
       return false;
    }
 
@@ -325,6 +346,63 @@ public class Item implements IItemProvider {
       return !this.isFireResistant || !p_234685_1_.isFire();
    }
 
+   public boolean canFitInsideContainerItems() {
+      return true;
+   }
+
+   public int getWeight(ItemStack bundle, ItemStack enchantmentBook) {
+      return 4;
+   }
+
+
+   public int getWeight(ItemStack stack) {
+      Item item = stack.getItem();
+
+      if (this.weight != -1) {
+         return this.weight;
+      }
+
+      if (item instanceof BundleItem) {
+         BundleItem bundleItem = (BundleItem) item;
+         int maxWeight = bundleItem.getMaxWeight(stack);
+
+         if (maxWeight > 64) {
+            return Math.max(1, 64 / getMaxStackSize());
+         } else {
+            return Math.max(1, maxWeight / getMaxStackSize());
+         }
+      }
+      return 64 / this.getMaxStackSize(); // Default fallback, assuming each stack has max size weight
+   }
+
+   public int getWeight() {
+      return 64 / this.getMaxStackSize();
+   }
+
+   public void onDestroyed(ItemEntity p_150887_) {
+   }
+
+   public boolean overrideStackedOnOther(ItemStack p_150888_, Slot p_150889_, ClickAction p_150890_, PlayerEntity p_150891_, ClickType clickType) {
+      return false;
+   }
+
+   public boolean overrideOtherStackedOnMe(ItemStack p_150892_, ItemStack p_150893_, Slot p_150894_, ClickAction p_150895_, PlayerEntity p_150896_, SlotAccess p_150897_, ClickType clickType) {
+      return false;
+   }
+
+   public boolean isBarVisible(ItemStack p_150899_) {
+      return p_150899_.isDamaged();
+   }
+
+   public int getBarWidth(ItemStack p_150900_) {
+      return Math.round(13.0F - (float)p_150900_.getDamageValue() * 13.0F / (float)this.maxDamage);
+   }
+
+   public int getBarColor(ItemStack p_150901_) {
+      float f = Math.max(0.0F, ((float)this.maxDamage - (float)p_150901_.getDamageValue()) / (float)this.maxDamage);
+      return MathHelper.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
+   }
+
    public static class Properties {
       private int maxStackSize = 64;
       private int maxDamage;
@@ -332,10 +410,16 @@ public class Item implements IItemProvider {
       private ItemGroup category;
       private Rarity rarity = Rarity.COMMON;
       private Food foodProperties;
+      private int weight = -1;
       private boolean isFireResistant;
 
       public Item.Properties food(Food p_221540_1_) {
          this.foodProperties = p_221540_1_;
+         return this;
+      }
+
+      public Item.Properties weight(int weight) {
+         this.weight = weight;
          return this;
       }
 

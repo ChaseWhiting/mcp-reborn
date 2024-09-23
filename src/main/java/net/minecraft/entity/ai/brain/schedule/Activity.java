@@ -49,7 +49,8 @@ public class Activity {
       return this.hashCode;
    }
 
+   @Override
    public String toString() {
-      return this.getName();
+      return "Activity{name='" + this.name + "'}";
    }
 }

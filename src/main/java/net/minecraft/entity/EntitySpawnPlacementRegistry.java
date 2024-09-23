@@ -4,19 +4,9 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Random;
 import javax.annotation.Nullable;
-import net.minecraft.entity.monster.DrownedEntity;
-import net.minecraft.entity.monster.EndermiteEntity;
-import net.minecraft.entity.monster.GhastEntity;
-import net.minecraft.entity.monster.GuardianEntity;
-import net.minecraft.entity.monster.HoglinEntity;
-import net.minecraft.entity.monster.HuskEntity;
-import net.minecraft.entity.monster.MagmaCubeEntity;
-import net.minecraft.entity.monster.Monster;
-import net.minecraft.entity.monster.PatrollerEntity;
-import net.minecraft.entity.monster.SilverfishEntity;
-import net.minecraft.entity.monster.SlimeEntity;
-import net.minecraft.entity.monster.StrayEntity;
-import net.minecraft.entity.monster.ZombifiedPiglinEntity;
+
+import net.minecraft.entity.monster.*;
+import net.minecraft.entity.monster.bogged.BoggedEntity;
 import net.minecraft.entity.monster.piglin.PiglinEntity;
 import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.passive.BatEntity;
@@ -38,12 +28,20 @@ import net.minecraft.world.gen.Heightmap;
 public class EntitySpawnPlacementRegistry {
    private static final Map<EntityType<?>, EntitySpawnPlacementRegistry.Entry> DATA_BY_TYPE = Maps.newHashMap();
 
-   private static <T extends Mob> void register(EntityType<T> p_209343_0_, EntitySpawnPlacementRegistry.PlacementType p_209343_1_, Heightmap.Type p_209343_2_, EntitySpawnPlacementRegistry.IPlacementPredicate<T> p_209343_3_) {
-      EntitySpawnPlacementRegistry.Entry entityspawnplacementregistry$entry = DATA_BY_TYPE.put(p_209343_0_, new EntitySpawnPlacementRegistry.Entry(p_209343_2_, p_209343_1_, p_209343_3_));
+   private static <T extends Mob> void register(EntityType<T> entity, EntitySpawnPlacementRegistry.PlacementType placementType, Heightmap.Type type, EntitySpawnPlacementRegistry.IPlacementPredicate<T> tiPlacementPredicate) {
+      EntitySpawnPlacementRegistry.Entry entityspawnplacementregistry$entry = DATA_BY_TYPE.put(entity, new EntitySpawnPlacementRegistry.Entry(type, placementType, tiPlacementPredicate));
       if (entityspawnplacementregistry$entry != null) {
-         throw new IllegalStateException("Duplicate registration for type " + Registry.ENTITY_TYPE.getKey(p_209343_0_));
+         throw new IllegalStateException("Duplicate registration for type " + Registry.ENTITY_TYPE.getKey(entity));
       }
    }
+
+   private static <T extends Mob> void register(EntityType<T>[] entities, EntitySpawnPlacementRegistry.PlacementType placementType, Heightmap.Type type, EntitySpawnPlacementRegistry.IPlacementPredicate<T> tiPlacementPredicate) {
+      for (EntityType<T> entity : entities) {
+         register(entity, placementType, type, tiPlacementPredicate);
+      }
+   }
+
+
 
    public static EntitySpawnPlacementRegistry.PlacementType getPlacementType(EntityType<?> p_209344_0_) {
       EntitySpawnPlacementRegistry.Entry entityspawnplacementregistry$entry = DATA_BY_TYPE.get(p_209344_0_);
@@ -99,6 +97,8 @@ public class EntitySpawnPlacementRegistry {
       register(EntityType.SHEEP, EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules);
       register(EntityType.SILVERFISH, EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, SilverfishEntity::checkSliverfishSpawnRules);
       register(EntityType.SKELETON, EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules);
+      register(EntityType.BOGGED, EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, BoggedEntity::checkBoggedRules);
+
       register(EntityType.SKELETON_HORSE, EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules);
       register(EntityType.SLIME, EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, SlimeEntity::checkSlimeSpawnRules);
       register(EntityType.SNOW_GOLEM, EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules);

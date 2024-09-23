@@ -1,11 +1,19 @@
 package net.minecraft.util.math.vector;
 
 import java.util.EnumSet;
+import java.util.Random;
+
 import net.minecraft.dispenser.IPosition;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.util.FastMath;
 
 /**
  * Represents a 3D vector with double precision.
@@ -259,6 +267,10 @@ public class Vector3d implements IPosition {
       return this.multiply(vector.x, vector.y, vector.z);
    }
 
+   public Vector3d multiply(double val) {
+      return this.multiply(val, val, val);
+   }
+
    /**
     * Multiplies this vector by specified components.
     *
@@ -375,6 +387,16 @@ public class Vector3d implements IPosition {
       return directionFromRotation(rotation.x, rotation.y);
    }
 
+   public static Vector3d randomPointBehindTarget(LivingEntity livingEntity, Random random) {
+      float yawBehindTarget = livingEntity.yHeadRot + 180.0F + (float)random.nextGaussian() * 45.0F;
+
+      float randomDistance = MathHelper.lerp(random.nextFloat(), 4.0F, 8.0F);
+
+      Vector3d direction = directionFromRotation(0.0F, yawBehindTarget).scale((double)randomDistance);
+
+      return livingEntity.position().add(direction);
+   }
+
    /**
     * Computes the direction vector from rotation angles.
     *
@@ -429,6 +451,47 @@ public class Vector3d implements IPosition {
       return this.z;
    }
 
+   public Vector3d(BlockPos pos) {
+      this(pos.getX(),pos.getY(),pos.getZ());
+   }
 
+   public BlockPos asBlockPos() {
+      return new BlockPos(this.x,this.y,this.z);
+   }
+   public static double lerp(double start, double end, double factor) {
+      return start + factor * (end - start);
+   }
+
+   public static Vector3d lerp(Vector3d start, Vector3d end, double factor) {
+      double x = lerp(start.x, end.x, factor);
+      double y = lerp(start.y, end.y, factor);
+      double z = lerp(start.z, end.z, factor);
+      return new Vector3d(x, y, z);
+   }
+
+   public Vector3d orthogonal() throws MathArithmeticException {
+      double threshold = 0.6 * this.getNorm();
+      if (threshold == 0.0) {
+         throw new MathArithmeticException(LocalizedFormats.ZERO_NORM, new Object[0]);
+      } else {
+         double inverse;
+         if (FastMath.abs(this.x) <= threshold) {
+            inverse = 1.0 / FastMath.sqrt(this.y * this.y + this.z * this.z);
+            return new Vector3d(0.0, inverse * this.z, -inverse * this.y);
+         } else if (FastMath.abs(this.y) <= threshold) {
+            inverse = 1.0 / FastMath.sqrt(this.x * this.x + this.z * this.z);
+            return new Vector3d(-inverse * this.z, 0.0, inverse * this.x);
+         } else {
+            inverse = 1.0 / FastMath.sqrt(this.x * this.x + this.y * this.y);
+            return new Vector3d(inverse * this.y, -inverse * this.x, 0.0);
+         }
+      }
+   }
+
+
+
+   public double getNorm() {
+      return FastMath.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+   }
 
 }

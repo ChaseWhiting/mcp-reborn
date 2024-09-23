@@ -211,7 +211,10 @@ public class WitchEntity extends AbstractRaiderEntity implements IRangedAttackMo
             potion = Potions.POISON;
          } else if (f <= 3.0F && !p_82196_1_.hasEffect(Effects.WEAKNESS) && this.random.nextFloat() < 0.25F) {
             potion = Potions.WEAKNESS;
+         } else if (f >= 8F && !p_82196_1_.hasEffect(Effects.BLINDNESS) && this.random.nextFloat() > 0.75) {
+            potion = Potions.SHORT_BLINDNESS;
          }
+
 
          PotionEntity potionentity = new PotionEntity(this.level, this);
          potionentity.setItem(PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), potion));

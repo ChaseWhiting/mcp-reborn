@@ -64,7 +64,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements IRang
       this.goalSelector.addGoal(1, new SpellcastingIllagerEntity.CastingASpellGoal());
       this.goalSelector.addGoal(4, new IllusionerEntity.MirrorSpellGoal());
       this.goalSelector.addGoal(5, new IllusionerEntity.BlindnessSpellGoal());
-      this.goalSelector.addGoal(6, new RangedBowAttackGoal<>(this, 0.5D, 20, 15.0F));
+      this.goalSelector.addGoal(6, new RangedBowAttackGoal<>(this, 0.5D, 1, 15.0F));
       this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
       this.goalSelector.addGoal(9, new LookAtGoal(this, PlayerEntity.class, 3.0F, 1.0F));
       this.goalSelector.addGoal(10, new LookAtGoal(this, Mob.class, 8.0F));

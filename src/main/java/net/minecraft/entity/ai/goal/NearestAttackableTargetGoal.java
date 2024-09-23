@@ -3,9 +3,13 @@ package net.minecraft.entity.ai.goal;
 import java.util.EnumSet;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
+import net.minecraft.entity.monster.AbstractSkeletonEntity;
+import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -29,7 +33,16 @@ public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetG
       this.targetType = p_i50315_2_;
       this.randomInterval = p_i50315_3_;
       this.setFlags(EnumSet.of(Goal.Flag.TARGET));
-      this.targetConditions = (new EntityPredicate()).range(this.getFollowDistance()).selector(p_i50315_6_);
+
+      // Modify target conditions based on the VeryHardmode gamerule
+      this.targetConditions = (new EntityPredicate())
+              .range(this.getFollowDistance())
+              .selector(p_i50315_6_);
+
+      // If VeryHardmode is true, ignore visibility checks
+      if (this.mob.veryHardmode() && (Minecraft.getInstance().options.mobsSeeThroughWalls || p_i50315_1_ instanceof CreeperEntity)) {
+         this.targetConditions = this.targetConditions.allowUnseeable();
+      }
    }
 
    public boolean canUse() {

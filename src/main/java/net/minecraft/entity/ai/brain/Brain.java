@@ -416,7 +416,7 @@ public class Brain<E extends LivingEntity> {
    }
 
    private boolean isEmptyCollection(Object p_218213_1_) {
-      return p_218213_1_ instanceof Collection && ((Collection)p_218213_1_).isEmpty();
+      return p_218213_1_ instanceof Collection && ((Collection<?>)p_218213_1_).isEmpty();
    }
 
    ImmutableList<? extends Pair<Integer, ? extends Task<? super E>>> createPriorityPairs(int p_233692_1_, ImmutableList<? extends Task<? super E>> p_233692_2_) {

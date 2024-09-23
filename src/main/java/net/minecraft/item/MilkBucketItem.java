@@ -15,22 +15,23 @@ public class MilkBucketItem extends Item {
       super(p_i48481_1_);
    }
 
-   public ItemStack finishUsingItem(ItemStack p_77654_1_, World p_77654_2_, LivingEntity p_77654_3_) {
-      if (p_77654_3_ instanceof ServerPlayerEntity) {
-         ServerPlayerEntity serverplayerentity = (ServerPlayerEntity)p_77654_3_;
-         CriteriaTriggers.CONSUME_ITEM.trigger(serverplayerentity, p_77654_1_);
+   public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity entity) {
+      if (entity instanceof ServerPlayerEntity) {
+         ServerPlayerEntity serverplayerentity = (ServerPlayerEntity) entity;
+         CriteriaTriggers.CONSUME_ITEM.trigger(serverplayerentity, itemStack);
          serverplayerentity.awardStat(Stats.ITEM_USED.get(this));
       }
 
-      if (p_77654_3_ instanceof PlayerEntity && !((PlayerEntity)p_77654_3_).abilities.instabuild) {
-         p_77654_1_.shrink(1);
+      if (entity instanceof PlayerEntity && !((PlayerEntity) entity).abilities.instabuild) {
+         itemStack.shrink(1);
       }
 
-      if (!p_77654_2_.isClientSide) {
-         p_77654_3_.removeAllEffects();
+      if (!world.isClientSide) {
+         if (!(entity.radiationManager.getLevel() > 5))
+            entity.removeAllEffects();
       }
 
-      return p_77654_1_.isEmpty() ? new ItemStack(Items.BUCKET) : p_77654_1_;
+      return itemStack.isEmpty() ? new ItemStack(Items.BUCKET) : itemStack;
    }
 
    public int getUseDuration(ItemStack p_77626_1_) {

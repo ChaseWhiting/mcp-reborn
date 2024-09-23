@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMultimap.Builder;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.dispenser.IDispenseItemBehavior;
@@ -36,6 +37,7 @@ public class ArmorItem extends Item implements IArmorVanishable {
    private final float toughness;
    protected final float knockbackResistance;
    protected final IArmorMaterial material;
+   protected final ArmorMaterial material1;
    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
    public static boolean dispenseArmor(IBlockSource p_226626_0_, ItemStack p_226626_1_) {
@@ -57,9 +59,10 @@ public class ArmorItem extends Item implements IArmorVanishable {
       }
    }
 
-   public ArmorItem(IArmorMaterial p_i48534_1_, EquipmentSlotType p_i48534_2_, Item.Properties p_i48534_3_) {
+   public ArmorItem(IArmorMaterial p_i48534_1_, EquipmentSlotType p_i48534_2_, Properties p_i48534_3_) {
       super(p_i48534_3_.defaultDurability(p_i48534_1_.getDurabilityForSlot(p_i48534_2_)));
       this.material = p_i48534_1_;
+      this.material1 = (ArmorMaterial) material; 
       this.slot = p_i48534_2_;
       this.defense = p_i48534_1_.getDefenseForSlot(p_i48534_2_);
       this.toughness = p_i48534_1_.getToughness();
@@ -90,6 +93,18 @@ public class ArmorItem extends Item implements IArmorVanishable {
 
    public boolean isValidRepairItem(ItemStack p_82789_1_, ItemStack p_82789_2_) {
       return this.material.getRepairIngredient().test(p_82789_2_) || super.isValidRepairItem(p_82789_1_, p_82789_2_);
+   }
+
+   public int getWeight(ItemStack bundle) {
+      return switch (material1) {
+         case LEATHER -> 5;         // Leather: 4-6 units
+         case CHAIN, GOLD -> 12;    // Chain & Gold: 10-16 units
+         case IRON -> 15;           // Iron: 15-20 units
+         case DIAMOND -> 12;        // Diamond: 10-15 units
+         case TURTLE -> 6;          // Turtle Shell: 5-7 units
+          case BEESWAX -> 10;
+          case NETHERITE -> 32;      // Netherite: 25-32 units
+      };
    }
 
    public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {

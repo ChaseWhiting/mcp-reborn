@@ -11,10 +11,13 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
+import net.minecraft.bundle.FormattedCharSequence;
 import net.minecraft.client.gui.fonts.providers.IGlyphProvider;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -39,6 +42,7 @@ public class Font implements AutoCloseable {
       this.textureManager = p_i49771_1_;
       this.name = p_i49771_2_;
    }
+
 
    public void reload(List<IGlyphProvider> p_211570_1_) {
       this.closeProviders();

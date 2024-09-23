@@ -4,6 +4,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 
 import net.minecraft.client.animation.HierarchicalModel;
@@ -94,6 +97,15 @@ public class ModelRenderer {
 
    public void addChild(ModelRenderer p_78792_1_) {
       this.children.add(p_78792_1_);
+   }
+
+   public void addChildren(ModelRenderer... modelRenderers) {
+      Iterator<ModelRenderer> iterator = Arrays.stream(modelRenderers).iterator();
+
+      while (iterator.hasNext()) {
+         ModelRenderer renderer = iterator.next();
+         this.addChild(renderer);
+      }
    }
 
    public ModelRenderer texOffs(int p_78784_1_, int p_78784_2_) {

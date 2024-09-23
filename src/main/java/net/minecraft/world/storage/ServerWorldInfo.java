@@ -30,7 +30,7 @@ import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.WorldGenSettingsExport;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
@@ -313,11 +313,11 @@ public class ServerWorldInfo implements IServerWorldInfo, IServerConfiguration {
       this.rainTime = p_76080_1_;
    }
 
-   public GameType getGameType() {
+   public Gamemode getGameType() {
       return this.settings.gameType();
    }
 
-   public void setGameType(GameType p_230392_1_) {
+   public void setGameType(Gamemode p_230392_1_) {
       this.settings = this.settings.withGameType(p_230392_1_);
    }
 

@@ -192,7 +192,7 @@ public class FireworkParticle {
          if (this.life % 2 == 0 && this.explosions != null && this.life / 2 < this.explosions.size()) {
             int k = this.life / 2;
             CompoundNBT compoundnbt1 = this.explosions.getCompound(k);
-            FireworkRocketItem.Shape fireworkrocketitem$shape = FireworkRocketItem.Shape.byId(compoundnbt1.getByte("Type"));
+            FireworkRocketItem.Shape fireworkrocketitem$shape = FireworkRocketItem.Shape.byId(compoundnbt1.getByte("BoggedType"));
             boolean flag4 = compoundnbt1.getBoolean("Trail");
             boolean flag2 = compoundnbt1.getBoolean("Flicker");
             int[] aint = compoundnbt1.getIntArray("Colors");

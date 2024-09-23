@@ -2,9 +2,13 @@ package net.minecraft.item;
 
 import java.util.List;
 import javax.annotation.Nullable;
+
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentData;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
@@ -16,13 +20,102 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EnchantedBookItem extends Item {
-   public EnchantedBookItem(Item.Properties p_i48505_1_) {
+   public EnchantedBookItem(Properties p_i48505_1_) {
       super(p_i48505_1_);
    }
 
    public boolean isFoil(ItemStack p_77636_1_) {
       return true;
    }
+
+   public int getWeight(ItemStack bundle, ItemStack enchantmentBook) {
+      return 4 + returnWeightOfEnchantments(enchantmentBook);
+   }
+
+   public static int returnWeightOfEnchantments(ItemStack book) {
+      ListNBT enchantments = getEnchantments(book);
+      int totalWeight = 0;
+
+      // Iterate through the list of enchantments
+      for (int i = 0; i < enchantments.size(); i++) {
+         CompoundNBT enchantmentData = enchantments.getCompound(i);
+
+         // Get the enchantment's ID and level
+         String enchantmentId = enchantmentData.getString("id");
+         int enchantmentLevel = enchantmentData.getInt("lvl");
+
+         // Look up the Enchantment object from the registry using its ID
+         Enchantment enchantment = Registry.ENCHANTMENT.get(new ResourceLocation(enchantmentId));
+
+
+         // Apply your weighting logic for this enchantment
+         if (enchantment != null) {
+            if (enchantment.isCurse()) {
+               totalWeight += 5;
+            }
+            if (enchantment.isTreasureOnly()) {
+               totalWeight += 5;
+            }
+            totalWeight += switch(enchantment.getRarity()) {
+                case COMMON -> 0;
+                case UNCOMMON -> 4;
+                case RARE -> 6;
+                case VERY_RARE -> 12;
+            };
+            // For example, you might want to weight it by level
+             totalWeight += enchantmentLevel;
+
+
+         }
+      }
+      boolean curse = (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.WEIGHT_CURSE, book) > 0);
+
+      if (curse) totalWeight *= 2;
+
+      return totalWeight;
+   }
+
+   public static int returnWeightOfEnchantments(ListNBT enchantments, ItemStack enchantmentbook) {
+      int totalWeight = 0;
+
+      // Iterate through the list of enchantments
+      for (int i = 0; i < enchantments.size(); i++) {
+         CompoundNBT enchantmentData = enchantments.getCompound(i);
+
+         // Get the enchantment's ID and level
+         String enchantmentId = enchantmentData.getString("id");
+         int enchantmentLevel = enchantmentData.getInt("lvl");
+
+         // Look up the Enchantment object from the registry using its ID
+         Enchantment enchantment = Registry.ENCHANTMENT.get(new ResourceLocation(enchantmentId));
+
+
+         // Apply your weighting logic for this enchantment
+         if (enchantment != null) {
+            if (enchantment.isCurse()) {
+               totalWeight += 5;
+            }
+            if (enchantment.isTreasureOnly()) {
+               totalWeight += 5;
+            }
+            totalWeight += switch(enchantment.getRarity()) {
+               case COMMON -> 0;
+               case UNCOMMON -> 4;
+               case RARE -> 6;
+               case VERY_RARE -> 12;
+            };
+            // For example, you might want to weight it by level
+            totalWeight += enchantmentLevel;
+
+         }
+      }
+      boolean curse = (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.WEIGHT_CURSE, enchantmentbook) > 0);
+
+      if (curse) totalWeight *= 2;
+
+      return totalWeight;
+   }
+
 
    public boolean isEnchantable(ItemStack p_77616_1_) {
       return false;

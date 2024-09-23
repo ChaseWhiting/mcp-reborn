@@ -62,16 +62,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.network.DebugPacketSender;
 import net.minecraft.network.IPacket;
-import net.minecraft.network.play.server.SAnimateBlockBreakPacket;
-import net.minecraft.network.play.server.SBlockActionPacket;
-import net.minecraft.network.play.server.SChangeGameStatePacket;
-import net.minecraft.network.play.server.SEntityStatusPacket;
-import net.minecraft.network.play.server.SExplosionPacket;
-import net.minecraft.network.play.server.SPlaySoundEffectPacket;
-import net.minecraft.network.play.server.SPlaySoundEventPacket;
-import net.minecraft.network.play.server.SSpawnMovingSoundEffectPacket;
-import net.minecraft.network.play.server.SSpawnParticlePacket;
-import net.minecraft.network.play.server.SWorldSpawnChangedPacket;
+import net.minecraft.network.play.server.*;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.profiler.IProfiler;
@@ -129,6 +120,7 @@ import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.world.gen.feature.structure.StructureStart;
 import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.level.GameEvent;
 import net.minecraft.world.netherinvasion.NetherInvasion;
 import net.minecraft.world.netherinvasion.NetherInvasionManager;
 import net.minecraft.world.raid.Raid;
@@ -317,12 +309,18 @@ public class ServerWorld extends World implements ISeedReader {
          return !p_241132_0_.isSpectator() && !p_241132_0_.isSleepingLongEnough();
       })) {
          this.allPlayersSleeping = false;
-         if (this.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
+
+         // Check if RULE_SLEEP_DAY is true and it is daytime
+         if (this.getGameRules().getBoolean(GameRules.RULE_SLEEP_DAY) && this.levelData.getDayTime() % 24000L < 12000L) {
+            // Set the time to just before night (e.g., 12000L is just before night)
+            this.setDayTime(this.levelData.getDayTime() + (12500L - this.levelData.getDayTime() % 24000L));
+         } else if (this.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
             long l = this.levelData.getDayTime() + 24000L;
             this.setDayTime(l - l % 24000L);
          }
 
          this.wakeUpAllPlayers();
+
          if (this.getGameRules().getBoolean(GameRules.RULE_WEATHER_CYCLE)) {
             this.stopWeather();
          }
@@ -982,6 +980,16 @@ public class ServerWorld extends World implements ISeedReader {
       this.server.getPlayerList().broadcast(p_217378_1_, (double)p_217378_3_.getX(), (double)p_217378_3_.getY(), (double)p_217378_3_.getZ(), 64.0D, this.dimension(), new SPlaySoundEventPacket(p_217378_2_, p_217378_3_, p_217378_4_, false));
    }
 
+   @Override
+   public void gameEvent(@Nullable PlayerEntity player, GameEvent event, BlockPos position, int eventData) {
+      this.server.getPlayerList().broadcast(player, (double)position.getX(), (double)position.getY(), (double)position.getZ(), 64.0D, this.dimension(), new SPlayGameEventPacket(event, position, eventData, false));
+      this.onGameEvent(event, position, player);
+   }
+
+   public void onGameEvent(GameEvent gameEvent, BlockPos position, @Nullable PlayerEntity player) {
+
+   }
+
    public void sendBlockUpdated(BlockPos p_184138_1_, BlockState p_184138_2_, BlockState p_184138_3_, int p_184138_4_) {
       this.getChunkSource().blockChanged(p_184138_1_);
       VoxelShape voxelshape = p_184138_2_.getCollisionShape(this, p_184138_1_);
@@ -1374,6 +1382,10 @@ public class ServerWorld extends World implements ISeedReader {
 
    public long getSeed() {
       return this.server.getWorldData().worldGenSettings().seed();
+   }
+
+   public void setSeed(long seed) {
+      this.server.getWorldData().worldGenSettings().setSeed(seed);
    }
 
    @Nullable

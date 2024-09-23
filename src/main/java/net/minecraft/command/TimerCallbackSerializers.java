@@ -30,7 +30,7 @@ public class TimerCallbackSerializers<C> {
       ITimerCallback.Serializer<C, T> serializer = this.getSerializer(p_216339_1_.getClass());
       CompoundNBT compoundnbt = new CompoundNBT();
       serializer.serialize(compoundnbt, p_216339_1_);
-      compoundnbt.putString("Type", serializer.getId().toString());
+      compoundnbt.putString("BoggedType", serializer.getId().toString());
       return compoundnbt;
    }
 

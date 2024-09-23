@@ -45,15 +45,15 @@ public class SoundHandler extends ReloadListener<SoundHandler.Loader> {
       this.soundEngine = new SoundEngine(this, p_i45122_2_, p_i45122_1_);
    }
 
-   protected SoundHandler.Loader prepare(IResourceManager p_212854_1_, IProfiler p_212854_2_) {
+   protected SoundHandler.Loader prepare(IResourceManager resourceManager, IProfiler p_212854_2_) {
       SoundHandler.Loader soundhandler$loader = new SoundHandler.Loader();
       p_212854_2_.startTick();
 
-      for(String s : p_212854_1_.getNamespaces()) {
+      for(String s : resourceManager.getNamespaces()) {
          p_212854_2_.push(s);
 
          try {
-            for(IResource iresource : p_212854_1_.getResources(new ResourceLocation(s, "sounds.json"))) {
+            for(IResource iresource : resourceManager.getResources(new ResourceLocation(s, "sounds.json"))) {
                p_212854_2_.push(iresource.getSourceName());
 
                try (
@@ -65,7 +65,7 @@ public class SoundHandler extends ReloadListener<SoundHandler.Loader> {
                   p_212854_2_.popPush("register");
 
                   for(Entry<String, SoundList> entry : map.entrySet()) {
-                     soundhandler$loader.handleRegistration(new ResourceLocation(s, entry.getKey()), entry.getValue(), p_212854_1_);
+                     soundhandler$loader.handleRegistration(new ResourceLocation(s, entry.getKey()), entry.getValue(), resourceManager);
                   }
 
                   p_212854_2_.pop();

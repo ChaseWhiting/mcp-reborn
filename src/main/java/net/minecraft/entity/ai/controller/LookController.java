@@ -3,6 +3,7 @@ package net.minecraft.entity.ai.controller;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
@@ -23,7 +24,12 @@ public class LookController {
       this.setLookAt(p_220674_1_.x, p_220674_1_.y, p_220674_1_.z);
    }
 
+   public void setLookAt(BlockPos pos) {
+      this.setLookAt(pos.asVector());
+   }
+
    public void setLookAt(Entity targetEntity, float p_75651_2_, float p_75651_3_) {
+      if (targetEntity == null) return;
       this.setLookAt(targetEntity.getX(), getWantedY(targetEntity), targetEntity.getZ(), p_75651_2_, p_75651_3_);
    }
 

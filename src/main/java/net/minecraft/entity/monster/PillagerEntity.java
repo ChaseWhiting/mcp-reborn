@@ -82,8 +82,8 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
       this.entityData.define(IS_CHARGING_CROSSBOW, false);
    }
 
-   public boolean canFireProjectileWeapon(ShootableItem p_230280_1_) {
-      return p_230280_1_ == Items.CROSSBOW;
+   public boolean canFireProjectileWeapon(ShootableItem item) {
+      return item instanceof ICrossbowItem;
    }
 
    @OnlyIn(Dist.CLIENT)

@@ -83,15 +83,15 @@ public class DimensionType {
       this(p_i241972_1_, p_i241972_2_, p_i241972_3_, p_i241972_4_, p_i241972_5_, p_i241972_6_, false, p_i241972_8_, p_i241972_9_, p_i241972_10_, p_i241972_11_, p_i241972_12_, FuzzedBiomeMagnifier.INSTANCE, p_i241972_13_, p_i241972_14_, p_i241972_15_);
    }
 
-   protected DimensionType(OptionalLong p_i241973_1_, boolean p_i241973_2_, boolean p_i241973_3_, boolean p_i241973_4_, boolean p_i241973_5_, double p_i241973_6_, boolean p_i241973_8_, boolean p_i241973_9_, boolean p_i241973_10_, boolean p_i241973_11_, boolean p_i241973_12_, int p_i241973_13_, IBiomeMagnifier p_i241973_14_, ResourceLocation p_i241973_15_, ResourceLocation p_i241973_16_, float p_i241973_17_) {
-      this.fixedTime = p_i241973_1_;
-      this.hasSkylight = p_i241973_2_;
-      this.hasCeiling = p_i241973_3_;
-      this.ultraWarm = p_i241973_4_;
-      this.natural = p_i241973_5_;
-      this.coordinateScale = p_i241973_6_;
+   protected DimensionType(OptionalLong optionalLong, boolean hasSkyLight, boolean ceiling, boolean ultraWarm, boolean natural, double coordinateScale, boolean p_i241973_8_, boolean piglinSafe, boolean p_i241973_10_, boolean p_i241973_11_, boolean p_i241973_12_, int p_i241973_13_, IBiomeMagnifier p_i241973_14_, ResourceLocation p_i241973_15_, ResourceLocation p_i241973_16_, float p_i241973_17_) {
+      this.fixedTime = optionalLong;
+      this.hasSkylight = hasSkyLight;
+      this.hasCeiling = ceiling;
+      this.ultraWarm = ultraWarm;
+      this.natural = natural;
+      this.coordinateScale = coordinateScale;
       this.createDragonFight = p_i241973_8_;
-      this.piglinSafe = p_i241973_9_;
+      this.piglinSafe = piglinSafe;
       this.bedWorks = p_i241973_10_;
       this.respawnAnchorWorks = p_i241973_11_;
       this.hasRaids = p_i241973_12_;

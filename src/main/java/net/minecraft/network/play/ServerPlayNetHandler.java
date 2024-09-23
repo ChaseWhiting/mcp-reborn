@@ -144,7 +144,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.filter.IChatFilter;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -832,14 +832,14 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
                      d9 = d6 - this.player.getZ();
                      d11 = d7 * d7 + d8 * d8 + d9 * d9;
                      boolean flag1 = false;
-                     if (!this.player.isChangingDimension() && d11 > 0.0625D && !this.player.isSleeping() && !this.player.gameMode.isCreative() && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
+                     if (!this.player.isChangingDimension() && d11 > 0.0625D && !this.player.isSleeping() && !this.player.gameMode.isCreative() && this.player.gameMode.getGameModeForPlayer() != Gamemode.SPECTATOR) {
                         flag1 = true;
                         LOGGER.warn("{} moved wrongly!", (Object)this.player.getName().getString());
                      }
 
                      this.player.absMoveTo(d4, d5, d6, f, f1);
                      if (this.player.noPhysics || this.player.isSleeping() || (!flag1 || !serverworld.noCollision(this.player, axisalignedbb)) && !this.isPlayerCollidingWithAnythingNew(serverworld, axisalignedbb)) {
-                        this.clientIsFloating = d8 >= -0.03125D && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR && !this.server.isFlightAllowed() && !this.player.abilities.mayfly && !this.player.hasEffect(Effects.LEVITATION) && !this.player.isFallFlying() && this.noBlocksAround(this.player);
+                        this.clientIsFloating = d8 >= -0.03125D && this.player.gameMode.getGameModeForPlayer() != Gamemode.SPECTATOR && !this.server.isFlightAllowed() && !this.player.abilities.mayfly && !this.player.hasEffect(Effects.LEVITATION) && !this.player.isFallFlying() && this.noBlocksAround(this.player);
                         this.player.getLevel().getChunkSource().move(this.player);
                         this.player.doCheckFallDamage(this.player.getY() - d3, p_147347_1_.isOnGround());
                         this.player.setOnGround(p_147347_1_.isOnGround());
@@ -1226,7 +1226,7 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
 
             this.player = this.server.getPlayerList().respawn(this.player, false);
             if (this.server.isHardcore()) {
-               this.player.setGameMode(GameType.SPECTATOR);
+               this.player.setGameMode(Gamemode.SPECTATOR);
                this.player.getLevel().getGameRules().getRule(GameRules.RULE_SPECTATORSGENERATECHUNKS).set(false, this.server);
             }
          }

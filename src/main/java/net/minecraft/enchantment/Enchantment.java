@@ -147,7 +147,7 @@ public abstract class Enchantment {
 
       private final int weight;
 
-      private Rarity(int p_i47026_3_) {
+      Rarity(int p_i47026_3_) {
          this.weight = p_i47026_3_;
       }
 

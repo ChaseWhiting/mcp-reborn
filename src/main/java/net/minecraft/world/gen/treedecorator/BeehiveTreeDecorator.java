@@ -49,7 +49,7 @@ public class BeehiveTreeDecorator extends TreeDecorator {
                if (tileentity instanceof BeehiveTileEntity) {
                   BeehiveTileEntity beehivetileentity = (BeehiveTileEntity)tileentity;
                   int j = 2 + p_225576_2_.nextInt(2);
-
+                  beehivetileentity.maxSize = 3 + (p_225576_1_.getRandom().nextInt(2));
                   for(int k = 0; k < j; ++k) {
                      BeeEntity beeentity = new BeeEntity(EntityType.BEE, p_225576_1_.getLevel());
                      beehivetileentity.addOccupantWithPresetTicks(beeentity, false, p_225576_2_.nextInt(599));

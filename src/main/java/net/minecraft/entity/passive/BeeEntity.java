@@ -36,6 +36,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
@@ -980,6 +981,9 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
       public void stop() {
          if (this.hasPollinatedLongEnough()) {
             BeeEntity.this.setHasNectar(true);
+            if (BeeEntity.this.random.nextInt(5) == 0 && BeeEntity.this.getSavedFlowerPos() != null) {
+               Block.popResource(BeeEntity.this.level, BeeEntity.this.getSavedFlowerPos(), new ItemStack(Items.BEE_POLLEN, BeeEntity.this.level.getRandom().nextInt(4) + 1));
+            }
          }
 
          this.pollinating = false;
@@ -995,7 +999,7 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
             Vector3d vector3d = Vector3d.atBottomCenterOf(BeeEntity.this.savedFlowerPos).add(0.0D, (double)0.6F, 0.0D);
             if (vector3d.distanceTo(BeeEntity.this.position()) > 1.0D) {
                this.hoverPos = vector3d;
-               this.setWantedPos();
+               this.setWantedPosSpeed();
             } else {
                if (this.hoverPos == null) {
                   this.hoverPos = vector3d;
@@ -1035,6 +1039,10 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
 
       private void setWantedPos() {
          BeeEntity.this.getMoveControl().setWantedPosition(this.hoverPos.x(), this.hoverPos.y(), this.hoverPos.z(), (double)0.35F);
+      }
+
+      private void setWantedPosSpeed() {
+         BeeEntity.this.getMoveControl().setWantedPosition(this.hoverPos.x(), this.hoverPos.y(), this.hoverPos.z(), (double)0.85F);
       }
 
       private float getOffset() {

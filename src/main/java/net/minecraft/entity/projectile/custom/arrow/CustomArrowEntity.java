@@ -280,7 +280,7 @@ public class CustomArrowEntity extends AbstractArrowEntity {
         // Create the explosions
         ListNBT explosions = new ListNBT();
         CompoundNBT explosion = new CompoundNBT();
-        explosion.putByte("Type", (byte) RANDOM.nextInt(6)); // Random type of explosion (0-4)
+        explosion.putByte("BoggedType", (byte) RANDOM.nextInt(6)); // Random type of explosion (0-4)
         // Generate random colors
         int[] colors = generateRandomColors();
         explosion.putIntArray("Colors", colors);

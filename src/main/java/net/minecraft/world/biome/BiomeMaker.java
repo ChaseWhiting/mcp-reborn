@@ -209,6 +209,7 @@ public class BiomeMaker {
    public static Biome desertBiome(float p_244220_0_, float p_244220_1_, boolean p_244220_2_, boolean p_244220_3_, boolean p_244220_4_) {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.desertSpawns(mobspawninfo$builder);
+      mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 75, 3, 4));
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.DESERT);
       if (p_244220_2_) {
          biomegenerationsettings$builder.addStructureStart(StructureFeatures.VILLAGE_DESERT);
@@ -262,6 +263,7 @@ public class BiomeMaker {
       DefaultBiomeFeatures.addPlainGrass(biomegenerationsettings$builder);
       if (p_244226_0_) {
          biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_SUNFLOWER);
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 90, 4, 4));
       }
 
       DefaultBiomeFeatures.addDefaultUndergroundVariety(biomegenerationsettings$builder);
@@ -606,16 +608,18 @@ public class BiomeMaker {
 
    public static Biome flowerForestBiome() {
       MobSpawnInfo.Builder mobspawninfo$builder = defaultSpawns().addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.RABBIT, 4, 2, 3));
+      mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 85, 3, 4));
       return baseForestBiome(0.1F, 0.4F, true, mobspawninfo$builder);
    }
 
    public static Biome taigaBiome(float p_244221_0_, float p_244221_1_, boolean p_244221_2_, boolean p_244221_3_, boolean p_244221_4_, boolean p_244221_5_) {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.farmAnimals(mobspawninfo$builder);
-      mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.WOLF, 8, 4, 4)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.RABBIT, 4, 2, 3)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.FOX, 8, 2, 4));
+      mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.WOLF, 8, 4, 4)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.RABBIT, 4, 2, 3)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.FOX, 8, 2, 4)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.RACCOON, 5, 2, 3));
       if (!p_244221_2_ && !p_244221_3_) {
          mobspawninfo$builder.setPlayerCanSpawn();
       }
+      mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 75, 3, 4));
 
       DefaultBiomeFeatures.commonSpawns(mobspawninfo$builder);
       float f = p_244221_2_ ? -0.5F : 0.25F;
@@ -639,6 +643,7 @@ public class BiomeMaker {
       DefaultBiomeFeatures.addDefaultOres(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultSoftDisks(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addTaigaTrees(biomegenerationsettings$builder);
+
       DefaultBiomeFeatures.addDefaultFlowers(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addTaigaGrass(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultMushrooms(biomegenerationsettings$builder);
@@ -658,6 +663,7 @@ public class BiomeMaker {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.farmAnimals(mobspawninfo$builder);
       DefaultBiomeFeatures.commonSpawns(mobspawninfo$builder);
+      mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 85, 3, 4));
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.GRASS);
       biomegenerationsettings$builder.addStructureStart(StructureFeatures.WOODLAND_MANSION);
       DefaultBiomeFeatures.addDefaultOverworldLandStructures(biomegenerationsettings$builder);
@@ -683,6 +689,7 @@ public class BiomeMaker {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.farmAnimals(mobspawninfo$builder);
       DefaultBiomeFeatures.commonSpawns(mobspawninfo$builder);
+      mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 45, 2, 4));
       mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SLIME, 1, 1, 1));
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.SWAMP);
       if (!p_244236_2_) {
@@ -827,7 +834,7 @@ public class BiomeMaker {
    public static Biome soulSandValleyBiome() {
       double d0 = 0.7D;
       double d1 = 0.15D;
-      MobSpawnInfo mobspawninfo = (new MobSpawnInfo.Builder()).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SKELETON, 20, 5, 5)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.GHAST, 50, 4, 4)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ENDERMAN, 1, 4, 4)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.STRIDER, 60, 1, 2)).addMobCharge(EntityType.SKELETON, 0.7D, 0.15D).addMobCharge(EntityType.GHAST, 0.7D, 0.15D).addMobCharge(EntityType.ENDERMAN, 0.7D, 0.15D).addMobCharge(EntityType.STRIDER, 0.7D, 0.15D).build();
+      MobSpawnInfo mobspawninfo = (new MobSpawnInfo.Builder()).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SKELETON, 20, 5, 5)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 1, 1, 1)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.GHAST, 50, 4, 4)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ENDERMAN, 1, 4, 4)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.STRIDER, 60, 1, 2)).addMobCharge(EntityType.SKELETON, 0.7D, 0.15D).addMobCharge(EntityType.GHAST, 0.7D, 0.15D).addMobCharge(EntityType.ENDERMAN, 0.7D, 0.15D).addMobCharge(EntityType.STRIDER, 0.7D, 0.15D).build();
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.SOUL_SAND_VALLEY).addStructureStart(StructureFeatures.NETHER_BRIDGE).addStructureStart(StructureFeatures.NETHER_FOSSIL).addStructureStart(StructureFeatures.RUINED_PORTAL_NETHER).addStructureStart(StructureFeatures.BASTION_REMNANT).addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.NETHER_CAVE).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.SPRING_LAVA).addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.BASALT_PILLAR).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SPRING_OPEN).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.GLOWSTONE_EXTRA).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.GLOWSTONE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_CRIMSON_ROOTS).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_FIRE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_SOUL_FIRE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.ORE_MAGMA).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SPRING_CLOSED).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.ORE_SOUL_SAND);
       DefaultBiomeFeatures.addNetherDefaultOres(biomegenerationsettings$builder);
       return (new Biome.Builder()).precipitation(Biome.RainType.NONE).biomeCategory(Biome.Category.NETHER).depth(0.1F).scale(0.2F).temperature(2.0F).downfall(0.0F).specialEffects((new BiomeAmbience.Builder()).waterColor(4159204).waterFogColor(329011).fogColor(1787717).skyColor(calculateSkyColor(2.0F)).ambientParticle(new ParticleEffectAmbience(ParticleTypes.ASH, 0.00625F)).ambientLoopSound(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_LOOP).ambientMoodSound(new MoodSoundAmbience(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD, 6000, 8, 2.0D)).ambientAdditionsSound(new SoundAdditionsAmbience(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_ADDITIONS, 0.0111D)).backgroundMusic(BackgroundMusicTracks.createGameMusic(SoundEvents.MUSIC_BIOME_SOUL_SAND_VALLEY)).build()).mobSpawnSettings(mobspawninfo).generationSettings(biomegenerationsettings$builder.build()).build();

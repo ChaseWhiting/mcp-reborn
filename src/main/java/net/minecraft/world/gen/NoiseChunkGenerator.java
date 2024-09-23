@@ -15,6 +15,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.SharedConstants;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
@@ -114,7 +115,12 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
       this.minLimitPerlinNoise = new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-15, 0));
       this.maxLimitPerlinNoise = new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-15, 0));
       this.mainPerlinNoise = new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-7, 0));
-      this.surfaceNoise = (INoiseGenerator)(noisesettings.useSimplexSurfaceNoise() ? new PerlinNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)) : new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)));
+      if (SharedConstants.TEST_CELLULAR_NOISE) {
+         this.surfaceNoise = (INoiseGenerator) (new CellularNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)));
+      } else {
+         this.surfaceNoise = (INoiseGenerator) (noisesettings.useSimplexSurfaceNoise() ? new PerlinNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)) : new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)));
+
+      }
       this.random.consumeCount(2620);
       this.depthNoise = new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-15, 0));
       if (noisesettings.islandNoiseOverride()) {

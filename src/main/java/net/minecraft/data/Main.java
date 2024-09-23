@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import net.minecraft.bundle.BundleRecipeProvider;
+import net.minecraft.util.datafix.fixes.AbstractUUIDFix;
 
 public class Main {
    public static void main(String[] p_main_0_) throws IOException {
@@ -57,6 +59,8 @@ public class Main {
          datagenerator.addProvider(new EntityTypeTagsProvider(datagenerator));
          datagenerator.addProvider(new RecipeProvider(datagenerator));
          datagenerator.addProvider(new AdvancementProvider(datagenerator));
+         BundleRecipeProvider bundleRecipeProvider = new BundleRecipeProvider(datagenerator);
+         datagenerator.addProvider(bundleRecipeProvider);
          datagenerator.addProvider(new LootTableProvider(datagenerator));
       }
 

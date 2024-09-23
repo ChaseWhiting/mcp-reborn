@@ -96,6 +96,10 @@ public class GameSettings {
    public double mouseWheelSensitivity = 1.0D;
    public boolean rawMouseInput = true;
    public boolean showEntityHealth = false;
+   public boolean mobsSeeThroughWalls = false;
+   public int amountBundleLineShow = 3;
+   public boolean enableCustomShaders = false;
+   public int selectedShaderIndex = 0;
    public int glDebugVerbosity = 1;
    public boolean autoJump = true;
    public boolean autoSuggestions = true;
@@ -196,6 +200,18 @@ public class GameSettings {
       return this.showEntityHealth;
    }
 
+   public boolean isMobsSeeThroughWalls() {
+      return mobsSeeThroughWalls;
+   }
+
+   public int getAmountBundleLineShow() {
+      return amountBundleLineShow;
+   }
+
+   public boolean enableCustomShaders() {
+      return this.enableCustomShaders;
+   }
+
    public int getBackgroundColor(int p_216839_1_) {
       return this.backgroundForChatOnly ? p_216839_1_ : (int)(this.textBackgroundOpacity * 255.0D) << 24 & -16777216;
    }
@@ -245,6 +261,15 @@ public class GameSettings {
 
                if ("showEntityHealth".equals(s)) {
                   AbstractOption.SHOW_ENTITY_HEALTH.set(this, s1);
+               }
+               if ("mobSeeThroughWall".equals(s)) {
+                  AbstractOption.MOBS_SEE_THROUGH_WALLS.set(this, s1);
+               }
+               if ("bundleItemAmount".equals(s)) {
+                  this.amountBundleLineShow = Integer.parseInt(s1);
+               }
+               if("enableShaders".equals(s)) {
+                  AbstractOption.ENABLE_SHADERS.set(this, s1);
                }
 
                if ("autoSuggestions".equals(s)) {
@@ -589,12 +614,14 @@ public class GameSettings {
          printwriter.println("version:" + SharedConstants.getCurrentVersion().getWorldVersion());
          printwriter.println("autoJump:" + AbstractOption.AUTO_JUMP.get(this));
          printwriter.println("showEntityHealth:" + AbstractOption.SHOW_ENTITY_HEALTH.get(this));
+         printwriter.println("mobSeeThroughWall:" + AbstractOption.MOBS_SEE_THROUGH_WALLS.get(this));
          printwriter.println("autoSuggestions:" + AbstractOption.AUTO_SUGGESTIONS.get(this));
          printwriter.println("chatColors:" + AbstractOption.CHAT_COLOR.get(this));
          printwriter.println("chatLinks:" + AbstractOption.CHAT_LINKS.get(this));
          printwriter.println("chatLinksPrompt:" + AbstractOption.CHAT_LINKS_PROMPT.get(this));
          printwriter.println("enableVsync:" + AbstractOption.ENABLE_VSYNC.get(this));
          printwriter.println("entityShadows:" + AbstractOption.ENTITY_SHADOWS.get(this));
+         printwriter.println("enableShaders:" + AbstractOption.ENABLE_SHADERS.get(this));
          printwriter.println("forceUnicodeFont:" + AbstractOption.FORCE_UNICODE_FONT.get(this));
          printwriter.println("discrete_mouse_scroll:" + AbstractOption.DISCRETE_MOUSE_SCROLL.get(this));
          printwriter.println("invertYMouse:" + AbstractOption.INVERT_MOUSE.get(this));
@@ -612,6 +639,7 @@ public class GameSettings {
          printwriter.println("screenEffectScale:" + this.screenEffectScale);
          printwriter.println("fovEffectScale:" + this.fovEffectScale);
          printwriter.println("gamma:" + this.gamma);
+         printwriter.println("bundleItemAmount:" + this.amountBundleLineShow);
          printwriter.println("renderDistance:" + this.renderDistance);
          printwriter.println("entityDistanceScaling:" + this.entityDistanceScaling);
          printwriter.println("guiScale:" + this.guiScale);

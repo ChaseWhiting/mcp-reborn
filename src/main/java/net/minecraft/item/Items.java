@@ -2,20 +2,33 @@ package net.minecraft.item;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.bundle.BundleItem;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.tileentity.BannerPattern;
 import net.minecraft.util.AbstractCrossbowBuilder;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 
+import java.util.Arrays;
+@SuppressWarnings("all")
 public class Items {
    public static final Item AIR = registerBlock(Blocks.AIR, new AirItem(Blocks.AIR, new Item.Properties()));
    public static final Item STONE = registerBlock(Blocks.STONE, ItemGroup.TAB_BUILDING_BLOCKS);
@@ -608,7 +621,7 @@ public class Items {
    public static final Item COAL = registerItem("coal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item CHARCOAL = registerItem("charcoal", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item DIAMOND = registerItem("diamond", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
-   public static final Item IRON_INGOT = registerItem("iron_ingot", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
+   public static final Item IRON_INGOT = registerItem("iron_ingot", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS).weight(3)));
    public static final Item GOLD_INGOT = registerItem("gold_ingot", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item NETHERITE_INGOT = registerItem("netherite_ingot", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS).fireResistant()));
    public static final Item NETHERITE_SCRAP = registerItem("netherite_scrap", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS).fireResistant()));
@@ -749,6 +762,7 @@ public class Items {
 
    public static final Item BONE_MEAL = registerItem("bone_meal", new BoneMealItem((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item BONE = registerItem("bone", new Item((new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+   public static final Item WITHER_BONE = registerItem("wither_bone", new Item((new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SUGAR = registerItem("sugar", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item CAKE = registerBlock(new BlockItem(Blocks.CAKE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_FOOD)));
    public static final Item WHITE_BED = registerBlock(new BedItem(Blocks.WHITE_BED, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_DECORATIONS)));
@@ -811,6 +825,8 @@ public class Items {
    public static final Item ELDER_GUARDIAN_SPAWN_EGG = registerItem("elder_guardian_spawn_egg", new SpawnEggItem(EntityType.ELDER_GUARDIAN, 13552826, 7632531, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item ENDERMAN_SPAWN_EGG = registerItem("enderman_spawn_egg", new SpawnEggItem(EntityType.ENDERMAN, 1447446, 0, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item ENDERMITE_SPAWN_EGG = registerItem("endermite_spawn_egg", new SpawnEggItem(EntityType.ENDERMITE, 1447446, 7237230, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+   public static final Item WITHER_SPAWN_EGG = registerItem((String)"wither_spawn_egg", new SpawnEggItem(EntityType.WITHER, 1315860, 5075616, new Item.Properties()));
+   public static final Item ENDER_DRAGON_SPAWN_EGG = registerItem((String)"ender_dragon_spawn_egg", new SpawnEggItem(EntityType.ENDER_DRAGON, 1842204, 14711290, new Item.Properties()));
    public static final Item EVOKER_SPAWN_EGG = registerItem("evoker_spawn_egg", new SpawnEggItem(EntityType.EVOKER, 9804699, 1973274, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
 
    public static final Item RACCOON_SPAWN_EGG = registerItem("raccoon_spawn_egg", new SpawnEggItem(EntityType.RACCOON, 14005919, 13396256, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
@@ -840,8 +856,8 @@ public class Items {
    public static final Item SHEEP_SPAWN_EGG = registerItem("sheep_spawn_egg", new SpawnEggItem(EntityType.SHEEP, 15198183, 16758197, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SHULKER_SPAWN_EGG = registerItem("shulker_spawn_egg", new SpawnEggItem(EntityType.SHULKER, 9725844, 5060690, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SILVERFISH_SPAWN_EGG = registerItem("silverfish_spawn_egg", new SpawnEggItem(EntityType.SILVERFISH, 7237230, 3158064, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
-   public static final Item CROSSBONE_SKELETON_SPAWN_EGG = registerItem("crossbone_skeleton_spawn_egg", new SpawnEggItem(EntityType.CROSSBONE_SKELETON, 12698049, 4802889, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SKELETON_SPAWN_EGG = registerItem("skeleton_spawn_egg", new SpawnEggItem(EntityType.SKELETON, 12698049, 4802889, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+   public static final Item BOGGED_SPAWN_EGG = registerItem("bogged_spawn_egg", new SpawnEggItem(EntityType.BOGGED, 9084018, 3231003, new Item.Properties().tab(ItemGroup.TAB_MISC)));
    public static final Item SKELETON_HORSE_SPAWN_EGG = registerItem("skeleton_horse_spawn_egg", new SpawnEggItem(EntityType.SKELETON_HORSE, 6842447, 15066584, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SLIME_SPAWN_EGG = registerItem("slime_spawn_egg", new SpawnEggItem(EntityType.SLIME, 5349438, 8306542, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item SPIDER_SPAWN_EGG = registerItem("spider_spawn_egg", new SpawnEggItem(EntityType.SPIDER, 3419431, 11013646, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
@@ -852,7 +868,10 @@ public class Items {
    public static final Item TROPICAL_FISH_SPAWN_EGG = registerItem("tropical_fish_spawn_egg", new SpawnEggItem(EntityType.TROPICAL_FISH, 15690005, 16775663, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item TURTLE_SPAWN_EGG = registerItem("turtle_spawn_egg", new SpawnEggItem(EntityType.TURTLE, 15198183, 44975, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item VEX_SPAWN_EGG = registerItem("vex_spawn_egg", new SpawnEggItem(EntityType.VEX, 8032420, 15265265, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+
    public static final Item VILLAGER_SPAWN_EGG = registerItem("villager_spawn_egg", new SpawnEggItem(EntityType.VILLAGER, 5651507, 12422002, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+   public static final Item IRON_GOLEM_SPAWN_EGG = registerItem((String)"iron_golem_spawn_egg", new SpawnEggItem(EntityType.IRON_GOLEM, 14405058, 7643954, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+   public static final Item SNOW_GOLEM_SPAWN_EGG = registerItem((String)"snow_golem_spawn_egg", new SpawnEggItem(EntityType.SNOW_GOLEM, 14283506, 8496292, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item VINDICATOR_SPAWN_EGG = registerItem("vindicator_spawn_egg", new SpawnEggItem(EntityType.VINDICATOR, 9804699, 2580065, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item WANDERING_TRADER_SPAWN_EGG = registerItem("wandering_trader_spawn_egg", new SpawnEggItem(EntityType.WANDERING_TRADER, 4547222, 15377456, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item WITCH_SPAWN_EGG = registerItem("witch_spawn_egg", new SpawnEggItem(EntityType.WITCH, 3407872, 5349438, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
@@ -967,19 +986,6 @@ public class Items {
    public static final Item IRON_NUGGET = registerItem("iron_nugget", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
    public static final Item KNOWLEDGE_BOOK = registerItem("knowledge_book", new KnowledgeBookItem((new Item.Properties()).stacksTo(1)));
    public static final Item DEBUG_STICK = registerItem("debug_stick", new DebugStickItem((new Item.Properties()).stacksTo(1)));
-   public static final Item MUSIC_DISC_13 = registerItem("music_disc_13", new MusicDiscItem(1, SoundEvents.MUSIC_DISC_13, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_CAT = registerItem("music_disc_cat", new MusicDiscItem(2, SoundEvents.MUSIC_DISC_CAT, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_BLOCKS = registerItem("music_disc_blocks", new MusicDiscItem(3, SoundEvents.MUSIC_DISC_BLOCKS, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_CHIRP = registerItem("music_disc_chirp", new MusicDiscItem(4, SoundEvents.MUSIC_DISC_CHIRP, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_FAR = registerItem("music_disc_far", new MusicDiscItem(5, SoundEvents.MUSIC_DISC_FAR, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_MALL = registerItem("music_disc_mall", new MusicDiscItem(6, SoundEvents.MUSIC_DISC_MALL, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_MELLOHI = registerItem("music_disc_mellohi", new MusicDiscItem(7, SoundEvents.MUSIC_DISC_MELLOHI, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_STAL = registerItem("music_disc_stal", new MusicDiscItem(8, SoundEvents.MUSIC_DISC_STAL, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_STRAD = registerItem("music_disc_strad", new MusicDiscItem(9, SoundEvents.MUSIC_DISC_STRAD, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_WARD = registerItem("music_disc_ward", new MusicDiscItem(10, SoundEvents.MUSIC_DISC_WARD, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_11 = registerItem("music_disc_11", new MusicDiscItem(11, SoundEvents.MUSIC_DISC_11, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_WAIT = registerItem("music_disc_wait", new MusicDiscItem(12, SoundEvents.MUSIC_DISC_WAIT, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
-   public static final Item MUSIC_DISC_PIGSTEP = registerItem("music_disc_pigstep", new MusicDiscItem(13, SoundEvents.MUSIC_DISC_PIGSTEP, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE)));
    public static final Item TRIDENT = registerItem("trident", new TridentItem((new Item.Properties()).durability(250).tab(ItemGroup.TAB_COMBAT)));
    public static final Item PHANTOM_MEMBRANE = registerItem("phantom_membrane", new Item((new Item.Properties()).tab(ItemGroup.TAB_BREWING)));
    public static final Item NAUTILUS_SHELL = registerItem("nautilus_shell", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
@@ -1027,6 +1033,8 @@ public class Items {
    public static final Item LECTERN = registerBlock(Blocks.LECTERN, ItemGroup.TAB_REDSTONE);
    public static final Item SMITHING_TABLE = registerBlock(Blocks.SMITHING_TABLE, ItemGroup.TAB_DECORATIONS);
    public static final Item STONECUTTER = registerBlock(Blocks.STONECUTTER, ItemGroup.TAB_DECORATIONS);
+   public static final Item WAX_MELTER = registerBlock(Blocks.WAX_MELTER, ItemGroup.TAB_DECORATIONS);
+
    public static final Item BELL = registerBlock(Blocks.BELL, ItemGroup.TAB_DECORATIONS);
    public static final Item LANTERN = registerBlock(Blocks.LANTERN, ItemGroup.TAB_DECORATIONS);
    public static final Item SOUL_LANTERN = registerBlock(Blocks.SOUL_LANTERN, ItemGroup.TAB_DECORATIONS);
@@ -1035,10 +1043,18 @@ public class Items {
    public static final Item SOUL_CAMPFIRE = registerBlock(Blocks.SOUL_CAMPFIRE, ItemGroup.TAB_DECORATIONS);
    public static final Item SHROOMLIGHT = registerBlock(Blocks.SHROOMLIGHT, ItemGroup.TAB_DECORATIONS);
    public static final Item HONEYCOMB = registerItem("honeycomb", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
+   public static final Item BEE_POLLEN = registerItem("pollen", new Item((new Item.Properties()).tab(ItemGroup.TAB_MATERIALS)));
+
    public static final Item BEE_NEST = registerBlock(Blocks.BEE_NEST, ItemGroup.TAB_DECORATIONS);
    public static final Item BEEHIVE = registerBlock(Blocks.BEEHIVE, ItemGroup.TAB_DECORATIONS);
    public static final Item HONEY_BOTTLE = registerItem("honey_bottle", new HoneyBottleItem((new Item.Properties()).craftRemainder(GLASS_BOTTLE).food(Foods.HONEY_BOTTLE).tab(ItemGroup.TAB_FOOD).stacksTo(16)));
+   public static final Item ROYAL_JELLY = registerItem("royal_jelly", new RoyalJellyBottleItem((new Item.Properties()).craftRemainder(GLASS_BOTTLE).food(Foods.ROYAL_JELLY).tab(ItemGroup.TAB_FOOD).stacksTo(8)));
+
+   public static final Item HONEYCOMB_COOKIE = registerItem("honeycomb_cookie", new HoneyFoodItem(Foods.HONEYCOMB_COOKIE, 40, null, Effects.POISON, Effects.HUNGER));
+   public static final Item TOFFEE_APPLE = registerItem("toffee_apple", new HoneyFoodItem(Foods.TOFFEE_APPLE, 60, null, Effects.POISON, Effects.HUNGER));
+
    public static final Item HONEY_BLOCK = registerBlock(Blocks.HONEY_BLOCK, ItemGroup.TAB_DECORATIONS);
+
    public static final Item HONEYCOMB_BLOCK = registerBlock(Blocks.HONEYCOMB_BLOCK, ItemGroup.TAB_DECORATIONS);
    public static final Item LODESTONE = registerBlock(Blocks.LODESTONE, ItemGroup.TAB_DECORATIONS);
    public static final Item NETHERITE_BLOCK = registerBlock(new BlockItem(Blocks.NETHERITE_BLOCK, (new Item.Properties()).tab(ItemGroup.TAB_BUILDING_BLOCKS).fireResistant()));
@@ -1058,6 +1074,426 @@ public class Items {
    public static final Item POLISHED_BLACKSTONE_BRICK_STAIRS = registerBlock(Blocks.POLISHED_BLACKSTONE_BRICK_STAIRS, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item CRACKED_POLISHED_BLACKSTONE_BRICKS = registerBlock(Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS, ItemGroup.TAB_BUILDING_BLOCKS);
    public static final Item RESPAWN_ANCHOR = registerBlock(Blocks.RESPAWN_ANCHOR, ItemGroup.TAB_DECORATIONS);
+
+   public static final Chem RadAway = (Chem) registerItem("radaway", new RadAwayItem((new Item.Properties()).stacksTo(16).tab(ItemGroup.TAB_FOOD)));
+   public static final Chem RadX = (Chem) registerItem("radx", new RadXItem((new Item.Properties()).stacksTo(16).tab(ItemGroup.TAB_FOOD)));
+   public static final Chem MedX = (Chem) registerItem("medx", new MedXItem((new Item.Properties()).stacksTo(8).tab(ItemGroup.TAB_FOOD)));
+   public static final Chem Mentats = (Chem) registerItem("mentats", new MentatsItem((new Item.Properties()).stacksTo(4).tab(ItemGroup.TAB_FOOD)));
+
+
+
+
+
+   public static final Item MUSIC_DISC_13 = registerItem("music_disc_13",
+           new MusicDiscItem(1, SoundEvents.MUSIC_DISC_13,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(100),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(5.0D).setSpeed(4).setDistanceToComeBack(20).setReducWhenHittingMob(0.85).setFireResistant(false).build("disc_13")));
+
+   public static final Item MUSIC_DISC_CAT = registerItem("music_disc_cat",
+           new MusicDiscItem(2, SoundEvents.MUSIC_DISC_CAT,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(150),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(3.0D).setSpeed(8).setDistanceToComeBack(25).setReducWhenHittingMob(0.90).setFireResistant(false).build("disc_cat")));
+
+   public static final Item MUSIC_DISC_BLOCKS = registerItem("music_disc_blocks",
+           new MusicDiscItem(3, SoundEvents.MUSIC_DISC_BLOCKS,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(200),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(6.0D).setSpeed(6).setDistanceToComeBack(30).setReducWhenHittingMob(0.80).setFireResistant(false).build("disc_blocks")));
+
+   public static final Item MUSIC_DISC_CHIRP = registerItem("music_disc_chirp",
+           new MusicDiscItem(4, SoundEvents.MUSIC_DISC_CHIRP,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(160),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(4.0D).setSpeed(7).setDistanceToComeBack(22).setReducWhenHittingMob(0.88).setFireResistant(false).build("disc_chirp")));
+
+   public static final Item MUSIC_DISC_FAR = registerItem("music_disc_far",
+           new MusicDiscItem(5, SoundEvents.MUSIC_DISC_FAR,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(250),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(7.0D).setSpeed(5).setDistanceToComeBack(35).setReducWhenHittingMob(0.75).setFireResistant(true).build("disc_far")));
+
+   public static final Item MUSIC_DISC_MALL = registerItem("music_disc_mall",
+           new MusicDiscItem(6, SoundEvents.MUSIC_DISC_MALL,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(180),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(5.5D).setSpeed(6).setDistanceToComeBack(28).setReducWhenHittingMob(0.82).setFireResistant(false).build("disc_mall")));
+
+   public static final Item MUSIC_DISC_MELLOHI = registerItem("music_disc_mellohi",
+           new MusicDiscItem(7, SoundEvents.MUSIC_DISC_MELLOHI,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(170),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(6.0D).setSpeed(5).setDistanceToComeBack(25).setReducWhenHittingMob(0.88).setFireResistant(false).build("disc_mellohi")));
+
+   public static final Item MUSIC_DISC_STAL = registerItem("music_disc_stal",
+           new MusicDiscItem(8, SoundEvents.MUSIC_DISC_STAL,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(220),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(8.0D).setSpeed(5).setDistanceToComeBack(32).setReducWhenHittingMob(0.78).setFireResistant(true).build("disc_stal")));
+
+   public static final Item MUSIC_DISC_STRAD = registerItem("music_disc_strad",
+           new MusicDiscItem(9, SoundEvents.MUSIC_DISC_STRAD,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(210),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(6.5D).setSpeed(7).setDistanceToComeBack(30).setReducWhenHittingMob(0.80).setFireResistant(false).build("disc_strad")));
+
+   public static final Item MUSIC_DISC_WARD = registerItem("music_disc_ward",
+           new MusicDiscItem(10, SoundEvents.MUSIC_DISC_WARD,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(300),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(9.0D).setSpeed(4).setDistanceToComeBack(40).setReducWhenHittingMob(0.70).setFireResistant(true).build("disc_ward")));
+
+   public static final Item MUSIC_DISC_11 = registerItem("music_disc_11",
+           new MusicDiscItem(11, SoundEvents.MUSIC_DISC_11,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(120),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(4.5D).setSpeed(3).setDistanceToComeBack(15).setReducWhenHittingMob(0.85).setFireResistant(false).build("disc_11")));
+
+   public static final Item MUSIC_DISC_WAIT = registerItem("music_disc_wait",
+           new MusicDiscItem(12, SoundEvents.MUSIC_DISC_WAIT,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(200),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(7.5D).setSpeed(6).setDistanceToComeBack(30).setReducWhenHittingMob(0.82).setFireResistant(true).build("disc_wait")));
+
+   public static final Item MUSIC_DISC_PIGSTEP = registerItem("music_disc_pigstep",
+           new MusicDiscItem(13, SoundEvents.MUSIC_DISC_PIGSTEP,
+                   (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_MISC).rarity(Rarity.RARE).durability(280),
+                   new FrisbeeData.FrisbeeDataBuilder().setBaseDamage(10.0D).setSpeed(8).setDistanceToComeBack(35).setReducWhenHittingMob(0.75).setFireResistant(true).setOnHitEntityBehavior((frisbee, result) -> {
+                      if (!result.getEntity().fireImmune() && result.getEntity() != frisbee.getOwner()) {
+                         result.getEntity().setSecondsOnFire(5);
+                      }
+                   }).build("disc_pigstep")));
+
+
+
+
+   public static final FrisbeeItem WOODEN_FRISBEE = (FrisbeeItem) registerItem("wooden_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(59),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(3D)
+                           .setSpeed(4)
+                           .setDistanceToComeBack(10)
+                           .setReducWhenHittingMob(0.90D)
+                           .setFireResistant(false)
+                           .build("wooden_frisbee")
+           )
+   );
+
+   public static final Item IRON_FRISBEE = registerItem("iron_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(250),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(5D)
+                           .setSpeed(6)
+                           .setDistanceToComeBack(15)
+                           .setReducWhenHittingMob(0.92D)
+                           .setFireResistant(false)
+                           .build("iron_frisbee")
+           )
+   );
+
+   public static final Item GOLD_FRISBEE = registerItem("gold_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(32),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(4D)
+                           .setSpeed(8)
+                           .setDistanceToComeBack(12)
+                           .setReducWhenHittingMob(0.88D)
+                           .setFireResistant(false)
+                           .build("gold_frisbee")
+           )
+   );
+
+   public static final Item DIAMOND_FRISBEE = registerItem("diamond_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(1561),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(7D)
+                           .setSpeed(8)
+                           .setDistanceToComeBack(20)
+                           .setReducWhenHittingMob(0.95D)
+                           .setFireResistant(true)
+                           .build("diamond_frisbee")
+           )
+   );
+
+   public static final Item NETHERITE_FRISBEE = registerItem("netherite_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(2031).fireResistant(),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(8D)
+                           .setSpeed(10)
+                           .setDistanceToComeBack(25)
+                           .setReducWhenHittingMob(0.97D)
+                           .setFireResistant(true)
+                           .build("netherite_frisbee")
+           )
+   );
+
+   public static final Item PIZZA_FRISBEE = registerItem("pizza_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(150),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(4D)
+                           .setSpeed(6)
+                           .setDistanceToComeBack(20)
+                           .setReducWhenHittingMob(0.80D)
+                           .setFireResistant(false)
+                           .setOnHitEntityBehavior((frisbee, entityRayTraceResult) -> {
+                              Entity target = entityRayTraceResult.getEntity();
+                              if (target instanceof LivingEntity && target != frisbee.getOwner()) {
+                                 // Causes the entity to pause for 1 second (20 ticks)
+                                 ((LivingEntity) target).addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 20, 4));
+                              }
+                           })
+                           .setOnHitBlockBehavior((frisbee, blockRayTraceResult) -> {
+                              // Drops a small food item like bread or cooked chicken when it hits a block
+                              if (Math.random() < 0.3) {
+                                 World world = frisbee.level;
+                                 BlockPos pos = blockRayTraceResult.getBlockPos();
+                                 ItemStack drop = Math.random() < 0.5 ? new ItemStack(Items.BREAD) : new ItemStack(Items.COOKED_CHICKEN);
+                                 ItemEntity foodDrop = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.2, pos.getZ() + 0.5, drop);
+                                 world.addFreshEntity(foodDrop);
+                              }
+                           })
+                           .setOnThrowBehavior((frisbee, player) -> {
+                              // Creates a trail of pizza slices that slow down entities that walk through it
+                              frisbee.level.addParticle(ParticleTypes.ITEM_SNOWBALL, frisbee.getX(), frisbee.getY(), frisbee.getZ(), 0, 0, 0);
+                              frisbee.level.getEntitiesOfClass(LivingEntity.class, frisbee.getBoundingBox().inflate(1.0D), entity -> entity != frisbee.getOwner()).forEach(entity -> {
+                                 entity.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 20, 1));
+                              });
+                           })
+                           .setOnReturnBehavior((frisbee, player) -> {
+                              // 10% chance to give the player a "Satiated" effect
+                              if (Math.random() < 0.1) {
+                                 player.addEffect(new EffectInstance(Effects.SATURATION, 600, 0));
+                              }
+                           })
+                           .build("pizza_frisbee")
+           )
+   );
+
+   public static final Item ENDER_FRISBEE = registerItem("ender_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(150),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(4D)
+                           .setSpeed(12)
+                           .setDistanceToComeBack(25)
+                           .setReducWhenHittingMob(0.85D)
+                           .setFireResistant(false)
+                           .setOnHitBlockBehavior((frisbeeEntity, blockRayTraceResult) -> {
+                              LivingEntity frisbee = (LivingEntity) frisbeeEntity.getOwner();
+                              if (frisbee != null && !EnchantmentHelper.has(frisbeeEntity.frisbeeItemStack, Enchantments.SPECTRAL_THROW)) {
+                                 for(int i = 0; i < 32; ++i) {
+                                    frisbee.level.addParticle(ParticleTypes.PORTAL, frisbee.getX(), frisbee.getY() + frisbee.level.random.nextDouble() * 2.0D, frisbee.getZ(), frisbee.level.random.nextGaussian(), 0.0D, frisbee.level.random.nextGaussian());
+                                 }
+
+                                 frisbeeEntity.teleportTo(frisbee.getX(), frisbee.getY() + 1, frisbee.getZ());
+                                 frisbeeEntity.dropItem();
+                                 frisbeeEntity.hasDropped = true;
+                                 frisbeeEntity.fallDistance = 0.0F;
+                              }
+                           })
+                           .build("ender_frisbee")
+           )
+   );
+
+   public static final Item OBSIDIAN_FRISBEE = registerItem("obsidian_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(700),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(8D)
+                           .setSpeed(4)
+                           .setDistanceToComeBack(20)
+                           .setReducWhenHittingMob(0.9D)
+                           .fireResistant()
+                           .bypassArmour()
+                           .setCooldown(25)
+                           .setOnHitBlockBehavior((frisbeeEntity, blockRayTraceResult) -> {
+                              frisbeeEntity.breakSoft(3, blockRayTraceResult, true);
+                           })
+                           .build("obsidian_frisbee")
+           )
+   );
+
+   public static final Item SPONGE_FRISBEE = registerItem("sponge_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(353),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(3D)
+                           .setSpeed(2)
+                           .setDistanceToComeBack(14)
+                           .setReducWhenHittingMob(0.6D)
+                           .setCooldown(8)
+                           .setFlyingBehavior((frisbee) -> {
+                              World world = frisbee.level;
+                              BlockPos frisbeePos = frisbee.blockPosition();
+
+                              // Start the water absorption process
+                              frisbee.absorbWater(frisbee, world, frisbeePos);
+                           })
+                           .build("sponge_frisbee")
+           ));
+
+   public static final Item PHANTOM_FRISBEE = registerItem("phantom_frisbee",
+           new FrisbeeItem(
+                   new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(220),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(5.5D)
+                           .setSpeed(10)
+                           .setDistanceToComeBack(40)
+                           .setReducWhenHittingMob(0.85D)
+                           .setCooldown(6)
+                           .phase(true)
+                           .setOnHitEntityBehavior((frisbee, entityResult) -> {
+                              if (entityResult.getEntity() != frisbee.getOwner() && entityResult.getEntity() instanceof LivingEntity) {
+                                 ((LivingEntity) entityResult.getEntity()).addEffect(new EffectInstance(Effects.LEVITATION, 5 * 20, 0));
+                              }
+                           })
+                           .setFlyingBehavior((frisbee) -> {
+                              if (!frisbee.level.isClientSide) {
+                                 float f = MathHelper.cos((float)(frisbee.getId() * 3 + frisbee.tickCount) * 0.13F + (float)Math.PI);
+                                 int i = 1;
+                                 float f2 = MathHelper.cos(frisbee.yRot * ((float)Math.PI / 180F)) * (1.3F + 0.21F * (float)i);
+                                 float f3 = MathHelper.sin(frisbee.yRot * ((float)Math.PI / 180F)) * (1.3F + 0.21F * (float)i);
+                                 float f4 = (0.3F + f * 0.45F) * ((float)i * 0.2F + 1.0F);
+                                 frisbee.level.addParticle(ParticleTypes.MYCELIUM, frisbee.getX() + (double)f2, frisbee.getY() + (double)f4, frisbee.getZ() + (double)f3, 0.0D, 0.0D, 0.0D);
+                                 frisbee.level.addParticle(ParticleTypes.MYCELIUM, frisbee.getX() - (double)f2, frisbee.getY() + (double)f4, frisbee.getZ() - (double)f3, 0.0D, 0.0D, 0.0D);
+                              }
+                           })
+                           .build("phantom_frisbee")
+           )
+   );
+
+   public static final Item FRISBEE /* replace frisbee with custom name here */ = registerItem("frisbee", // put name here too
+           new FrisbeeItem(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(1/* put durability here*/),
+           new FrisbeeData.FrisbeeDataBuilder()
+                   .setBaseDamage(0) // double
+                   .setSpeed(0) // int (0-15, over 8 is very fast, you could also go higher than 15 but max 15 is recommended)
+                   .setDistanceToComeBack(0) // int (blocks to travel before starting to come back to player)
+                   .setReducWhenHittingMob(0) // etc 0.7 for 30% reduction in speed when hitting a mob, 0.1 for 90% speed reduction
+                   .setCooldown(0) // int
+                   .setAvailableDimensions(Arrays.asList(World.OVERWORLD,World.NETHER,World.END)) // don't include this part if you want the frisbee to be able to be used in every dimension, or you can limit it to a certain one or 2
+                   .fireResistant() // use this if you want the item to be fire-resistant
+                   .windResistant() // use this if you want the frisbee to be wind-resistant and not affected by wind.
+                   .bypassArmour() // use this if you want it to ignore armour
+                   .phase(false) // boolean (if it can go through blocks)
+                   .setFlyingBehavior((frisbee) -> {
+                        // tick while flying
+                   })
+                   .setOnHitBlockBehavior((frisbee, blockHitResult) -> {
+                        // when it hits a block
+                   })
+                   .setOnHitEntityBehavior((frisbee, entityHitResult) -> {
+                        // when it hits an entity
+                   })
+                   .setOnThrowBehavior((frisbee, player) -> {
+                        // logic as soon as the frisbee is thrown
+                   })
+                   .setOnReturnBehavior((frisbee, player) -> {
+                        // logic when frisbee is added back to player's inventory
+                   })
+                   .DEFAULT()
+           )
+   );
+
+
+   public static final Item AETHER_FRISBEE = registerItem("aether_frisbee",
+           new FrisbeeItem(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(120),
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(7.0) // High damage
+                           .setSpeed(12) // Faster than average
+                           .setDistanceToComeBack(40) // Long distance before coming back
+                           .setReducWhenHittingMob(0.8) // 20% reduction in speed when hitting a mob
+                           .setCooldown(10) // Slight cooldown between throws
+                           .fireResistant() // Fire-resistant
+                           .windResistant() // Wind-resistant
+                           .bypassArmour() // Ignores armor
+                           .phase(false) // Cannot phase through blocks
+                           .setFlyingBehavior((frisbee) -> {
+                              // Emit glowing particles (like Ender Dragon particles)
+                              World world = frisbee.level;
+                              if (!world.isClientSide) {
+                                 for (int i = 0; i < 5; i++) {
+                                    world.addParticle(ParticleTypes.DRAGON_BREATH, frisbee.getX(), frisbee.getY(), frisbee.getZ(), 0, 0, 0);
+                                 }
+                                 // Play whooshing sound
+                              }
+                           })
+                           .setOnHitEntityBehavior((frisbee, entityHitResult) -> {
+                              // Small AOE burst of wind
+                              World world = frisbee.level;
+                              if (!world.isClientSide) {
+                                 for (Entity entity : world.getEntities(frisbee, frisbee.getBoundingBox().inflate(2), e -> e != frisbee.getOwner())) {
+                                    if (entity instanceof LivingEntity) {
+                                       ((LivingEntity)entity).addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 60, 0)); // Slowness effect for 3 seconds
+                                       ((LivingEntity)entity).knockback(0.5F, frisbee.getX() - entity.getX(), frisbee.getZ() - entity.getZ()); // Push nearby mobs
+                                    }
+                                 }
+                              }
+                           })
+                           .setOnThrowBehavior((frisbee, player) -> {
+                              // Whooshing sound and particle trail
+                              World world = frisbee.level;
+                              if (!world.isClientSide) {
+                                 world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                              }
+                           })
+                           .setOnReturnBehavior((frisbee, player) -> {
+                              // 10% chance to leave a portal effect giving speed boost
+                              if (player.getRandom().nextFloat() < 0.1) {
+                                 player.addEffect(new EffectInstance(Effects.MOVEMENT_SPEED, 100, 1)); // Speed boost for 5 seconds
+                                 World world = frisbee.level;
+                                 if (!world.isClientSide) {
+                                    world.addParticle(ParticleTypes.PORTAL, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
+                                 }
+                              }
+                           })
+                           .build("aether_frisbee")
+           )
+   );
+
+
+   public static final Item GHOSTLY_FRISBEE = registerItem("ghostly_frisbee", // name
+           new FrisbeeItem(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC).durability(250), // durability
+                   new FrisbeeData.FrisbeeDataBuilder()
+                           .setBaseDamage(8.5) // damage
+                           .setSpeed(12) // speed (0-15)
+                           .setDistanceToComeBack(30) // distance before returning
+                           .setReducWhenHittingMob(0.5) // 50% reduction in speed when hitting a mob
+                           .setCooldown(15) // cooldown in ticks
+                           .fireResistant() // fire-resistant
+                           .phase(true) // can pass through blocks
+                           .setAvailableDimensions(Arrays.asList(World.NETHER, World.END))
+                           .setFlyingBehavior((frisbee) -> {
+                              // Create a ghostly trail behind the frisbee
+                              frisbee.level.addParticle(ParticleTypes.SOUL_FIRE_FLAME, frisbee.getX(), frisbee.getY(), frisbee.getZ(), 0, 0, 0);
+                           })
+                           .setOnHitBlockBehavior((frisbee, blockHitResult) -> {
+                              // On hitting a block, the frisbee phases through and continues on its path
+                              frisbee.setDeltaMovement(frisbee.getDeltaMovement().multiply(1.05, 1.05, 1.05)); // Slight speed boost after phasing
+                           })
+                           .setOnHitEntityBehavior((frisbee, entityHitResult) -> {
+                              // On hitting an entity, the frisbee deals damage and applies a spectral effect
+                              if (entityHitResult.getEntity() instanceof LivingEntity) {
+                                 ((LivingEntity) entityHitResult.getEntity()).addEffect(new EffectInstance(Effects.GLOWING, 200, 0));
+                              }
+                           })
+                           .setOnThrowBehavior((frisbee, player) -> {
+                              // Play an eerie sound when thrown
+                              player.level.playSound(null, player.blockPosition(), SoundEvents.WITHER_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                           })
+                           .setOnReturnBehavior((frisbee, player) -> {
+                              // When returning to the player, play a whoosh sound
+                              player.level.playSound(null, player.blockPosition(), SoundEvents.GHAST_SHOOT, SoundCategory.PLAYERS, 0.5F, 1.2F);
+                           })
+                           .build("ghostly_frisbee")
+           )
+   );
+
+
+
+
+   public static final BundleItem BUNDLE = (BundleItem) registerItem("bundle", new BundleItem());
+   //public static final Item QUIVER = registerItem("quiver", new QuiverItem());
+
+
+
+
+
+
 
    private static Item registerBlock(Block p_221545_0_) {
       return registerBlock(new BlockItem(p_221545_0_, new Item.Properties()));

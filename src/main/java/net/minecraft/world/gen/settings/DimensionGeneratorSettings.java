@@ -47,7 +47,7 @@ public class DimensionGeneratorSettings {
       })).apply(p_236214_0_, p_236214_0_.stable(DimensionGeneratorSettings::new));
    }).comapFlatMap(DimensionGeneratorSettings::guardExperimental, Function.identity());
    private static final Logger LOGGER = LogManager.getLogger();
-   private final long seed;
+   private long seed;
    private final boolean generateFeatures;
    private final boolean generateBonusChest;
    private final SimpleRegistry<Dimension> dimensions;
@@ -103,6 +103,10 @@ public class DimensionGeneratorSettings {
 
    public long seed() {
       return this.seed;
+   }
+
+   public void setSeed(long seed) {
+      this.seed = seed;
    }
 
    public boolean generateFeatures() {

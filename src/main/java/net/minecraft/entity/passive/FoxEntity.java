@@ -360,7 +360,7 @@ public class FoxEntity extends Animal {
 
       p_213281_1_.put("Trusted", listnbt);
       p_213281_1_.putBoolean("Sleeping", this.isSleeping());
-      p_213281_1_.putString("Type", this.getFoxType().getName());
+      p_213281_1_.putString("BoggedType", this.getFoxType().getName());
       p_213281_1_.putBoolean("Sitting", this.isSitting());
       p_213281_1_.putBoolean("Crouching", this.isCrouching());
    }
@@ -374,7 +374,7 @@ public class FoxEntity extends Animal {
       }
 
       this.setSleeping(p_70037_1_.getBoolean("Sleeping"));
-      this.setFoxType(FoxEntity.Type.byName(p_70037_1_.getString("Type")));
+      this.setFoxType(FoxEntity.Type.byName(p_70037_1_.getString("BoggedType")));
       this.setSitting(p_70037_1_.getBoolean("Sitting"));
       this.setIsCrouching(p_70037_1_.getBoolean("Crouching"));
       if (this.level instanceof ServerWorld) {

@@ -14,8 +14,9 @@ import net.minecraft.world.gen.settings.StructureSeparationSettings;
 
 public class PillagerOutpostStructure extends JigsawStructure {
    private static final List<MobSpawnInfo.Spawners> OUTPOST_ENEMIES = ImmutableList.of(
-           new MobSpawnInfo.Spawners(EntityType.PILLAGER, 10, 1, 1),
-           new MobSpawnInfo.Spawners(EntityType.PILLAGER_CAPTAIN, 2, 1, 1)
+           new MobSpawnInfo.Spawners(EntityType.PILLAGER, 27, 1, 1),
+           new MobSpawnInfo.Spawners(EntityType.PILLAGER_CAPTAIN, 9, 1, 1),
+           new MobSpawnInfo.Spawners(EntityType.ILLUSIONER, 1, 1, 1)
    );
 
    public PillagerOutpostStructure(Codec<VillageConfig> p_i231977_1_) {
@@ -37,8 +38,9 @@ public class PillagerOutpostStructure extends JigsawStructure {
       // Advance the random number generator's internal state
       random.nextInt();
 
-      // Check if the next random number is divisible by 5
-      if (random.nextInt(5) != 0) {
+      // Increase the chance of the feature appearing by lowering the divisor
+      // For example, `nextInt(3)` will make the feature appear in 1 out of 3 chunks on average
+      if (random.nextInt(3) != 0) {
          return false;
       } else {
          // Check if the feature (e.g., village) is near another village

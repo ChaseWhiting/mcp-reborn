@@ -41,10 +41,16 @@ public class AvoidEntityGoal<T extends LivingEntity> extends Goal {
       this.avoidEntityTargeting = (new EntityPredicate()).range((double) maxDistance).selector(additionalPredicate.and(avoidPredicate));
    }
 
-   public AvoidEntityGoal(Creature p_i48860_1_, Class<T> p_i48860_2_, float p_i48860_3_, double p_i48860_4_, double p_i48860_6_, Predicate<LivingEntity> p_i48860_8_) {
-      this(p_i48860_1_, p_i48860_2_, (p_203782_0_) -> {
+   public AvoidEntityGoal(Creature mob, Class<T> mobClass, float maxDis, double speedMod, double sprintMod, Predicate<LivingEntity> additionalPred) {
+      this(mob, mobClass, (entity) -> {
          return true;
-      }, p_i48860_3_, p_i48860_4_, p_i48860_6_, p_i48860_8_);
+      }, maxDis, speedMod, sprintMod, additionalPred);
+   }
+
+   public AvoidEntityGoal(Creature mob, Class<T> mobClass, float maxDis, double speedMod, Predicate<LivingEntity> additionalPred) {
+      this(mob, mobClass, (entity) -> {
+         return true;
+      }, maxDis, speedMod, speedMod, additionalPred);
    }
 
    public boolean canUse() {

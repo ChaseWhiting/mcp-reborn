@@ -23,7 +23,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.chunk.listener.IChunkStatusListenerFactory;
 import net.minecraft.world.storage.IServerConfiguration;
 import net.minecraft.world.storage.SaveFormat;
@@ -114,7 +114,7 @@ public class IntegratedServer extends MinecraftServer {
 
    public CrashReport fillReport(CrashReport p_71230_1_) {
       p_71230_1_ = super.fillReport(p_71230_1_);
-      p_71230_1_.getSystemDetails().setDetail("Type", "Integrated Server (map_client.txt)");
+      p_71230_1_.getSystemDetails().setDetail("BoggedType", "Integrated Server (map_client.txt)");
       p_71230_1_.getSystemDetails().setDetail("Is Modded", () -> {
          return this.getModdedStatus().orElse("Probably not. Jar signature remains and both client + server brands are untouched.");
       });
@@ -140,7 +140,7 @@ public class IntegratedServer extends MinecraftServer {
       p_70000_1_.setDynamicData("snooper_partner", this.minecraft.getSnooper().getToken());
    }
 
-   public boolean publishServer(GameType p_195565_1_, boolean p_195565_2_, int p_195565_3_) {
+   public boolean publishServer(Gamemode p_195565_1_, boolean p_195565_2_, int p_195565_3_) {
       try {
          this.getConnection().startTcpServerListener((InetAddress)null, p_195565_3_);
          LOGGER.info("Started serving on {}", (int)p_195565_3_);
@@ -196,7 +196,7 @@ public class IntegratedServer extends MinecraftServer {
       return this.publishedPort;
    }
 
-   public void setDefaultGameType(GameType p_71235_1_) {
+   public void setDefaultGameType(Gamemode p_71235_1_) {
       super.setDefaultGameType(p_71235_1_);
       this.getPlayerList().setOverrideGameMode(p_71235_1_);
    }

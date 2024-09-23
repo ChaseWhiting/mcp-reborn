@@ -2,6 +2,7 @@ package net.minecraft.item;
 
 import com.google.common.collect.Lists;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -35,10 +36,14 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class AbstractCrossbowItem extends ShootableItem implements IVanishable {
+public class AbstractCrossbowItem extends ShootableItem implements IVanishable, ICrossbowItem {
    private boolean startSoundPlayed = false;
    private boolean midLoadSoundPlayed = false;
    private final CrossbowConfig config;
+
+   public int getWeight(ItemStack bundle) {
+      return 12;
+   }
 
 
    // Add this method to check if the attacker is holding an instance of AbstractCrossbowItem

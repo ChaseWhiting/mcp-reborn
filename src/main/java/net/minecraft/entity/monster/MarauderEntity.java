@@ -130,7 +130,7 @@ public class MarauderEntity extends AbstractIllagerEntity{
 
       boolean hasDesiredItems = false;
 
-      if (!nearbyItems.isEmpty()) {
+      if (!nearbyItems.isEmpty() && this.getTarget() == null) {
          for (ItemEntity item : nearbyItems) {
             boolean isShieldItem = item.getItem().getItem() instanceof ShieldItem;
             boolean isAxeItem = item.getItem().getItem() instanceof AxeItem;
@@ -467,25 +467,26 @@ public class MarauderEntity extends AbstractIllagerEntity{
 
    public boolean hurt(DamageSource source, float damage) {
       // Always take damage if bypassing armor or invulnerability
-      if (source.isBypassInvul() || source.isBypassArmor() || source.isBypassMagic() || (source.isProjectile())) {
+      if (source.isBypassInvul() || source.isBypassArmor() || source.isBypassMagic() || source.isProjectile() || source.isFire() || source == DamageSource.FALL) {
          return super.hurt(source, damage);
       }
 
       // Always take damage if holding an axe
-      if (this.getMainHandItem().getItem() instanceof AxeItem || shieldDisabled) {
+      if (this.getMainHandItem().getItem() instanceof AxeItem) {
          return super.hurt(source, damage);
       }
 
-      // Handle shield blocking logic
-      if (source.getEntity() != null) {
-         if (facingTarget(source.getEntity()) && this.getOffhandItem().getItem() instanceof ShieldItem) {
-            if (!shieldDisabled) {
-               if (this.getUseItem().getItem() instanceof ShieldItem) {
-                  return false; // Block the damage if shield is active and in use
-               }
-            }
-         }
-      }
+//      // Handle shield blocking logic
+//      if (source.getEntity() != null) {
+//         if (facingTarget(source.getEntity()) && this.getOffhandItem().getItem() instanceof ShieldItem) {
+//            if (!shieldDisabled) {
+//               if (this.getUseItem().getItem() instanceof ShieldItem) {
+//                  // Block the damage if shield is active and in use
+//                  return false;
+//               }
+//            }
+//         }
+//      }
 
       // Default case: take damage
       return super.hurt(source, damage);

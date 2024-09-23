@@ -4,18 +4,12 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IChargeableMob;
-import net.minecraft.entity.IRangedAttackMob;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.Goal;
@@ -60,19 +54,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
         value = Dist.CLIENT,
         _interface = IChargeableMob.class
 )
-public class WitherEntity extends Monster implements IChargeableMob, IRangedAttackMob {
+public class WitherEntity extends Monster implements IChargeableMob, IRangedAttackMob, IWitherMob {
     private static final DataParameter<Integer> DATA_TARGET_A = EntityDataManager.defineId(WitherEntity.class, DataSerializers.INT);
     private static final DataParameter<Integer> DATA_TARGET_B = EntityDataManager.defineId(WitherEntity.class, DataSerializers.INT);
     private static final DataParameter<Integer> DATA_TARGET_C = EntityDataManager.defineId(WitherEntity.class, DataSerializers.INT);
-    private static final DataParameter<Integer> DATA_TARGET_D = EntityDataManager.defineId(WitherEntity.class, DataSerializers.INT);
-    private static final List<DataParameter<Integer>> DATA_TARGETS = ImmutableList.of(DATA_TARGET_A, DATA_TARGET_B, DATA_TARGET_C, DATA_TARGET_D);
+    private static final List<DataParameter<Integer>> DATA_TARGETS = ImmutableList.of(DATA_TARGET_A, DATA_TARGET_B, DATA_TARGET_C);
     private static final DataParameter<Integer> DATA_ID_INV = EntityDataManager.defineId(WitherEntity.class, DataSerializers.INT);
-    private final float[] xRotHeads = new float[3];
-    private final float[] yRotHeads = new float[3];
-    private final float[] xRotOHeads = new float[3];
-    private final float[] yRotOHeads = new float[3];
-    private final int[] nextHeadUpdate = new int[3];
-    private final int[] idleHeadUpdates = new int[3];
+    private final float[] xRotHeads = new float[2];
+    private final float[] yRotHeads = new float[2];
+    private final float[] xRotOHeads = new float[2];
+    private final float[] yRotOHeads = new float[2];
+    private final int[] nextHeadUpdate = new int[2];
+    private final int[] idleHeadUpdates = new int[2];
     private int destroyBlocksTick;
     private final ServerBossInfo bossEvent = (ServerBossInfo) (new ServerBossInfo(this.getDisplayName(), BossInfo.Color.PURPLE, BossInfo.Overlay.PROGRESS)).setDarkenScreen(true);
     private static final Predicate<LivingEntity> LIVING_ENTITY_SELECTOR = (p_213797_0_) -> {
@@ -82,9 +75,12 @@ public class WitherEntity extends Monster implements IChargeableMob, IRangedAtta
 
     public WitherEntity(EntityType<? extends WitherEntity> p_i50226_1_, World p_i50226_2_) {
         super(p_i50226_1_, p_i50226_2_);
+        if (this.veryHardmode()) {
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(850D);
+        }
         this.setHealth(this.getMaxHealth());
         this.getNavigation().setCanFloat(true);
-        this.xpReward = 50;
+        this.xpReward = veryHardmode() ? 450 : 50;
     }
 
     protected void registerGoals() {
@@ -102,7 +98,6 @@ public class WitherEntity extends Monster implements IChargeableMob, IRangedAtta
         this.entityData.define(DATA_TARGET_A, 0);
         this.entityData.define(DATA_TARGET_B, 0);
         this.entityData.define(DATA_TARGET_C, 0);
-        this.entityData.define(DATA_TARGET_D, 0); // Added for fourth head
         this.entityData.define(DATA_ID_INV, 0);
     }
 
@@ -117,7 +112,6 @@ public class WitherEntity extends Monster implements IChargeableMob, IRangedAtta
         if (this.hasCustomName()) {
             this.bossEvent.setName(this.getDisplayName());
         }
-
     }
 
     public void setCustomName(@Nullable ITextComponent p_200203_1_) {
@@ -195,7 +189,7 @@ public class WitherEntity extends Monster implements IChargeableMob, IRangedAtta
 
         boolean flag = this.isPowered();
 
-        for (int l = 0; l < 3; ++l) {
+        for (int l = 0; l < 2; ++l) {
             double d8 = this.getHeadX(l);
             double d10 = this.getHeadY(l);
             double d2 = this.getHeadZ(l);
@@ -232,19 +226,19 @@ public class WitherEntity extends Monster implements IChargeableMob, IRangedAtta
         } else {
             super.customServerAiStep();
 
-            for (int i = 1; i < 4; ++i) { // Update for 3 additional heads
+            for (int i = 1; i < 3; ++i) { // Update for 3 additional heads
                 if (this.tickCount >= this.nextHeadUpdate[i - 1]) {
                     this.nextHeadUpdate[i - 1] = this.tickCount + 10 + this.random.nextInt(10);
-                    if (this.level.getDifficulty() == Difficulty.NORMAL || this.level.getDifficulty() == Difficulty.HARD) {
+                    if (this.level.getDifficulty() == Difficulty.NORMAL || this.level.getDifficulty() == Difficulty.HARD || this.veryHardmode()) {
                         int j3 = i - 1;
                         int k3 = this.idleHeadUpdates[i - 1];
                         this.idleHeadUpdates[j3] = this.idleHeadUpdates[i - 1] + 1;
                         if (k3 > 15) {
                             float f = 10.0F;
                             float f1 = 5.0F;
-                            double d0 = MathHelper.nextDouble(this.random, this.getX() - 10.0D, this.getX() + 10.0D);
-                            double d1 = MathHelper.nextDouble(this.random, this.getY() - 5.0D, this.getY() + 5.0D);
-                            double d2 = MathHelper.nextDouble(this.random, this.getZ() - 10.0D, this.getZ() + 10.0D);
+                            double d0 = MathHelper.nextDouble(this.random, this.getX() - f, this.getX() + f);
+                            double d1 = MathHelper.nextDouble(this.random, this.getY() - f1, this.getY() + f1);
+                            double d2 = MathHelper.nextDouble(this.random, this.getZ() - f, this.getZ() + f);
                             this.performRangedAttack(i + 1, d0, d1, d2, true);
                             this.idleHeadUpdates[i - 1] = 0;
                         }
@@ -299,10 +293,10 @@ public class WitherEntity extends Monster implements IChargeableMob, IRangedAtta
                     int l1 = MathHelper.floor(this.getX());
                     int i2 = MathHelper.floor(this.getZ());
                     boolean flag = false;
-
-                    for (int k2 = -1; k2 <= 1; ++k2) {
-                        for (int l2 = -1; l2 <= 1; ++l2) {
-                            for (int j = 0; j <= 3; ++j) {
+                    int extraDestroy = veryHardmode() ? 3 : 0;
+                    for (int k2 = -1; k2 <= 1 + extraDestroy; ++k2) {
+                        for (int l2 = -1; l2 <= 1 + extraDestroy; ++l2) {
+                            for (int j = 0; j <= 3 + extraDestroy; ++j) {
                                 int i3 = l1 + k2;
                                 int k = i1 + j;
                                 int l = i2 + l2;
@@ -322,7 +316,7 @@ public class WitherEntity extends Monster implements IChargeableMob, IRangedAtta
             }
 
             if (this.tickCount % 20 == 0) {
-                this.heal(1.0F);
+                this.heal(veryHardmode() ? 3F : 1.0F);
             }
 
             this.bossEvent.setPercent(this.getHealth() / this.getMaxHealth());
@@ -523,7 +517,7 @@ public class WitherEntity extends Monster implements IChargeableMob, IRangedAtta
     }
 
     public boolean canBeAffected(EffectInstance p_70687_1_) {
-        return p_70687_1_.getEffect() == Effects.WITHER ? false : super.canBeAffected(p_70687_1_);
+        return super.canBeAffected(p_70687_1_);
     }
 
     class DoNothingGoal extends Goal {

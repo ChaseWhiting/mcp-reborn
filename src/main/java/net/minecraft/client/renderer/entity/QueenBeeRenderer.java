@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.entity.model.BeeModel;
 import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.entity.passive.QueenBeeEntity;
@@ -16,6 +17,11 @@ public class QueenBeeRenderer extends MobRenderer<QueenBeeEntity, BeeModel<Queen
 
    public QueenBeeRenderer(EntityRendererManager p_i226033_1_) {
       super(p_i226033_1_, new BeeModel<>(), 0.4F);
+   }
+
+   @Override
+   protected void scale(QueenBeeEntity p_225620_1_, MatrixStack p_225620_2_, float p_225620_3_) {
+      p_225620_2_.scale(1.4F);
    }
 
    public ResourceLocation getTextureLocation(QueenBeeEntity p_110775_1_) {

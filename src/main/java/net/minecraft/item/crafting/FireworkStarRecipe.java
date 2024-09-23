@@ -120,7 +120,7 @@ public class FireworkStarRecipe extends SpecialRecipe {
       }
 
       compoundnbt.putIntArray("Colors", list);
-      compoundnbt.putByte("Type", (byte)fireworkrocketitem$shape.getId());
+      compoundnbt.putByte("BoggedType", (byte)fireworkrocketitem$shape.getId());
       return itemstack;
    }
 

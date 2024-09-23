@@ -27,11 +27,11 @@ import org.apache.commons.lang3.mutable.MutableInt;
 public class LootPool {
    private final LootEntry[] entries;
    private final ILootCondition[] conditions;
-   private final Predicate<LootContext> compositeCondition;
-   private final ILootFunction[] functions;
+   final Predicate<LootContext> compositeCondition;
+   final ILootFunction[] functions;
    private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
-   private final IRandomRange rolls;
-   private final RandomValueRange bonusRolls;
+   final IRandomRange rolls;
+   final RandomValueRange bonusRolls;
 
    private LootPool(LootEntry[] p_i51268_1_, ILootCondition[] p_i51268_2_, ILootFunction[] p_i51268_3_, IRandomRange p_i51268_4_, RandomValueRange p_i51268_5_) {
       this.entries = p_i51268_1_;

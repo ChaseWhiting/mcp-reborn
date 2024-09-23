@@ -13,14 +13,14 @@ public class ShearsItem extends Item {
       super(p_i48471_1_);
    }
 
-   public boolean mineBlock(ItemStack p_179218_1_, World p_179218_2_, BlockState p_179218_3_, BlockPos p_179218_4_, LivingEntity p_179218_5_) {
-      if (!p_179218_2_.isClientSide && !p_179218_3_.getBlock().is(BlockTags.FIRE)) {
-         p_179218_1_.hurtAndBreak(1, p_179218_5_, (p_220036_0_) -> {
+   public boolean mineBlock(ItemStack itemStack, World world, BlockState state, BlockPos pos, LivingEntity entity) {
+      if (!world.isClientSide && !state.getBlock().is(BlockTags.FIRE)) {
+         itemStack.hurtAndBreak(1, entity, (p_220036_0_) -> {
             p_220036_0_.broadcastBreakEvent(EquipmentSlotType.MAINHAND);
          });
       }
 
-      return !p_179218_3_.is(BlockTags.LEAVES) && !p_179218_3_.is(Blocks.COBWEB) && !p_179218_3_.is(Blocks.GRASS) && !p_179218_3_.is(Blocks.FERN) && !p_179218_3_.is(Blocks.DEAD_BUSH) && !p_179218_3_.is(Blocks.VINE) && !p_179218_3_.is(Blocks.TRIPWIRE) && !p_179218_3_.is(BlockTags.WOOL) ? super.mineBlock(p_179218_1_, p_179218_2_, p_179218_3_, p_179218_4_, p_179218_5_) : true;
+      return !state.is(BlockTags.LEAVES) && !state.is(Blocks.COBWEB) && !state.is(Blocks.GRASS) && !state.is(Blocks.FERN) && !state.is(Blocks.DEAD_BUSH) && !state.is(Blocks.VINE) && !state.is(Blocks.TRIPWIRE) && !state.is(BlockTags.WOOL) ? super.mineBlock(itemStack, world, state, pos, entity) : true;
    }
 
    public boolean isCorrectToolForDrops(BlockState p_150897_1_) {

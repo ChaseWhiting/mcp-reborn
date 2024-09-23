@@ -34,6 +34,7 @@ public class SwordItem extends TieredItem implements IVanishable {
       return this.attackDamage;
    }
 
+
    public boolean canAttackBlock(BlockState p_195938_1_, World p_195938_2_, BlockPos p_195938_3_, PlayerEntity p_195938_4_) {
       return !p_195938_4_.isCreative();
    }
@@ -54,9 +55,9 @@ public class SwordItem extends TieredItem implements IVanishable {
       return true;
    }
 
-   public boolean mineBlock(ItemStack p_179218_1_, World p_179218_2_, BlockState p_179218_3_, BlockPos p_179218_4_, LivingEntity p_179218_5_) {
-      if (p_179218_3_.getDestroySpeed(p_179218_2_, p_179218_4_) != 0.0F) {
-         p_179218_1_.hurtAndBreak(2, p_179218_5_, (p_220044_0_) -> {
+   public boolean mineBlock(ItemStack itemStack, World world, BlockState state, BlockPos pos, LivingEntity entity) {
+      if (state.getDestroySpeed(world, pos) != 0.0F) {
+         itemStack.hurtAndBreak(entity.veryHardmode() ? 5 : 2, entity, (p_220044_0_) -> {
             p_220044_0_.broadcastBreakEvent(EquipmentSlotType.MAINHAND);
          });
       }

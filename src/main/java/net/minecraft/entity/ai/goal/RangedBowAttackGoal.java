@@ -1,125 +1,146 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
+import java.util.List;
+
+import net.minecraft.entity.Creature;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.RandomPositionGenerator;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.monster.AbstractSkeletonEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.Items;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 
 public class RangedBowAttackGoal<T extends Monster & IRangedAttackMob> extends Goal {
-   private final T mob;
-   private final double speedModifier;
-   private int attackIntervalMin;
-   private final float attackRadiusSqr;
-   private int attackTime = -1;
-   private int seeTime;
-   private boolean strafingClockwise;
-   private boolean strafingBackwards;
-   private int strafingTime = -1;
+    private final T mob;
+    private final double speedModifier;
+    private int attackIntervalMin;
+    private final float attackRadiusSqr;
+    private int attackTime = -1;
+    private float strafeSpeed;
+    private int moveFartherBackwards = -1;
+    private int seeTime;
+    private boolean strafingClockwise;
+    private boolean strafingBackwards;
+    private int strafingTime = -1;
 
-   public RangedBowAttackGoal(T p_i47515_1_, double p_i47515_2_, int p_i47515_4_, float p_i47515_5_) {
-      this.mob = p_i47515_1_;
-      this.speedModifier = p_i47515_2_;
-      this.attackIntervalMin = p_i47515_4_;
-      this.attackRadiusSqr = p_i47515_5_ * p_i47515_5_;
-      this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
-   }
+    public RangedBowAttackGoal(T p_i47515_1_, double p_i47515_2_, int p_i47515_4_, float p_i47515_5_) {
+        this.mob = p_i47515_1_;
+        this.speedModifier = p_i47515_2_;
+        this.attackIntervalMin = p_i47515_4_;
 
-   public void setMinAttackInterval(int p_189428_1_) {
-      this.attackIntervalMin = p_189428_1_;
-   }
+        this.attackRadiusSqr = p_i47515_5_ * p_i47515_5_;
+        this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+    }
 
-   public boolean canUse() {
-      return this.mob.getTarget() == null ? false : this.isHoldingBow();
-   }
+    public void setMinAttackInterval(int p_189428_1_) {
+        this.attackIntervalMin = p_189428_1_;
+    }
 
-   protected boolean isHoldingBow() {
-      return this.mob.isHolding(Items.BOW) || this.mob.isHolding(Items.BONE_BOW);
-   }
+    public boolean canUse() {
+        return this.mob.getTarget() == null ? false : this.isHoldingBow();
+    }
 
-   public boolean canContinueToUse() {
-      return (this.canUse() || !this.mob.getNavigation().isDone()) && this.isHoldingBow();
-   }
+    protected boolean isHoldingBow() {
+        return this.mob.isHolding(Items.BOW) || this.mob.isHolding(Items.BONE_BOW);
+    }
 
-   public void start() {
-      super.start();
-      this.mob.setAggressive(true);
-   }
+    public boolean canContinueToUse() {
+        return (this.canUse() || !this.mob.getNavigation().isDone()) && this.isHoldingBow();
+    }
 
-   public void stop() {
-      super.stop();
-      this.mob.setAggressive(false);
-      this.seeTime = 0;
-      this.attackTime = -1;
-      this.mob.stopUsingItem();
-   }
+    public void start() {
+        super.start();
+        this.mob.setAggressive(true);
+    }
 
-   public void tick() {
-      LivingEntity livingentity = this.mob.getTarget();
-      if (livingentity != null) {
-         double d0 = this.mob.distanceToSqr(livingentity.getX(), livingentity.getY(), livingentity.getZ());
-         boolean flag = this.mob.getSensing().canSee(livingentity);
-         boolean flag1 = this.seeTime > 0;
-         if (flag != flag1) {
-            this.seeTime = 0;
-         }
+    public void stop() {
+        super.stop();
+        this.mob.setAggressive(false);
+        this.seeTime = 0;
+        this.attackTime = -1;
+        this.mob.stopUsingItem();
+    }
 
-         if (flag) {
-            ++this.seeTime;
-         } else {
-            --this.seeTime;
-         }
-
-         if (!(d0 > (double)this.attackRadiusSqr) && this.seeTime >= 20) {
-            this.mob.getNavigation().stop();
-            ++this.strafingTime;
-         } else {
-            this.mob.getNavigation().moveTo(livingentity, this.speedModifier);
-            this.strafingTime = -1;
-         }
-
-         if (this.strafingTime >= 20) {
-            if ((double)this.mob.getRandom().nextFloat() < 0.3D) {
-               this.strafingClockwise = !this.strafingClockwise;
+    public void tick() {
+        LivingEntity livingentity = this.mob.getTarget();
+        if (livingentity != null) {
+            double d0 = this.mob.distanceToSqr(livingentity.getX(), livingentity.getY(), livingentity.getZ());
+            boolean flag = this.mob.getSensing().canSee(livingentity);
+            boolean flag1 = this.seeTime > 0;
+            if (flag != flag1) {
+                this.seeTime = 0;
             }
 
-            if ((double)this.mob.getRandom().nextFloat() < 0.3D) {
-               this.strafingBackwards = !this.strafingBackwards;
+            if (flag) {
+                ++this.seeTime;
+            } else {
+                --this.seeTime;
             }
 
-            this.strafingTime = 0;
-         }
+                // Original strafing logic
+                if (!(d0 > (double)this.attackRadiusSqr) && this.seeTime >= 20) {
+                    this.mob.getNavigation().stop();
+                    ++this.strafingTime;
+                } else {
+                    this.mob.getNavigation().moveTo(livingentity, this.speedModifier);
+                    this.strafingTime = -1;
+                }
 
-         if (this.strafingTime > -1) {
-            if (d0 > (double)(this.attackRadiusSqr * 0.75F)) {
-               this.strafingBackwards = false;
-            } else if (d0 < (double)(this.attackRadiusSqr * 0.25F)) {
-               this.strafingBackwards = true;
-            }
+                if (this.strafingTime >= 20) {
+                    if ((double)this.mob.getRandom().nextFloat() < 0.3D) {
+                        this.strafingClockwise = !this.strafingClockwise;
+                    }
 
-            this.mob.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, this.strafingClockwise ? 0.5F : -0.5F);
-            this.mob.lookAt(livingentity, 30.0F, 30.0F);
-         } else {
-            this.mob.getLookControl().setLookAt(livingentity, 30.0F, 30.0F);
-         }
+                    if ((double)this.mob.getRandom().nextFloat() < 0.3D) {
+                        this.strafingBackwards = !this.strafingBackwards;
+                    }
 
-         if (this.mob.isUsingItem()) {
-            if (!flag && this.seeTime < -60) {
-               this.mob.stopUsingItem();
-            } else if (flag) {
-               int i = this.mob.getTicksUsingItem();
-               if (i >= 20) {
-                  this.mob.stopUsingItem();
-                  this.mob.performRangedAttack(livingentity, BowItem.getPowerForTime(i));
-                  this.attackTime = this.attackIntervalMin;
-               }
-            }
-         } else if (--this.attackTime <= 0 && this.seeTime >= -60) {
-            this.mob.startUsingItem(ProjectileHelper.getWeaponHoldingHand(this.mob, Items.BOW));
-         }
+                    this.strafingTime = 0;
+                }
 
-      }
-   }
+                if (this.strafingTime > -1) {
+                    if (d0 > (double)(this.attackRadiusSqr * 0.75F)) {
+                        this.strafingBackwards = false;
+                    } else if (d0 < (double)(this.attackRadiusSqr * 0.25F)) {
+                        this.strafingBackwards = true;
+                    }
+
+                    this.mob.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, this.strafingClockwise ? 0.5F : -0.5F);
+                    this.mob.lookAt(livingentity, 30.0F, 30.0F);
+                } else {
+                    this.mob.getLookControl().setLookAt(livingentity, 30.0F, 30.0F);
+                }
+
+                if (this.mob.isUsingItem()) {
+                    if (!flag && this.seeTime < -60) {
+                        this.mob.stopUsingItem();
+                    } else if (flag) {
+                        int i = this.mob.getTicksUsingItem();
+                        if (i >= 20) {
+                            this.mob.stopUsingItem();
+                            this.mob.performRangedAttack(livingentity, BowItem.getPowerForTime(i));
+                            this.attackTime = this.attackIntervalMin;
+                        }
+                    }
+                } else if (--this.attackTime <= 0 && this.seeTime >= -60) {
+                    this.mob.startUsingItem(ProjectileHelper.getWeaponHoldingHand(this.mob, Items.BOW));
+                }
+
+        }
+    }
+
+
+
+
+
+
 }

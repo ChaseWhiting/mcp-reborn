@@ -5,6 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +14,13 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
+import javax.sound.sampled.AudioFormat;
+
 import net.minecraft.client.GameSettings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fallout.Radiation;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -264,40 +271,38 @@ public class SoundEngine {
       }
    }
 
-   public void play(ISound p_148611_1_) {
+   public void play(ISound iSound) {
       if (this.loaded) {
-         if (p_148611_1_.canPlaySound()) {
-            SoundEventAccessor soundeventaccessor = p_148611_1_.resolve(this.soundManager);
-            ResourceLocation resourcelocation = p_148611_1_.getLocation();
+         if (iSound.canPlaySound()) {
+            SoundEventAccessor soundeventaccessor = iSound.resolve(this.soundManager);
+            ResourceLocation resourcelocation = iSound.getLocation();
             if (soundeventaccessor == null) {
                if (ONLY_WARN_ONCE.add(resourcelocation)) {
                   LOGGER.warn(MARKER, "Unable to play unknown soundEvent: {}", (Object)resourcelocation);
                }
-
             } else {
-               Sound sound = p_148611_1_.getSound();
+               Sound sound = iSound.getSound();
                if (sound == SoundHandler.EMPTY_SOUND) {
                   if (ONLY_WARN_ONCE.add(resourcelocation)) {
                      LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", (Object)resourcelocation);
                   }
-
                } else {
-                  float f = p_148611_1_.getVolume();
+                  float f = iSound.getVolume();
                   float f1 = Math.max(f, 1.0F) * (float)sound.getAttenuationDistance();
-                  SoundCategory soundcategory = p_148611_1_.getSource();
-                  float f2 = this.calculateVolume(p_148611_1_);
-                  float f3 = this.calculatePitch(p_148611_1_);
-                  ISound.AttenuationType isound$attenuationtype = p_148611_1_.getAttenuation();
-                  boolean flag = p_148611_1_.isRelative();
-                  if (f2 == 0.0F && !p_148611_1_.canStartSilent()) {
+                  SoundCategory soundcategory = iSound.getSource();
+                  float f2 = this.calculateVolume(iSound);
+                  float f3 = this.calculatePitch(iSound);
+                  ISound.AttenuationType isound$attenuationtype = iSound.getAttenuation();
+                  boolean flag = iSound.isRelative();
+                  if (f2 == 0.0F && !iSound.canStartSilent()) {
                      LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", (Object)sound.getLocation());
                   } else {
-                     Vector3d vector3d = new Vector3d(p_148611_1_.getX(), p_148611_1_.getY(), p_148611_1_.getZ());
+                     Vector3d vector3d = new Vector3d(iSound.getX(), iSound.getY(), iSound.getZ());
                      if (!this.listeners.isEmpty()) {
                         boolean flag1 = flag || isound$attenuationtype == ISound.AttenuationType.NONE || this.listener.getListenerPosition().distanceToSqr(vector3d) < (double)(f1 * f1);
                         if (flag1) {
                            for(ISoundEventListener isoundeventlistener : this.listeners) {
-                              isoundeventlistener.onPlaySound(p_148611_1_, soundeventaccessor);
+                              isoundeventlistener.onPlaySound(iSound, soundeventaccessor);
                            }
                         } else {
                            LOGGER.debug(MARKER, "Did not notify listeners of soundEvent: {}, it is too far away to hear", (Object)resourcelocation);
@@ -307,7 +312,7 @@ public class SoundEngine {
                      if (this.listener.getGain() <= 0.0F) {
                         LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", (Object)resourcelocation);
                      } else {
-                        boolean flag2 = shouldLoopAutomatically(p_148611_1_);
+                        boolean flag2 = shouldLoopAutomatically(iSound);
                         boolean flag3 = sound.shouldStream();
                         CompletableFuture<ChannelManager.Entry> completablefuture = this.channelAccess.createHandle(sound.shouldStream() ? SoundSystem.Mode.STREAMING : SoundSystem.Mode.STATIC);
                         ChannelManager.Entry channelmanager$entry = completablefuture.join();
@@ -315,9 +320,9 @@ public class SoundEngine {
                            LOGGER.warn("Failed to create new sound handle");
                         } else {
                            LOGGER.debug(MARKER, "Playing sound {} for event {}", sound.getLocation(), resourcelocation);
-                           this.soundDeleteTime.put(p_148611_1_, this.tickCount + 20);
-                           this.instanceToChannel.put(p_148611_1_, channelmanager$entry);
-                           this.instanceBySource.put(soundcategory, p_148611_1_);
+                           this.soundDeleteTime.put(iSound, this.tickCount + 20);
+                           this.instanceToChannel.put(iSound, channelmanager$entry);
+                           this.instanceBySource.put(soundcategory, iSound);
                            channelmanager$entry.execute((p_239543_8_) -> {
                               p_239543_8_.setPitch(f3);
                               p_239543_8_.setVolume(f2);
@@ -331,24 +336,25 @@ public class SoundEngine {
                               p_239543_8_.setSelfPosition(vector3d);
                               p_239543_8_.setRelative(flag);
                            });
-                           if (!flag3) {
-                              this.soundBuffers.getCompleteBuffer(sound.getPath()).thenAccept((p_217934_1_) -> {
-                                 channelmanager$entry.execute((p_217925_1_) -> {
-                                    p_217925_1_.attachStaticBuffer(p_217934_1_);
-                                    p_217925_1_.play();
+                              if (!flag3) {
+                                 this.soundBuffers.getCompleteBuffer(sound.getPath()).thenAccept((p_217934_1_) -> {
+                                    channelmanager$entry.execute((p_217925_1_) -> {
+                                       p_217925_1_.attachStaticBuffer(p_217934_1_);
+                                       p_217925_1_.play();
+                                    });
                                  });
-                              });
-                           } else {
-                              this.soundBuffers.getStream(sound.getPath(), flag2).thenAccept((p_217928_1_) -> {
-                                 channelmanager$entry.execute((p_217935_1_) -> {
-                                    p_217935_1_.attachBufferStream(p_217928_1_);
-                                    p_217935_1_.play();
+                              } else {
+                                 this.soundBuffers.getStream(sound.getPath(), flag2).thenAccept((p_217928_1_) -> {
+                                    channelmanager$entry.execute((p_217935_1_) -> {
+                                       p_217935_1_.attachBufferStream(p_217928_1_);
+                                       p_217935_1_.play();
+                                    });
                                  });
-                              });
-                           }
+                              }
 
-                           if (p_148611_1_ instanceof ITickableSound) {
-                              this.tickingSounds.add((ITickableSound)p_148611_1_);
+
+                           if (iSound instanceof ITickableSound) {
+                              this.tickingSounds.add((ITickableSound)iSound);
                            }
 
                         }
@@ -359,6 +365,7 @@ public class SoundEngine {
          }
       }
    }
+
 
    public void queueTickingSound(ITickableSound p_229363_1_) {
       this.queuedTickableSounds.add(p_229363_1_);

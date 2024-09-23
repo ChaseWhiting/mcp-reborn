@@ -7,7 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.border.WorldBorder;
 
 public class DerivedWorldInfo implements IServerWorldInfo {
@@ -70,7 +70,7 @@ public class DerivedWorldInfo implements IServerWorldInfo {
       return this.wrapped.getRainTime();
    }
 
-   public GameType getGameType() {
+   public Gamemode getGameType() {
       return this.worldData.getGameType();
    }
 
@@ -107,7 +107,7 @@ public class DerivedWorldInfo implements IServerWorldInfo {
    public void setRainTime(int p_76080_1_) {
    }
 
-   public void setGameType(GameType p_230392_1_) {
+   public void setGameType(Gamemode p_230392_1_) {
    }
 
    public boolean isHardcore() {

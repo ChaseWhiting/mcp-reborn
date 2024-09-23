@@ -34,6 +34,7 @@ public class SingleItemRecipeBuilder {
       return new SingleItemRecipeBuilder(IRecipeSerializer.STONECUTTER, p_218648_0_, p_218648_1_, 1);
    }
 
+
    public static SingleItemRecipeBuilder stonecutting(Ingredient p_218644_0_, IItemProvider p_218644_1_, int p_218644_2_) {
       return new SingleItemRecipeBuilder(IRecipeSerializer.STONECUTTER, p_218644_0_, p_218644_1_, p_218644_2_);
    }

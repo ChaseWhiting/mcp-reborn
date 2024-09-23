@@ -106,7 +106,7 @@ public final class DimensionSettings {
    private static DimensionSettings nether(DimensionStructuresSettings p_242741_0_, BlockState p_242741_1_, BlockState p_242741_2_, ResourceLocation p_242741_3_) {
       Map<Structure<?>, StructureSeparationSettings> map = Maps.newHashMap(DimensionStructuresSettings.DEFAULTS);
       map.put(Structure.RUINED_PORTAL, new StructureSeparationSettings(25, 10, 34222645));
-      return new DimensionSettings(new DimensionStructuresSettings(Optional.ofNullable(p_242741_0_.stronghold()), map), new NoiseSettings(180, new ScalingSettings(1.0D, 3.0D, 80.0D, 60.0D), new SlideSettings(120, 3, 0), new SlideSettings(320, 4, -1), 1, 2, 0.0D, 0.019921875D, false, false, false, false), p_242741_1_, p_242741_2_, 0, 0, 32, false);
+      return new DimensionSettings(new DimensionStructuresSettings(Optional.ofNullable(p_242741_0_.stronghold()), map), new NoiseSettings(128, new ScalingSettings(1.0D, 3.0D, 80.0D, 60.0D), new SlideSettings(120, 3, 0), new SlideSettings(320, 4, -1), 1, 2, 0.0D, 0.019921875D, false, false, false, false), p_242741_1_, p_242741_2_, 0, 0, 32, false);
    }
 
    private static DimensionSettings overworld(DimensionStructuresSettings p_242743_0_, boolean p_242743_1_, ResourceLocation p_242743_2_) {

@@ -271,7 +271,7 @@ public class RenderSystem {
       GlStateManager._disableFog();
    }
 
-   @Deprecated
+   @Deprecated()
    public static void fogMode(GlStateManager.FogMode p_fogMode_0_) {
       assertThread(RenderSystem::isOnGameThread);
       GlStateManager._fogMode(p_fogMode_0_.value);

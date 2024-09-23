@@ -245,6 +245,7 @@ public class ItemEntity extends Entity {
          this.markHurt();
          this.health = (int)((float)this.health - p_70097_2_);
          if (this.health <= 0) {
+            this.getItem().onDestroyed(this);
             this.remove();
          }
 

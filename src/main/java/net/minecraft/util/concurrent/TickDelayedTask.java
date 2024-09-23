@@ -9,6 +9,13 @@ public class TickDelayedTask implements Runnable {
       this.runnable = p_i50745_2_;
    }
 
+   public TickDelayedTask(int tick) {
+      this.tick = tick;
+      this.runnable = () -> {
+
+      };
+   }
+
    public int getTick() {
       return this.tick;
    }

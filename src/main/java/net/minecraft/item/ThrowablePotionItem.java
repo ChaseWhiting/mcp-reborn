@@ -12,7 +12,7 @@ public class ThrowablePotionItem extends PotionItem {
       super(p_i225739_1_);
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
+    public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
       ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
       if (!p_77659_1_.isClientSide) {
          PotionEntity potionentity = new PotionEntity(p_77659_1_, p_77659_2_);

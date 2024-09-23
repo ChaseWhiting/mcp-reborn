@@ -5,10 +5,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ArrowItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -125,6 +122,10 @@ public final class ProjectileHelper {
 
    public static Hand getWeaponHoldingHand(LivingEntity p_221274_0_, Item p_221274_1_) {
       return p_221274_0_.getMainHandItem().getItem() == p_221274_1_ ? Hand.MAIN_HAND : Hand.OFF_HAND;
+   }
+
+   public static Hand getWeaponHoldingCrossbow(LivingEntity livingEntity) {
+      return livingEntity.getMainHandItem().getItem() instanceof ICrossbowItem ?  Hand.MAIN_HAND : Hand.OFF_HAND;
    }
 
    public static AbstractArrowEntity getMobArrow(LivingEntity p_221272_0_, ItemStack p_221272_1_, float p_221272_2_) {

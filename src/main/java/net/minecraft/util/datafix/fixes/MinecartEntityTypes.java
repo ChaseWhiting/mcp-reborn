@@ -30,7 +30,7 @@ public class MinecartEntityTypes extends DataFix {
             } else {
                Typed<? extends Pair<String, ?>> typed = taggedchoicetype.point(p_209746_2_, "Minecart", p_206328_3_.getSecond()).orElseThrow(IllegalStateException::new);
                Dynamic<?> dynamic = typed.getOrCreate(DSL.remainderFinder());
-               int i = dynamic.get("Type").asInt(0);
+               int i = dynamic.get("BoggedType").asInt(0);
                String s;
                if (i > 0 && i < MINECART_BY_ID.size()) {
                   s = MINECART_BY_ID.get(i);

@@ -22,6 +22,7 @@ import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.bundle.BundleRecipeProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.CookingRecipeSerializer;
@@ -62,7 +63,7 @@ public class RecipeProvider implements IDataProvider {
       saveAdvancement(p_200398_1_, Advancement.Builder.advancement().addCriterion("impossible", new ImpossibleTrigger.Instance()).serializeToJson(), path.resolve("data/minecraft/advancements/recipes/root.json"));
    }
 
-   private static void saveRecipe(DirectoryCache p_208311_0_, JsonObject p_208311_1_, Path p_208311_2_) {
+   public static void saveRecipe(DirectoryCache p_208311_0_, JsonObject p_208311_1_, Path p_208311_2_) {
       try {
          String s = GSON.toJson((JsonElement)p_208311_1_);
          String s1 = SHA1.hashUnencodedChars(s).toString();
@@ -81,7 +82,7 @@ public class RecipeProvider implements IDataProvider {
 
    }
 
-   private static void saveAdvancement(DirectoryCache p_208310_0_, JsonObject p_208310_1_, Path p_208310_2_) {
+   public static void saveAdvancement(DirectoryCache p_208310_0_, JsonObject p_208310_1_, Path p_208310_2_) {
       try {
          String s = GSON.toJson((JsonElement)p_208310_1_);
          String s1 = SHA1.hashUnencodedChars(s).toString();
@@ -107,7 +108,8 @@ public class RecipeProvider implements IDataProvider {
       planksFromLog(p_200404_0_, Blocks.DARK_OAK_PLANKS, ItemTags.DARK_OAK_LOGS);
       planksFromLogs(p_200404_0_, Blocks.JUNGLE_PLANKS, ItemTags.JUNGLE_LOGS);
       planksFromLogs(p_200404_0_, Blocks.OAK_PLANKS, ItemTags.OAK_LOGS);
-      planksFromLogs(p_200404_0_, Blocks.SPRUCE_PLANKS, ItemTags.SPRUCE_LOGS);
+      ShapedRecipeBuilder.shaped(Items.BUNDLE, 1).define('#', Items.LEATHER).define('-', Items.STRING).pattern("-#-").pattern("# #").pattern("###").unlockedBy("has_string", has(Items.STRING)).save(p_200404_0_);
+         planksFromLogs(p_200404_0_, Blocks.SPRUCE_PLANKS, ItemTags.SPRUCE_LOGS);
       planksFromLogs(p_200404_0_, Blocks.WARPED_PLANKS, ItemTags.WARPED_STEMS);
       woodFromLogs(p_200404_0_, Blocks.ACACIA_WOOD, Blocks.ACACIA_LOG);
       woodFromLogs(p_200404_0_, Blocks.BIRCH_WOOD, Blocks.BIRCH_LOG);
@@ -395,6 +397,7 @@ public class RecipeProvider implements IDataProvider {
       ShapedRecipeBuilder.shaped(Blocks.BLUE_ICE).define('#', Blocks.PACKED_ICE).pattern("###").pattern("###").pattern("###").unlockedBy("has_packed_ice", has(Blocks.PACKED_ICE)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Blocks.BONE_BLOCK).define('X', Items.BONE_MEAL).pattern("XXX").pattern("XXX").pattern("XXX").unlockedBy("has_bonemeal", has(Items.BONE_MEAL)).save(p_200404_0_);
       ShapelessRecipeBuilder.shapeless(Items.BONE_MEAL, 3).requires(Items.BONE).group("bonemeal").unlockedBy("has_bone", has(Items.BONE)).save(p_200404_0_);
+      ShapelessRecipeBuilder.shapeless(Items.BONE_MEAL, 2).requires(Items.BEE_POLLEN).group("bonemeal").unlockedBy("has_bee_pollen", has(Items.BEE_POLLEN)).save(p_200404_0_, "bone_meal_from_pollen");
       ShapelessRecipeBuilder.shapeless(Items.BONE_MEAL, 9).requires(Blocks.BONE_BLOCK).group("bonemeal").unlockedBy("has_bone_block", has(Blocks.BONE_BLOCK)).save(p_200404_0_, "bone_meal_from_bone_block");
       ShapelessRecipeBuilder.shapeless(Items.BOOK).requires(Items.PAPER, 3).requires(Items.LEATHER).unlockedBy("has_paper", has(Items.PAPER)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Blocks.BOOKSHELF).define('#', ItemTags.PLANKS).define('X', Items.BOOK).pattern("###").pattern("XXX").pattern("###").unlockedBy("has_book", has(Items.BOOK)).save(p_200404_0_);
@@ -733,6 +736,11 @@ public class RecipeProvider implements IDataProvider {
       ShapedRecipeBuilder.shaped(Blocks.CHISELED_POLISHED_BLACKSTONE).define('#', Blocks.POLISHED_BLACKSTONE_SLAB).pattern("#").pattern("#").unlockedBy("has_polished_blackstone", has(Blocks.POLISHED_BLACKSTONE)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Blocks.BLACKSTONE_WALL, 6).define('#', Blocks.BLACKSTONE).pattern("###").pattern("###").unlockedBy("has_blackstone", has(Blocks.BLACKSTONE)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Blocks.POLISHED_BLACKSTONE_WALL, 6).define('#', Blocks.POLISHED_BLACKSTONE).pattern("###").pattern("###").unlockedBy("has_polished_blackstone", has(Blocks.POLISHED_BLACKSTONE)).save(p_200404_0_);
+
+
+      ShapedRecipeBuilder.shaped(Items.BUNDLE, 1).define('#', Items.LEATHER).define('-', Items.STRING).pattern("-#-").pattern("# #").pattern("###").unlockedBy("has_string", has(Items.STRING)).save(p_200404_0_);
+
+
       ShapedRecipeBuilder.shaped(Blocks.POLISHED_BLACKSTONE_BRICK_WALL, 6).define('#', Blocks.POLISHED_BLACKSTONE_BRICKS).pattern("###").pattern("###").unlockedBy("has_polished_blackstone_bricks", has(Blocks.POLISHED_BLACKSTONE_BRICKS)).save(p_200404_0_);
       ShapelessRecipeBuilder.shapeless(Blocks.POLISHED_BLACKSTONE_BUTTON).requires(Blocks.POLISHED_BLACKSTONE).unlockedBy("has_polished_blackstone", has(Blocks.POLISHED_BLACKSTONE)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Blocks.POLISHED_BLACKSTONE_PRESSURE_PLATE).define('#', Blocks.POLISHED_BLACKSTONE).pattern("##").unlockedBy("has_polished_blackstone", has(Blocks.POLISHED_BLACKSTONE)).save(p_200404_0_);
@@ -1074,7 +1082,7 @@ public class RecipeProvider implements IDataProvider {
       return new EnterBlockTrigger.Instance(EntityPredicate.AndPredicate.ANY, p_200407_0_, StatePropertiesPredicate.ANY);
    }
 
-   private static InventoryChangeTrigger.Instance has(IItemProvider p_200403_0_) {
+   protected static InventoryChangeTrigger.Instance has(IItemProvider p_200403_0_) {
       return inventoryTrigger(ItemPredicate.Builder.item().of(p_200403_0_).build());
    }
 

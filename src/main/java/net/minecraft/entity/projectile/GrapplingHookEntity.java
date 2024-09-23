@@ -65,7 +65,7 @@ public class GrapplingHookEntity extends ProjectileEntity {
         this.setPos(d0, d1, d2);
         Vector3d vector3d = new Vector3d((double)(-f3), (double)MathHelper.clamp(-(f5 / f4), -5.0F, 5.0F), (double)(-f2));
         double d3 = vector3d.length();
-        vector3d = vector3d.multiply(1.5D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 1.5D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 1.5D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D);        this.setDeltaMovement(vector3d);
+        vector3d = vector3d.multiply(1.8D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 1.5D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 1.5D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D);        this.setDeltaMovement(vector3d);
         this.yRot = (float)(MathHelper.atan2(vector3d.x, vector3d.z) * (double)(180F / (float)Math.PI));
         this.xRot = (float)(MathHelper.atan2(vector3d.y, (double)MathHelper.sqrt(getHorizontalDistanceSqr(vector3d))) * (double)(180F / (float)Math.PI));
         this.yRotO = this.yRot;
@@ -126,7 +126,7 @@ public class GrapplingHookEntity extends ProjectileEntity {
             LOGGER.warn("Grappling hook removed: owner is not alive.");
             this.remove();
             return;
-        } else if (this.distanceToSqr(player) > 3000.0D) {
+        } else if (this.distanceToSqr(player) > 4500.0D) {
             if (breakTimeDis > 0) {
                 --breakTimeDis;
             } else {
@@ -166,10 +166,10 @@ public class GrapplingHookEntity extends ProjectileEntity {
             }
         } else {
             Vector3d motion = this.getDeltaMovement();
-            motion = motion.add(0, -0.03, 0); // Apply gravity
+            motion = motion.add(0, -0.02, 0); // Apply gravity
             LOGGER.debug("Grappling hook in motion: {}", motion);
             this.move(MoverType.SELF, motion);
-            this.setDeltaMovement(motion.scale(0.92D));
+            this.setDeltaMovement(motion.scale(0.95D));
             this.checkCollision();
         }
 
@@ -249,11 +249,11 @@ public class GrapplingHookEntity extends ProjectileEntity {
 
         // Add upward motion if the player is below the hook
         if (this.owner.getY() < this.getY()) {
-            direction.add(0, 0.2, 0);
+            direction.add(0, 0.4, 0);
         }
 
         // Apply the swinging motion
-        this.owner.setDeltaMovement(this.owner.getDeltaMovement().add(direction.scale(0.1)));
+        this.owner.setDeltaMovement(this.owner.getDeltaMovement().add(direction.scale(0.2)));
 
         // Set isSwinging flag if the player is swinging
         if (distance > 1.0) {

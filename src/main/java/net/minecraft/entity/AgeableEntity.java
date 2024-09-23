@@ -16,9 +16,14 @@ public abstract class AgeableEntity extends Creature {
    protected int age;
    protected int forcedAge;
    protected int forcedAgeTimer;
+   protected boolean foreverBaby;
 
    protected AgeableEntity(EntityType<? extends AgeableEntity> p_i48581_1_, World p_i48581_2_) {
       super(p_i48581_1_, p_i48581_2_);
+   }
+
+   public boolean extraHealth() {
+      return false;
    }
 
    public ILivingEntityData finalizeSpawn(IServerWorld p_213386_1_, DifficultyInstance p_213386_2_, SpawnReason p_213386_3_, @Nullable ILivingEntityData p_213386_4_, @Nullable CompoundNBT p_213386_5_) {
@@ -56,6 +61,14 @@ public abstract class AgeableEntity extends Creature {
    }
 
    public void ageUp(int p_175501_1_, boolean p_175501_2_) {
+      if (this.foreverBaby) {
+         // If foreverBaby is true, do not allow the entity to age above 0
+         this.setAge(-1);
+         if (this.getAge() >= 0) {
+            return;
+         }
+      }
+
       int i = this.getAge();
       i = i + p_175501_1_ * 20;
       if (i > 0) {
@@ -74,7 +87,6 @@ public abstract class AgeableEntity extends Creature {
       if (this.getAge() == 0) {
          this.setAge(this.forcedAge);
       }
-
    }
 
    public void ageUp(int p_110195_1_) {
@@ -82,6 +94,10 @@ public abstract class AgeableEntity extends Creature {
    }
 
    public void setAge(int p_70873_1_) {
+      if (this.foreverBaby) {
+         // Force the age to be -1 if foreverBaby is true
+         p_70873_1_ = -1;
+      }
       int i = this.age;
       this.age = p_70873_1_;
       if (i < 0 && p_70873_1_ >= 0 || i >= 0 && p_70873_1_ < 0) {
@@ -93,6 +109,7 @@ public abstract class AgeableEntity extends Creature {
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
+      p_213281_1_.putBoolean("ForeverBaby", this.foreverBaby);
       p_213281_1_.putInt("Age", this.getAge());
       p_213281_1_.putInt("ForcedAge", this.forcedAge);
    }
@@ -101,6 +118,7 @@ public abstract class AgeableEntity extends Creature {
       super.readAdditionalSaveData(p_70037_1_);
       this.setAge(p_70037_1_.getInt("Age"));
       this.forcedAge = p_70037_1_.getInt("ForcedAge");
+      this.foreverBaby = p_70037_1_.getBoolean("ForeverBaby");
    }
 
    public void onSyncedDataUpdated(DataParameter<?> p_184206_1_) {
@@ -118,20 +136,24 @@ public abstract class AgeableEntity extends Creature {
             if (this.forcedAgeTimer % 4 == 0) {
                this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), 0.0D, 0.0D, 0.0D);
             }
-
             --this.forcedAgeTimer;
          }
       } else if (this.isAlive()) {
          int i = this.getAge();
-         if (i < 0) {
-            ++i;
-            this.setAge(i);
-         } else if (i > 0) {
-            --i;
-            this.setAge(i);
+
+         if (this.foreverBaby) {
+            // If foreverBaby is true, always set the age to -1
+            this.setAge(-1);
+         } else {
+            if (i < 0) {
+               ++i;
+               this.setAge(i);
+            } else if (i > 0) {
+               --i;
+               this.setAge(i);
+            }
          }
       }
-
    }
 
    protected void ageBoundaryReached() {

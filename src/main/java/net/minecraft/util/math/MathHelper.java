@@ -49,9 +49,9 @@ public class MathHelper {
       return (int)(p_76140_0_ + 1024.0D) - 1024;
    }
 
-   public static int floor(double p_76128_0_) {
-      int i = (int)p_76128_0_;
-      return p_76128_0_ < (double)i ? i - 1 : i;
+   public static int floor(double d) {
+      int i = (int)d;
+      return d < (double)i ? i - 1 : i;
    }
 
    public static long lfloor(double p_76124_0_) {
@@ -82,6 +82,64 @@ public class MathHelper {
          return p_76125_1_;
       } else {
          return p_76125_0_ > p_76125_2_ ? p_76125_2_ : p_76125_0_;
+      }
+   }
+
+
+   /**
+    * This method calculates the percentage of a given int value.
+    * @param value The original value.
+    * @param percentage The percentage to calculate.
+    * @return The calculated percentage of the value as an int.
+    */
+   public static int calculatePercentageInteger(int value, int percentage) {
+      return (value * percentage) / 100;
+   }
+
+   /**
+    * This method calculates the percentage of a given double value.
+    * @param value The original value.
+    * @param percentage The percentage to calculate.
+    * @return The calculated percentage of the value as a double.
+    */
+   public static double calculatePercentageDouble(double value, double percentage) {
+      return (value * percentage) / 100.0;
+   }
+
+   /**
+    * This method calculates the percentage of a given float value.
+    * @param value The original value.
+    * @param percentage The percentage to calculate.
+    * @return The calculated percentage of the value as a float.
+    */
+   public static float calculatePercentageFloat(float value, float percentage) {
+      return (value * percentage) / 100.0f;
+   }
+
+   /**
+    * This method calculates the percentage of a given long value.
+    * @param value The original value.
+    * @param percentage The percentage to calculate.
+    * @return The calculated percentage of the value as a long.
+    */
+   public static long calculatePercentageLong(long value, long percentage) {
+      return (value * percentage) / 100L;
+   }
+
+   // Method to determine the type and call the correct overloaded method
+   public static Number calculatePercentage(Number number, double percentage) {
+      double result = number.doubleValue() * (percentage / 100);
+
+      if (number instanceof Integer) {
+         return (int) result;
+      } else if (number instanceof Double) {
+         return result;
+      } else if (number instanceof Float) {
+         return (float) result;
+      } else if (number instanceof Long) {
+         return (long) result;
+      } else {
+         throw new IllegalArgumentException("Unsupported number type: " + number.getClass().getSimpleName());
       }
    }
 

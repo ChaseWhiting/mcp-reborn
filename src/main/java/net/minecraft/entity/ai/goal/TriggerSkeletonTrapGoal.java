@@ -52,7 +52,7 @@ public class TriggerSkeletonTrapGoal extends Goal {
 
    private AbstractHorseEntity createHorse(DifficultyInstance p_188515_1_) {
       SkeletonHorseEntity skeletonhorseentity = EntityType.SKELETON_HORSE.create(this.horse.level);
-      skeletonhorseentity.finalizeSpawn((ServerWorld)this.horse.level, p_188515_1_, SpawnReason.TRIGGERED, (ILivingEntityData)null, (CompoundNBT)null);
+      skeletonhorseentity.finalizeSpawn((ServerWorld)this.horse.level, p_188515_1_, SpawnReason.TRAP_TRIGGERED, (ILivingEntityData)null, (CompoundNBT)null);
       skeletonhorseentity.setPos(this.horse.getX(), this.horse.getY(), this.horse.getZ());
       skeletonhorseentity.invulnerableTime = 60;
       skeletonhorseentity.setPersistenceRequired();
@@ -63,7 +63,7 @@ public class TriggerSkeletonTrapGoal extends Goal {
 
    private SkeletonEntity createSkeleton(DifficultyInstance p_188514_1_, AbstractHorseEntity p_188514_2_) {
       SkeletonEntity skeletonentity = EntityType.SKELETON.create(p_188514_2_.level);
-      skeletonentity.finalizeSpawn((ServerWorld)p_188514_2_.level, p_188514_1_, SpawnReason.TRIGGERED, (ILivingEntityData)null, (CompoundNBT)null);
+      skeletonentity.finalizeSpawn((ServerWorld)p_188514_2_.level, p_188514_1_, SpawnReason.TRAP_TRIGGERED, (ILivingEntityData)null, (CompoundNBT)null);
       skeletonentity.setPos(p_188514_2_.getX(), p_188514_2_.getY(), p_188514_2_.getZ());
       skeletonentity.invulnerableTime = 60;
       skeletonentity.setPersistenceRequired();

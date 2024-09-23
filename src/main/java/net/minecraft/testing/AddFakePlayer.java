@@ -14,7 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
@@ -23,19 +23,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AddFakePlayer {
-    public static Map<String, UUID> fakePlayers = new ConcurrentHashMap<String, UUID>();
+    public static Map<String, UUID> fakePlayers = new ConcurrentHashMap<>();
     // Method to add a fake player
     public static void addFakePlayer(MinecraftServer server, RegistryKey<World> worldKey, GameProfile profile) {
-
         // Get the world from the server and cast it to ServerWorld
         ServerWorld world = server.getLevel(worldKey);
         if (world == null) {
             throw new IllegalArgumentException("World not found");
         }
-
-        double X = 0;
-        double Y = 80;
-        double Z = 0;
 
         // Create the Player Interaction Manager for the fake player
         PlayerInteractionManager interactionManager = new PlayerInteractionManager(world);
@@ -43,24 +38,11 @@ public class AddFakePlayer {
         // Create the ServerPlayerEntity instance
         ServerPlayerEntity fakePlayer = new ServerPlayerEntity(server, world, profile, interactionManager);
 
-        // Set the fake player's position, e.g., spawn point or any desired coordinates
-        fakePlayer.setPos(X, Y, Z);
+        // Add the fake player to the server's player list (handles most of the setup)
+        server.getPlayerList().placeNewPlayer(new NetworkManager(PacketDirection.SERVERBOUND), fakePlayer);
 
-        // Add the fake player to the server's player list
-        server.getPlayerList().placeNewPlayer(new NetworkManager(PacketDirection.CLIENTBOUND), fakePlayer);
+        // Set the player's invulnerability if needed
 
-        // Send player information to all clients
-        sendPacketToAllPlayers(world, new PacketBuffer(Unpooled.buffer()), new ResourceLocation("minecraft", "fake_player_join"));
-
-        // Add the fake player to the world
-        fakePlayer.setInvulnerable(false);
-        world.players().add(fakePlayer);
-        fakePlayer.setNoGravity(false);
-        fakePlayer.doTick();
-        fakePlayer.tick();
-        fakePlayer.connection.send(new SEntityVelocityPacket());
-        fakePlayer.gameMode.setGameModeForPlayer(GameType.SURVIVAL);
-        fakePlayer.connection.send(new SJoinGamePacket());
     }
 
     public static void sendPacketToAllPlayers(ServerWorld world, PacketBuffer buffer, ResourceLocation resourceLocation) {

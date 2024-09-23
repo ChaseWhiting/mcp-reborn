@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
 
 public class ServerProperties extends PropertyManager<ServerProperties> {
@@ -22,7 +22,7 @@ public class ServerProperties extends PropertyManager<ServerProperties> {
    public final boolean forceGameMode = this.get("force-gamemode", false);
    public final boolean enforceWhitelist = this.get("enforce-whitelist", false);
    public final Difficulty difficulty = this.get("difficulty", dispatchNumberOrString(Difficulty::byId, Difficulty::byName), Difficulty::getKey, Difficulty.EASY);
-   public final GameType gamemode = this.get("gamemode", dispatchNumberOrString(GameType::byId, GameType::byName), GameType::getName, GameType.SURVIVAL);
+   public final Gamemode gamemode = this.get("gamemode", dispatchNumberOrString(Gamemode::byId, Gamemode::byName), Gamemode::getName, Gamemode.SURVIVAL);
    public final String levelName = this.get("level-name", "world");
    public final int serverPort = this.get("server-port", 25565);
    public final int maxBuildHeight = this.get("max-build-height", (p_218987_0_) -> {

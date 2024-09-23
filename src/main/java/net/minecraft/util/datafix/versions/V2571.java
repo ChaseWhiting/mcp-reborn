@@ -26,6 +26,17 @@ public class V2571 extends NamespacedSchema {
         registerMob(schema, entityMap, "minecraft:bone_arrow");
         registerMob(schema, entityMap, "minecraft:queen_bee");
         registerMob(schema, entityMap, "minecraft:pillager_captain");
+        registerMob(schema, entityMap, "minecraft:endstone_block");
+        registerMob(schema, entityMap, "minecraft:colette");
+        registerMob(schema, entityMap, "minecraft:bogged");
+
+        registerMob(schema, entityMap, "minecraft:blackhole");
+
+        registerMob(schema, entityMap, "minecraft:gilded_ravager");
+
+        registerMob(schema, entityMap, "minecraft:frisbee");
+        registerMob(schema, entityMap, "minecraft:marauder");
+
         return entityMap;
     }
 }

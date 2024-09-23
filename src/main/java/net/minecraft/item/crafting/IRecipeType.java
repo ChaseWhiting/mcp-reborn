@@ -13,6 +13,7 @@ public interface IRecipeType<T extends IRecipe<?>> {
    IRecipeType<SmokingRecipe> SMOKING = register("smoking");
    IRecipeType<CampfireCookingRecipe> CAMPFIRE_COOKING = register("campfire_cooking");
    IRecipeType<StonecuttingRecipe> STONECUTTING = register("stonecutting");
+
    IRecipeType<SmithingRecipe> SMITHING = register("smithing");
 
    static <T extends IRecipe<?>> IRecipeType<T> register(final String p_222147_0_) {

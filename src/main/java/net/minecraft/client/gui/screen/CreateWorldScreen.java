@@ -39,7 +39,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
 import net.minecraft.world.storage.FolderName;
@@ -252,7 +252,7 @@ public class CreateWorldScreen extends Screen {
          if (dimensiongeneratorsettings.isDebug()) {
             GameRules gamerules = new GameRules();
             gamerules.getRule(GameRules.RULE_DAYLIGHT).set(false, (MinecraftServer)null);
-            worldsettings = new WorldSettings(this.nameEdit.getValue().trim(), GameType.SPECTATOR, false, Difficulty.PEACEFUL, true, gamerules, DatapackCodec.DEFAULT);
+            worldsettings = new WorldSettings(this.nameEdit.getValue().trim(), Gamemode.SPECTATOR, false, Difficulty.PEACEFUL, true, gamerules, DatapackCodec.DEFAULT);
          } else {
             worldsettings = new WorldSettings(this.nameEdit.getValue().trim(), this.gameMode.gameType, this.hardCore, this.effectiveDifficulty, this.commands && !this.hardCore, this.gameRules, this.dataPacks);
          }
@@ -561,15 +561,15 @@ public class CreateWorldScreen extends Screen {
 
    @OnlyIn(Dist.CLIENT)
    static enum GameMode {
-      SURVIVAL("survival", GameType.SURVIVAL),
-      HARDCORE("hardcore", GameType.SURVIVAL),
-      CREATIVE("creative", GameType.CREATIVE),
-      DEBUG("spectator", GameType.SPECTATOR);
+      SURVIVAL("survival", Gamemode.SURVIVAL),
+      HARDCORE("hardcore", Gamemode.SURVIVAL),
+      CREATIVE("creative", Gamemode.CREATIVE),
+      DEBUG("spectator", Gamemode.SPECTATOR);
 
       private final String name;
-      private final GameType gameType;
+      private final Gamemode gameType;
 
-      private GameMode(String p_i225940_3_, GameType p_i225940_4_) {
+      private GameMode(String p_i225940_3_, Gamemode p_i225940_4_) {
          this.name = p_i225940_3_;
          this.gameType = p_i225940_4_;
       }

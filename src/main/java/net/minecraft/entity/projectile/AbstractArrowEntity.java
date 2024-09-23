@@ -104,8 +104,8 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
       this.entityData.define(GRAVITY_LEVEL, (byte)0);
    }
 
-   public void shoot(double p_70186_1_, double p_70186_3_, double p_70186_5_, float p_70186_7_, float p_70186_8_) {
-      super.shoot(p_70186_1_, p_70186_3_, p_70186_5_, p_70186_7_, p_70186_8_);
+   public void shoot(double directionX, double directionY, double directionZ, float velocity, float inaccuracy) {
+      super.shoot(directionX, directionY, directionZ, velocity, inaccuracy);
       this.life = 0;
    }
 

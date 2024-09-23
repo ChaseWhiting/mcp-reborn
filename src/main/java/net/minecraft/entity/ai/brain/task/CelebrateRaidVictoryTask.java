@@ -64,7 +64,7 @@ public class CelebrateRaidVictoryTask extends Task<VillagerEntity> {
       List<Integer> list = Lists.newArrayList();
       list.add(p_220391_1_.getFireworkColor());
       compoundnbt.putIntArray("Colors", list);
-      compoundnbt.putByte("Type", (byte)FireworkRocketItem.Shape.BURST.getId());
+      compoundnbt.putByte("BoggedType", (byte)FireworkRocketItem.Shape.BURST.getId());
       CompoundNBT compoundnbt1 = itemstack.getOrCreateTagElement("Fireworks");
       ListNBT listnbt = new ListNBT();
       CompoundNBT compoundnbt2 = itemstack1.getTagElement("Explosion");

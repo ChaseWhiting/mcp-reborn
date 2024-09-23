@@ -32,6 +32,7 @@ import net.minecraft.entity.villager.VillagerType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.FrisbeeData;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -80,6 +81,7 @@ import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilders.SurfaceBuilder;
 import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
 import net.minecraft.world.gen.trunkplacer.TrunkPlacerType;
+import net.minecraft.world.level.GameEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
@@ -87,6 +89,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class Registry<T> implements Codec<T>, Keyable, IObjectIntIterable<T> {
+
+
    protected static final Logger LOGGER = LogManager.getLogger();
    private static final Map<ResourceLocation, Supplier<?>> LOADERS = Maps.newLinkedHashMap();
    public static final ResourceLocation ROOT_REGISTRY_NAME = new ResourceLocation("root");
@@ -100,6 +104,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IObjectIntIterab
    public static final RegistryKey<Registry<EntityType<?>>> ENTITY_TYPE_REGISTRY = createRegistryKey("entity_type");
    public static final RegistryKey<Registry<Item>> ITEM_REGISTRY = createRegistryKey("item");
    public static final RegistryKey<Registry<CrossbowConfig>> CROSSBOW_CONFIG_REGISTRY = createRegistryKey("crossbow_config");
+   public static final RegistryKey<Registry<FrisbeeData>> FRISBEE_REGISTRY = createRegistryKey("frisbee");
    public static final RegistryKey<Registry<Potion>> POTION_REGISTRY = createRegistryKey("potion");
    public static final RegistryKey<Registry<ParticleType<?>>> PARTICLE_TYPE_REGISTRY = createRegistryKey("particle_type");
    public static final RegistryKey<Registry<TileEntityType<?>>> BLOCK_ENTITY_TYPE_REGISTRY = createRegistryKey("block_entity_type");
@@ -150,6 +155,11 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IObjectIntIterab
 
    public static final Registry<CrossbowConfig> CROSSBOW_CONFIG = registerSimple(CROSSBOW_CONFIG_REGISTRY, () -> {
       return new CrossbowConfig(new float[]{0,0}, new int[]{0,0}, false, 0, 0, (EffectInstance[]) null);
+   });
+
+
+   public static final DefaultedRegistry<FrisbeeData> FRISBEE_DATA = registerDefaulted(FRISBEE_REGISTRY, "default", () -> {
+      return FrisbeeData.DEFAULT;
    });
 
 
@@ -300,6 +310,8 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IObjectIntIterab
    private static <T> RegistryKey<Registry<T>> createRegistryKey(String p_239741_0_) {
       return RegistryKey.createRegistryKey(new ResourceLocation(p_239741_0_));
    }
+
+
 
    public static <T extends MutableRegistry<?>> void checkRegistry(MutableRegistry<T> p_239738_0_) {
       p_239738_0_.forEach((p_239739_1_) -> {

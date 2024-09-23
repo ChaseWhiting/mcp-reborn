@@ -9,7 +9,7 @@ import net.minecraft.util.datafix.codec.DatapackCodec;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
 import net.minecraftforge.api.distmarker.Dist;
@@ -68,9 +68,9 @@ public interface IServerConfiguration {
 
    String getLevelName();
 
-   GameType getGameType();
+   Gamemode getGameType();
 
-   void setGameType(GameType p_230392_1_);
+   void setGameType(Gamemode p_230392_1_);
 
    boolean getAllowCommands();
 

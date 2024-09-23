@@ -48,4 +48,29 @@ public class CrossbowConfig {
     public EffectInstance[] getEffectInstances() {
         return effectInstances;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("CrossbowConfig{");
+        sb.append("shootingPower=").append(java.util.Arrays.toString(shootingPower));
+        sb.append(", chargeDuration=").append(java.util.Arrays.toString(chargeDuration));
+        sb.append(", isCrit=").append(isCrit);
+        sb.append(", extraDamage=").append(extraDamage);
+        sb.append(", range=").append(range);
+        sb.append(", effectInstances=");
+        if (effectInstances != null && effectInstances.length > 0) {
+            sb.append("[");
+            for (int i = 0; i < effectInstances.length; i++) {
+                sb.append(effectInstances[i].toString());
+                if (i < effectInstances.length - 1) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[]");
+        }
+        sb.append('}');
+        return sb.toString();
+    }
 }

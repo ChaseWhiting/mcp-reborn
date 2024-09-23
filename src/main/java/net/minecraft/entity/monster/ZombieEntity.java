@@ -9,6 +9,9 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.FenceBlock;
+import net.minecraft.block.TorchBlock;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Creature;
 import net.minecraft.entity.Entity;
@@ -23,15 +26,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.ai.goal.BreakBlockGoal;
-import net.minecraft.entity.ai.goal.BreakDoorGoal;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.MoveThroughVillageGoal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
-import net.minecraft.entity.ai.goal.ZombieAttackGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.passive.ChickenEntity;
@@ -73,8 +68,12 @@ public class ZombieEntity extends Monster {
    private static final DataParameter<Boolean> DATA_DROWNED_CONVERSION_ID = EntityDataManager.defineId(ZombieEntity.class, DataSerializers.BOOLEAN);
    private static final Predicate<Difficulty> DOOR_BREAKING_PREDICATE = (p_213697_0_) -> {
       return p_213697_0_ == Difficulty.HARD;
+
    };
-   private final BreakDoorGoal breakDoorGoal = new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE);
+   public AdvancedBreakBlockGoal advancedBreakBlockGoal = new AdvancedBreakBlockGoal(this, AdvancedBreakBlockGoal.FENCE, d -> this.veryHardmode());
+   private final BreakDoorGoal breakDoorGoal = new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE.or(difficulty -> this.veryHardmode()));
+   private final AdvancedBreakDoorGoal breakDoorGoal1 = new AdvancedBreakDoorGoal(this, DOOR_BREAKING_PREDICATE.and(difficulty -> this.veryHardmode()));
+
    private boolean canBreakDoors;
    private int inWaterTime;
    private int conversionTime;
@@ -88,9 +87,13 @@ public class ZombieEntity extends Monster {
    }
 
    protected void registerGoals() {
+      //addCreeperRunGoal();
       this.goalSelector.addGoal(4, new ZombieEntity.AttackTurtleEggGoal(this, 1.0D, 3));
       this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F));
       this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
+      this.goalSelector.addGoal(3, new SearchForTargetGoal<>(this, VillagerEntity.class, 1.14D, this.getAttributeValue(Attributes.FOLLOW_RANGE), EntityPredicates.ANY::test, false));
+      this.goalSelector.addGoal(2, new SearchForTargetGoal<>(this, PlayerEntity.class, 1.14D, this.getAttributeValue(Attributes.FOLLOW_RANGE), EntityPredicates.NO_CREATIVE_OR_SPECTATOR::test, false));
+
       this.addBehaviourGoals();
    }
 
@@ -98,7 +101,8 @@ public class ZombieEntity extends Monster {
       this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0D, false));
       this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0D, true, 4, this::canBreakDoors));
       this.goalSelector.addGoal(7, new WaterAvoidingRandomWalkingGoal(this, 1.0D));
-      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglinEntity.class));
+      //this.goalSelector.addGoal(1, new AdvancedBreakBlockGoal(this, state -> state.getMaterial() == Material.WOOD || state.getBlock() instanceof TorchBlock, d -> this.veryHardmode()));
+      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglinEntity.class, AbstractSkeletonEntity.class));
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, false));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, true));
@@ -121,25 +125,36 @@ public class ZombieEntity extends Monster {
    }
 
    public boolean canBreakDoors() {
-      return this.canBreakDoors;
+      return this.canBreakDoors || this.veryHardmode();
    }
 
    public void setCanBreakDoors(boolean p_146070_1_) {
-      if (this.supportsBreakDoorGoal() && GroundPathHelper.hasGroundPathNavigation(this)) {
-         if (this.canBreakDoors != p_146070_1_) {
-            this.canBreakDoors = p_146070_1_;
-            ((GroundPathNavigator)this.getNavigation()).setCanOpenDoors(p_146070_1_);
-            if (p_146070_1_) {
-               this.goalSelector.addGoal(1, this.breakDoorGoal);
-            } else {
-               this.goalSelector.removeGoal(this.breakDoorGoal);
-            }
+      if (this.veryHardmode()) {
+         // If veryHardmode is enabled, always use breakDoorGoal1 and ignore the boolean parameter
+         if (!this.goalSelector.hasGoal(this.breakDoorGoal1)) {
+            this.goalSelector.addGoal(1, this.breakDoorGoal1);
          }
-      } else if (this.canBreakDoors) {
+         // Remove the regular breakDoorGoal if it was added previously
          this.goalSelector.removeGoal(this.breakDoorGoal);
-         this.canBreakDoors = false;
+         this.canBreakDoors = true; // Optional: to reflect that doors can always be broken in this mode
+      } else {
+         // Normal logic if veryHardmode is not enabled
+         if (this.supportsBreakDoorGoal() && GroundPathHelper.hasGroundPathNavigation(this)) {
+            if (this.canBreakDoors != p_146070_1_) {
+               this.canBreakDoors = p_146070_1_;
+               ((GroundPathNavigator)this.getNavigation()).setCanOpenDoors(p_146070_1_);
+               if (p_146070_1_) {
+                  this.goalSelector.addGoal(1, this.breakDoorGoal);
+                  this.goalSelector.removeGoal(this.breakDoorGoal1); // Ensure breakDoorGoal1 is not added
+               } else {
+                  this.goalSelector.removeGoal(this.breakDoorGoal);
+               }
+            }
+         } else if (this.canBreakDoors) {
+            this.goalSelector.removeGoal(this.breakDoorGoal);
+            this.canBreakDoors = false;
+         }
       }
-
    }
 
    protected boolean supportsBreakDoorGoal() {
@@ -222,7 +237,7 @@ public class ZombieEntity extends Monster {
             }
 
             if (flag) {
-               this.setSecondsOnFire(8);
+               this.setSecondsOnFire(4);
             }
          }
       }
@@ -253,7 +268,7 @@ public class ZombieEntity extends Monster {
    }
 
    protected boolean isSunSensitive() {
-      return true;
+      return !this.veryHardmode();
    }
 
    public boolean hurt(DamageSource p_70097_1_, float p_70097_2_) {
@@ -299,12 +314,15 @@ public class ZombieEntity extends Monster {
       }
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      boolean flag = super.doHurtTarget(p_70652_1_);
+   public boolean doHurtTarget(Entity entity) {
+      boolean flag = super.doHurtTarget(entity);
       if (flag) {
          float f = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
          if (this.getMainHandItem().isEmpty() && this.isOnFire() && this.random.nextFloat() < f * 0.3F) {
-            p_70652_1_.setSecondsOnFire(2 * (int)f);
+            entity.setSecondsOnFire(2 * (int)f);
+         }
+         if(this.getMainHandItem().isEmpty() && entity instanceof PlayerEntity) {
+            ((PlayerEntity)entity).addRads(this.random.nextInt(80));
          }
       }
 
@@ -369,20 +387,23 @@ public class ZombieEntity extends Monster {
 
    public void killed(ServerWorld p_241847_1_, LivingEntity p_241847_2_) {
       super.killed(p_241847_1_, p_241847_2_);
-      if ((p_241847_1_.getDifficulty() == Difficulty.NORMAL || p_241847_1_.getDifficulty() == Difficulty.HARD) && p_241847_2_ instanceof VillagerEntity) {
-         if (p_241847_1_.getDifficulty() != Difficulty.HARD && this.random.nextBoolean()) {
+      boolean flag = this.veryHardmode();
+      if (flag || (p_241847_1_.getDifficulty() == Difficulty.NORMAL || p_241847_1_.getDifficulty() == Difficulty.HARD) && p_241847_2_ instanceof VillagerEntity) {
+         if (!flag && p_241847_1_.getDifficulty() != Difficulty.HARD && this.random.nextBoolean()) {
             return;
          }
 
-         VillagerEntity villagerentity = (VillagerEntity)p_241847_2_;
-         ZombieVillagerEntity zombievillagerentity = villagerentity.convertTo(EntityType.ZOMBIE_VILLAGER, false);
-         zombievillagerentity.finalizeSpawn(p_241847_1_, p_241847_1_.getCurrentDifficultyAt(zombievillagerentity.blockPosition()), SpawnReason.CONVERSION, new ZombieEntity.GroupData(false, true), (CompoundNBT)null);
-         zombievillagerentity.setVillagerData(villagerentity.getVillagerData());
-         zombievillagerentity.setGossips(villagerentity.getGossips().store(NBTDynamicOps.INSTANCE).getValue());
-         zombievillagerentity.setTradeOffers(villagerentity.getOffers().createTag());
-         zombievillagerentity.setVillagerXp(villagerentity.getVillagerXp());
-         if (!this.isSilent()) {
-            p_241847_1_.levelEvent((PlayerEntity)null, 1026, this.blockPosition(), 0);
+         if (p_241847_2_ instanceof VillagerEntity) {
+            VillagerEntity villagerentity = (VillagerEntity)p_241847_2_;
+            ZombieVillagerEntity zombievillagerentity = villagerentity.convertTo(EntityType.ZOMBIE_VILLAGER, false);
+            zombievillagerentity.finalizeSpawn(p_241847_1_, p_241847_1_.getCurrentDifficultyAt(zombievillagerentity.blockPosition()), SpawnReason.CONVERSION, new GroupData(false, true), (CompoundNBT)null);
+            zombievillagerentity.setVillagerData(villagerentity.getVillagerData());
+            zombievillagerentity.setGossips(villagerentity.getGossips().store(NBTDynamicOps.INSTANCE).getValue());
+            zombievillagerentity.setTradeOffers(villagerentity.getOffers().createTag());
+            zombievillagerentity.setVillagerXp(villagerentity.getVillagerXp());
+            if (!this.isSilent()) {
+               p_241847_1_.levelEvent((PlayerEntity)null, 1026, this.blockPosition(), 0);
+            }
          }
       }
 

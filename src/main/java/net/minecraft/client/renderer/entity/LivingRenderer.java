@@ -166,14 +166,18 @@ public abstract class LivingRenderer<T extends LivingEntity, M extends EntityMod
       return false;
    }
 
-   protected void setupRotations(T p_225621_1_, MatrixStack p_225621_2_, float p_225621_3_, float p_225621_4_, float p_225621_5_) {
+   public float getShakeAmount() {
+      return 0.4F;
+   }
+
+   protected void setupRotations(T p_225621_1_, MatrixStack matrix, float p_225621_3_, float p_225621_4_, float p_225621_5_) {
       if (this.isShaking(p_225621_1_)) {
-         p_225621_4_ += (float)(Math.cos((double)p_225621_1_.tickCount * 3.25D) * Math.PI * (double)0.4F);
+         p_225621_4_ += (float)(Math.cos((double)p_225621_1_.tickCount * 3.25D) * Math.PI * (double)getShakeAmount());
       }
 
       Pose pose = p_225621_1_.getPose();
       if (pose != Pose.SLEEPING) {
-         p_225621_2_.mulPose(Vector3f.YP.rotationDegrees(180.0F - p_225621_4_));
+         matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F - p_225621_4_));
       }
 
       if (p_225621_1_.deathTime > 0) {
@@ -183,21 +187,21 @@ public abstract class LivingRenderer<T extends LivingEntity, M extends EntityMod
             f = 1.0F;
          }
 
-         p_225621_2_.mulPose(Vector3f.ZP.rotationDegrees(f * this.getFlipDegrees(p_225621_1_)));
+         matrix.mulPose(Vector3f.ZP.rotationDegrees(f * this.getFlipDegrees(p_225621_1_)));
       } else if (p_225621_1_.isAutoSpinAttack()) {
-         p_225621_2_.mulPose(Vector3f.XP.rotationDegrees(-90.0F - p_225621_1_.xRot));
-         p_225621_2_.mulPose(Vector3f.YP.rotationDegrees(((float)p_225621_1_.tickCount + p_225621_5_) * -75.0F));
+         matrix.mulPose(Vector3f.XP.rotationDegrees(-90.0F - p_225621_1_.xRot));
+         matrix.mulPose(Vector3f.YP.rotationDegrees(((float)p_225621_1_.tickCount + p_225621_5_) * -75.0F));
       } else if (pose == Pose.SLEEPING) {
          Direction direction = p_225621_1_.getBedOrientation();
          float f1 = direction != null ? sleepDirectionToRotation(direction) : p_225621_4_;
-         p_225621_2_.mulPose(Vector3f.YP.rotationDegrees(f1));
-         p_225621_2_.mulPose(Vector3f.ZP.rotationDegrees(this.getFlipDegrees(p_225621_1_)));
-         p_225621_2_.mulPose(Vector3f.YP.rotationDegrees(270.0F));
+         matrix.mulPose(Vector3f.YP.rotationDegrees(f1));
+         matrix.mulPose(Vector3f.ZP.rotationDegrees(this.getFlipDegrees(p_225621_1_)));
+         matrix.mulPose(Vector3f.YP.rotationDegrees(270.0F));
       } else if (p_225621_1_.hasCustomName() || p_225621_1_ instanceof PlayerEntity) {
          String s = TextFormatting.stripFormatting(p_225621_1_.getName().getString());
          if (("Dinnerbone".equals(s) || "Grumm".equals(s)) && (!(p_225621_1_ instanceof PlayerEntity) || ((PlayerEntity)p_225621_1_).isModelPartShown(PlayerModelPart.CAPE))) {
-            p_225621_2_.translate(0.0D, (double)(p_225621_1_.getBbHeight() + 0.1F), 0.0D);
-            p_225621_2_.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+            matrix.translate(0.0D, (double)(p_225621_1_.getBbHeight() + 0.1F), 0.0D);
+            matrix.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
          }
       }
 

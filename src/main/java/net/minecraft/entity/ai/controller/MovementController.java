@@ -46,6 +46,10 @@ public class MovementController {
 
    }
 
+   public void peek() {
+
+   }
+
    public void setWantedPosition(BlockPos pos, double speed) {
       this.wantedX = pos.getX();
       this.wantedY = pos.getY();
@@ -56,15 +60,53 @@ public class MovementController {
       }
    }
 
-   public void strafe(float p_188488_1_, float p_188488_2_) {
+   public void strafe(float strafeForwards, float strafeRight) {
       this.operation = MovementController.Action.STRAFE;
-      this.strafeForwards = p_188488_1_;
-      this.strafeRight = p_188488_2_;
+      this.strafeForwards = strafeForwards;
+      this.strafeRight = strafeRight;
       this.speedModifier = 0.25D;
+   }
+
+   public void strongStrafe(float strafeForwards, float strafeRight) {
+      this.operation = Action.STRONG_STRAFE;
+      this.strafeForwards = strafeForwards;
+      this.strafeRight = strafeRight;
+      this.speedModifier = 0.25D;
+   }
+
+   public void strafe(float strafeForwards, float strafeRight, double speedModifier) {
+      strafe(strafeForwards,strafeRight);
+      this.speedModifier = speedModifier;
    }
 
    public void tick() {
       if (this.operation == MovementController.Action.STRAFE) {
+         float f = (float)this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED);
+         float f1 = (float)this.speedModifier * f;
+         float f2 = this.strafeForwards;
+         float f3 = this.strafeRight;
+         float f4 = MathHelper.sqrt(f2 * f2 + f3 * f3);
+         if (f4 < 1.0F) {
+            f4 = 1.0F;
+         }
+
+         f4 = f1 / f4;
+         f2 = f2 * f4;
+         f3 = f3 * f4;
+         float f5 = MathHelper.sin(this.mob.yRot * ((float)Math.PI / 180F));
+         float f6 = MathHelper.cos(this.mob.yRot * ((float)Math.PI / 180F));
+         float f7 = f2 * f6 - f3 * f5;
+         float f8 = f3 * f6 + f2 * f5;
+         if (!this.isWalkable(f7, f8)) {
+            this.strafeForwards = 1.0F;
+            this.strafeRight = 0.0F;
+         }
+
+         this.mob.setSpeed(f1);
+         this.mob.setZza(this.strafeForwards);
+         this.mob.setXxa(this.strafeRight);
+         this.operation = MovementController.Action.WAIT;
+      } else if (this.operation == Action.STRONG_STRAFE) {
          float f = (float)this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED);
          float f1 = (float)this.speedModifier * f;
          float f2 = this.strafeForwards;
@@ -171,6 +213,7 @@ public class MovementController {
       WAIT,
       MOVE_TO,
       STRAFE,
+      STRONG_STRAFE,
       JUMPING;
    }
 }

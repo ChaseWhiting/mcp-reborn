@@ -2,8 +2,13 @@ package net.minecraft.client.main;
 
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import javax.annotation.Nullable;
+import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.nio.file.*;
 import java.security.MessageDigest;
@@ -13,10 +18,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class GroovyScriptLoader {
-    private static final Logger LOGGER = Logger.getLogger(GroovyScriptLoader.class.getName());
+    public static final Logger LOGGER = LogManager.getLogger();
+    public static final Marker MARKER = MarkerManager.getMarker("GROOVY");
     private static final GroovyShell shell = new GroovyShell();
     private static final Map<String, Script> loadedScripts = new ConcurrentHashMap<>();
     private static final Random random = new Random();
@@ -33,7 +38,7 @@ public class GroovyScriptLoader {
             loadedScripts.clear();
             Path path = Paths.get(folderPath);
             if (!Files.exists(path) || !Files.isDirectory(path)) {
-                LOGGER.log(Level.WARNING, "Directory not found: " + folderPath);
+                LOGGER.warn(MARKER, "Directory not found: " + folderPath);
                 return;
             }
 
@@ -45,19 +50,19 @@ public class GroovyScriptLoader {
                     loadedScripts.put(scriptName, script);
                     logScriptLoad(scriptName, filePath);
                 } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Error loading script: " + filePath.getFileName().toString(), e);
+                    LOGGER.error(MARKER, "Error loading script: " + filePath.getFileName().toString(), e);
                 }
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error reading directory: " + folderPath, e);
+            LOGGER.error(MARKER, "Error reading directory: " + folderPath, e);
         } catch (NullPointerException n) {
-            LOGGER.log(Level.SEVERE, "A script was being used while being reloaded: " + n);
+            LOGGER.error(MARKER, "A script was being used while being reloaded: " + n);
         }
     }
 
     private static void logScriptLoad(String scriptName, Path filePath) {
         String logName = hideScriptNames ? obfuscateScriptName(random.nextInt(), filePath) : scriptName;
-        LOGGER.log(Level.INFO, "Loaded script: " + logName);
+        LOGGER.info(MARKER, "Loaded script: {}", logName);
     }
 
     public static Script getScript(String scriptName) {
@@ -75,23 +80,19 @@ public class GroovyScriptLoader {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.log(Level.SEVERE, "Error generating obfuscated script name", e);
+            LOGGER.error(MARKER, "Error generating obfuscated script name", e);
             return file.getFileName().toString();
         }
     }
 
     @Nullable
+    @SuppressWarnings("unchecked")
     public static List<Object> runCachedGroovyScript(String scriptName) {
         Script script = getScript(scriptName);
-        if (script != null) {
-            try {
-                return (List<Object>) script.run();
-            } catch (Exception e) {
-                throwException(e);
-                return null;
-            }
-        } else {
-            logNullScript(scriptName);
+        try {
+            return (List<Object>) script.run();
+        } catch (Exception e) {
+            throwException(e);
             return null;
         }
     }
@@ -104,15 +105,10 @@ public class GroovyScriptLoader {
     @Nullable
     public static Boolean getBoolean(String scriptName) {
         Script script = getScript(scriptName);
-        if (script != null) {
-            try {
-                return (Boolean) script.run();
-            } catch (Exception e) {
-                throwException(e);
-                return null;
-            }
-        } else {
-            logNullScript(scriptName);
+        try {
+            return (Boolean) script.run();
+        } catch (Exception e) {
+            throwException(e);
             return null;
         }
     }
@@ -120,15 +116,10 @@ public class GroovyScriptLoader {
     @Nullable
     public static Integer getInt(String scriptName) {
         Script script = getScript(scriptName);
-        if (script != null) {
-            try {
-                return (Integer) script.run();
-            } catch (Exception e) {
-                throwException(e);
-                return null;
-            }
-        } else {
-            logNullScript(scriptName);
+        try {
+            return (Integer) script.run();
+        } catch (Exception e) {
+            throwException(e);
             return null;
         }
     }
@@ -136,15 +127,10 @@ public class GroovyScriptLoader {
     @Nullable
     public static Double getDouble(String scriptName) {
         Script script = getScript(scriptName);
-        if (script != null) {
-            try {
-                return (Double) script.run();
-            } catch (Exception e) {
-                throwException(e);
-                return null;
-            }
-        } else {
-            logNullScript(scriptName);
+        try {
+            return (Double) script.run();
+        } catch (Exception e) {
+            throwException(e);
             return null;
         }
     }
@@ -152,25 +138,20 @@ public class GroovyScriptLoader {
     @Nullable
     public static String getString(String scriptName) {
         Script script = getScript(scriptName);
-        if (script != null) {
-            try {
-                return (String) script.run();
-            } catch (Exception e) {
-                throwException(e);
-                return null;
-            }
-        } else {
-            logNullScript(scriptName);
+        try {
+            return (String) script.run();
+        } catch (Exception e) {
+            throwException(e);
             return null;
         }
     }
 
     public static void throwException(Exception e) {
-        LOGGER.log(Level.SEVERE, "Error executing cached Groovy script", e);
+        LOGGER.error(MARKER, "Error executing cached Groovy script", e);
     }
 
     public static void logNullScript(String scriptName) {
-        LOGGER.log(Level.SEVERE, "Cached script not found: " + scriptName);
+        LOGGER.error(MARKER, "Cached script not found: {}", scriptName);
     }
 
 }

@@ -49,7 +49,7 @@ import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.text.filter.ChatFilterClient;
 import net.minecraft.util.text.filter.IChatFilter;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.listener.IChunkStatusListenerFactory;
 import net.minecraft.world.server.ServerWorld;
@@ -253,7 +253,7 @@ public class DedicatedServer extends MinecraftServer implements IServer {
       p_71230_1_.getSystemDetails().setDetail("Is Modded", () -> {
          return this.getModdedStatus().orElse("Unknown (can't tell)");
       });
-      p_71230_1_.getSystemDetails().setDetail("Type", () -> {
+      p_71230_1_.getSystemDetails().setDetail("BoggedType", () -> {
          return "Dedicated Server (map_server.txt)";
       });
       return p_71230_1_;
@@ -353,7 +353,7 @@ public class DedicatedServer extends MinecraftServer implements IServer {
       return this.gui != null;
    }
 
-   public boolean publishServer(GameType p_195565_1_, boolean p_195565_2_, int p_195565_3_) {
+   public boolean publishServer(Gamemode p_195565_1_, boolean p_195565_2_, int p_195565_3_) {
       return false;
    }
 

@@ -40,13 +40,13 @@ public class MusicTicker {
 
    }
 
-   public void startPlaying(BackgroundMusicSelector p_239539_1_) {
-      this.currentMusic = SimpleSound.forMusic(p_239539_1_.getEvent());
+   public void startPlaying(BackgroundMusicSelector backgroundMusicSelector) {
+      this.currentMusic = SimpleSound.forMusic(backgroundMusicSelector.getEvent());
       if (this.currentMusic.getSound() != SoundHandler.EMPTY_SOUND) {
          this.minecraft.getSoundManager().play(this.currentMusic);
       }
 
-      this.nextSongDelay = Integer.MAX_VALUE;
+      this.nextSongDelay = MathHelper.nextInt(this.random, backgroundMusicSelector.getMinDelay(), backgroundMusicSelector.getMaxDelay());;
    }
 
    public void stopPlaying() {

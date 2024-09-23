@@ -42,16 +42,16 @@ public class RaccoonModel<T extends RaccoonEntity> extends AgeableModel<T> {
         this.body.setPos(0.0F, 16.0F, -6.0F);
         float f = 0.001F;
         this.leg0 = new ModelRenderer(this, 13, 24);
-        this.leg0.addBox(2.0F, 0.5F, -1.0F, 2.0F, 6.0F, 2.0F, 0.001F);
+        this.leg0.addBox(2.0F, 0.5F, -1.0F, 2.0F, 6.0F, 2.0F, f);
         this.leg0.setPos(-5.0F, 17.5F, 7.0F);
         this.leg1 = new ModelRenderer(this, 4, 24);
-        this.leg1.addBox(2.0F, 0.5F, -1.0F, 2.0F, 6.0F, 2.0F, 0.001F);
+        this.leg1.addBox(2.0F, 0.5F, -1.0F, 2.0F, 6.0F, 2.0F, f);
         this.leg1.setPos(-1.0F, 17.5F, 7.0F);
         this.leg2 = new ModelRenderer(this, 13, 24);
-        this.leg2.addBox(2.0F, 0.5F, -1.0F, 2.0F, 6.0F, 2.0F, 0.001F);
+        this.leg2.addBox(2.0F, 0.5F, -1.0F, 2.0F, 6.0F, 2.0F, f);
         this.leg2.setPos(-5.0F, 17.5F, 0.0F);
         this.leg3 = new ModelRenderer(this, 4, 24);
-        this.leg3.addBox(2.0F, 0.5F, -1.0F, 2.0F, 6.0F, 2.0F, 0.001F);
+        this.leg3.addBox(2.0F, 0.5F, -1.0F, 2.0F, 6.0F, 2.0F, f);
         this.leg3.setPos(-1.0F, 17.5F, 0.0F);
         this.tail = new ModelRenderer(this, 30, 0);
         this.tail.addBox(2.0F, 0.0F, -1.0F, 4.0F, 9.0F, 5.0F);
@@ -59,7 +59,7 @@ public class RaccoonModel<T extends RaccoonEntity> extends AgeableModel<T> {
         this.body.addChild(this.tail);
     }
 
-    public void prepareMobModel(T p_212843_1_, float p_212843_2_, float p_212843_3_, float p_212843_4_) {
+    public void prepareMobModel(T raccoon, float p_212843_2_, float p_212843_3_, float p_212843_4_) {
         this.body.xRot = ((float)Math.PI / 2F);
         this.tail.xRot = -0.05235988F;
         this.leg0.xRot = MathHelper.cos(p_212843_2_ * 0.6662F) * 1.4F * p_212843_3_;
@@ -68,7 +68,7 @@ public class RaccoonModel<T extends RaccoonEntity> extends AgeableModel<T> {
         this.leg3.xRot = MathHelper.cos(p_212843_2_ * 0.6662F) * 1.4F * p_212843_3_;
         this.head.setPos(-1.0F, 16.5F, -3.0F);
         this.head.yRot = 0.0F;
-        this.head.zRot = p_212843_1_.getHeadRollAngle(p_212843_4_);
+        this.head.zRot = raccoon.getHeadRollAngle(p_212843_4_);
         this.leg0.visible = true;
         this.leg1.visible = true;
         this.leg2.visible = true;
@@ -77,13 +77,13 @@ public class RaccoonModel<T extends RaccoonEntity> extends AgeableModel<T> {
         this.body.zRot = 0.0F;
         this.leg0.setPos(-5.0F, 17.5F, 7.0F);
         this.leg1.setPos(-1.0F, 17.5F, 7.0F);
-        if (p_212843_1_.isCrouching()) {
+        if (raccoon.isCrouching()) {
             this.body.xRot = 1.6755161F;
-            float f = p_212843_1_.getCrouchAmount(p_212843_4_);
-            this.body.setPos(0.0F, 16.0F + p_212843_1_.getCrouchAmount(p_212843_4_), -6.0F);
+            float f = raccoon.getCrouchAmount(p_212843_4_);
+            this.body.setPos(0.0F, 16.0F + raccoon.getCrouchAmount(p_212843_4_), -6.0F);
             this.head.setPos(-1.0F, 16.5F + f, -3.0F);
             this.head.yRot = 0.0F;
-        } else if (p_212843_1_.isSleeping()) {
+        } else if (raccoon.isSleeping()) {
             this.body.zRot = (-(float)Math.PI / 2F);
             this.body.setPos(0.0F, 21.0F, -6.0F);
             this.tail.xRot = -2.6179938F;
@@ -100,7 +100,7 @@ public class RaccoonModel<T extends RaccoonEntity> extends AgeableModel<T> {
             this.leg1.visible = false;
             this.leg2.visible = false;
             this.leg3.visible = false;
-        } else if (p_212843_1_.isSitting()) {
+        } else if (raccoon.isSitting()) {
             this.body.xRot = ((float)Math.PI / 6F);
             this.body.setPos(0.0F, 9.0F, -3.0F);
             this.tail.xRot = ((float)Math.PI / 4F);
@@ -154,10 +154,10 @@ public class RaccoonModel<T extends RaccoonEntity> extends AgeableModel<T> {
         if (p_225597_1_.isFaceplanted()) {
             float f1 = 0.1F;
             this.legMotionPos += 0.67F;
-            this.leg0.xRot = MathHelper.cos(this.legMotionPos * 0.4662F) * 0.1F;
-            this.leg1.xRot = MathHelper.cos(this.legMotionPos * 0.4662F + (float)Math.PI) * 0.1F;
-            this.leg2.xRot = MathHelper.cos(this.legMotionPos * 0.4662F + (float)Math.PI) * 0.1F;
-            this.leg3.xRot = MathHelper.cos(this.legMotionPos * 0.4662F) * 0.1F;
+            this.leg0.xRot = MathHelper.cos(this.legMotionPos * 0.4662F) * f1;
+            this.leg1.xRot = MathHelper.cos(this.legMotionPos * 0.4662F + (float)Math.PI) * f1;
+            this.leg2.xRot = MathHelper.cos(this.legMotionPos * 0.4662F + (float)Math.PI) * f1;
+            this.leg3.xRot = MathHelper.cos(this.legMotionPos * 0.4662F) * f1;
         }
 
     }

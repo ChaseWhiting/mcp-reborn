@@ -4,14 +4,12 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.AbstractFireballEntity;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.entity.projectile.WitherSkullEntity;
+import net.minecraft.entity.projectile.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.Explosion;
+import net.minecraft.world.NuclearExplosion;
 
 public class DamageSource {
    public static final DamageSource IN_FIRE = (new DamageSource("inFire")).bypassArmor().setIsFire();
@@ -74,8 +72,18 @@ public class DamageSource {
       return (new IndirectEntityDamageSource("fireworks", p_233548_0_, p_233548_1_)).setExplosion();
    }
 
+   public static final DamageSource FIREWORKS = new DamageSource("fireworks").setExplosion();
+
    public static DamageSource fireball(AbstractFireballEntity p_233547_0_, @Nullable Entity p_233547_1_) {
       return p_233547_1_ == null ? (new IndirectEntityDamageSource("onFire", p_233547_0_, p_233547_0_)).setIsFire().setProjectile() : (new IndirectEntityDamageSource("fireball", p_233547_0_, p_233547_1_)).setIsFire().setProjectile();
+   }
+
+
+   public static DamageSource boomerang(FrisbeeEntity p_76353_0_, @Nullable Entity p_76353_1_) {
+      return (new IndirectEntityDamageSource("boomerang", p_76353_0_, p_76353_1_)).setProjectile();
+   }
+   public static DamageSource boomerangarmourBypass(FrisbeeEntity p_76353_0_, @Nullable Entity p_76353_1_) {
+      return (new IndirectEntityDamageSource("boomerang", p_76353_0_, p_76353_1_)).setProjectile().bypassArmor();
    }
 
    public static DamageSource witherSkull(WitherSkullEntity p_233549_0_, Entity p_233549_1_) {
@@ -98,8 +106,16 @@ public class DamageSource {
       return explosion(p_94539_0_ != null ? p_94539_0_.getSourceMob() : null);
    }
 
+   public static DamageSource nuclearExplosion(@Nullable NuclearExplosion explosion) {
+      return nuclearExplosion(explosion != null ? explosion.getSourceMob() : null);
+   }
+
    public static DamageSource explosion(@Nullable LivingEntity p_188405_0_) {
       return p_188405_0_ != null ? (new EntityDamageSource("explosion.player", p_188405_0_)).setScalesWithDifficulty().setExplosion() : (new DamageSource("explosion")).setScalesWithDifficulty().setExplosion();
+   }
+
+   public static DamageSource nuclearExplosion(@Nullable LivingEntity player) {
+      return player != null ? (new EntityDamageSource("nuclear_explosion.player", player)).setScalesWithDifficulty().setExplosion() : (new DamageSource("nuclear_explosion")).setScalesWithDifficulty().setExplosion();
    }
 
    public static DamageSource badRespawnPointExplosion() {

@@ -23,6 +23,8 @@ public final class EntityPredicates {
    public static final Predicate<Entity> NO_CREATIVE_OR_SPECTATOR = (p_200824_0_) -> {
       return !(p_200824_0_ instanceof PlayerEntity) || !p_200824_0_.isSpectator() && !((PlayerEntity)p_200824_0_).isCreative();
    };
+
+   public static final Predicate<Entity> ANY = entity -> true;
    public static final Predicate<Entity> ATTACK_ALLOWED = (p_200818_0_) -> {
       return !(p_200818_0_ instanceof PlayerEntity) || !p_200818_0_.isSpectator() && !((PlayerEntity)p_200818_0_).isCreative() && p_200818_0_.level.getDifficulty() != Difficulty.PEACEFUL;
    };

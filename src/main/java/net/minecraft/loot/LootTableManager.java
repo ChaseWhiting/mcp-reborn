@@ -4,8 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+
+import java.io.FileReader;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.gson.JsonParser;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
@@ -62,6 +66,17 @@ public class LootTableManager extends JsonReloadListener {
 
    public static JsonElement serialize(LootTable p_215301_0_) {
       return GSON.toJsonTree(p_215301_0_);
+   }
+
+   public static LootTable readLootTableFromFile(String path) {
+      try (FileReader reader = new FileReader(path)) {
+         JsonParser parser = new JsonParser();
+         JsonElement json = parser.parse(reader);
+         return GSON.fromJson(json, LootTable.class);
+      } catch (Exception e) {
+         e.printStackTrace();
+         return LootTable.EMPTY;
+      }
    }
 
    public Set<ResourceLocation> getIds() {

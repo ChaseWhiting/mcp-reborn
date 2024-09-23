@@ -19,6 +19,7 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.Explosion;
+import net.minecraft.world.NuclearExplosion;
 import net.minecraft.world.World;
 
 public class TNTBlock extends Block {
@@ -60,6 +61,14 @@ public class TNTBlock extends Block {
          TNTEntity tntentity = new TNTEntity(p_180652_1_, (double)p_180652_2_.getX() + 0.5D, (double)p_180652_2_.getY(), (double)p_180652_2_.getZ() + 0.5D, p_180652_3_.getSourceMob());
          tntentity.setFuse((short)(p_180652_1_.random.nextInt(tntentity.getLife() / 4) + tntentity.getLife() / 8));
          p_180652_1_.addFreshEntity(tntentity);
+      }
+   }
+
+   public void wasExploded(World world, BlockPos blockPos, NuclearExplosion explosion) {
+      if (!world.isClientSide) {
+         TNTEntity tntentity = new TNTEntity(world, (double)blockPos.getX() + 0.5D, (double)blockPos.getY(), (double)blockPos.getZ() + 0.5D, explosion.getSourceMob());
+         tntentity.setFuse((short)(world.random.nextInt(tntentity.getLife() / 4) + tntentity.getLife() / 8));
+         world.addFreshEntity(tntentity);
       }
    }
 

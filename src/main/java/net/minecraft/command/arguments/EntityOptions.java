@@ -45,7 +45,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.server.ServerWorld;
 
 public class EntityOptions {
@@ -225,8 +225,8 @@ public class EntityOptions {
                   }
                }
 
-               for(GameType gametype1 : GameType.values()) {
-                  if (gametype1 != GameType.NOT_SET && gametype1.getName().toLowerCase(Locale.ROOT).startsWith(s1)) {
+               for(Gamemode gametype1 : Gamemode.values()) {
+                  if (gametype1 != Gamemode.NOT_SET && gametype1.getName().toLowerCase(Locale.ROOT).startsWith(s1)) {
                      if (flag2) {
                         p_202018_1_.suggest('!' + gametype1.getName());
                      }
@@ -246,8 +246,8 @@ public class EntityOptions {
                throw ERROR_INAPPLICABLE_OPTION.createWithContext(p_197452_0_.getReader(), "gamemode");
             } else {
                String s = p_197452_0_.getReader().readUnquotedString();
-               GameType gametype = GameType.byName(s, GameType.NOT_SET);
-               if (gametype == GameType.NOT_SET) {
+               Gamemode gametype = Gamemode.byName(s, Gamemode.NOT_SET);
+               if (gametype == Gamemode.NOT_SET) {
                   p_197452_0_.getReader().setCursor(i);
                   throw ERROR_GAME_MODE_INVALID.createWithContext(p_197452_0_.getReader(), s);
                } else {
@@ -256,7 +256,7 @@ public class EntityOptions {
                      if (!(p_202055_2_ instanceof ServerPlayerEntity)) {
                         return false;
                      } else {
-                        GameType gametype1 = ((ServerPlayerEntity)p_202055_2_).gameMode.getGameModeForPlayer();
+                        Gamemode gametype1 = ((ServerPlayerEntity)p_202055_2_).gameMode.getGameModeForPlayer();
                         return flag ? gametype1 != gametype : gametype1 == gametype;
                      }
                   });

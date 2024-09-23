@@ -28,11 +28,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.SectionPos;
 import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.DimensionType;
-import net.minecraft.world.ISeedReader;
-import net.minecraft.world.ITickList;
-import net.minecraft.world.WorldGenTickList;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.border.WorldBorder;
@@ -42,6 +38,7 @@ import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.world.gen.feature.structure.StructureStart;
+import net.minecraft.world.level.GameEvent;
 import net.minecraft.world.lighting.WorldLightManager;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.IWorldInfo;
@@ -290,7 +287,7 @@ public class WorldGenRegion implements ISeedReader {
       if (!this.hasChunk(p_175649_1_.getX() >> 4, p_175649_1_.getZ() >> 4)) {
          throw new RuntimeException("We are asking a region for a chunk out of bound");
       } else {
-         return new DifficultyInstance(this.level.getDifficulty(), this.level.getDayTime(), 0L, this.level.getMoonBrightness());
+         return new DifficultyInstance(this.level.getDifficulty(), this.level.getDayTime(), 0L, this.level.getMoonBrightness(), this.level.getGameRules().getBoolean(GameRules.RULE_VERYHARD));
       }
    }
 
@@ -329,6 +326,14 @@ public class WorldGenRegion implements ISeedReader {
    }
 
    public void levelEvent(@Nullable PlayerEntity p_217378_1_, int p_217378_2_, BlockPos p_217378_3_, int p_217378_4_) {
+   }
+
+   @Override
+   public void gameEvent(@org.jetbrains.annotations.Nullable PlayerEntity player, GameEvent event, BlockPos position, int eventData) {
+   }
+
+   public void onGameEvent(GameEvent gameEvent, BlockPos position, @Nullable PlayerEntity player) {
+
    }
 
    public DimensionType dimensionType() {

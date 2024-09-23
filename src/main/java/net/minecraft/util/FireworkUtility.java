@@ -62,7 +62,7 @@ public class FireworkUtility {
         public Builder addExplosion(FireworkRocketItem.Shape type, int[] colors, int[] fadeColors, boolean trail, boolean flicker) {
             CompoundNBT explosion = new CompoundNBT();
             int fireworkType = type.getId();
-            explosion.putByte("Type", (byte) fireworkType);
+            explosion.putByte("BoggedType", (byte) fireworkType);
             explosion.putIntArray("Colors", colors);
             explosion.putIntArray("FadeColors", fadeColors);
             explosion.putBoolean("Trail", trail);

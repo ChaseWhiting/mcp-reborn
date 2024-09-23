@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.OreBlock;
 import net.minecraft.client.renderer.debug.EntityAIDebugRenderer;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ai.EntitySenses;
@@ -17,16 +18,19 @@ import net.minecraft.entity.ai.controller.BodyController;
 import net.minecraft.entity.ai.controller.JumpController;
 import net.minecraft.entity.ai.controller.LookController;
 import net.minecraft.entity.ai.controller.MovementController;
+import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.GoalSelector;
 import net.minecraft.entity.ai.goal.PrioritizedGoal;
+import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.LeashKnotEntity;
-import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.monster.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fallout.Skills;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
@@ -43,10 +47,12 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.potion.Effects;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.GameRules;
@@ -69,6 +75,13 @@ public abstract class Mob extends LivingEntity {
    protected PathNavigator navigation;
    protected final GoalSelector goalSelector;
    protected final GoalSelector targetSelector;
+   private UUID blindnessModifierUUID = UUID.fromString("c79c47ee-9d5b-4fb3-a887-ce5683051cc4");
+   private AttributeModifier blindnessModifier = new AttributeModifier(
+           blindnessModifierUUID,
+           "blindness modifier",
+           -4.0D, // -2.0 means reducing the value to 1/3 (since MULTIPLY_TOTAL adds to 1)
+           AttributeModifier.Operation.MULTIPLY_TOTAL
+   );
    private LivingEntity target;
    private final EntitySenses sensing;
    private final NonNullList<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
@@ -112,6 +125,7 @@ public abstract class Mob extends LivingEntity {
 
    protected void registerGoals() {
    }
+
 
 
    public static AttributeModifierMap.MutableAttribute createMobAttributes() {
@@ -161,6 +175,10 @@ public abstract class Mob extends LivingEntity {
       } else {
          return this.moveControl;
       }
+   }
+
+   public void strafe(float a, float b) {
+      getMoveControl().strafe(a,b);
    }
 
    public JumpController getJumpControl() {
@@ -676,6 +694,17 @@ public abstract class Mob extends LivingEntity {
 
    protected final void serverAiStep() {
       ++this.noActionTime;
+      if (!(this instanceof EndermanEntity) && !(this instanceof WitherEntity)) {
+         this.level.getProfiler().push("blindness");
+         if (this.hasEffect(Effects.BLINDNESS)) {
+            if (!this.getAttribute(Attributes.FOLLOW_RANGE).hasModifier(blindnessModifier)) {
+               this.getAttribute(Attributes.FOLLOW_RANGE).addTransientModifier(blindnessModifier);
+            }
+         } else {
+            this.getAttribute(Attributes.FOLLOW_RANGE).removeModifier(blindnessModifierUUID);
+         }
+      }
+      this.level.getProfiler().pop();
       this.level.getProfiler().push("sensing");
       this.sensing.tick();
       this.level.getProfiler().pop();
@@ -697,7 +726,9 @@ public abstract class Mob extends LivingEntity {
       this.level.getProfiler().popPush("look");
       this.lookControl.tick();
       this.level.getProfiler().popPush("jump");
-      this.jumpControl.tick();
+      if (jumpControl != null) {
+         this.jumpControl.tick();
+      }
       this.level.getProfiler().pop();
       this.level.getProfiler().pop();
       this.sendDebugPackets();
@@ -868,7 +899,7 @@ public abstract class Mob extends LivingEntity {
    protected void populateDefaultEquipmentSlots(DifficultyInstance p_180481_1_) {
       if (this.random.nextFloat() < 0.15F * p_180481_1_.getSpecialMultiplier()) {
          int i = this.random.nextInt(2);
-         float f = this.level.getDifficulty() == Difficulty.HARD ? 0.1F : 0.25F;
+         float f = this.level.getDifficulty() == Difficulty.HARD ? veryHardmode() ? 0.3F : 0.1F : 0.25F;
          if (this.random.nextFloat() < 0.095F) {
             ++i;
          }
@@ -997,7 +1028,7 @@ public abstract class Mob extends LivingEntity {
    protected void enchantSpawnedArmor(float p_242289_1_, EquipmentSlotType p_242289_2_) {
       ItemStack itemstack = this.getItemBySlot(p_242289_2_);
       if (!itemstack.isEmpty() && this.random.nextFloat() < 0.5F * p_242289_1_) {
-         this.setItemSlot(p_242289_2_, EnchantmentHelper.enchantItem(this.random, itemstack, (int)(5.0F + p_242289_1_ * (float)this.random.nextInt(18)), false));
+         this.setItemSlot(p_242289_2_, EnchantmentHelper.enchantItem(this.random, itemstack, (int)(5.0F + p_242289_1_ * (float)this.random.nextInt(veryHardmode() ? 30 : 18)), veryHardmode()));
       }
 
    }
@@ -1005,6 +1036,8 @@ public abstract class Mob extends LivingEntity {
    @Nullable
    public ILivingEntityData finalizeSpawn(IServerWorld p_213386_1_, DifficultyInstance p_213386_2_, SpawnReason p_213386_3_, @Nullable ILivingEntityData p_213386_4_, @Nullable CompoundNBT p_213386_5_) {
       this.getAttribute(Attributes.FOLLOW_RANGE).addPermanentModifier(new AttributeModifier("Random spawn bonus", this.random.nextGaussian() * 0.05D, AttributeModifier.Operation.MULTIPLY_BASE));
+      finalizeHardData(p_213386_3_, p_213386_2_);
+
       if (this.random.nextFloat() < 0.05F) {
          this.setLeftHanded(true);
       } else {
@@ -1012,6 +1045,30 @@ public abstract class Mob extends LivingEntity {
       }
 
       return p_213386_4_;
+   }
+
+   public boolean extraHealth() {
+      return true;
+   }
+
+   public void finalizeHardData(SpawnReason reason, DifficultyInstance instance) {
+      if (!this.extraHealth()) return;
+      double additionalHealth = this.random.nextDouble() * 7.0D;
+      double maxAdditionalHealth = 7.0D; // Define the maximum additional health that can be added
+
+// Cap the additionalHealth to ensure it doesn't exceed the maximum allowed
+      additionalHealth = Math.min(additionalHealth, maxAdditionalHealth);
+
+      List<SpawnReason> validReasons = new ArrayList<>(Arrays.asList(SpawnReason.values()));
+      validReasons.remove(SpawnReason.COMMAND);
+      validReasons.remove(SpawnReason.MOB_SUMMONED);
+      if (new Random().nextFloat() < 0.6 && instance.isVeryDifficult() && validReasons.contains(reason)) {
+         AttributeModifier modifier = new AttributeModifier("Random spawn bonus 1", additionalHealth, AttributeModifier.Operation.ADDITION);
+         this.getAttribute(Attributes.MAX_HEALTH).removeModifier(modifier.getId()); // Ensure no duplicate modifiers
+         this.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(modifier);
+
+         this.setHealth(this.getMaxHealth());
+      }
    }
 
    public boolean canBeControlledByRider() {
@@ -1165,6 +1222,7 @@ public abstract class Mob extends LivingEntity {
                }
             }
          }
+         newEntity.setRot(this.getYHeadRot(), this.xRot);
 
          this.level.addFreshEntity(newEntity);
          if (this.isPassenger()) {
@@ -1414,6 +1472,7 @@ public abstract class Mob extends LivingEntity {
    }
 
    protected boolean isSunBurnTick() {
+
       if (this.level.isDay() && !this.level.isClientSide) {
          float f = this.getBrightness();
          BlockPos blockpos = this.getVehicle() instanceof BoatEntity ? (new BlockPos(this.getX(), (double)Math.round(this.getY()), this.getZ())).above() : new BlockPos(this.getX(), (double)Math.round(this.getY()), this.getZ());
@@ -1438,4 +1497,37 @@ public abstract class Mob extends LivingEntity {
       super.removeAfterChangingDimensions();
       this.dropLeash(true, false);
    }
+
+   public Orientation getOrientation() {
+      // The entity's normal (up) vector, typically pointing upwards (0, 1, 0)
+      Vector3d normal = new Vector3d(0.0D, 1.0D, 0.0D);
+
+      // The local forward vector (localZ) aligned with the entity's current look direction
+      float yaw = this.yRot; // Get entity's yaw
+      float pitch = this.xRot; // Get entity's pitch
+
+      // Calculate the direction vectors based on the entity's yaw and pitch
+      float yawRad = yaw * 0.017453292F; // Convert to radians
+      float pitchRad = pitch * 0.017453292F; // Convert to radians
+
+      // Forward (localZ) is based on yaw and pitch
+      Vector3d localZ = new Vector3d(-MathHelper.sin(yawRad) * MathHelper.cos(pitchRad),
+              -MathHelper.sin(pitchRad),
+              MathHelper.cos(yawRad) * MathHelper.cos(pitchRad));
+
+      // Right (localX) is perpendicular to forward
+      Vector3d localX = new Vector3d(MathHelper.cos(yawRad), 0.0D, MathHelper.sin(yawRad));
+
+      // Up (localY) is typically just the world up vector (0, 1, 0)
+      Vector3d localY = normal;
+
+      // Components along local axes, typically 1 when entity is standing normally
+      float componentZ = 1.0F;
+      float componentY = 1.0F;
+      float componentX = 1.0F;
+
+      // Return the Orientation object
+      return new Orientation(normal, localZ, localY, localX, componentZ, componentY, componentX, yaw, pitch);
+   }
+
 }

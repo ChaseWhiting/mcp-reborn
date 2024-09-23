@@ -25,10 +25,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -153,6 +150,10 @@ public class StairsBlock extends Block implements IWaterLoggable {
    }
 
    public void wasExploded(World p_180652_1_, BlockPos p_180652_2_, Explosion p_180652_3_) {
+      this.base.wasExploded(p_180652_1_, p_180652_2_, p_180652_3_);
+   }
+
+   public void wasExploded(World p_180652_1_, BlockPos p_180652_2_, NuclearExplosion p_180652_3_) {
       this.base.wasExploded(p_180652_1_, p_180652_2_, p_180652_3_);
    }
 

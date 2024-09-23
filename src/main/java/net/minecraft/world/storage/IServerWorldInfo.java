@@ -4,7 +4,7 @@ import java.util.UUID;
 import net.minecraft.command.TimerCallbackManager;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.border.WorldBorder;
 
 public interface IServerWorldInfo extends ISpawnWorldInfo {
@@ -45,7 +45,7 @@ public interface IServerWorldInfo extends ISpawnWorldInfo {
 
    void setWanderingTraderId(UUID p_230394_1_);
 
-   GameType getGameType();
+   Gamemode getGameType();
 
    void setWorldBorder(WorldBorder.Serializer p_230393_1_);
 
@@ -57,7 +57,7 @@ public interface IServerWorldInfo extends ISpawnWorldInfo {
 
    boolean getAllowCommands();
 
-   void setGameType(GameType p_230392_1_);
+   void setGameType(Gamemode p_230392_1_);
 
    TimerCallbackManager<MinecraftServer> getScheduledEvents();
 

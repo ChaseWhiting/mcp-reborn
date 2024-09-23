@@ -16,7 +16,7 @@ public class CaveSpiderRenderer extends SpiderRenderer<CaveSpiderEntity> {
    }
 
    protected void scale(CaveSpiderEntity p_225620_1_, MatrixStack p_225620_2_, float p_225620_3_) {
-      p_225620_2_.scale(0.7F, 0.7F, 0.7F);
+      p_225620_2_.scale(0.7F);
    }
 
    public ResourceLocation getTextureLocation(CaveSpiderEntity p_110775_1_) {

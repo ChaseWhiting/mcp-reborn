@@ -3,7 +3,9 @@ package net.minecraft.item;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.CampfireBlock;
+import net.minecraft.entity.item.TNTEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -18,11 +20,16 @@ public class FlintAndSteelItem extends Item {
       super(p_i48493_1_);
    }
 
+   public int getWeight(ItemStack bundle) {
+      return 4;
+   }
+
    public ActionResultType useOn(ItemUseContext p_195939_1_) {
       PlayerEntity playerentity = p_195939_1_.getPlayer();
       World world = p_195939_1_.getLevel();
       BlockPos blockpos = p_195939_1_.getClickedPos();
       BlockState blockstate = world.getBlockState(blockpos);
+
       if (CampfireBlock.canLight(blockstate)) {
          world.playSound(playerentity, blockpos, SoundEvents.FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
          world.setBlock(blockpos, blockstate.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)), 11);

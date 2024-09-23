@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,6 +34,10 @@ public class BlockItem extends Item {
    public BlockItem(Block p_i48527_1_, Item.Properties p_i48527_2_) {
       super(p_i48527_2_);
       this.block = p_i48527_1_;
+   }
+
+   public boolean canFitInsideContainerItems() {
+      return !(this.block instanceof ShulkerBoxBlock);
    }
 
    public ActionResultType useOn(ItemUseContext p_195939_1_) {
@@ -127,6 +132,11 @@ public class BlockItem extends Item {
       return p_219988_1_.getValue(p_219988_2_).map((p_219986_2_) -> {
          return p_219988_0_.setValue(p_219988_1_, p_219986_2_);
       }).orElse(p_219988_0_);
+   }
+
+   @Nullable
+   public static CompoundNBT getBlockEntityData(ItemStack p_186337_) {
+      return p_186337_.getTagElement("BlockEntityTag");
    }
 
    protected boolean canPlace(BlockItemUseContext p_195944_1_, BlockState p_195944_2_) {

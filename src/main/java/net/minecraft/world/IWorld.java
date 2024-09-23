@@ -10,6 +10,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.AbstractChunkProvider;
+import net.minecraft.world.level.GameEvent;
 import net.minecraft.world.storage.IWorldInfo;
 
 public interface IWorld extends IBiomeReader, IDayTimeReader {
@@ -46,11 +47,24 @@ public interface IWorld extends IBiomeReader, IDayTimeReader {
 
    void levelEvent(@Nullable PlayerEntity player, int eventId, BlockPos position, int eventData);
 
+   void gameEvent(@Nullable PlayerEntity player, GameEvent event, BlockPos position, int eventData);
+
+   void onGameEvent(GameEvent gameEvent, BlockPos position, @Nullable PlayerEntity player);
+
+
    default int getHeight() {
       return this.dimensionType().logicalHeight();
    }
 
    default void levelEvent(int eventId, BlockPos position, int eventData) {
       this.levelEvent((PlayerEntity)null, eventId, position, eventData);
+   }
+
+   default void gameEvent(GameEvent event, BlockPos position, int eventData) {
+      this.gameEvent((PlayerEntity)null, event, position, eventData);
+   }
+
+   default void onGameEvent(GameEvent event, BlockPos position) {
+      this.onGameEvent(event, position, null);
    }
 }

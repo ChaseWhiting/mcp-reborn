@@ -10,7 +10,7 @@ public class MerchantOffer {
    private final ItemStack result;
    private int uses;
    private final int maxUses;
-   private boolean rewardExp = true;
+   public boolean rewardExp = true;
    private int specialPriceDiff;
    private int demand;
    private float priceMultiplier;

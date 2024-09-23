@@ -12,7 +12,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -48,7 +48,7 @@ public class SPlayerListItemPacket implements IPacket<IClientPlayNetHandler> {
       for(int j = 0; j < i; ++j) {
          GameProfile gameprofile = null;
          int k = 0;
-         GameType gametype = null;
+         Gamemode gametype = null;
          ITextComponent itextcomponent = null;
          switch(this.action) {
          case ADD_PLAYER:
@@ -66,7 +66,7 @@ public class SPlayerListItemPacket implements IPacket<IClientPlayNetHandler> {
                }
             }
 
-            gametype = GameType.byId(p_148837_1_.readVarInt());
+            gametype = Gamemode.byId(p_148837_1_.readVarInt());
             k = p_148837_1_.readVarInt();
             if (p_148837_1_.readBoolean()) {
                itextcomponent = p_148837_1_.readComponent();
@@ -74,7 +74,7 @@ public class SPlayerListItemPacket implements IPacket<IClientPlayNetHandler> {
             break;
          case UPDATE_GAME_MODE:
             gameprofile = new GameProfile(p_148837_1_.readUUID(), (String)null);
-            gametype = GameType.byId(p_148837_1_.readVarInt());
+            gametype = Gamemode.byId(p_148837_1_.readVarInt());
             break;
          case UPDATE_LATENCY:
             gameprofile = new GameProfile(p_148837_1_.readUUID(), (String)null);
@@ -178,11 +178,11 @@ public class SPlayerListItemPacket implements IPacket<IClientPlayNetHandler> {
 
    public class AddPlayerData {
       private final int latency;
-      private final GameType gameMode;
+      private final Gamemode gameMode;
       private final GameProfile profile;
       private final ITextComponent displayName;
 
-      public AddPlayerData(GameProfile p_i46663_2_, int p_i46663_3_, @Nullable GameType p_i46663_4_, @Nullable ITextComponent p_i46663_5_) {
+      public AddPlayerData(GameProfile p_i46663_2_, int p_i46663_3_, @Nullable Gamemode p_i46663_4_, @Nullable ITextComponent p_i46663_5_) {
          this.profile = p_i46663_2_;
          this.latency = p_i46663_3_;
          this.gameMode = p_i46663_4_;
@@ -197,7 +197,7 @@ public class SPlayerListItemPacket implements IPacket<IClientPlayNetHandler> {
          return this.latency;
       }
 
-      public GameType getGameMode() {
+      public Gamemode getGameMode() {
          return this.gameMode;
       }
 

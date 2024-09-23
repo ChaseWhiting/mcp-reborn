@@ -46,9 +46,22 @@ public class RandomPositionGenerator {
    }
 
    @Nullable
-   public static Vector3d getPosTowards(Creature p_75464_0_, int p_75464_1_, int p_75464_2_, Vector3d p_75464_3_) {
-      Vector3d vector3d = p_75464_3_.subtract(p_75464_0_.getX(), p_75464_0_.getY(), p_75464_0_.getZ());
-      return generateRandomPos(p_75464_0_, p_75464_1_, p_75464_2_, 0, vector3d, true, (double)((float)Math.PI / 2F), p_75464_0_::getWalkTargetValue, false, 0, 0, true);
+   public static Vector3d getPosTowards(Creature creature, int xRadius, int yRadius, Vector3d targetPosition) {
+      Vector3d direction = targetPosition.subtract(creature.getX(), creature.getY(), creature.getZ());
+      return generateRandomPos(
+              creature,
+              xRadius,
+              yRadius,
+              0,
+              direction,
+              true,
+              (double)((float)Math.PI / 2F),
+              creature::getWalkTargetValue,
+              false,
+              0,
+              0,
+              true
+      );
    }
 
    @Nullable
@@ -159,9 +172,9 @@ public class RandomPositionGenerator {
       }
    }
 
-   static BlockPos moveUpToAboveSolid(BlockPos p_226342_0_, int p_226342_1_, int p_226342_2_, Predicate<BlockPos> p_226342_3_) {
-      if (p_226342_1_ < 0) {
-         throw new IllegalArgumentException("aboveSolidAmount was " + p_226342_1_ + ", expected >= 0");
+   static BlockPos moveUpToAboveSolid(BlockPos p_226342_0_, int aboveSolidAmount, int p_226342_2_, Predicate<BlockPos> p_226342_3_) {
+      if (aboveSolidAmount < 0) {
+         throw new IllegalArgumentException("aboveSolidAmount was " + aboveSolidAmount + ", expected >= 0");
       } else if (!p_226342_3_.test(p_226342_0_)) {
          return p_226342_0_;
       } else {
@@ -171,7 +184,7 @@ public class RandomPositionGenerator {
 
          BlockPos blockpos1;
          BlockPos blockpos2;
-         for(blockpos1 = blockpos; blockpos1.getY() < p_226342_2_ && blockpos1.getY() - blockpos.getY() < p_226342_1_; blockpos1 = blockpos2) {
+         for(blockpos1 = blockpos; blockpos1.getY() < p_226342_2_ && blockpos1.getY() - blockpos.getY() < aboveSolidAmount; blockpos1 = blockpos2) {
             blockpos2 = blockpos1.above();
             if (p_226342_3_.test(blockpos2)) {
                break;

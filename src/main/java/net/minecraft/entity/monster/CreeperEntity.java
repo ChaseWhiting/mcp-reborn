@@ -1,6 +1,7 @@
 package net.minecraft.entity.monster;
 
-import java.util.Collection;
+import java.util.*;
+
 import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -29,6 +30,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
@@ -41,6 +43,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(
    value = Dist.CLIENT,
@@ -70,17 +73,21 @@ public class CreeperEntity extends Monster implements IChargeableMob {
       this.goalSelector.addGoal(6, new LookAtGoal(this, PlayerEntity.class, 8.0F));
       this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
       this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
-      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, VillagerEntity.class, true));
+      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, VillagerEntity.class, false));
       this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, true));
       this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D);
+      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.FOLLOW_RANGE, 23);
    }
 
    public int getMaxFallDistance() {
       return this.getTarget() == null ? 3 : 3 + (int)(this.getHealth() - 1.0F);
+   }
+
+   public int getSwell() {
+      return swell;
    }
 
    public boolean causeFallDamage(float p_225503_1_, float p_225503_2_) {
@@ -166,7 +173,7 @@ public class CreeperEntity extends Monster implements IChargeableMob {
       super.dropCustomDeathLoot(p_213333_1_, p_213333_2_, p_213333_3_);
       Entity entity = p_213333_1_.getEntity();
       if (entity != this && entity instanceof CreeperEntity) {
-         CreeperEntity creeperentity = (CreeperEntity)entity;
+         CreeperEntity creeperentity = entity.as(CreeperEntity.class);
          if (creeperentity.canDropMobsSkull()) {
             creeperentity.increaseDroppedSkulls();
             this.spawnAtLocation(Items.CREEPER_HEAD);
@@ -231,23 +238,56 @@ public class CreeperEntity extends Monster implements IChargeableMob {
    }
 
    private void spawnLingeringCloud() {
-      Collection<EffectInstance> collection = this.getActiveEffects();
+      Collection<EffectInstance> activeEffects = this.getActiveEffects();
+      List<EffectInstance> collection = new ArrayList<>(activeEffects); // Copy into a modifiable list
+
+      if (this.veryHardmode()) {
+         List<EffectInstance> possibleExtraEffect = getEffectInstances();
+
+         // Ensure the list isn't empty
+         if (!possibleExtraEffect.isEmpty()) {
+            int index = random.nextInt(possibleExtraEffect.size());
+            collection.add(possibleExtraEffect.get(index)); // Safely add to the modifiable list
+            possibleExtraEffect.remove(index); // Remove from the possible list after adding
+
+            // Recheck size before generating another index
+            if (!possibleExtraEffect.isEmpty() && random.nextBoolean()) {
+               index = random.nextInt(possibleExtraEffect.size());
+               collection.add(possibleExtraEffect.get(index)); // Safely add another effect
+            }
+         }
+      }
+
       if (!collection.isEmpty()) {
          AreaEffectCloudEntity areaeffectcloudentity = new AreaEffectCloudEntity(this.level, this.getX(), this.getY(), this.getZ());
          areaeffectcloudentity.setRadius(2.5F);
          areaeffectcloudentity.setRadiusOnUse(-0.5F);
+         areaeffectcloudentity.setTargetClasses(entity -> !(entity instanceof Monster), IronGolemEntity.class, VillagerEntity.class, PlayerEntity.class);
          areaeffectcloudentity.setWaitTime(10);
          areaeffectcloudentity.setDuration(areaeffectcloudentity.getDuration() / 2);
-         areaeffectcloudentity.setRadiusPerTick(-areaeffectcloudentity.getRadius() / (float)areaeffectcloudentity.getDuration());
+         areaeffectcloudentity.setRadiusPerTick(-areaeffectcloudentity.getRadius() / (float) areaeffectcloudentity.getDuration());
 
-         for(EffectInstance effectinstance : collection) {
+         for (EffectInstance effectinstance : collection) {
             areaeffectcloudentity.addEffect(new EffectInstance(effectinstance));
          }
 
          this.level.addFreshEntity(areaeffectcloudentity);
       }
-
    }
+
+   private static @NotNull List<EffectInstance> getEffectInstances() {
+      List<EffectInstance> possibleExtraEffect = Arrays.asList(
+              new EffectInstance(Effects.WITHER, 12 * 20, 1),
+              new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 12 * 20, 1),
+              new EffectInstance(Effects.CONFUSION, 20 * 20, 1),
+              new EffectInstance(Effects.BLINDNESS, 15 * 20, 0),
+              new EffectInstance(Effects.LEVITATION, 10 * 20, 1),
+              new EffectInstance(Effects.HUNGER, 25 * 20, 3)
+      );
+      possibleExtraEffect = new ArrayList<>(possibleExtraEffect); // Make modifiable
+      return possibleExtraEffect;
+   }
+
 
    public boolean isIgnited() {
       return this.entityData.get(DATA_IS_IGNITED);

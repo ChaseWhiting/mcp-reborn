@@ -226,4 +226,9 @@ public class DoorBlock extends Block {
    public static boolean isWoodenDoor(BlockState p_235492_0_) {
       return p_235492_0_.getBlock() instanceof DoorBlock && (p_235492_0_.getMaterial() == Material.WOOD || p_235492_0_.getMaterial() == Material.NETHER_WOOD);
    }
+
+   public static boolean isAnyDoor(World world, BlockPos pos) {
+      BlockState state = world.getBlockState(pos);
+      return state.getBlock() instanceof DoorBlock && state.getMaterial() == Material.WOOD || state.getMaterial() == Material.NETHER_WOOD || state.getMaterial() == Material.METAL;
+   }
 }

@@ -1,6 +1,10 @@
 package net.minecraft.item;
 
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import net.minecraft.bundle.QuiverItem;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.enchantment.IVanishable;
@@ -8,6 +12,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
@@ -17,70 +23,107 @@ public class BowItem extends ShootableItem implements IVanishable {
       super(p_i48522_1_);
    }
 
-   public void releaseUsing(ItemStack p_77615_1_, World p_77615_2_, LivingEntity p_77615_3_, int p_77615_4_) {
-      if (p_77615_3_ instanceof PlayerEntity) {
-         PlayerEntity playerentity = (PlayerEntity)p_77615_3_;
-         boolean flag = playerentity.abilities.instabuild || EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, p_77615_1_) > 0;
-         ItemStack itemstack = playerentity.getProjectile(p_77615_1_);
-         if (!itemstack.isEmpty() || flag) {
-            if (itemstack.isEmpty()) {
-               itemstack = new ItemStack(Items.ARROW);
+   public void releaseUsing(ItemStack bowStack, World world, LivingEntity entity, int timeLeft) {
+      if (entity instanceof PlayerEntity) {
+         PlayerEntity player = (PlayerEntity) entity;
+         boolean infiniteArrows = player.abilities.instabuild || EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, bowStack) > 0;
+         ItemStack projectileStack = player.getProjectile(bowStack);
+
+         if (!projectileStack.isEmpty() || infiniteArrows) {
+            if (projectileStack.isEmpty()) {
+               projectileStack = new ItemStack(Items.ARROW);
             }
 
-            int i = this.getUseDuration(p_77615_1_) - p_77615_4_;
-            float f = getPowerForTime(i);
-            if (!((double)f < 0.1D)) {
-               boolean flag1 = flag && itemstack.getItem() == Items.ARROW;
-               if (!p_77615_2_.isClientSide) {
-                  ArrowItem arrowitem = (ArrowItem)(itemstack.getItem() instanceof ArrowItem ? itemstack.getItem() : Items.ARROW);
-                  AbstractArrowEntity abstractarrowentity = arrowitem.createArrow(p_77615_2_, itemstack, playerentity);
-                  abstractarrowentity.shootFromRotation(playerentity, playerentity.xRot, playerentity.yRot, 0.0F, f * 3.0F, 1.0F);
-                  if (f == 1.0F) {
-                     abstractarrowentity.setCritArrow(true);
+            int drawDuration = this.getUseDuration(bowStack) - timeLeft;
+            float power = getPowerForTime(drawDuration);
+            if (!((double) power < 0.1D)) {
+               boolean isCreativeOrInfiniteArrow = infiniteArrows && projectileStack.getItem() == Items.ARROW;
+               if (!world.isClientSide) {
+                  ArrowItem arrowItem = (ArrowItem) (projectileStack.getItem() instanceof ArrowItem ? projectileStack.getItem() : Items.ARROW);
+                  AbstractArrowEntity arrowEntity = arrowItem.createArrow(world, projectileStack, player);
+                  arrowEntity.shootFromRotation(player, player.xRot, player.yRot, 0.0F, power * 3.0F, 1.0F);
+
+                  if (power == 1.0F) {
+                     arrowEntity.setCritArrow(true);
                   }
 
-                  int j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, p_77615_1_);
-                  if (j > 0) {
-                     abstractarrowentity.setBaseDamage(abstractarrowentity.getBaseDamage() + (double)j * 0.5D + 0.5D);
+                  int powerLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, bowStack);
+                  if (powerLevel > 0) {
+                     arrowEntity.setBaseDamage(arrowEntity.getBaseDamage() + (double) powerLevel * 0.5D + 0.5D);
                   }
 
-                 // DebugUtils.sendErrorMessage((ServerPlayerEntity) playerentity,p_77615_2_,"Base damage: " + abstractarrowentity.getBaseDamage());
-
-                  int k = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PUNCH_ARROWS, p_77615_1_);
-                  if (k > 0) {
-                     abstractarrowentity.setKnockback(k);
+                  int punchLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PUNCH_ARROWS, bowStack);
+                  if (punchLevel > 0) {
+                     arrowEntity.setKnockback(punchLevel);
                   }
 
-                  if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, p_77615_1_) > 0) {
-                     abstractarrowentity.setSecondsOnFire(100);
+                  if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, bowStack) > 0) {
+                     arrowEntity.setSecondsOnFire(100);
                   }
 
-                  p_77615_1_.hurtAndBreak(1, playerentity, (p_220009_1_) -> {
-                     p_220009_1_.broadcastBreakEvent(playerentity.getUsedItemHand());
+                  bowStack.hurtAndBreak(1, player, (p_220009_1_) -> {
+                     p_220009_1_.broadcastBreakEvent(player.getUsedItemHand());
                   });
-                  if (flag1 || playerentity.abilities.instabuild && (itemstack.getItem() == Items.SPECTRAL_ARROW || itemstack.getItem() == Items.TIPPED_ARROW)) {
-                     abstractarrowentity.pickup = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
+
+                  if (isCreativeOrInfiniteArrow || player.abilities.instabuild && (projectileStack.getItem() == Items.SPECTRAL_ARROW || projectileStack.getItem() == Items.TIPPED_ARROW)) {
+                     arrowEntity.pickup = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
                   }
 
-                  p_77615_2_.addFreshEntity(abstractarrowentity);
+                  world.addFreshEntity(arrowEntity);
                }
 
-               p_77615_2_.playSound((PlayerEntity)null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), SoundEvents.ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
-               if (!flag1 && !playerentity.abilities.instabuild) {
-                  itemstack.shrink(1);
-                  if (itemstack.isEmpty()) {
-                     playerentity.inventory.removeItem(itemstack);
+               world.playSound((PlayerEntity) null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 1.2F) + power * 0.5F);
+
+               if (!isCreativeOrInfiniteArrow && !player.abilities.instabuild) {
+                  // Check if the arrow is from a quiver
+                  if (projectileStack.getItem() instanceof QuiverItem) {
+                     // Remove one arrow from the quiver
+                     removeArrowFromQuiver(player, projectileStack);
+                  } else {
+                     projectileStack.shrink(1);
+                     if (projectileStack.isEmpty()) {
+                        player.inventory.removeItem(projectileStack);
+                     }
                   }
                }
 
-               playerentity.awardStat(Stats.ITEM_USED.get(this));
+               player.awardStat(Stats.ITEM_USED.get(this));
             }
          }
       }
    }
 
+   private void removeArrowFromQuiver(PlayerEntity player, ItemStack quiverStack) {
+      QuiverItem quiverItem = (QuiverItem) quiverStack.getItem();
+      // Retrieve the contents of the quiver
+      List<ItemStack> quiverContents = QuiverItem.getContents(quiverStack).collect(Collectors.toList());
+
+      // Find the first arrow in the quiver and remove one from its stack
+      for (ItemStack stack : quiverContents) {
+         if (stack.getItem() instanceof ArrowItem) {
+            stack.shrink(1);
+            if (stack.isEmpty()) {
+               // If the stack is empty, remove it from the quiver's NBT
+               quiverContents.remove(stack);
+            }
+            break;
+         }
+      }
+
+      // Update the quiver's NBT with the modified contents
+      CompoundNBT nbt = quiverStack.getOrCreateTag();
+      ListNBT itemList = new ListNBT();
+      for (ItemStack item : quiverContents) {
+         CompoundNBT itemTag = new CompoundNBT();
+         item.save(itemTag);
+         itemList.add(itemTag);
+      }
+      nbt.put("Items", itemList);
+      quiverStack.setTag(nbt);
+   }
+
    public static float getPowerForTime(int p_185059_0_) {
-      float f = (float)p_185059_0_ / 20.0F;
+      float f = (float) p_185059_0_ / 20.0F;
       f = (f * f + f * 2.0F) / 3.0F;
       if (f > 1.0F) {
          f = 1.0F;

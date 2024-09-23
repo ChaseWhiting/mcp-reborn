@@ -10,9 +10,13 @@ import net.minecraft.block.trees.JungleTree;
 import net.minecraft.block.trees.OakTree;
 import net.minecraft.block.trees.SpruceTree;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.DyeColor;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.state.properties.BedPart;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -20,6 +24,7 @@ import net.minecraft.tileentity.ShulkerBoxTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IBlockReader;
@@ -577,6 +582,18 @@ public class Blocks {
    public static final Block FROSTED_ICE = register("frosted_ice", new FrostedIceBlock(AbstractBlock.Properties.of(Material.ICE).friction(0.98F).randomTicks().strength(0.5F).sound(SoundType.GLASS).noOcclusion().isValidSpawn((p_235448_0_, p_235448_1_, p_235448_2_, p_235448_3_) -> {
       return p_235448_3_ == EntityType.POLAR_BEAR;
    })));
+   public static final Block COOLED_MAGMA = register("cooled_magma", new CooledMagmaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.NETHER)
+           .randomTicks()
+           .strength(1.5F)
+           .sound(SoundType.STONE)
+           .noOcclusion()
+           .lightLevel((light -> {
+              return 3;
+           }))
+           .isValidSpawn((blockState, blockReader, pos, entityType) -> {
+              return entityType == EntityType.MAGMA_CUBE;
+           })));
+
    public static final Block MAGMA_BLOCK = register("magma_block", new MagmaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.NETHER).requiresCorrectToolForDrops().lightLevel((p_235452_0_) -> {
       return 3;
    }).randomTicks().strength(0.5F).isValidSpawn((p_235445_0_, p_235445_1_, p_235445_2_, p_235445_3_) -> {
@@ -760,14 +777,22 @@ public class Blocks {
    public static final Block LECTERN = register("lectern", new LecternBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
    public static final Block SMITHING_TABLE = register("smithing_table", new SmithingTableBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
    public static final Block STONECUTTER = register("stonecutter", new StonecutterBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F)));
+   public static final Block WAX_MELTER = register("wax_melter", new WaxMelterBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(2.5F).sound(SoundType.WOOD)));
+
    public static final Block BELL = register("bell", new BellBlock(AbstractBlock.Properties.of(Material.METAL, MaterialColor.GOLD).requiresCorrectToolForDrops().strength(5.0F).sound(SoundType.ANVIL)));
-   public static final Block LANTERN = register("lantern", new LanternBlock(AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.LANTERN).lightLevel((p_235447_0_) -> {
+   public static final Block LANTERN = register("lantern", new LanternBlock(AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F).lantern().lightLevel((p_235447_0_) -> {
       return 15;
    }).noOcclusion()));
-   public static final Block SOUL_LANTERN = register("soul_lantern", new LanternBlock(AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.LANTERN).lightLevel((state) -> {
+   public static final Block SOUL_LANTERN = register("soul_lantern", new LanternBlock(AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F).lantern().lightLevel((state) -> {
       return 10;
    }).noOcclusion()));
-   public static final Block CAMPFIRE = register("campfire", new CampfireBlock(true, 1, AbstractBlock.Properties.of(Material.WOOD, MaterialColor.PODZOL).strength(2.0F).sound(SoundType.WOOD).lightLevel(litBlockEmission(15)).noOcclusion()));
+   public static final Block CAMPFIRE = register("campfire", new CampfireBlock(true, 1, AbstractBlock.Properties.of(Material.WOOD, MaterialColor.PODZOL).strength(2.0F).sound(SoundType.WOOD).lightLevel(litBlockEmission(15)).noOcclusion(), ((world, pos, state) -> {
+      world.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(pos).inflate(8)).stream().filter(entity -> entity instanceof PlayerEntity || entity instanceof VillagerEntity).forEach(entity -> {
+         if (!entity.hasEffect(Effects.REGENERATION) && world.isServerSide) {
+            entity.addEffect(new EffectInstance(Effects.REGENERATION, 180, 1));
+         }
+      });
+   })));
    public static final Block SOUL_CAMPFIRE = register("soul_campfire", new CampfireBlock(false, 2, AbstractBlock.Properties.of(Material.WOOD, MaterialColor.PODZOL).strength(2.0F).sound(SoundType.WOOD).lightLevel(litBlockEmission(10)).noOcclusion()));
    public static final Block SWEET_BERRY_BUSH = register("sweet_berry_bush", new SweetBerryBushBlock(AbstractBlock.Properties.of(Material.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH)));
    public static final Block WARPED_STEM = register("warped_stem", netherStem(MaterialColor.WARPED_STEM));

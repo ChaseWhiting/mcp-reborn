@@ -5,17 +5,11 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Creature;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.passive.WolfEntity;
@@ -23,6 +17,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.AbstractCrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -36,11 +31,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
-import net.minecraft.entity.ICrossbowUser;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CrossboneSkeletonEntity extends Monster implements ICrossbowUser {
+public class CrossboneSkeletonEntity extends Monster implements ICrossbowUser, ISkeleton {
     private static final DataParameter<Boolean> IS_CHARGING_CROSSBOW = EntityDataManager.defineId(CrossboneSkeletonEntity.class, DataSerializers.BOOLEAN);
     private final MeleeAttackGoal meleeGoal = new MeleeAttackGoal(this, 1.2D, false) {
         public void stop() {
@@ -68,6 +62,8 @@ public class CrossboneSkeletonEntity extends Monster implements ICrossbowUser {
         this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, VillagerEntity.class, true));
+
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_ON_LAND_SELECTOR));
     }
@@ -117,7 +113,7 @@ public class CrossboneSkeletonEntity extends Monster implements ICrossbowUser {
             }
 
             if (flag) {
-                this.setSecondsOnFire(8);
+                this.setSecondsOnFire(4);
             }
         }
 
@@ -162,6 +158,7 @@ public class CrossboneSkeletonEntity extends Monster implements ICrossbowUser {
         if (this.level != null && !this.level.isClientSide) {
             this.goalSelector.removeGoal(this.meleeGoal);
             ItemStack itemstack = this.getItemInHand(ProjectileHelper.getWeaponHoldingHand(this, Items.CROSSBOW));
+
             if (itemstack.getItem() == Items.CROSSBOW) {
                 this.goalSelector.addGoal(3, new RangedCrossbowAttackGoal<>(this, 1.0D, 8.0F));
             } else {
@@ -198,6 +195,19 @@ public class CrossboneSkeletonEntity extends Monster implements ICrossbowUser {
 
     protected float getStandingEyeHeight(Pose pose, EntitySize size) {
         return 1.74F;
+    }
+
+    protected void dropCustomDeathLoot(DamageSource p_213333_1_, int p_213333_2_, boolean p_213333_3_) {
+        super.dropCustomDeathLoot(p_213333_1_, p_213333_2_, p_213333_3_);
+        Entity entity = p_213333_1_.getEntity();
+        if (entity instanceof CreeperEntity) {
+            CreeperEntity creeperentity = (CreeperEntity)entity;
+            if (creeperentity.canDropMobsSkull()) {
+                creeperentity.increaseDroppedSkulls();
+                this.spawnAtLocation(Items.SKELETON_SKULL);
+            }
+        }
+
     }
 
     public double getMyRidingOffset() {

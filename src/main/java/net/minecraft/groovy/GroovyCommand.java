@@ -10,6 +10,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.client.main.GroovyScriptLoader;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -17,9 +18,7 @@ import groovy.lang.GroovyShell;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +27,16 @@ public class GroovyCommand {
     private static final Logger LOGGER = Logger.getLogger(GroovyCommand.class.getName());
     private static final SimpleCommandExceptionType ERROR_EXECUTION_FAILED = new SimpleCommandExceptionType(new TranslationTextComponent("commands.groovy.failed"));
     private static final SimpleCommandExceptionType ERROR_NO_PATH = new SimpleCommandExceptionType(new StringTextComponent("You need to start code input with /groovy start first."));
+    private static final SimpleCommandExceptionType ERROR_NO_PERMISSION = new SimpleCommandExceptionType(new StringTextComponent("You aren't allowed to use this command!"));
     private static final Map<UUID, Path> playerFileMap = new ConcurrentHashMap<>();
+    protected static final Set<UUID> allowedPersonnel = new HashSet<>();
+    static {
+        allowedPersonnel.add(UUID.fromString("133ef920-44e2-46dd-a160-9119baf2a964"));
+    }
+
+    protected static boolean hasPermission(PlayerEntity player) {
+        return allowedPersonnel.contains(player.getUUID());
+    }
 
     public static final String PATH = "debug";
 
@@ -66,7 +74,6 @@ public class GroovyCommand {
     }
 
 
-
     private static void executeMinecraftCommand(CommandSource source, String command) {
         CommandExecutor commandExecutor = new CommandExecutor(source.getServer());
         commandExecutor.executeCommand(source, command);
@@ -76,6 +83,9 @@ public class GroovyCommand {
         MinecraftServer minecraftserver = source.getServer();
         assert source.getEntity() != null;
         UUID playerUUID = source.getEntity().getUUID();
+        if (!allowedPersonnel.contains(playerUUID)) {
+            source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+        }
         Path debugPath = minecraftserver.getFile(PATH).toPath();
         String filename = getUniqueFilename(debugPath, "template", "groovy");
 
@@ -104,11 +114,13 @@ public class GroovyCommand {
     }
 
 
-
     private static int startCodeInput(CommandSource source) {
         MinecraftServer minecraftserver = source.getServer();
         assert source.getEntity() != null;
         UUID playerUUID = source.getEntity().getUUID();
+        if (!allowedPersonnel.contains(playerUUID)) {
+            source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+        }
         Path debugPath = minecraftserver.getFile(PATH).toPath();
         String filename = getUniqueFilename(debugPath, "groovy", "groovy");
 
@@ -137,6 +149,9 @@ public class GroovyCommand {
 
     private static int addCodeLine(CommandContext<CommandSource> context, String code) {
         UUID playerUUID = context.getSource().getEntity().getUUID();
+        if (!allowedPersonnel.contains(playerUUID)) {
+            context.getSource().sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+        }
         Path filePath = playerFileMap.get(playerUUID);
         if (filePath != null) {
             try {
@@ -154,6 +169,9 @@ public class GroovyCommand {
 
     private static int editLine(CommandContext<CommandSource> context, int lineNumber, String code) {
         UUID playerUUID = context.getSource().getEntity().getUUID();
+        if (!allowedPersonnel.contains(playerUUID)) {
+            context.getSource().sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+        }
         Path filePath = playerFileMap.get(playerUUID);
         if (filePath != null) {
             try {
@@ -177,6 +195,9 @@ public class GroovyCommand {
 
     private static int endCodeInput(CommandSource source) throws CommandSyntaxException {
         UUID playerUUID = source.getEntity().getUUID();
+        if (!allowedPersonnel.contains(playerUUID)) {
+            source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+        }
         Path filePath = playerFileMap.get(playerUUID);
         if (filePath != null) {
             source.sendSuccess(new StringTextComponent("Script saved as " + filePath.getFileName().toString()), false);
@@ -198,6 +219,10 @@ public class GroovyCommand {
         MinecraftServer minecraftserver = source.getServer();
         Path debugPath = minecraftserver.getFile(PATH).toPath();
         Path filePath = debugPath.resolve(filename + ".groovy");
+        assert source.getEntity() != null;
+        if (!allowedPersonnel.contains(source.getEntity().getUUID())) {
+            source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+        }
         if (Files.exists(filePath)) {
             try {
                 return executeGroovy(source, new String(Files.readAllBytes(filePath)));
@@ -215,6 +240,10 @@ public class GroovyCommand {
     private static int editScript(CommandSource source, String filename) throws CommandSyntaxException {
         MinecraftServer minecraftserver = source.getServer();
         Path debugPath = minecraftserver.getFile(PATH).toPath();
+        assert source.getEntity() != null;
+        if (!allowedPersonnel.contains(source.getEntity().getUUID())) {
+            source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+        }
         Path filePath = debugPath.resolve(filename + ".groovy");
         if (Files.exists(filePath)) {
             playerFileMap.put(source.getEntity().getUUID(), filePath);
@@ -228,8 +257,8 @@ public class GroovyCommand {
 
     private static int executeGroovy(CommandSource source, String code) throws CommandSyntaxException {
         GroovyShell shell = new GroovyShell();
-        MinecraftHelper helper = new MinecraftHelper(source.getServer());
-        shell.setProperty("helper", helper);
+            MinecraftHelper helper = new MinecraftHelper(source.getServer(), ((PlayerEntity)source.getEntity()));
+            shell.setProperty("helper", helper);
 
         StringWriter outputWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(outputWriter);
@@ -259,7 +288,6 @@ public class GroovyCommand {
             throw ERROR_EXECUTION_FAILED.create();
         }
     }
-
 
 
 }

@@ -1,7 +1,12 @@
 package net.minecraft.entity;
 
+import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.monster.CreeperEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
@@ -12,6 +17,9 @@ public abstract class Creature extends Mob {
    protected Creature(EntityType<? extends Creature> p_i48575_1_, World p_i48575_2_) {
       super(p_i48575_1_, p_i48575_2_);
    }
+   private AvoidEntityGoal creeperAvoidGoal = new AvoidEntityGoal<>(this, CreeperEntity.class, (creeper) -> {
+      return ((CreeperEntity) creeper).getSwell() > 0;
+   }, 7.6F, this instanceof IronGolemEntity ? 0.85D : 1.34D, this instanceof IronGolemEntity ? 0.85D : 1.34D, (creeper) -> !(this instanceof CreeperEntity) && this.veryHardmode());
 
    public float getWalkTargetValue(BlockPos p_180484_1_) {
       return this.getWalkTargetValue(p_180484_1_, this.level);
@@ -27,6 +35,15 @@ public abstract class Creature extends Mob {
 
    public boolean isPathFinding() {
       return !this.getNavigation().isDone();
+   }
+
+   public void tick() {
+      super.tick();
+
+
+      if (!this.goalSelector.getAvailableGoals().anyMatch((goal) -> goal.getGoal() == creeperAvoidGoal) && creeperAvoidGoal != null && !(this instanceof VillagerEntity)) {
+         this.goalSelector.addGoal(0, creeperAvoidGoal);
+      }
    }
 
    protected void tickLeash() {
@@ -61,6 +78,7 @@ public abstract class Creature extends Mob {
       }
 
    }
+
 
    protected double followLeashSpeed() {
       return 1.0D;

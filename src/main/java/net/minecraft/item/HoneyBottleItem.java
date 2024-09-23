@@ -18,30 +18,30 @@ public class HoneyBottleItem extends Item {
       super(p_i225737_1_);
    }
 
-   public ItemStack finishUsingItem(ItemStack p_77654_1_, World p_77654_2_, LivingEntity p_77654_3_) {
-      super.finishUsingItem(p_77654_1_, p_77654_2_, p_77654_3_);
-      if (p_77654_3_ instanceof ServerPlayerEntity) {
-         ServerPlayerEntity serverplayerentity = (ServerPlayerEntity)p_77654_3_;
-         CriteriaTriggers.CONSUME_ITEM.trigger(serverplayerentity, p_77654_1_);
+   public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity entity) {
+      super.finishUsingItem(itemStack, world, entity);
+      if (entity instanceof ServerPlayerEntity) {
+         ServerPlayerEntity serverplayerentity = (ServerPlayerEntity) entity;
+         CriteriaTriggers.CONSUME_ITEM.trigger(serverplayerentity, itemStack);
          serverplayerentity.awardStat(Stats.ITEM_USED.get(this));
       }
 
-      if (!p_77654_2_.isClientSide) {
-         p_77654_3_.removeEffect(Effects.POISON);
+      if (!world.isClientSide) {
+         entity.removeEffect(Effects.POISON);
       }
 
-      if (p_77654_1_.isEmpty()) {
+      if (itemStack.isEmpty()) {
          return new ItemStack(Items.GLASS_BOTTLE);
       } else {
-         if (p_77654_3_ instanceof PlayerEntity && !((PlayerEntity)p_77654_3_).abilities.instabuild) {
+         if (entity instanceof PlayerEntity && !((PlayerEntity) entity).abilities.instabuild) {
             ItemStack itemstack = new ItemStack(Items.GLASS_BOTTLE);
-            PlayerEntity playerentity = (PlayerEntity)p_77654_3_;
+            PlayerEntity playerentity = (PlayerEntity) entity;
             if (!playerentity.inventory.add(itemstack)) {
                playerentity.drop(itemstack, false);
             }
          }
 
-         return p_77654_1_;
+         return itemStack;
       }
    }
 

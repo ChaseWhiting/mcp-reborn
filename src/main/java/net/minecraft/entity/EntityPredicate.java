@@ -1,5 +1,7 @@
 package net.minecraft.entity;
 
+import net.minecraft.potion.Effects;
+
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
@@ -48,48 +50,80 @@ public class EntityPredicate {
       return this;
    }
 
-   public boolean test(@Nullable LivingEntity p_221015_1_, LivingEntity p_221015_2_) {
-      if (p_221015_1_ == p_221015_2_) {
+   public boolean test(@Nullable LivingEntity attacker, LivingEntity target) {
+      // If attacker and target are the same entity, return false
+      if (attacker == target) {
          return false;
-      } else if (p_221015_2_.isSpectator()) {
-         return false;
-      } else if (!p_221015_2_.isAlive()) {
-         return false;
-      } else if (!this.allowInvulnerable && p_221015_2_.isInvulnerable()) {
-         return false;
-      } else if (this.selector != null && !this.selector.test(p_221015_2_)) {
-         return false;
-      } else {
-         if (p_221015_1_ != null) {
-            if (!this.allowNonAttackable) {
-               if (!p_221015_1_.canAttack(p_221015_2_)) {
-                  return false;
-               }
+      }
 
-               if (!p_221015_1_.canAttackType(p_221015_2_.getType())) {
-                  return false;
-               }
-            }
+      // If target is a spectator, return false
+      if (target.isSpectator()) {
+         return false;
+      }
 
-            if (!this.allowSameTeam && p_221015_1_.isAlliedTo(p_221015_2_)) {
+      // If target is dead, return false
+      if (!target.isAlive()) {
+         return false;
+      }
+
+      // If invulnerable entities aren't allowed and the target is invulnerable, return false
+      if (!this.allowInvulnerable && target.isInvulnerable()) {
+         return false;
+      }
+
+      // If there's a specific selector, and the target doesn't meet its conditions, return false
+      if (this.selector != null && !this.selector.test(target)) {
+         return false;
+      }
+
+      if (attacker != null) {
+         // If non-attackable entities aren't allowed and attacker can't attack the target, return false
+         if (!this.allowNonAttackable) {
+            if (!attacker.canAttack(target)) {
                return false;
             }
 
-            if (this.range > 0.0D) {
-               double d0 = this.testInvisible ? p_221015_2_.getVisibilityPercent(p_221015_1_) : 1.0D;
-               double d1 = Math.max(this.range * d0, 2.0D);
-               double d2 = p_221015_1_.distanceToSqr(p_221015_2_.getX(), p_221015_2_.getY(), p_221015_2_.getZ());
-               if (d2 > d1 * d1) {
-                  return false;
-               }
-            }
-
-            if (!this.allowUnseeable && p_221015_1_ instanceof Mob && !((Mob)p_221015_1_).getSensing().canSee(p_221015_2_)) {
+            // If attacker can't attack this type of entity, return false
+            if (!attacker.canAttackType(target.getType())) {
                return false;
             }
          }
 
-         return true;
+         // If entities on the same team aren't allowed to attack each other, return false
+         if (!this.allowSameTeam && attacker.isAlliedTo(target)) {
+            return false;
+         }
+
+         // If the attack range is greater than 0, check if the target is within range
+         if (this.range > 0.0D) {
+            // Calculate the visibility multiplier for the target (if the attacker needs to see it)
+            double visibilityMultiplier = this.testInvisible ? target.getVisibilityPercent(attacker) : 1.0D;
+
+            // Check if the attacker has the blindness effect
+//            if (attacker.hasEffect(Effects.BLINDNESS)) {
+//               // Reduce the attack range if the mob is blind
+//               visibilityMultiplier *= 0.2D; // Adjust this value based on how much you want to reduce the range
+//            }
+
+            // Calculate the maximum attack range, at least 2.0 units
+            double maxRange = Math.max(this.range * visibilityMultiplier, 2.0D);
+
+            // Calculate the distance between attacker and target
+            double distanceSquared = attacker.distanceToSqr(target.getX(), target.getY(), target.getZ());
+
+            // If the target is outside the attack range, return false
+            if (distanceSquared > maxRange * maxRange) {
+               return false;
+            }
+         }
+
+         // If unseeable entities aren't allowed and the attacker is a mob that can't see the target, return false
+         if (!this.allowUnseeable && attacker instanceof Mob && !((Mob)attacker).getSensing().canSee(target)) {
+            return false;
+         }
       }
+
+      // If none of the conditions returned false, return true
+      return true;
    }
 }

@@ -56,14 +56,12 @@ public final class WorldEntitySpawner {
    private static final int MAGIC_NUMBER = (int)Math.pow(17.0D, 2.0D);
    private static final EntityClassification[] SPAWNING_CATEGORIES = Stream.of(EntityClassification.values()).filter((p_234965_0_) -> {
       return p_234965_0_ != EntityClassification.MISC;
-   }).toArray((p_234963_0_) -> {
-      return new EntityClassification[p_234963_0_];
-   });
+   }).toArray(EntityClassification[]::new);
 
    public static WorldEntitySpawner.EntityDensityManager createState(int p_234964_0_, Iterable<Entity> p_234964_1_, WorldEntitySpawner.IInitialDensityAdder p_234964_2_) {
       MobDensityTracker mobdensitytracker = new MobDensityTracker();
       Object2IntOpenHashMap<EntityClassification> object2intopenhashmap = new Object2IntOpenHashMap<>();
-      Iterator iterator = p_234964_1_.iterator();
+      Iterator<Entity> iterator = p_234964_1_.iterator();
 
       while(true) {
          Entity entity;
@@ -225,6 +223,7 @@ public final class WorldEntitySpawner {
 
    @Nullable
    private static Mob getMobForSpawn(ServerWorld p_234973_0_, EntityType<?> p_234973_1_) {
+
       try {
          Entity entity = p_234973_1_.create(p_234973_0_);
          if (!(entity instanceof Mob)) {
@@ -233,6 +232,7 @@ public final class WorldEntitySpawner {
             return (Mob)entity;
          }
       } catch (Exception exception) {
+         LOGGER.warn("Attempting to create mob of type: " + p_234973_1_);
          LOGGER.warn("Failed to create mob", (Throwable)exception);
          return null;
       }

@@ -206,6 +206,7 @@ public class EntityUUID extends AbstractUUIDFix {
       MOBS.add("minecraft:snow_golem");
       MOBS.add("minecraft:spider");
       MOBS.add("minecraft:squid");
+      MOBS.add("minecraft:crossbone_skeleton");
       MOBS.add("minecraft:stray");
       MOBS.add("minecraft:tropical_fish");
       MOBS.add("minecraft:vex");

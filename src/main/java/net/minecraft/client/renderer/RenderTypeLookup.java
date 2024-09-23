@@ -261,6 +261,7 @@ public class RenderTypeLookup {
       p_228395_0_.put(Blocks.SLIME_BLOCK, rendertype3);
       p_228395_0_.put(Blocks.HONEY_BLOCK, rendertype3);
       p_228395_0_.put(Blocks.FROSTED_ICE, rendertype3);
+      p_228395_0_.put(Blocks.COOLED_MAGMA, rendertype3);
       p_228395_0_.put(Blocks.BUBBLE_COLUMN, rendertype3);
    });
    private static final Map<Fluid, RenderType> TYPE_BY_FLUID = Util.make(Maps.newHashMap(), (p_228392_0_) -> {

@@ -216,5 +216,6 @@ public abstract class TameableEntity extends Animal {
 
    public void setOrderedToSit(boolean p_233687_1_) {
       this.orderedToSit = p_233687_1_;
+      this.getNavigation().stop();
    }
 }

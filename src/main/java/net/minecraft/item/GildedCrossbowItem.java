@@ -2,6 +2,7 @@ package net.minecraft.item;
 
 import com.google.common.collect.Lists;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class GildedCrossbowItem extends ShootableItem implements IVanishable {
+public class GildedCrossbowItem extends ShootableItem implements IVanishable, ICrossbowItem {
    private boolean startSoundPlayed = false;
    private boolean midLoadSoundPlayed = false;
 
@@ -43,6 +44,10 @@ public class GildedCrossbowItem extends ShootableItem implements IVanishable {
 
    public int getEnchantmentValue() {
       return 20;
+   }
+
+   public int getWeight(ItemStack bundle) {
+      return 12;
    }
 
    public Predicate<ItemStack> getSupportedHeldProjectiles() {
@@ -85,12 +90,14 @@ public class GildedCrossbowItem extends ShootableItem implements IVanishable {
    private static boolean tryLoadProjectiles(LivingEntity shooter, ItemStack crossbow) {
       int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MULTISHOT, crossbow);
       int j = switch (i) {
-          case 2 -> 4;
-          case 3 -> 5;
-          default -> (i == 0) ? 1 : 3;
+         case 2 -> 4;
+         case 3 -> 5;
+         case 4 -> 6;
+         default -> (i == 0) ? 1 : Math.min(6 + (i - 4), 16);
       };
 
-       boolean flag = shooter instanceof PlayerEntity && ((PlayerEntity)shooter).abilities.instabuild;
+
+      boolean flag = shooter instanceof PlayerEntity && ((PlayerEntity)shooter).abilities.instabuild;
       ItemStack itemstack = shooter.getProjectile(crossbow);
       ItemStack itemstack1 = itemstack.copy();
 
@@ -184,7 +191,8 @@ public class GildedCrossbowItem extends ShootableItem implements IVanishable {
          case 1 -> 3;
          case 2 -> 4;
          case 3 -> 5;
-          default -> 1;
+         case 4 -> 6;
+         default -> Math.min(6 + (multishotLevel - 4), 16);
       };
 
       // Ensure the index is within the valid range
@@ -353,12 +361,49 @@ public class GildedCrossbowItem extends ShootableItem implements IVanishable {
                case 4:
                   inaccuracyOffset = -5.0F;
                   break;
+               case 5:
+                  inaccuracyOffset = 15.0F;
+                  break;
+               case 6:
+                  inaccuracyOffset = -15.0F;
+                  break;
+               case 7:
+                  inaccuracyOffset = 20.0F;
+                  break;
+               case 8:
+                  inaccuracyOffset = -20.0F;
+                  break;
+               case 9:
+                  inaccuracyOffset = 25.0F;
+                  break;
+               case 10:
+                  inaccuracyOffset = -25.0F;
+                  break;
+               case 11:
+                  inaccuracyOffset = 30.0F;
+                  break;
+               case 12:
+                  inaccuracyOffset = -30.0F;
+                  break;
+               case 13:
+                  inaccuracyOffset = 35.0F;
+                  break;
+               case 14:
+                  inaccuracyOffset = -35.0F;
+                  break;
+               case 15:
+                  inaccuracyOffset = 40.0F;
+                  break;
+               case 16:
+                  inaccuracyOffset = -40.0F;
+                  break;
                default:
                   break;
             }
             shootProjectile(world, shooter, hand, crossbow, projectile, shotPitches[i], isCreativeMode, velocity, inaccuracy, inaccuracyOffset);
          }
       }
+
 
       onCrossbowShot(world, shooter, crossbow);
    }
@@ -373,7 +418,64 @@ public class GildedCrossbowItem extends ShootableItem implements IVanishable {
               getRandomShotPitch(flag),
               getRandomShotPitch(!flag),
               getRandomShotPitch(flag),
-              getRandomShotPitch(!flag)
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag),
+              getRandomShotPitch(!flag),
+              getRandomShotPitch(flag)
       };
    }
 

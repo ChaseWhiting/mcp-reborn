@@ -105,29 +105,42 @@ public class BeehiveBlock extends ContainerBlock {
       }
    }
 
-   public static void dropHoneycomb(World p_226878_0_, BlockPos p_226878_1_) {
-      popResource(p_226878_0_, p_226878_1_, new ItemStack(Items.HONEYCOMB, 3));
+   public static void dropHoneycomb(World level, BlockPos blockPos) {
+      popResource(level, blockPos, new ItemStack(Items.HONEYCOMB, 3));
    }
 
-   public ActionResultType use(BlockState p_225533_1_, World p_225533_2_, BlockPos p_225533_3_, PlayerEntity p_225533_4_, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
-      ItemStack itemstack = p_225533_4_.getItemInHand(p_225533_5_);
-      int i = p_225533_1_.getValue(HONEY_LEVEL);
+   public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      int i = state.getValue(HONEY_LEVEL);
       boolean flag = false;
       if (i >= 5) {
          if (itemstack.getItem() == Items.SHEARS) {
-            p_225533_2_.playSound(p_225533_4_, p_225533_4_.getX(), p_225533_4_.getY(), p_225533_4_.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundCategory.NEUTRAL, 1.0F, 1.0F);
-            dropHoneycomb(p_225533_2_, p_225533_3_);
-            itemstack.hurtAndBreak(1, p_225533_4_, (p_226874_1_) -> {
-               p_226874_1_.broadcastBreakEvent(p_225533_5_);
+            level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+            dropHoneycomb(level, pos);
+            itemstack.hurtAndBreak(1, player, (p_226874_1_) -> {
+               p_226874_1_.broadcastBreakEvent(hand);
             });
             flag = true;
          } else if (itemstack.getItem() == Items.GLASS_BOTTLE) {
-            itemstack.shrink(1);
-            p_225533_2_.playSound(p_225533_4_, p_225533_4_.getX(), p_225533_4_.getY(), p_225533_4_.getZ(), SoundEvents.BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
-            if (itemstack.isEmpty()) {
-               p_225533_4_.setItemInHand(p_225533_5_, new ItemStack(Items.HONEY_BOTTLE));
-            } else if (!p_225533_4_.inventory.add(new ItemStack(Items.HONEY_BOTTLE))) {
-               p_225533_4_.drop(new ItemStack(Items.HONEY_BOTTLE), false);
+            level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+
+            if (level.isServerSide) {
+               itemstack.shrink(1);  // Decrease the bottle count
+               ItemStack newItem = new ItemStack(Items.HONEY_BOTTLE); // Default item
+
+               // Random chance for royal jelly
+               if (level.random.nextInt(10) == 0) {
+                  newItem = new ItemStack(Items.ROYAL_JELLY);
+               }
+
+               // Check if the player's hand is empty and replace the empty itemstack with the new item
+               if (itemstack.isEmpty()) {
+                  player.setItemInHand(hand, newItem);
+               } else if (!player.inventory.add(newItem)) {
+                  // Drop the new item if it can't be added to the inventory
+                  player.drop(newItem, false);
+               }
+               player.inventory.setChanged();
             }
 
             flag = true;
@@ -135,24 +148,24 @@ public class BeehiveBlock extends ContainerBlock {
       }
 
       if (flag) {
-         if (!CampfireBlock.isSmokeyPos(p_225533_2_, p_225533_3_)) {
-            if (this.hiveContainsBees(p_225533_2_, p_225533_3_)) {
-               this.angerNearbyBees(p_225533_2_, p_225533_3_);
+         if (!CampfireBlock.isSmokeyPos(level, pos)) {
+            if (this.hiveContainsBees(level, pos)) {
+               this.angerNearbyBees(level, pos);
             }
-
-            this.releaseBeesAndResetHoneyLevel(p_225533_2_, p_225533_1_, p_225533_3_, p_225533_4_, BeehiveTileEntity.State.EMERGENCY);
+            this.releaseBeesAndResetHoneyLevel(level, state, pos, player, BeehiveTileEntity.State.EMERGENCY);
          } else {
-            this.resetHoneyLevel(p_225533_2_, p_225533_1_, p_225533_3_);
+            this.resetHoneyLevel(level, state, pos);
          }
 
-         return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);
+         return ActionResultType.sidedSuccess(level.isClientSide);
       } else {
-         return super.use(p_225533_1_, p_225533_2_, p_225533_3_, p_225533_4_, p_225533_5_, p_225533_6_);
+         return super.use(state, level, pos, player, hand, result);
       }
    }
 
-   private boolean hiveContainsBees(World p_226882_1_, BlockPos p_226882_2_) {
-      TileEntity tileentity = p_226882_1_.getBlockEntity(p_226882_2_);
+
+   private boolean hiveContainsBees(World world, BlockPos pos) {
+      TileEntity tileentity = world.getBlockEntity(pos);
       if (tileentity instanceof BeehiveTileEntity) {
          BeehiveTileEntity beehivetileentity = (BeehiveTileEntity)tileentity;
          return !beehivetileentity.isEmpty();
@@ -161,9 +174,9 @@ public class BeehiveBlock extends ContainerBlock {
       }
    }
 
-   public void releaseBeesAndResetHoneyLevel(World p_226877_1_, BlockState p_226877_2_, BlockPos p_226877_3_, @Nullable PlayerEntity p_226877_4_, BeehiveTileEntity.State p_226877_5_) {
-      this.resetHoneyLevel(p_226877_1_, p_226877_2_, p_226877_3_);
-      TileEntity tileentity = p_226877_1_.getBlockEntity(p_226877_3_);
+   public void releaseBeesAndResetHoneyLevel(World blockPos, BlockState p_226877_2_, BlockPos p_226877_3_, @Nullable PlayerEntity p_226877_4_, BeehiveTileEntity.State p_226877_5_) {
+      this.resetHoneyLevel(blockPos, p_226877_2_, p_226877_3_);
+      TileEntity tileentity = blockPos.getBlockEntity(p_226877_3_);
       if (tileentity instanceof BeehiveTileEntity) {
          BeehiveTileEntity beehivetileentity = (BeehiveTileEntity)tileentity;
          beehivetileentity.emptyAllLivingFromHive(p_226877_4_, p_226877_2_, p_226877_5_);
@@ -176,10 +189,10 @@ public class BeehiveBlock extends ContainerBlock {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public void animateTick(BlockState p_180655_1_, World p_180655_2_, BlockPos p_180655_3_, Random p_180655_4_) {
-      if (p_180655_1_.getValue(HONEY_LEVEL) >= 5) {
+   public void animateTick(BlockState state, World p_180655_2_, BlockPos p_180655_3_, Random p_180655_4_) {
+      if (state.getValue(HONEY_LEVEL) >= 5) {
          for(int i = 0; i < p_180655_4_.nextInt(1) + 1; ++i) {
-            this.trySpawnDripParticles(p_180655_2_, p_180655_3_, p_180655_1_);
+            this.trySpawnDripParticles(p_180655_2_, p_180655_3_, state);
          }
       }
 

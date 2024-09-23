@@ -213,13 +213,13 @@ public class Explosion {
 
    }
 
-   public void finalizeExplosion(boolean p_77279_1_) {
+   public void finalizeExplosion(boolean particles) {
       if (this.level.isClientSide) {
          this.level.playLocalSound(this.x, this.y, this.z, SoundEvents.GENERIC_EXPLODE, SoundCategory.BLOCKS, 4.0F, (1.0F + (this.level.random.nextFloat() - this.level.random.nextFloat()) * 0.2F) * 0.7F, false);
       }
 
       boolean flag = this.blockInteraction != Explosion.Mode.NONE;
-      if (p_77279_1_) {
+      if (particles) {
          if (!(this.radius < 2.0F) && flag) {
             this.level.addParticle(ParticleTypes.EXPLOSION_EMITTER, this.x, this.y, this.z, 1.0D, 0.0D, 0.0D);
          } else {

@@ -36,6 +36,11 @@ public class SuggestionProviders {
          return new TranslationTextComponent(Util.makeDescriptionId("entity", EntityType.getKey(p_201209_0_)));
       });
    });
+   public static final SuggestionProvider<CommandSource> ALL_ENTITIES = register(new ResourceLocation("all_entities"), (location, provider) -> {
+      return ISuggestionProvider.suggestResource(Registry.ENTITY_TYPE.stream(), provider, EntityType::getKey, (entity) -> {
+         return new TranslationTextComponent(Util.makeDescriptionId("entity", EntityType.getKey(entity)));
+      });
+   });
 
    public static <S extends ISuggestionProvider> SuggestionProvider<S> register(ResourceLocation p_197494_0_, SuggestionProvider<ISuggestionProvider> p_197494_1_) {
       if (PROVIDERS_BY_NAME.containsKey(p_197494_0_)) {

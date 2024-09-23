@@ -9,6 +9,7 @@ import com.mojang.datafixers.util.Either;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
@@ -16,6 +17,7 @@ import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.RespawnAnchorBlock;
+import net.minecraft.bundle.QuiverItem;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
@@ -25,6 +27,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
@@ -41,20 +44,16 @@ import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.GrapplingHookEntity;
 import net.minecraft.entity.villager.data.quest.Quest;
 import net.minecraft.entity.villager.data.quest.QuestManager;
+import net.minecraft.fallout.Addiction;
+import net.minecraft.fallout.Skills;
+import net.minecraft.fallout.Special;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.ElytraItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.MerchantOffers;
-import net.minecraft.item.ShootableItem;
-import net.minecraft.item.SwordItem;
+import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -104,7 +103,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.entity.villager.data.quest.QuestTypes;
@@ -155,7 +154,10 @@ public abstract class PlayerEntity extends LivingEntity {
     private final CooldownTracker cooldowns = this.createItemCooldowns();
     @Nullable
     public FishingBobberEntity fishing;
+    public Addiction.AddictionManager addictions;
     private GrapplingHookEntity grapplingHook;
+    public Special.SpecialManager specialManager;
+    public Skills skills;
 
 
     public PlayerEntity(World p_i241920_1_, BlockPos p_i241920_2_, float p_i241920_3_, GameProfile p_i241920_4_) {
@@ -165,6 +167,9 @@ public abstract class PlayerEntity extends LivingEntity {
         this.killCounts = new HashMap<>();
         this.questManager = new QuestManager(this);
         this.quests = new ArrayList<>();
+        this.addictions = new Addiction.AddictionManager(this);
+        this.specialManager = new Special.SpecialManager(this);
+        this.skills = new Skills(this, specialManager);
         this.questManager.addQuest(QuestTypes.defeatAllMob);
         this.inventoryMenu = new PlayerContainer(this.inventory, !p_i241920_1_.isClientSide, this);
         this.containerMenu = this.inventoryMenu;
@@ -172,10 +177,22 @@ public abstract class PlayerEntity extends LivingEntity {
         this.rotOffs = 180.0F;
     }
 
-    public boolean blockActionRestricted(World p_223729_1_, BlockPos p_223729_2_, GameType p_223729_3_) {
+    public void addAddiction(Addiction addiction) {
+        this.addictions.addAddiction(addiction);
+    }
+
+    public boolean hasAddiction(Addiction addiction) {
+        return addictions.hasAddiction(addiction);
+    }
+
+    public void removeAddiction(Addiction addiction) {
+        addictions.removeAddiction(addiction);
+    }
+
+    public boolean blockActionRestricted(World p_223729_1_, BlockPos p_223729_2_, Gamemode p_223729_3_) {
         if (!p_223729_3_.isBlockPlacingRestricted()) {
             return false;
-        } else if (p_223729_3_ == GameType.SPECTATOR) {
+        } else if (p_223729_3_ == Gamemode.SPECTATOR) {
             return true;
         } else if (this.mayBuild()) {
             return false;
@@ -255,6 +272,40 @@ public abstract class PlayerEntity extends LivingEntity {
 
     public void tick() {
         tickQuests();
+        addictions.tick();
+        UUID attackingModifier = UUID.fromString("d9b2d63d-a233-4123-847d-e53d9580fda0");
+        UUID itemDamageModifier = UUID.fromString("f9b2d63d-a233-4123-847d-e53d9580fda0");
+        UUID speedModifier = UUID.fromString("c9b2d63d-a233-4123-847d-e53d9580fda0");
+        AttributeModifier attackModifier = new AttributeModifier(attackingModifier, "temporary_bonus0", 0.05 * skills.getSkill(Skills.SkillType.UNARMED), AttributeModifier.Operation.ADDITION);
+        AttributeModifier itemModifier = new AttributeModifier(itemDamageModifier, "temporary_bonus2", 0.03 * skills.getSkill(Skills.SkillType.MELEE_WEAPONS), AttributeModifier.Operation.ADDITION);
+
+        AttributeModifier speedModify = new AttributeModifier(speedModifier, "temporary_bonus1", 0.002 * specialManager.getStat(Special.SpecialStats.AGILITY), AttributeModifier.Operation.ADDITION);
+
+
+        if (!this.hasEffect(Effects.DAMAGE_BOOST)) {
+            if (this.getMainHandItem().isEmpty() && !this.getAttribute(Attributes.ATTACK_DAMAGE).hasModifier(attackModifier)) {
+                this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(attackModifier);
+            } else {
+                Item item = this.getMainHandItem().getItem();
+                if (item instanceof TieredItem && !this.getAttribute(Attributes.ATTACK_DAMAGE).hasModifier(itemModifier)) {
+                    this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(itemModifier);
+                } else {
+                    this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(attackingModifier);
+                    this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(itemModifier);
+                }
+            }
+        }
+        if (!this.hasEffect(Effects.MOVEMENT_SPEED) && !this.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(speedModify)) {
+            this.getAttribute(Attributes.MOVEMENT_SPEED).addTransientModifier(speedModify);
+        } else {
+            if (!this.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(speedModify)) {
+                this.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(speedModifier);
+            }
+        }
+        if (!this.hasEffect(Effects.LUCK)) {
+                this.getAttribute(Attributes.LUCK).setBaseValue(specialManager.getStat(Special.SpecialStats.LUCK));
+        }
+
 
         this.noPhysics = this.isSpectator();
         if (this.isSpectator()) {
@@ -271,7 +322,7 @@ public abstract class PlayerEntity extends LivingEntity {
                 this.sleepCounter = 100;
             }
 
-            if (!this.level.isClientSide && this.level.isDay()) {
+            if (!this.level.isClientSide && this.level.isDay() && !this.level.getGameRules().getBoolean(GameRules.RULE_SLEEP_DAY)) {
                 this.stopSleepInBed(false, true);
             }
         } else if (this.sleepCounter > 0) {
@@ -468,8 +519,8 @@ public abstract class PlayerEntity extends LivingEntity {
         return 10;
     }
 
-    public void playSound(SoundEvent p_184185_1_, float p_184185_2_, float p_184185_3_) {
-        this.level.playSound(this, this.getX(), this.getY(), this.getZ(), p_184185_1_, this.getSoundSource(), p_184185_2_, p_184185_3_);
+    public void playSound(SoundEvent p_184185_1_, float volume, float pitch) {
+        this.level.playSound(this, this.getX(), this.getY(), this.getZ(), p_184185_1_, this.getSoundSource(), volume, pitch);
     }
 
     public void playNotifySound(SoundEvent p_213823_1_, SoundCategory p_213823_2_, float p_213823_3_, float p_213823_4_) {
@@ -781,6 +832,8 @@ public abstract class PlayerEntity extends LivingEntity {
 
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
         super.readAdditionalSaveData(compoundNBT);
+        addictions.readAdditionalSaveData(compoundNBT);
+        skills.readAdditionalSaveData(compoundNBT);
         this.setUUID(createPlayerUUID(this.gameProfile));
         ListNBT listnbt = compoundNBT.getList("Inventory", 10);
         this.inventory.load(listnbt);
@@ -819,6 +872,8 @@ public abstract class PlayerEntity extends LivingEntity {
 
     public void addAdditionalSaveData(CompoundNBT compoundNBT) {
         super.addAdditionalSaveData(compoundNBT);
+        addictions.addAdditionalSaveData(compoundNBT);
+        skills.addAdditionalSaveData(compoundNBT);
         compoundNBT.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
         compoundNBT.put("Inventory", this.inventory.save(new ListNBT()));
         compoundNBT.putInt("SelectedItemSlot", this.inventory.selected);
@@ -868,7 +923,7 @@ public abstract class PlayerEntity extends LivingEntity {
             } else {
                 this.removeEntitiesOnShoulder();
                 if (p_70097_1_.scalesWithDifficulty()) {
-                    if (this.level.getDifficulty() == Difficulty.PEACEFUL) {
+                    if (this.level.getDifficulty() == Difficulty.PEACEFUL && !this.veryHardmode()) {
                         p_70097_2_ = 0.0F;
                     }
 
@@ -878,6 +933,11 @@ public abstract class PlayerEntity extends LivingEntity {
 
                     if (this.level.getDifficulty() == Difficulty.HARD) {
                         p_70097_2_ = p_70097_2_ * 3.0F / 2.0F;
+                    }
+
+                    // Add scaling for very hardmode
+                    if (this.veryHardmode()) {
+                        p_70097_2_ *= 2.0F; // Example: Double the damage in very hardmode
                     }
                 }
 
@@ -1634,12 +1694,14 @@ public abstract class PlayerEntity extends LivingEntity {
         }
     }
 
-    public void causeFoodExhaustion(float p_71020_1_) {
+    public void causeFoodExhaustion(float exhaustionAmount) {
         if (!this.abilities.invulnerable) {
             if (!this.level.isClientSide) {
-                this.foodData.addExhaustion(p_71020_1_);
+                if (this.veryHardmode()) {
+                    exhaustionAmount *= 3; // Double the exhaustion in veryHardmode
+                }
+                this.foodData.addExhaustion(exhaustionAmount);
             }
-
         }
     }
 
@@ -1694,7 +1756,7 @@ public abstract class PlayerEntity extends LivingEntity {
     public void onUpdateAbilities() {
     }
 
-    public void setGameMode(GameType p_71033_1_) {
+    public void setGameMode(Gamemode p_71033_1_) {
     }
 
     public ITextComponent getName() {
@@ -1732,6 +1794,13 @@ public abstract class PlayerEntity extends LivingEntity {
     public boolean addItem(ItemStack p_191521_1_) {
         this.playEquipSound(p_191521_1_);
         return this.inventory.add(p_191521_1_);
+    }
+
+    public boolean addItem(ItemStack stack, boolean sound) {
+        if (sound) {
+            this.playEquipSound(stack);
+        }
+        return this.inventory.add(stack);
     }
 
     public Iterable<ItemStack> getHandSlots() {
@@ -1987,24 +2056,45 @@ public abstract class PlayerEntity extends LivingEntity {
         return ImmutableList.of(Pose.STANDING, Pose.CROUCHING, Pose.SWIMMING);
     }
 
-    public ItemStack getProjectile(ItemStack p_213356_1_) {
-        if (!(p_213356_1_.getItem() instanceof ShootableItem)) {
+    public ItemStack getProjectile(ItemStack shootableItemStack) {
+        if (!(shootableItemStack.getItem() instanceof ShootableItem)) {
             return ItemStack.EMPTY;
         } else {
-            Predicate<ItemStack> predicate = ((ShootableItem) p_213356_1_.getItem()).getSupportedHeldProjectiles();
-            ItemStack itemstack = ShootableItem.getHeldProjectile(this, predicate);
-            if (!itemstack.isEmpty()) {
-                return itemstack;
-            } else {
-                predicate = ((ShootableItem) p_213356_1_.getItem()).getAllSupportedProjectiles();
+            Predicate<ItemStack> predicate = ((ShootableItem) shootableItemStack.getItem()).getSupportedHeldProjectiles();
+            ItemStack projectile = ShootableItem.getHeldProjectile(this, predicate);
 
+            // Check if a projectile is held directly
+            if (!projectile.isEmpty()) {
+                return projectile;
+            } else {
+                predicate = ((ShootableItem) shootableItemStack.getItem()).getAllSupportedProjectiles();
+
+                // First, search in the player's inventory for a quiver containing arrows
                 for (int i = 0; i < this.inventory.getContainerSize(); ++i) {
-                    ItemStack itemstack1 = this.inventory.getItem(i);
-                    if (predicate.test(itemstack1)) {
-                        return itemstack1;
+                    ItemStack inventoryStack = this.inventory.getItem(i);
+
+                    // Check if the item is a quiver
+                    if (inventoryStack.getItem() instanceof QuiverItem) {
+                        // Retrieve arrows from the quiver
+                        List<ItemStack> quiverContents = QuiverItem.getContents(inventoryStack).collect(Collectors.toList());
+
+                        for (ItemStack quiverItemStack : quiverContents) {
+                            if (predicate.test(quiverItemStack)) {
+                                return quiverItemStack;
+                            }
+                        }
                     }
                 }
 
+                // If no quiver was found or it contained no valid projectiles, search the inventory directly
+                for (int i = 0; i < this.inventory.getContainerSize(); ++i) {
+                    ItemStack inventoryStack = this.inventory.getItem(i);
+                    if (predicate.test(inventoryStack)) {
+                        return inventoryStack;
+                    }
+                }
+
+                // If instabuild mode is enabled, return a single arrow by default
                 return this.abilities.instabuild ? new ItemStack(Items.ARROW) : ItemStack.EMPTY;
             }
         }

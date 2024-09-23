@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BreakableBlock;
 import net.minecraft.block.StainedGlassPaneBlock;
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
@@ -26,6 +27,7 @@ import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -43,6 +45,7 @@ import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -243,6 +246,7 @@ public class ItemRenderer implements IResourceManagerReloadListener {
       RenderSystem.popMatrix();
    }
 
+
    public void renderAndDecorateItem(ItemStack p_180450_1_, int p_180450_2_, int p_180450_3_) {
       this.tryRenderGuiItem(Minecraft.getInstance().player, p_180450_1_, p_180450_2_, p_180450_3_);
    }
@@ -287,39 +291,87 @@ public class ItemRenderer implements IResourceManagerReloadListener {
       this.renderGuiItemDecorations(p_175030_1_, p_175030_2_, p_175030_3_, p_175030_4_, (String)null);
    }
 
-   public void renderGuiItemDecorations(FontRenderer p_180453_1_, ItemStack p_180453_2_, int p_180453_3_, int p_180453_4_, @Nullable String p_180453_5_) {
-      if (!p_180453_2_.isEmpty()) {
+   public void renderGuiItemDecorations(FontRenderer p_180453_1_, ItemStack item, int p_180453_3_, int p_180453_4_, @Nullable String p_180453_5_) {
+      if (!item.isEmpty()) {
          MatrixStack matrixstack = new MatrixStack();
-         if (p_180453_2_.getCount() != 1 || p_180453_5_ != null) {
-            String s = p_180453_5_ == null ? String.valueOf(p_180453_2_.getCount()) : p_180453_5_;
+         if (item.getCount() != 1 || p_180453_5_ != null) {
+            String s = p_180453_5_ == null ? String.valueOf(item.getCount()) : p_180453_5_;
             matrixstack.translate(0.0D, 0.0D, (double)(this.blitOffset + 200.0F));
             IRenderTypeBuffer.Impl irendertypebuffer$impl = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
             p_180453_1_.drawInBatch(s, (float)(p_180453_3_ + 19 - 2 - p_180453_1_.width(s)), (float)(p_180453_4_ + 6 + 3), 16777215, true, matrixstack.last().pose(), irendertypebuffer$impl, false, 0, 15728880);
             irendertypebuffer$impl.endBatch();
          }
 
-         if (p_180453_2_.isDamaged()) {
+
+         if (item.isDamaged()) {
+            // Disable rendering features
             RenderSystem.disableDepthTest();
             RenderSystem.disableTexture();
             RenderSystem.disableAlphaTest();
             RenderSystem.disableBlend();
+
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder bufferbuilder = tessellator.getBuilder();
-            float f = (float)p_180453_2_.getDamageValue();
-            float f1 = (float)p_180453_2_.getMaxDamage();
+
+            // Calculate the damage ratio
+            float f = (float)item.getDamageValue();
+            float f1 = (float)item.getMaxDamage();
             float f2 = Math.max(0.0F, (f1 - f) / f1);
+
+            // Determine how much of the bar to fill
             int i = Math.round(13.0F - f * 13.0F / f1);
+
+            // Calculate the color based on damage
             int j = MathHelper.hsvToRgb(f2 / 3.0F, 1.0F, 1.0F);
+
+            // Render the damage bar
             this.fillRect(bufferbuilder, p_180453_3_ + 2, p_180453_4_ + 13, 13, 2, 0, 0, 0, 255);
             this.fillRect(bufferbuilder, p_180453_3_ + 2, p_180453_4_ + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
+
+            // Re-enable rendering features
             RenderSystem.enableBlend();
             RenderSystem.enableAlphaTest();
             RenderSystem.enableTexture();
             RenderSystem.enableDepthTest();
          }
 
+         if (item.getItem() instanceof BundleItem && ((BundleItem)item.getItem()).isBarVisible(item)) {
+            BundleItem bundleItem = (BundleItem) item.getItem();
+            RenderSystem.disableDepthTest();
+            RenderSystem.disableTexture();
+            RenderSystem.disableAlphaTest();
+            RenderSystem.disableBlend();
+
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder bufferbuilder = tessellator.getBuilder();
+
+            // Calculate the weight ratio
+            float currentWeight = (float) BundleItem.getContentWeight(item);
+            float maxWeight = (float) bundleItem.getMaxWeight(item);
+            float weightRatio = Math.max(0.0F, currentWeight / maxWeight);
+
+            // Determine how much of the bar to fill (left to right)
+            int barWidth = Math.round(weightRatio * 13.0F);
+
+            // Get the color for the bar
+            int color = BundleItem.getBarColor();
+
+            // Render the weight bar (left to right)
+            this.fillRect(bufferbuilder, p_180453_3_ + 2, p_180453_4_ + 13, 13, 2, 0, 0, 0, 255); // background bar
+            this.fillRect(bufferbuilder, p_180453_3_ + 2, p_180453_4_ + 13, barWidth, 1, color >> 16 & 255, color >> 8 & 255, color & 255, 255); // filled bar
+
+            // Re-enable rendering features
+            RenderSystem.enableBlend();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.enableTexture();
+            RenderSystem.enableDepthTest();
+
+
+
+         }
+
          ClientPlayerEntity clientplayerentity = Minecraft.getInstance().player;
-         float f3 = clientplayerentity == null ? 0.0F : clientplayerentity.getCooldowns().getCooldownPercent(p_180453_2_.getItem(), Minecraft.getInstance().getFrameTime());
+         float f3 = clientplayerentity == null ? 0.0F : clientplayerentity.getCooldowns().getCooldownPercent(item.getItem(), Minecraft.getInstance().getFrameTime());
          if (f3 > 0.0F) {
             RenderSystem.disableDepthTest();
             RenderSystem.disableTexture();
@@ -344,7 +396,144 @@ public class ItemRenderer implements IResourceManagerReloadListener {
       Tessellator.getInstance().end();
    }
 
+
    public void onResourceManagerReload(IResourceManager p_195410_1_) {
       this.itemModelShaper.rebuildCache();
    }
+
+
+
+
+
+
+
+
+//   public void blit(int p_282225_, int p_281487_, int p_281985_, int p_281329_, int p_283035_, TextureAtlasSprite p_281614_) {
+//      this.blitSprite(p_281614_, p_282225_, p_281487_, p_281985_, p_281329_, p_283035_);
+//   }
+//
+//   public void blit(int p_282416_, int p_282989_, int p_282618_, int p_282755_, int p_281717_, TextureAtlasSprite p_281874_, float p_283559_, float p_282730_, float p_283530_, float p_282246_) {
+//      this.innerBlit(p_281874_.atlasLocation(), p_282416_, p_282416_ + p_282755_, p_282989_, p_282989_ + p_281717_, p_282618_, p_281874_.getU0(), p_281874_.getU1(), p_281874_.getV0(), p_281874_.getV1(), p_283559_, p_282730_, p_283530_, p_282246_);
+//   }
+//
+//   public void renderOutline(int p_281496_, int p_282076_, int p_281334_, int p_283576_, int p_283618_) {
+//      this.fill(p_281496_, p_282076_, p_281496_ + p_281334_, p_282076_ + 1, p_283618_);
+//      this.fill(p_281496_, p_282076_ + p_283576_ - 1, p_281496_ + p_281334_, p_282076_ + p_283576_, p_283618_);
+//      this.fill(p_281496_, p_282076_ + 1, p_281496_ + 1, p_282076_ + p_283576_ - 1, p_283618_);
+//      this.fill(p_281496_ + p_281334_ - 1, p_282076_ + 1, p_281496_ + p_281334_, p_282076_ + p_283576_ - 1, p_283618_);
+//   }
+//
+//   public void blitSprite(ResourceLocation p_300860_, int p_298718_, int p_298541_, int p_300996_, int p_298426_) {
+//      this.blitSprite(p_300860_, p_298718_, p_298541_, 0, p_300996_, p_298426_);
+//   }
+//
+//   public void blitSprite(ResourceLocation p_299503_, int p_297264_, int p_301178_, int p_297744_, int p_299331_, int p_300334_) {
+//      TextureAtlasSprite textureatlassprite = this.sprites.getSprite(p_299503_);
+//      GuiSpriteScaling guispritescaling = this.sprites.getSpriteScaling(textureatlassprite);
+//      if (guispritescaling instanceof GuiSpriteScaling.Stretch) {
+//         this.blitSprite(textureatlassprite, p_297264_, p_301178_, p_297744_, p_299331_, p_300334_);
+//      } else if (guispritescaling instanceof GuiSpriteScaling.Tile) {
+//         GuiSpriteScaling.Tile guispritescaling$tile = (GuiSpriteScaling.Tile)guispritescaling;
+//         this.blitTiledSprite(textureatlassprite, p_297264_, p_301178_, p_297744_, p_299331_, p_300334_, 0, 0, guispritescaling$tile.width(), guispritescaling$tile.height(), guispritescaling$tile.width(), guispritescaling$tile.height());
+//      } else if (guispritescaling instanceof GuiSpriteScaling.NineSlice) {
+//         GuiSpriteScaling.NineSlice guispritescaling$nineslice = (GuiSpriteScaling.NineSlice)guispritescaling;
+//         this.blitNineSlicedSprite(textureatlassprite, guispritescaling$nineslice, p_297264_, p_301178_, p_297744_, p_299331_, p_300334_);
+//      }
+//
+//   }
+//
+//   public void blitSprite(ResourceLocation p_298820_, int p_300417_, int p_298256_, int p_299965_, int p_300008_, int p_299688_, int p_300153_, int p_299047_, int p_298424_) {
+//      this.blitSprite(p_298820_, p_300417_, p_298256_, p_299965_, p_300008_, p_299688_, p_300153_, 0, p_299047_, p_298424_);
+//   }
+
+//   public void blitSprite(ResourceLocation p_300222_, int p_301241_, int p_298760_, int p_299400_, int p_299966_, int p_298806_, int p_298412_, int p_300874_, int p_297763_, int p_300904_) {
+//      TextureAtlasSprite textureatlassprite = this.sprites.getSprite(p_300222_);
+//      GuiSpriteScaling guispritescaling = this.sprites.getSpriteScaling(textureatlassprite);
+//      if (guispritescaling instanceof GuiSpriteScaling.Stretch) {
+//         this.blitSprite(textureatlassprite, p_301241_, p_298760_, p_299400_, p_299966_, p_298806_, p_298412_, p_300874_, p_297763_, p_300904_);
+//      } else {
+//         this.blitSprite(textureatlassprite, p_298806_, p_298412_, p_300874_, p_297763_, p_300904_);
+//      }
+//
+//   }
+//
+//   private void blitSprite(TextureAtlasSprite p_299198_, int p_300402_, int p_300310_, int p_300994_, int p_297577_, int p_299466_, int p_301260_, int p_298369_, int p_300819_, int p_299583_) {
+//      if (p_300819_ != 0 && p_299583_ != 0) {
+//         this.innerBlit(p_299198_.atlasLocation(), p_299466_, p_299466_ + p_300819_, p_301260_, p_301260_ + p_299583_, p_298369_, p_299198_.getU((float)p_300994_ / (float)p_300402_), p_299198_.getU((float)(p_300994_ + p_300819_) / (float)p_300402_), p_299198_.getV((float)p_297577_ / (float)p_300310_), p_299198_.getV((float)(p_297577_ + p_299583_) / (float)p_300310_));
+//      }
+//   }
+//
+//   private void blitSprite(TextureAtlasSprite p_299484_, int p_297573_, int p_300435_, int p_299725_, int p_300673_, int p_301130_) {
+//      if (p_300673_ != 0 && p_301130_ != 0) {
+//         this.innerBlit(p_299484_.atlasLocation(), p_297573_, p_297573_ + p_300673_, p_300435_, p_300435_ + p_301130_, p_299725_, p_299484_.getU0(), p_299484_.getU1(), p_299484_.getV0(), p_299484_.getV1());
+//      }
+//   }
+//
+//   public void blit(ResourceLocation p_283377_, int p_281970_, int p_282111_, int p_283134_, int p_282778_, int p_281478_, int p_281821_) {
+//      this.blit(p_283377_, p_281970_, p_282111_, 0, (float)p_283134_, (float)p_282778_, p_281478_, p_281821_, 256, 256);
+//   }
+
+//   public void blit(ResourceLocation p_283573_, int p_283574_, int p_283670_, int p_283545_, float p_283029_, float p_283061_, int p_282845_, int p_282558_, int p_282832_, int p_281851_) {
+//      this.blit(p_283573_, p_283574_, p_283574_ + p_282845_, p_283670_, p_283670_ + p_282558_, p_283545_, p_282845_, p_282558_, p_283029_, p_283061_, p_282832_, p_281851_);
+//   }
+//
+//   public void blit(ResourceLocation p_282034_, int p_283671_, int p_282377_, int p_282058_, int p_281939_, float p_282285_, float p_283199_, int p_282186_, int p_282322_, int p_282481_, int p_281887_) {
+//      this.blit(p_282034_, p_283671_, p_283671_ + p_282058_, p_282377_, p_282377_ + p_281939_, 0, p_282186_, p_282322_, p_282285_, p_283199_, p_282481_, p_281887_);
+//   }
+//
+//   public void blit(ResourceLocation p_283272_, int p_283605_, int p_281879_, float p_282809_, float p_282942_, int p_281922_, int p_282385_, int p_282596_, int p_281699_) {
+//      this.blit(p_283272_, p_283605_, p_281879_, p_281922_, p_282385_, p_282809_, p_282942_, p_281922_, p_282385_, p_282596_, p_281699_);
+//   }
+
+//   void blit(ResourceLocation p_282639_, int p_282732_, int p_283541_, int p_281760_, int p_283298_, int p_283429_, int p_282193_, int p_281980_, float p_282660_, float p_281522_, int p_282315_, int p_281436_) {
+//      this.innerBlit(p_282639_, p_282732_, p_283541_, p_281760_, p_283298_, p_283429_, (p_282660_ + 0.0F) / (float)p_282315_, (p_282660_ + (float)p_282193_) / (float)p_282315_, (p_281522_ + 0.0F) / (float)p_281436_, (p_281522_ + (float)p_281980_) / (float)p_281436_);
+//   }
+
+//   void innerBlit(ResourceLocation p_283461_, int p_281399_, int p_283222_, int p_283615_, int p_283430_, int p_281729_, float p_283247_, float p_282598_, float p_282883_, float p_283017_) {
+//      RenderSystem.setShaderTexture(0, p_283461_);
+//      RenderSystem.setShader(GameRenderer::getPositionTexShader);
+//      Matrix4f matrix4f = this.pose.last().pose();
+//      BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+//      bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+//      bufferbuilder.vertex(matrix4f, (float)p_281399_, (float)p_283615_, (float)p_281729_).uv(p_283247_, p_282883_).endVertex();
+//      bufferbuilder.vertex(matrix4f, (float)p_281399_, (float)p_283430_, (float)p_281729_).uv(p_283247_, p_283017_).endVertex();
+//      bufferbuilder.vertex(matrix4f, (float)p_283222_, (float)p_283430_, (float)p_281729_).uv(p_282598_, p_283017_).endVertex();
+//      bufferbuilder.vertex(matrix4f, (float)p_283222_, (float)p_283615_, (float)p_281729_).uv(p_282598_, p_282883_).endVertex();
+//      BufferUploader.drawWithShader(bufferbuilder.end());
+//   }
+//
+//   void innerBlit(ResourceLocation p_283254_, int p_283092_, int p_281930_, int p_282113_, int p_281388_, int p_283583_, float p_281327_, float p_281676_, float p_283166_, float p_282630_, float p_282800_, float p_282850_, float p_282375_, float p_282754_) {
+//      RenderSystem.setShaderTexture(0, p_283254_);
+//      RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+//      RenderSystem.enableBlend();
+//      Matrix4f matrix4f = this.pose.last().pose();
+//      BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+//      bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+//      bufferbuilder.vertex(matrix4f, (float)p_283092_, (float)p_282113_, (float)p_283583_).color(p_282800_, p_282850_, p_282375_, p_282754_).uv(p_281327_, p_283166_).endVertex();
+//      bufferbuilder.vertex(matrix4f, (float)p_283092_, (float)p_281388_, (float)p_283583_).color(p_282800_, p_282850_, p_282375_, p_282754_).uv(p_281327_, p_282630_).endVertex();
+//      bufferbuilder.vertex(matrix4f, (float)p_281930_, (float)p_281388_, (float)p_283583_).color(p_282800_, p_282850_, p_282375_, p_282754_).uv(p_281676_, p_282630_).endVertex();
+//      bufferbuilder.vertex(matrix4f, (float)p_281930_, (float)p_282113_, (float)p_283583_).color(p_282800_, p_282850_, p_282375_, p_282754_).uv(p_281676_, p_283166_).endVertex();
+//      BufferUploader.drawWithShader(bufferbuilder.end());
+//      RenderSystem.disableBlend();
+//   }
+
+//   private void blitTiledSprite(TextureAtlasSprite p_298835_, int p_297456_, int p_300732_, int p_297241_, int p_300646_, int p_299561_, int p_298797_, int p_299557_, int p_297684_, int p_299756_, int p_297303_, int p_299619_) {
+//      if (p_300646_ > 0 && p_299561_ > 0) {
+//         if (p_297684_ > 0 && p_299756_ > 0) {
+//            for(int i = 0; i < p_300646_; i += p_297684_) {
+//               int j = Math.min(p_297684_, p_300646_ - i);
+//
+//               for(int k = 0; k < p_299561_; k += p_299756_) {
+//                  int l = Math.min(p_299756_, p_299561_ - k);
+//                  this.blitSprite(p_298835_, p_297303_, p_299619_, p_298797_, p_299557_, p_297456_ + i, p_300732_ + k, p_297241_, j, l);
+//               }
+//            }
+//
+//         } else {
+//            throw new IllegalArgumentException("Tiled sprite texture size must be positive, got " + p_297684_ + "x" + p_299756_);
+//         }
+//      }
+//   }
+
+
 }

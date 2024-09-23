@@ -51,6 +51,7 @@ import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -259,7 +260,7 @@ public class DebugOverlayGui extends AbstractGui {
                         i1 = chunk1.getInhabitedTime();
                      }
 
-                     DifficultyInstance difficultyinstance = new DifficultyInstance(world.getDifficulty(), world.getDayTime(), i1, f2);
+                     DifficultyInstance difficultyinstance = new DifficultyInstance(world.getDifficulty(), world.getDayTime(), i1, f2, this.minecraft.level.getGameRules().getBoolean(GameRules.RULE_VERYHARD));
                      list.add(String.format(Locale.ROOT, "Local Difficulty: %.2f // %.2f (Day %d)", difficultyinstance.getEffectiveDifficulty(), difficultyinstance.getSpecialMultiplier(), this.minecraft.level.getDayTime() / 24000L));
                   }
                }

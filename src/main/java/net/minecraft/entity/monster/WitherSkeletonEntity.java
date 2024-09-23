@@ -1,15 +1,12 @@
 package net.minecraft.entity.monster;
 
 import javax.annotation.Nullable;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.SpawnReason;
+
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.monster.bogged.BoggedEntity;
+import net.minecraft.entity.monster.bogged.BoggedType;
 import net.minecraft.entity.monster.piglin.AbstractPiglinEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -26,7 +23,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 
-public class WitherSkeletonEntity extends AbstractSkeletonEntity {
+public class WitherSkeletonEntity extends AbstractSkeletonEntity implements IWitherMob {
    public WitherSkeletonEntity(EntityType<? extends WitherSkeletonEntity> p_i50187_1_, World p_i50187_2_) {
       super(p_i50187_1_, p_i50187_2_);
       this.setPathfindingMalus(PathNodeType.LAVA, 8.0F);
@@ -35,6 +32,21 @@ public class WitherSkeletonEntity extends AbstractSkeletonEntity {
    protected void registerGoals() {
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractPiglinEntity.class, true));
       super.registerGoals();
+   }
+
+   public boolean convertsInWater() {
+      return true;
+   }
+
+   protected void convertToSkeletonType(EntityType<? extends AbstractSkeletonEntity> mob) {
+      AbstractSkeletonEntity skeleton = this.convertTo(mob, true);
+      if (skeleton != null) {
+         if (skeleton instanceof BoggedEntity) {
+            skeleton.as(BoggedEntity.class).setBoggedType(BoggedType.WITHERED);
+            ((BoggedEntity)skeleton).regrowMushrooms();
+         }
+      }
+
    }
 
    protected SoundEvent getAmbientSound() {
@@ -49,7 +61,7 @@ public class WitherSkeletonEntity extends AbstractSkeletonEntity {
       return SoundEvents.WITHER_SKELETON_DEATH;
    }
 
-   SoundEvent getStepSound() {
+   public SoundEvent getStepSound() {
       return SoundEvents.WITHER_SKELETON_STEP;
    }
 
@@ -104,6 +116,11 @@ public class WitherSkeletonEntity extends AbstractSkeletonEntity {
    }
 
    public boolean canBeAffected(EffectInstance p_70687_1_) {
-      return p_70687_1_.getEffect() == Effects.WITHER ? false : super.canBeAffected(p_70687_1_);
+      return super.canBeAffected(p_70687_1_);
+   }
+
+   @Override
+   public void onCrossbowAttackPerformed() {
+      this.noActionTime = 0;
    }
 }

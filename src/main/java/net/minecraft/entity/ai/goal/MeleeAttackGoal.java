@@ -1,6 +1,8 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Creature;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,7 +26,7 @@ public class MeleeAttackGoal extends Goal {
    public MeleeAttackGoal(Creature p_i1636_1_, double speed, boolean followTargetEvenIfNotSeen) {
       this.mob = p_i1636_1_;
       this.speedModifier = speed;
-      this.followingTargetEvenIfNotSeen = followTargetEvenIfNotSeen;
+      this.followingTargetEvenIfNotSeen = this.mob.veryHardmode() && Minecraft.getInstance().options.mobsSeeThroughWalls || followTargetEvenIfNotSeen;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
    }
 
@@ -84,27 +86,29 @@ public class MeleeAttackGoal extends Goal {
 
    public void tick() {
       LivingEntity livingentity = this.mob.getTarget();
-      this.mob.getLookControl().setLookAt(livingentity, 30.0F, 30.0F);
-      double d0 = this.mob.distanceToSqr(livingentity.getX(), livingentity.getY(), livingentity.getZ());
-      this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
-      if ((this.followingTargetEvenIfNotSeen || this.mob.getSensing().canSee(livingentity)) && this.ticksUntilNextPathRecalculation <= 0 && (this.pathedTargetX == 0.0D && this.pathedTargetY == 0.0D && this.pathedTargetZ == 0.0D || livingentity.distanceToSqr(this.pathedTargetX, this.pathedTargetY, this.pathedTargetZ) >= 1.0D || this.mob.getRandom().nextFloat() < 0.05F)) {
-         this.pathedTargetX = livingentity.getX();
-         this.pathedTargetY = livingentity.getY();
-         this.pathedTargetZ = livingentity.getZ();
-         this.ticksUntilNextPathRecalculation = 4 + this.mob.getRandom().nextInt(7);
-         if (d0 > 1024.0D) {
-            this.ticksUntilNextPathRecalculation += 10;
-         } else if (d0 > 256.0D) {
-            this.ticksUntilNextPathRecalculation += 5;
+      if (livingentity != null) {
+         this.mob.getLookControl().setLookAt(livingentity, 30.0F, 30.0F);
+         double d0 = this.mob.distanceToSqr(livingentity.getX(), livingentity.getY(), livingentity.getZ());
+         this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
+         if ((this.followingTargetEvenIfNotSeen || this.mob.getSensing().canSee(livingentity)) && this.ticksUntilNextPathRecalculation <= 0 && (this.pathedTargetX == 0.0D && this.pathedTargetY == 0.0D && this.pathedTargetZ == 0.0D || livingentity.distanceToSqr(this.pathedTargetX, this.pathedTargetY, this.pathedTargetZ) >= 1.0D || this.mob.getRandom().nextFloat() < 0.05F)) {
+            this.pathedTargetX = livingentity.getX();
+            this.pathedTargetY = livingentity.getY();
+            this.pathedTargetZ = livingentity.getZ();
+            this.ticksUntilNextPathRecalculation = 4 + this.mob.getRandom().nextInt(7);
+            if (d0 > 1024.0D) {
+               this.ticksUntilNextPathRecalculation += 10;
+            } else if (d0 > 256.0D) {
+               this.ticksUntilNextPathRecalculation += 5;
+            }
+
+            if (!this.mob.getNavigation().moveTo(livingentity, this.speedModifier)) {
+               this.ticksUntilNextPathRecalculation += 15;
+            }
          }
 
-         if (!this.mob.getNavigation().moveTo(livingentity, this.speedModifier)) {
-            this.ticksUntilNextPathRecalculation += 15;
-         }
+         this.ticksUntilNextAttack = Math.max(this.ticksUntilNextAttack - 1, 0);
+         this.checkAndPerformAttack(livingentity, d0);
       }
-
-      this.ticksUntilNextAttack = Math.max(this.ticksUntilNextAttack - 1, 0);
-      this.checkAndPerformAttack(livingentity, d0);
    }
 
    protected void checkAndPerformAttack(LivingEntity p_190102_1_, double p_190102_2_) {

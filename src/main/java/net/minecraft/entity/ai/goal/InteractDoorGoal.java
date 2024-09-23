@@ -62,6 +62,9 @@ public abstract class InteractDoorGoal extends Goal {
                this.doorPos = new BlockPos(pathpoint.x, pathpoint.y + 1, pathpoint.z);
                if (!(this.mob.distanceToSqr((double)this.doorPos.getX(), this.mob.getY(), (double)this.doorPos.getZ()) > 2.25D)) {
                   this.hasDoor = DoorBlock.isWoodenDoor(this.mob.level, this.doorPos);
+                  if (this.mob.veryHardmode()) {
+                     this.hasDoor = DoorBlock.isAnyDoor(this.mob.level, this.doorPos);
+                  }
                   if (this.hasDoor) {
                      return true;
                   }
@@ -70,6 +73,9 @@ public abstract class InteractDoorGoal extends Goal {
 
             this.doorPos = this.mob.blockPosition().above();
             this.hasDoor = DoorBlock.isWoodenDoor(this.mob.level, this.doorPos);
+            if (this.mob.veryHardmode()) {
+               this.hasDoor = DoorBlock.isAnyDoor(this.mob.level, this.doorPos);
+            }
             return this.hasDoor;
          } else {
             return false;

@@ -806,6 +806,15 @@ public class BlockModelProvider {
       this.blockStateOutput.accept(FinishedVariantBlockState.multiVariant(Blocks.FROSTED_ICE).with(BlockStateVariantBuilder.property(BlockStateProperties.AGE_3).select(0, BlockModelDefinition.variant().with(BlockModelFields.MODEL, this.createSuffixedVariant(Blocks.FROSTED_ICE, "_0", StockModelShapes.CUBE_ALL, ModelTextures::cube))).select(1, BlockModelDefinition.variant().with(BlockModelFields.MODEL, this.createSuffixedVariant(Blocks.FROSTED_ICE, "_1", StockModelShapes.CUBE_ALL, ModelTextures::cube))).select(2, BlockModelDefinition.variant().with(BlockModelFields.MODEL, this.createSuffixedVariant(Blocks.FROSTED_ICE, "_2", StockModelShapes.CUBE_ALL, ModelTextures::cube))).select(3, BlockModelDefinition.variant().with(BlockModelFields.MODEL, this.createSuffixedVariant(Blocks.FROSTED_ICE, "_3", StockModelShapes.CUBE_ALL, ModelTextures::cube)))));
    }
 
+   private void createCooledMagma() {
+      this.blockStateOutput.accept(FinishedVariantBlockState.multiVariant(Blocks.COOLED_MAGMA)
+              .with(BlockStateVariantBuilder.property(BlockStateProperties.AGE_3)
+                      .select(0, BlockModelDefinition.variant().with(BlockModelFields.MODEL, this.createSuffixedVariant(Blocks.COOLED_MAGMA, "_0", StockModelShapes.CUBE_ALL, ModelTextures::cube)))
+                      .select(1, BlockModelDefinition.variant().with(BlockModelFields.MODEL, this.createSuffixedVariant(Blocks.COOLED_MAGMA, "_1", StockModelShapes.CUBE_ALL, ModelTextures::cube)))
+                      .select(2, BlockModelDefinition.variant().with(BlockModelFields.MODEL, this.createSuffixedVariant(Blocks.COOLED_MAGMA, "_2", StockModelShapes.CUBE_ALL, ModelTextures::cube)))
+                      .select(3, BlockModelDefinition.variant().with(BlockModelFields.MODEL, this.createSuffixedVariant(Blocks.COOLED_MAGMA, "_3", StockModelShapes.CUBE_ALL, ModelTextures::cube)))));
+   }
+
    private void createGrassBlocks() {
       ResourceLocation resourcelocation = ModelTextures.getBlockTexture(Blocks.DIRT);
       ModelTextures modeltextures = (new ModelTextures()).put(StockTextureAliases.BOTTOM, resourcelocation).copyForced(StockTextureAliases.BOTTOM, StockTextureAliases.PARTICLE).put(StockTextureAliases.TOP, ModelTextures.getBlockTexture(Blocks.GRASS_BLOCK, "_top")).put(StockTextureAliases.SIDE, ModelTextures.getBlockTexture(Blocks.GRASS_BLOCK, "_snow"));
@@ -1254,6 +1263,7 @@ public class BlockModelProvider {
       this.createFire();
       this.createSoulFire();
       this.createFrostedIce();
+      this.createCooledMagma();
       this.createGrassBlocks();
       this.createCocoa();
       this.createGrassPath();

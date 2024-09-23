@@ -10,13 +10,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -152,8 +146,10 @@ public class VanillaPack implements IResourcePack {
          }).map((p_229866_2_) -> {
             return new ResourceLocation(p_229867_2_, path.relativize(p_229866_2_).toString().replaceAll("\\\\", "/"));
          }).forEach(p_229867_0_::add);
+      } catch (ClosedFileSystemException e) {
+         // Handle the closed file system, possibly by reopening it or logging the error
+         LOGGER.error("File system was closed prematurely", e);
       }
-
    }
 
    @Nullable

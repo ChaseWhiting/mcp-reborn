@@ -11,12 +11,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
@@ -135,14 +133,21 @@ public class SkeletonHorseEntity extends AbstractHorseEntity {
    public void setTrap(boolean p_190691_1_) {
       if (p_190691_1_ != this.isTrap) {
          this.isTrap = p_190691_1_;
+         MinecraftServer server = this.level.getServer();
+         TickDelayedTaskMap<String> taskMap = new TickDelayedTaskMap<>(server);
          if (p_190691_1_) {
-            this.goalSelector.addGoal(1, this.skeletonTrapGoal);
+            taskMap.put("task", new TickDelayedTask(server.getTickCount(), () -> {
+               this.goalSelector.addGoal(1, this.skeletonTrapGoal);
+            }));
          } else {
-            this.goalSelector.removeGoal(this.skeletonTrapGoal);
+            taskMap.put("task", new TickDelayedTask(server.getTickCount(), () -> {
+               this.goalSelector.removeGoal(this.skeletonTrapGoal);
+            }));
          }
-
+         taskMap.execute("task");
       }
    }
+
 
    @Nullable
    public AgeableEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {

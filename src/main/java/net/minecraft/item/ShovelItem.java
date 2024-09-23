@@ -29,6 +29,7 @@ public class ShovelItem extends ToolItem {
       return p_150897_1_.is(Blocks.SNOW) || p_150897_1_.is(Blocks.SNOW_BLOCK);
    }
 
+
    public ActionResultType useOn(ItemUseContext p_195939_1_) {
       World world = p_195939_1_.getLevel();
       BlockPos blockpos = p_195939_1_.getClickedPos();

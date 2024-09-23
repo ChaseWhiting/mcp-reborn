@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.color;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.IDyeableArmorItem;
@@ -76,13 +77,44 @@ public class ItemColors {
          BlockState blockstate = ((BlockItem)p_210235_1_.getItem()).getBlock().defaultBlockState();
          return p_186729_0_.getColor(blockstate, (IBlockDisplayReader)null, (BlockPos)null, p_210235_2_);
       }, Blocks.GRASS_BLOCK, Blocks.GRASS, Blocks.FERN, Blocks.VINE, Blocks.OAK_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.BIRCH_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.LILY_PAD);
-      itemcolors.register((p_210242_0_, p_210242_1_) -> {
-         return p_210242_1_ == 0 ? PotionUtils.getColor(p_210242_0_) : -1;
+      itemcolors.register((stack, v1) -> {
+         return v1 == 0 ? PotionUtils.getColor(stack) : -1;
       }, Items.TIPPED_ARROW);
+
       itemcolors.register((p_210237_0_, p_210237_1_) -> {
          return p_210237_1_ == 0 ? -1 : FilledMapItem.getColor(p_210237_0_);
       }, Items.FILLED_MAP);
+
+
+
+//      itemcolors.register((stack, tintIndex) -> {
+//         if (tintIndex == 1) {  // layer1 (the overlay)
+//            int baseColor = BundleItem.getBarColor();
+//            double weightPercentage = getBundleWeightPercentage(stack);
+//
+//            // Extract RGB components from baseColor
+//            int red = (baseColor >> 16) & 0xFF;
+//            int green = (baseColor >> 8) & 0xFF;
+//            int blue = baseColor & 0xFF;
+//
+//            // Apply the weight percentage to the color intensity
+//            red = (int) (red * weightPercentage);
+//            green = (int) (green * weightPercentage);
+//            blue = (int) (blue * weightPercentage);
+//
+//            // Recombine the RGB components into a single int color
+//            return (red << 16) | (green << 8) | blue;
+//         }
+//         return -1;  // No tint for layer0
+//      }, Items.BUNDLE);
+
+
+
       return itemcolors;
+   }
+
+   public static int getBundleWeightPercentage(ItemStack stack) {
+      return BundleItem.getContentWeight(stack);
    }
 
    public int getColor(ItemStack p_186728_1_, int p_186728_2_) {

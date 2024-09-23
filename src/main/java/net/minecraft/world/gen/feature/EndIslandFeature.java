@@ -13,19 +13,19 @@ public class EndIslandFeature extends Feature<NoFeatureConfig> {
       super(p_i231952_1_);
    }
 
-   public boolean place(ISeedReader p_241855_1_, ChunkGenerator p_241855_2_, Random p_241855_3_, BlockPos p_241855_4_, NoFeatureConfig p_241855_5_) {
-      float f = (float)(p_241855_3_.nextInt(3) + 4);
+   public boolean place(ISeedReader world, ChunkGenerator chunk, Random random, BlockPos pos, NoFeatureConfig config) {
+      float f = (float)(random.nextInt(3) + 4);
 
       for(int i = 0; f > 0.5F; --i) {
          for(int j = MathHelper.floor(-f); j <= MathHelper.ceil(f); ++j) {
             for(int k = MathHelper.floor(-f); k <= MathHelper.ceil(f); ++k) {
                if ((float)(j * j + k * k) <= (f + 1.0F) * (f + 1.0F)) {
-                  this.setBlock(p_241855_1_, p_241855_4_.offset(j, i, k), Blocks.END_STONE.defaultBlockState());
+                  this.setBlock(world, pos.offset(j, i, k), Blocks.END_STONE.defaultBlockState());
                }
             }
          }
 
-         f = (float)((double)f - ((double)p_241855_3_.nextInt(2) + 0.5D));
+         f = (float)((double)f - ((double)random.nextInt(2) + 0.5D));
       }
 
       return true;

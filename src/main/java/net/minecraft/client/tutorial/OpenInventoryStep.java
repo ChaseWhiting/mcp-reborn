@@ -3,7 +3,7 @@ package net.minecraft.client.tutorial;
 import net.minecraft.client.gui.toasts.TutorialToast;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -21,7 +21,7 @@ public class OpenInventoryStep implements ITutorialStep {
 
    public void tick() {
       ++this.timeWaiting;
-      if (this.tutorial.getGameMode() != GameType.SURVIVAL) {
+      if (this.tutorial.getGameMode() != Gamemode.SURVIVAL) {
          this.tutorial.setStep(TutorialSteps.NONE);
       } else {
          if (this.timeWaiting >= 600 && this.toast == null) {

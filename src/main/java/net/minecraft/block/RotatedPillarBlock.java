@@ -16,20 +16,14 @@ public class RotatedPillarBlock extends Block {
    }
 
    public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      switch(p_185499_2_) {
-      case COUNTERCLOCKWISE_90:
-      case CLOCKWISE_90:
-         switch((Direction.Axis)p_185499_1_.getValue(AXIS)) {
-         case X:
-            return p_185499_1_.setValue(AXIS, Direction.Axis.Z);
-         case Z:
-            return p_185499_1_.setValue(AXIS, Direction.Axis.X);
-         default:
-            return p_185499_1_;
-         }
-      default:
-         return p_185499_1_;
-      }
+       return switch (p_185499_2_) {
+           case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch ((Direction.Axis) p_185499_1_.getValue(AXIS)) {
+               case X -> p_185499_1_.setValue(AXIS, Direction.Axis.Z);
+               case Z -> p_185499_1_.setValue(AXIS, Direction.Axis.X);
+               default -> p_185499_1_;
+           };
+           default -> p_185499_1_;
+       };
    }
 
    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {

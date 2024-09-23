@@ -54,11 +54,11 @@ public class PlaceCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("place")
                 .requires((p_214560_) -> p_214560_.hasPermission(2))
-//                .then(Commands.literal("feature")
-//                        .then(Commands.argument("feature", ResourceLocationArgument.id())
-//                                .executes((p_274824_) -> placeFeature(p_274824_.getSource(), ResourceLocationArgument.getId(p_274824_, "feature"), BlockPosArgument.getLoadedBlockPos(p_274824_, "pos")))
-//                        )
-//                )
+                .then(Commands.literal("feature")
+                        .then(Commands.argument("feature", ResourceLocationArgument.id())
+                                .executes((p_274824_) -> placeFeature(p_274824_.getSource(), ResourceLocationArgument.getId(p_274824_, "feature"), BlockPosArgument.getLoadedBlockPos(p_274824_, "pos")))
+                        )
+                )
                 .then(Commands.literal("structure")
                         .then(Commands.argument("structure", ResourceLocationArgument.id())
                                 .executes((p_274826_) -> placeStructure(p_274826_, p_274826_.getSource(), ResourceLocationArgument.getId(p_274826_, "structure"), BlockPosArgument.getLoadedBlockPos(p_274826_, "pos")))
@@ -66,6 +66,7 @@ public class PlaceCommand {
                 )
                 .then(Commands.literal("template")
                         .then(Commands.argument("template", ResourceLocationArgument.id())
+                                .then(Commands.argument("pos", BlockPosArgument.blockPos()))
                                 .suggests(SUGGEST_TEMPLATES)
                                 .executes((p_274827_) -> placeTemplate(p_274827_.getSource(), ResourceLocationArgument.getId(p_274827_, "template"), BlockPosArgument.getLoadedBlockPos(p_274827_, "pos"), Rotation.NONE, Mirror.NONE, 1.0F, 0))
                         )
@@ -73,15 +74,13 @@ public class PlaceCommand {
         );
     }
 
-//    private static int placeFeature(CommandSource source, ResourceLocation feature, BlockPos pos) throws CommandSyntaxException {
-//        ServerWorld world = source.getLevel();
-//        ConfiguredFeature<?, ?> configuredFeature = world.getStructureManager().get(feature).orElseThrow(() -> ERROR_FEATURE_FAILED.create());
-//        if (!configuredFeature.place(world, world.getChunkSource().getGenerator(), world.random, pos)) {
-//            throw ERROR_FEATURE_FAILED.create();
-//        }
-//        source.sendSuccess(new TranslationTextComponent("commands.place.feature.success", feature, pos.getX(), pos.getY(), pos.getZ()), true);
-//        return 1;
-//    }
+    private static int placeFeature(CommandSource source, ResourceLocation feature, BlockPos pos) throws CommandSyntaxException {
+        ServerWorld world = source.getLevel();
+        Template configuredFeature = world.getStructureManager().get(feature);
+        configuredFeature.placeInWorld(world, pos, new PlacementSettings(), world.random);
+        source.sendSuccess(new TranslationTextComponent("commands.place.feature.success", feature, pos.getX(), pos.getY(), pos.getZ()), true);
+        return 1;
+    }
 
     private static int placeStructure(CommandContext context, CommandSource source, ResourceLocation structure, BlockPos pos) throws CommandSyntaxException {
         ServerWorld world = source.getLevel();
@@ -94,7 +93,7 @@ public class PlaceCommand {
         long seed = world.getSeed();
         ChunkPos chunkPos = new ChunkPos(pos);
         Biome biome = world.getBiome(pos);
-        SharedSeedRandom sharedSeedRandom = new SharedSeedRandom();
+        SharedSeedRandom sharedSeedRandom = new SharedSeedRandom(seed);
         sharedSeedRandom.setLargeFeatureSeed(seed, chunkPos.x, chunkPos.z);
         StructureSeparationSettings structureSeparationSettings = chunkGenerator.getSettings().getConfig(structureTemplate);
 
@@ -126,22 +125,30 @@ public class PlaceCommand {
         try {
             ServerWorld world = source.getLevel();
             TemplateManager templateManager = world.getStructureManager();
-            Optional<Template> optional = Optional.of(templateManager.getTemplate(template));
+            Optional<Template> optional = Optional.ofNullable(templateManager.getTemplate(template));
+
             if (optional.isEmpty()) {
                 throw ERROR_TEMPLATE_INVALID.create(template);
             }
+
             Template structureTemplate = optional.get();
             PlacementSettings placementSettings = new PlacementSettings().setRotation(rotation).setMirror(mirror);
-//        if (integrity < 1.0F) {
-//            placementSettings.clearProcessors().addProcessor(new BlockRotProcessor(integrity)).setRandom(StructureBlockTileEntity.createRandom(seed));
-//        }
-            if (!structureTemplate.placeInWorld(world, pos, pos, placementSettings, StructureBlockTileEntity.createRandom(seed), 2)) {
+            boolean success = structureTemplate.placeInWorld(world, pos, pos, placementSettings, StructureBlockTileEntity.createRandom(seed), 2);
+
+            if (!success) {
                 throw ERROR_TEMPLATE_FAILED.create();
             }
+
             source.sendSuccess(new TranslationTextComponent("commands.place.template.success", template, pos.getX(), pos.getY(), pos.getZ()), true);
             return 1;
+
         } catch (CommandSyntaxException e) {
             e.printStackTrace();
+            throw e; // Re-throw the exception after logging it
+        } catch (Exception e) {
+            // Catch any other exceptions that might occur
+            e.printStackTrace();
+            source.sendFailure(new TranslationTextComponent("commands.place.template.failed"));
         }
         return 0;
     }

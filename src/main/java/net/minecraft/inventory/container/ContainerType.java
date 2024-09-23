@@ -2,6 +2,7 @@ package net.minecraft.inventory.container;
 
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.villager.data.quest.QuestManager;
+
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,6 +35,7 @@ public class ContainerType<T extends Container> {
    public static final ContainerType<SmokerContainer> SMOKER = register("smoker", SmokerContainer::new);
    public static final ContainerType<CartographyContainer> CARTOGRAPHY_TABLE = register("cartography_table", CartographyContainer::new);
    public static final ContainerType<StonecutterContainer> STONECUTTER = register("stonecutter", StonecutterContainer::new);
+
    private final ContainerType.IFactory<T> constructor;
 
    private static <T extends Container> ContainerType<T> register(String p_221505_0_, ContainerType.IFactory<T> p_221505_1_) {

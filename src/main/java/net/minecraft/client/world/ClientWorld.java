@@ -60,7 +60,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.EmptyTickList;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.ITickList;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -70,6 +70,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.level.ColorResolver;
+import net.minecraft.world.level.GameEvent;
 import net.minecraft.world.storage.ISpawnWorldInfo;
 import net.minecraft.world.storage.MapData;
 import net.minecraftforge.api.distmarker.Dist;
@@ -337,7 +338,7 @@ public class ClientWorld extends World {
       int i = 32;
       Random random = new Random();
       boolean flag = false;
-      if (this.minecraft.gameMode.getPlayerMode() == GameType.CREATIVE) {
+      if (this.minecraft.gameMode.getPlayerMode() == Gamemode.CREATIVE) {
          for(ItemStack itemstack : this.minecraft.player.getHandSlots()) {
             if (itemstack.getItem() == Blocks.BARRIER.asItem()) {
                flag = true;
@@ -550,6 +551,10 @@ public class ClientWorld extends World {
       this.levelRenderer.globalLevelEvent(p_175669_1_, p_175669_2_, p_175669_3_);
    }
 
+   public void globalGameEvent(GameEvent p_175669_1_, BlockPos p_175669_2_, int p_175669_3_) {
+      this.levelRenderer.globalGameEvent(p_175669_1_, p_175669_2_, p_175669_3_);
+   }
+
    public void levelEvent(@Nullable PlayerEntity p_217378_1_, int p_217378_2_, BlockPos p_217378_3_, int p_217378_4_) {
       try {
          this.levelRenderer.levelEvent(p_217378_1_, p_217378_2_, p_217378_3_, p_217378_4_);
@@ -560,6 +565,26 @@ public class ClientWorld extends World {
          crashreportcategory.setDetail("Event source", p_217378_1_);
          crashreportcategory.setDetail("Event type", p_217378_2_);
          crashreportcategory.setDetail("Event data", p_217378_4_);
+         throw new ReportedException(crashreport);
+      }
+   }
+
+   public void onGameEvent(GameEvent gameEvent, BlockPos position, @Nullable PlayerEntity player) {
+
+   }
+
+   @Override
+   public void gameEvent(@Nullable PlayerEntity player, GameEvent event, BlockPos position, int eventData) {
+      try {
+         this.levelRenderer.gameEvent(player, event, position, eventData);
+         this.onGameEvent(event, position, player);
+      } catch (Throwable throwable) {
+         CrashReport crashreport = CrashReport.forThrowable(throwable, "Playing level event");
+         CrashReportCategory crashreportcategory = crashreport.addCategory("Level event being played");
+         crashreportcategory.setDetail("Block coordinates", CrashReportCategory.formatLocation(position));
+         crashreportcategory.setDetail("Event source", player);
+         crashreportcategory.setDetail("Event type", event);
+         crashreportcategory.setDetail("Event data", eventData);
          throw new ReportedException(crashreport);
       }
    }

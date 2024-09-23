@@ -32,37 +32,44 @@ public class BipedModel<T extends LivingEntity> extends AgeableModel<T> implemen
       this(RenderType::entityCutoutNoCull, p_i1148_1_, 0.0F, 64, 32);
    }
 
-   protected BipedModel(float p_i1149_1_, float p_i1149_2_, int p_i1149_3_, int p_i1149_4_) {
-      this(RenderType::entityCutoutNoCull, p_i1149_1_, p_i1149_2_, p_i1149_3_, p_i1149_4_);
+   public BipedModel(float scale, float yOffset, int textureWidth, int textureHeight) {
+      this(RenderType::entityCutoutNoCull, scale, yOffset, textureWidth, textureHeight);
    }
 
-   public BipedModel(Function<ResourceLocation, RenderType> p_i225946_1_, float p_i225946_2_, float p_i225946_3_, int p_i225946_4_, int p_i225946_5_) {
-      super(p_i225946_1_, true, 16.0F, 0.0F, 2.0F, 2.0F, 24.0F);
-      this.texWidth = p_i225946_4_;
-      this.texHeight = p_i225946_5_;
+   public BipedModel(Function<ResourceLocation, RenderType> renderTypeFunction, float scale, float yOffset, int textureWidth, int textureHeight) {
+      super(renderTypeFunction, true, 16.0F, 0.0F, 2.0F, 2.0F, 24.0F);
+      this.texWidth = textureWidth;
+      this.texHeight = textureHeight;
+
       this.head = new ModelRenderer(this, 0, 0);
-      this.head.addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, p_i225946_2_);
-      this.head.setPos(0.0F, 0.0F + p_i225946_3_, 0.0F);
+      this.head.addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, scale);
+      this.head.setPos(0.0F, 0.0F + yOffset, 0.0F);
+
       this.hat = new ModelRenderer(this, 32, 0);
-      this.hat.addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, p_i225946_2_ + 0.5F);
-      this.hat.setPos(0.0F, 0.0F + p_i225946_3_, 0.0F);
+      this.hat.addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, scale + 0.5F);
+      this.hat.setPos(0.0F, 0.0F + yOffset, 0.0F);
+
       this.body = new ModelRenderer(this, 16, 16);
-      this.body.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, p_i225946_2_);
-      this.body.setPos(0.0F, 0.0F + p_i225946_3_, 0.0F);
+      this.body.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, scale);
+      this.body.setPos(0.0F, 0.0F + yOffset, 0.0F);
+
       this.rightArm = new ModelRenderer(this, 40, 16);
-      this.rightArm.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i225946_2_);
-      this.rightArm.setPos(-5.0F, 2.0F + p_i225946_3_, 0.0F);
+      this.rightArm.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
+      this.rightArm.setPos(-5.0F, 2.0F + yOffset, 0.0F);
+
       this.leftArm = new ModelRenderer(this, 40, 16);
       this.leftArm.mirror = true;
-      this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i225946_2_);
-      this.leftArm.setPos(5.0F, 2.0F + p_i225946_3_, 0.0F);
+      this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
+      this.leftArm.setPos(5.0F, 2.0F + yOffset, 0.0F);
+
       this.rightLeg = new ModelRenderer(this, 0, 16);
-      this.rightLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i225946_2_);
-      this.rightLeg.setPos(-1.9F, 12.0F + p_i225946_3_, 0.0F);
+      this.rightLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
+      this.rightLeg.setPos(-1.9F, 12.0F + yOffset, 0.0F);
+
       this.leftLeg = new ModelRenderer(this, 0, 16);
       this.leftLeg.mirror = true;
-      this.leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, p_i225946_2_);
-      this.leftLeg.setPos(1.9F, 12.0F + p_i225946_3_, 0.0F);
+      this.leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
+      this.leftLeg.setPos(1.9F, 12.0F + yOffset, 0.0F);
    }
 
    protected Iterable<ModelRenderer> headParts() {

@@ -249,6 +249,9 @@ public class WolfEntity extends TameableEntity implements IAngerable {
       this.targetSelector.addGoal(3, (new HurtByTargetGoal(this)).setAlertOthers());
       this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::isAngryAt));
       this.targetSelector.addGoal(5, new NonTamedTargetGoal<>(this, Animal.class, false, PREY_SELECTOR));
+      this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Mob.class, 12, false, true, entity -> {
+         return this.getOwner() != null && entity.as(Mob.class).getTarget() == this.getOwner();
+      }));
       this.targetSelector.addGoal(6, new NonTamedTargetGoal<>(this, TurtleEntity.class, false, TurtleEntity.BABY_ON_LAND_SELECTOR));
       this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 12, true, false, this::isShaman));
       this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, 12, true, false, this::isShaman));

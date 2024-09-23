@@ -195,6 +195,19 @@ public class Features {
    public static final ConfiguredFeature<?, ?> HUGE_BROWN_MUSHROOM = register("huge_brown_mushroom", Feature.HUGE_BROWN_MUSHROOM.configured(new BigMushroomFeatureConfig(new SimpleBlockStateProvider(Features.States.HUGE_BROWN_MUSHROOM), new SimpleBlockStateProvider(Features.States.HUGE_MUSHROOM_STEM), 3)));
    public static final ConfiguredFeature<?, ?> HUGE_RED_MUSHROOM = register("huge_red_mushroom", Feature.HUGE_RED_MUSHROOM.configured(new BigMushroomFeatureConfig(new SimpleBlockStateProvider(Features.States.HUGE_RED_MUSHROOM), new SimpleBlockStateProvider(Features.States.HUGE_MUSHROOM_STEM), 2)));
    public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> OAK = register("oak", Feature.TREE.configured((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.OAK_LOG), new SimpleBlockStateProvider(Features.States.OAK_LEAVES), new BlobFoliagePlacer(FeatureSpread.fixed(2), FeatureSpread.fixed(0), 3), new StraightTrunkPlacer(4, 2, 0), new TwoLayerFeature(1, 0, 1))).ignoreVines().build()));
+   public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> REALISTIC_OAK = register("realistic_oak",
+           Feature.TREE.configured(
+                   new BaseTreeFeatureConfig.Builder(
+                           new SimpleBlockStateProvider(Features.States.OAK_LOG),
+                           new SimpleBlockStateProvider(Features.States.OAK_LEAVES),
+                           new BlobFoliagePlacer(FeatureSpread.fixed(3), FeatureSpread.fixed(1), 4),
+                           new StraightTrunkPlacer(6, 3, 1),
+                           new TwoLayerFeature(2, 0, 2))
+                           .ignoreVines()
+                           .build()
+           )
+   );
+
    public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> DARK_OAK = register("dark_oak", Feature.TREE.configured((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.DARK_OAK_LOG), new SimpleBlockStateProvider(Features.States.DARK_OAK_LEAVES), new DarkOakFoliagePlacer(FeatureSpread.fixed(0), FeatureSpread.fixed(0)), new DarkOakTrunkPlacer(6, 2, 1), new ThreeLayerFeature(1, 1, 0, 1, 2, OptionalInt.empty()))).maxWaterDepth(Integer.MAX_VALUE).heightmap(Heightmap.Type.MOTION_BLOCKING).ignoreVines().build()));
    public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> BIRCH = register("birch", Feature.TREE.configured((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.BIRCH_LOG), new SimpleBlockStateProvider(Features.States.BIRCH_LEAVES), new BlobFoliagePlacer(FeatureSpread.fixed(2), FeatureSpread.fixed(0), 3), new StraightTrunkPlacer(5, 2, 0), new TwoLayerFeature(1, 0, 1))).ignoreVines().build()));
    public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> ACACIA = register("acacia", Feature.TREE.configured((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.ACACIA_LOG), new SimpleBlockStateProvider(Features.States.ACACIA_LEAVES), new AcaciaFoliagePlacer(FeatureSpread.fixed(2), FeatureSpread.fixed(0)), new ForkyTrunkPlacer(5, 2, 2), new TwoLayerFeature(1, 0, 2))).ignoreVines().build()));
@@ -246,7 +259,7 @@ public class Features {
    }, () -> {
       return Feature.CORAL_MUSHROOM.configured(IFeatureConfig.NONE);
    }))).decorated(Features.Placements.TOP_SOLID_HEIGHTMAP).squared().decorated(Placement.COUNT_NOISE_BIASED.configured(new TopSolidWithNoiseConfig(20, 400.0D, 0.0D))));
-   public static final ConfiguredFeature<?, ?> FOREST_FLOWER_TREES = register("forest_flower_trees", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(BIRCH_BEES_002.weighted(0.2F), FANCY_OAK_BEES_002.weighted(0.1F)), OAK_BEES_002)).decorated(Features.Placements.HEIGHTMAP_SQUARE).decorated(Placement.COUNT_EXTRA.configured(new AtSurfaceWithExtraConfig(6, 0.1F, 1))));
+   public static final ConfiguredFeature<?, ?> FOREST_FLOWER_TREES = register("forest_flower_trees", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(BIRCH_BEES_002.weighted(0.2F), REALISTIC_OAK.weighted(0.08F), FANCY_OAK_BEES_002.weighted(0.1F)), OAK_BEES_002)).decorated(Features.Placements.HEIGHTMAP_SQUARE).decorated(Placement.COUNT_EXTRA.configured(new AtSurfaceWithExtraConfig(6, 0.1F, 1))));
    public static final ConfiguredFeature<?, ?> TAIGA_VEGETATION = register("taiga_vegetation", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(PINE.weighted(0.33333334F)), SPRUCE)).decorated(Features.Placements.HEIGHTMAP_SQUARE).decorated(Placement.COUNT_EXTRA.configured(new AtSurfaceWithExtraConfig(10, 0.1F, 1))));
    public static final ConfiguredFeature<?, ?> TREES_SHATTERED_SAVANNA = register("trees_shattered_savanna", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(ACACIA.weighted(0.8F)), OAK)).decorated(Features.Placements.HEIGHTMAP_SQUARE).decorated(Placement.COUNT_EXTRA.configured(new AtSurfaceWithExtraConfig(2, 0.1F, 1))));
    public static final ConfiguredFeature<?, ?> TREES_SAVANNA = register("trees_savanna", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(ACACIA.weighted(0.8F)), OAK)).decorated(Features.Placements.HEIGHTMAP_SQUARE).decorated(Placement.COUNT_EXTRA.configured(new AtSurfaceWithExtraConfig(1, 0.1F, 1))));

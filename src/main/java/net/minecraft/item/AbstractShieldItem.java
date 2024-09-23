@@ -1,6 +1,7 @@
 package net.minecraft.item;
 
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tags.ItemTags;
@@ -21,6 +22,13 @@ public class AbstractShieldItem extends ShieldItem {
       super(properties);
       this.shieldType = type;
       DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
+   }
+
+   public int getWeight(ItemStack bundle) {
+      return switch (shieldType) {
+          case DIAMOND -> 30;
+          case NETHERITE -> 40;
+      };
    }
 
    public String getShieldType() {

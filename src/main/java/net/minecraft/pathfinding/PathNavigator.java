@@ -158,7 +158,12 @@ public abstract class PathNavigator {
       return this.moveTo(this.createPath(p_75492_1_, p_75492_3_, p_75492_5_, 1), p_75492_7_);
    }
 
-   public boolean moveTo(Entity p_75497_1_, double p_75497_2_) {
+   public boolean moveTo(Vector3d vector3d, double speedModifier) {
+      return this.moveTo(this.createPath(vector3d.x, vector3d.y,vector3d.z, 1), speedModifier);
+   }
+
+   public boolean moveTo(@Nullable Entity p_75497_1_, double p_75497_2_) {
+      if (p_75497_1_ == null) return false;
       Path path = this.createPath(p_75497_1_, 1);
       return path != null && this.moveTo(path, p_75497_2_);
    }

@@ -150,11 +150,11 @@ public class GossipManager {
       }
 
       public <T> Dynamic<T> store(DynamicOps<T> p_234061_1_) {
-         return new Dynamic<>(p_234061_1_, p_234061_1_.createMap(ImmutableMap.of(p_234061_1_.createString("Target"), UUIDCodec.CODEC.encodeStart(p_234061_1_, this.target).result().orElseThrow(RuntimeException::new), p_234061_1_.createString("Type"), p_234061_1_.createString(this.type.id), p_234061_1_.createString("Value"), p_234061_1_.createInt(this.value))));
+         return new Dynamic<>(p_234061_1_, p_234061_1_.createMap(ImmutableMap.of(p_234061_1_.createString("Target"), UUIDCodec.CODEC.encodeStart(p_234061_1_, this.target).result().orElseThrow(RuntimeException::new), p_234061_1_.createString("BoggedType"), p_234061_1_.createString(this.type.id), p_234061_1_.createString("Value"), p_234061_1_.createInt(this.value))));
       }
 
       public static DataResult<GossipManager.GossipEntry> load(Dynamic<?> p_234060_0_) {
-         return DataResult.unbox(DataResult.instance().group(p_234060_0_.get("Target").read(UUIDCodec.CODEC), p_234060_0_.get("Type").asString().map(GossipType::byId), p_234060_0_.get("Value").asNumber().map(Number::intValue)).apply(DataResult.instance(), GossipManager.GossipEntry::new));
+         return DataResult.unbox(DataResult.instance().group(p_234060_0_.get("Target").read(UUIDCodec.CODEC), p_234060_0_.get("BoggedType").asString().map(GossipType::byId), p_234060_0_.get("Value").asNumber().map(Number::intValue)).apply(DataResult.instance(), GossipManager.GossipEntry::new));
       }
    }
 

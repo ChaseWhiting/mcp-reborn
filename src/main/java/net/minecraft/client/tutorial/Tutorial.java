@@ -14,7 +14,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.KeybindTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -128,8 +128,8 @@ public class Tutorial {
       return this.minecraft;
    }
 
-   public GameType getGameMode() {
-      return this.minecraft.gameMode == null ? GameType.NOT_SET : this.minecraft.gameMode.getPlayerMode();
+   public Gamemode getGameMode() {
+      return this.minecraft.gameMode == null ? Gamemode.NOT_SET : this.minecraft.gameMode.getPlayerMode();
    }
 
    public static ITextComponent key(String p_193291_0_) {

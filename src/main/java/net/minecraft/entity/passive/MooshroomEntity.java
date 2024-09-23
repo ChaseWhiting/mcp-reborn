@@ -141,7 +141,9 @@ public class MooshroomEntity extends CowEntity implements IShearable {
    }
 
    public void shear(SoundCategory p_230263_1_) {
-      this.level.playSound((PlayerEntity)null, this, SoundEvents.MOOSHROOM_SHEAR, p_230263_1_, 1.0F, 1.0F);
+      if (this.level.isClientSide) {
+         this.level.playSound((PlayerEntity)null, this, SoundEvents.MOOSHROOM_SHEAR, p_230263_1_, 1.0F, 1.0F);
+      }
       if (!this.level.isClientSide()) {
          ((ServerWorld)this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5D), this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
          this.remove();
@@ -174,7 +176,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
-      p_213281_1_.putString("Type", this.getMushroomType().type);
+      p_213281_1_.putString("BoggedType", this.getMushroomType().type);
       if (this.effect != null) {
          p_213281_1_.putByte("EffectId", (byte)Effect.getId(this.effect));
          p_213281_1_.putInt("EffectDuration", this.effectDuration);
@@ -184,7 +186,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
 
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
       super.readAdditionalSaveData(p_70037_1_);
-      this.setMushroomType(MooshroomEntity.Type.byType(p_70037_1_.getString("Type")));
+      this.setMushroomType(MooshroomEntity.Type.byType(p_70037_1_.getString("BoggedType")));
       if (p_70037_1_.contains("EffectId", 1)) {
          this.effect = Effect.byId(p_70037_1_.getByte("EffectId"));
       }

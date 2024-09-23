@@ -12,7 +12,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.server.ServerWorld;
 
 public class VillagerHostilesSensor extends Sensor<LivingEntity> {
-   private static final ImmutableMap<EntityType<?>, Float> ACCEPTABLE_DISTANCE_FROM_HOSTILES = ImmutableMap.<EntityType<?>, Float>builder().put(EntityType.DROWNED, 8.0F).put(EntityType.EVOKER, 12.0F).put(EntityType.SHAMAN, 8.0F).put(EntityType.HUSK, 8.0F).put(EntityType.ILLUSIONER, 12.0F).put(EntityType.PILLAGER, 15.0F).put(EntityType.RAVAGER, 12.0F).put(EntityType.GILDED_RAVAGER, 16F).put(EntityType.VEX, 8.0F).put(EntityType.VINDICATOR, 10.0F).put(EntityType.ZOGLIN, 10.0F).put(EntityType.ZOMBIE, 8.0F).put(EntityType.ZOMBIE_VILLAGER, 8.0F).put(EntityType.MARAUDER, 16F).build();
+   private static final ImmutableMap<EntityType<?>, Float> ACCEPTABLE_DISTANCE_FROM_HOSTILES = ImmutableMap.<EntityType<?>, Float>builder().put(EntityType.DROWNED, 8.0F).put(EntityType.EVOKER, 12.0F).put(EntityType.SHAMAN, 8.0F).put(EntityType.HUSK, 8.0F).put(EntityType.ILLUSIONER, 12.0F).put(EntityType.PILLAGER, 15.0F).put(EntityType.RAVAGER, 12.0F).put(EntityType.GILDED_RAVAGER, 16F).put(EntityType.VEX, 8.0F).put(EntityType.VINDICATOR, 10.0F).put(EntityType.ZOGLIN, 10.0F).put(EntityType.ZOMBIE, 8.0F).put(EntityType.ZOMBIE_VILLAGER, 8.0F).put(EntityType.MARAUDER, 16F).put(EntityType.CREEPER, 6F).put(EntityType.SKELETON, 12F).put(EntityType.STRAY, 16F).put(EntityType.SPIDER, 12F).put(EntityType.CAVE_SPIDER, 13F).put(EntityType.BLAZE, 16F).put(EntityType.BOGGED, 13F).build();
 
    public Set<MemoryModuleType<?>> requires() {
       return ImmutableSet.of(MemoryModuleType.NEAREST_HOSTILE);

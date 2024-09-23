@@ -14,7 +14,7 @@ public class Start
          */
         String assets = System.getenv().containsKey("assetDirectory") ? System.getenv("assetDirectory") : "assets";
         Main.main(concat(new String[]{
-                "--version", "1.16.5",
+                "--version", "2.1.0",
                 "--accessToken", "0",
                 "--assetsDir", assets,
                 "--assetIndex", "1.16",

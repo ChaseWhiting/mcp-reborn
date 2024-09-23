@@ -374,6 +374,7 @@ public class DefaultBiomeFeatures {
       ambientSpawns(p_243741_0_);
       monsters(p_243741_0_, 95, 5, 20);
       p_243741_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.STRAY, 80, 4, 4));
+      p_243741_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 75, 3, 4));
    }
 
    public static void desertSpawns(MobSpawnInfo.Builder p_243743_0_) {
@@ -396,6 +397,7 @@ public class DefaultBiomeFeatures {
 
    public static void mooshroomSpawns(MobSpawnInfo.Builder p_243745_0_) {
       p_243745_0_.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.MOOSHROOM, 8, 4, 8));
+      p_243745_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 1, 1, 2));
       ambientSpawns(p_243745_0_);
    }
 

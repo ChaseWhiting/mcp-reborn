@@ -26,13 +26,13 @@ public class MinecraftVersion implements GameVersion {
 
    private MinecraftVersion() {
       this.id = UUID.randomUUID().toString().replaceAll("-", "");
-      this.name = "1.16.5";
+      this.name = "2.1.0";
       this.stable = true;
-      this.worldVersion = 2586;
+      this.worldVersion = 3000;
       this.protocolVersion = SharedConstants.getProtocolVersion();
       this.packVersion = 6;
       this.buildTime = new Date();
-      this.releaseTarget = "1.16.5";
+      this.releaseTarget = "2.1.0";
    }
 
    private MinecraftVersion(JsonObject p_i51407_1_) {
@@ -47,21 +47,7 @@ public class MinecraftVersion implements GameVersion {
    }
 
    public static GameVersion tryDetectVersion() {
-      try (InputStream inputstream = MinecraftVersion.class.getResourceAsStream("/version.json")) {
-         if (inputstream == null) {
-            LOGGER.warn("Missing version information!");
-            return BUILT_IN;
-         } else {
-            MinecraftVersion minecraftversion;
-            try (InputStreamReader inputstreamreader = new InputStreamReader(inputstream)) {
-               minecraftversion = new MinecraftVersion(JSONUtils.parse(inputstreamreader));
-            }
-
-            return minecraftversion;
-         }
-      } catch (JsonParseException | IOException ioexception) {
-         throw new IllegalStateException("Game version information is corrupt", ioexception);
-      }
+      return BUILT_IN;
    }
 
    public String getId() {

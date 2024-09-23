@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "minecraft:bone_meal_from_pollen"
+    ]
+  },
+  "criteria": {
+    "has_bee_pollen": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:bee_pollen"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "minecraft:bone_meal_from_pollen"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_bee_pollen",
+      "has_the_recipe"
+    ]
+  ]
+}

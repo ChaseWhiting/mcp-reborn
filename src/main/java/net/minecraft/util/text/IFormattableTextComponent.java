@@ -1,5 +1,7 @@
 package net.minecraft.util.text;
 
+import net.minecraft.item.ItemStack;
+
 import java.util.function.UnaryOperator;
 
 public interface IFormattableTextComponent extends ITextComponent {
@@ -28,6 +30,16 @@ public interface IFormattableTextComponent extends ITextComponent {
 
    default IFormattableTextComponent withStyle(TextFormatting p_240699_1_) {
       this.setStyle(this.getStyle().applyFormat(p_240699_1_));
+      return this;
+   }
+
+   default IFormattableTextComponent rarity(ItemStack itemStack) {
+      this.setStyle(this.getStyle().applyFormat(itemStack.getRarity().color));
+      return this;
+   }
+
+   default IFormattableTextComponent gray() {
+      this.setStyle(this.getStyle().applyFormat(TextFormatting.GRAY));
       return this;
    }
 }

@@ -1,5 +1,7 @@
 package net.minecraft.enchantment;
 
+import net.minecraft.entity.monster.Monster;
+import net.minecraft.entity.passive.Animal;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.registry.Registry;
 
@@ -15,7 +17,10 @@ public class Enchantments {
    public static final Enchantment THORNS = register("thorns", new ThornsEnchantment(Enchantment.Rarity.VERY_RARE, ARMOR_SLOTS));
    public static final Enchantment DEPTH_STRIDER = register("depth_strider", new DepthStriderEnchantment(Enchantment.Rarity.RARE, ARMOR_SLOTS));
    public static final Enchantment FROST_WALKER = register("frost_walker", new FrostWalkerEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.FEET));
+   public static final Enchantment LAVA_WALKER = register("lava_walker", new FrostWalkerEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.FEET));
+
    public static final Enchantment BINDING_CURSE = register("binding_curse", new BindingCurseEnchantment(Enchantment.Rarity.VERY_RARE, ARMOR_SLOTS));
+   public static final Enchantment WEIGHT_CURSE = register("weight_curse", new WeightCurseEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.values()));
    public static final Enchantment SOUL_SPEED = register("soul_speed", new SoulSpeedEnchantment(Enchantment.Rarity.VERY_RARE, EquipmentSlotType.FEET));
    public static final Enchantment SHARPNESS = register("sharpness", new DamageEnchantment(Enchantment.Rarity.COMMON, 0, EquipmentSlotType.MAINHAND));
    public static final Enchantment SMITE = register("smite", new DamageEnchantment(Enchantment.Rarity.UNCOMMON, 1, EquipmentSlotType.MAINHAND));
@@ -47,6 +52,17 @@ public class Enchantments {
    public static final Enchantment PIERCING = register("piercing", new PiercingEnchantment(Enchantment.Rarity.COMMON, EquipmentSlotType.MAINHAND));
    public static final Enchantment MENDING = register("mending", new MendingEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.values()));
    public static final Enchantment VANISHING_CURSE = register("vanishing_curse", new VanishingCurseEnchantment(Enchantment.Rarity.VERY_RARE, EquipmentSlotType.values()));
+   public static final Enchantment DEEP_POCKETS = register("deep_pockets", new DeepPocketsEnchantment());
+   public static final Enchantment LIGHTWEIGHT = register("lightweight", new LightweightEnchantment());
+
+   public static final Enchantment RETURNING = register("pathfinder", new PathfinderEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.MAINHAND));
+   public static final Enchantment RADIANCE = register("radiance", new RadianceEnchantment(Enchantment.Rarity.VERY_RARE, EquipmentSlotType.MAINHAND));
+   public static final Enchantment SPECTRAL_THROW = register("spectral_throw", new SpectralThrowEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.MAINHAND));
+   public static final Enchantment HOMING = register("homing", new HomingEnchantment(Enchantment.Rarity.VERY_RARE, EquipmentSlotType.MAINHAND));
+   public static final HomingModuleEnchantment HOMING_MONSTER = (HomingModuleEnchantment) register("homing_monster_module", new HomingModuleEnchantment(Enchantment.Rarity.VERY_RARE, Monster.class));
+   public static final HomingModuleEnchantment HOMING_ANIMAL = (HomingModuleEnchantment) register("homing_animal_module", new HomingModuleEnchantment(Enchantment.Rarity.VERY_RARE, Animal.class));
+
+
 
 
 

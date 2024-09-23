@@ -27,12 +27,12 @@ import net.minecraft.stats.StatisticsManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 
 public class PlayerPredicate {
    public static final PlayerPredicate ANY = (new PlayerPredicate.Default()).build();
    private final MinMaxBounds.IntBound level;
-   private final GameType gameType;
+   private final Gamemode gameType;
    private final Map<Stat<?>, MinMaxBounds.IntBound> stats;
    private final Object2BooleanMap<ResourceLocation> recipes;
    private final Map<ResourceLocation, PlayerPredicate.IAdvancementPredicate> advancements;
@@ -52,7 +52,7 @@ public class PlayerPredicate {
       }
    }
 
-   private PlayerPredicate(MinMaxBounds.IntBound p_i225770_1_, GameType p_i225770_2_, Map<Stat<?>, MinMaxBounds.IntBound> p_i225770_3_, Object2BooleanMap<ResourceLocation> p_i225770_4_, Map<ResourceLocation, PlayerPredicate.IAdvancementPredicate> p_i225770_5_) {
+   private PlayerPredicate(MinMaxBounds.IntBound p_i225770_1_, Gamemode p_i225770_2_, Map<Stat<?>, MinMaxBounds.IntBound> p_i225770_3_, Object2BooleanMap<ResourceLocation> p_i225770_4_, Map<ResourceLocation, PlayerPredicate.IAdvancementPredicate> p_i225770_5_) {
       this.level = p_i225770_1_;
       this.gameType = p_i225770_2_;
       this.stats = p_i225770_3_;
@@ -69,7 +69,7 @@ public class PlayerPredicate {
          ServerPlayerEntity serverplayerentity = (ServerPlayerEntity)p_226998_1_;
          if (!this.level.matches(serverplayerentity.experienceLevel)) {
             return false;
-         } else if (this.gameType != GameType.NOT_SET && this.gameType != serverplayerentity.gameMode.getGameModeForPlayer()) {
+         } else if (this.gameType != Gamemode.NOT_SET && this.gameType != serverplayerentity.gameMode.getGameModeForPlayer()) {
             return false;
          } else {
             StatisticsManager statisticsmanager = serverplayerentity.getStats();
@@ -111,7 +111,7 @@ public class PlayerPredicate {
          JsonObject jsonobject = JSONUtils.convertToJsonObject(p_227000_0_, "player");
          MinMaxBounds.IntBound minmaxbounds$intbound = MinMaxBounds.IntBound.fromJson(jsonobject.get("level"));
          String s = JSONUtils.getAsString(jsonobject, "gamemode", "");
-         GameType gametype = GameType.byName(s, GameType.NOT_SET);
+         Gamemode gametype = Gamemode.byName(s, Gamemode.NOT_SET);
          Map<Stat<?>, MinMaxBounds.IntBound> map = Maps.newHashMap();
          JsonArray jsonarray = JSONUtils.getAsJsonArray(jsonobject, "stats", (JsonArray)null);
          if (jsonarray != null) {
@@ -174,7 +174,7 @@ public class PlayerPredicate {
       } else {
          JsonObject jsonobject = new JsonObject();
          jsonobject.add("level", this.level.serializeToJson());
-         if (this.gameType != GameType.NOT_SET) {
+         if (this.gameType != Gamemode.NOT_SET) {
             jsonobject.addProperty("gamemode", this.gameType.getName());
          }
 
@@ -253,7 +253,7 @@ public class PlayerPredicate {
 
    public static class Default {
       private MinMaxBounds.IntBound level = MinMaxBounds.IntBound.ANY;
-      private GameType gameType = GameType.NOT_SET;
+      private Gamemode gameType = Gamemode.NOT_SET;
       private final Map<Stat<?>, MinMaxBounds.IntBound> stats = Maps.newHashMap();
       private final Object2BooleanMap<ResourceLocation> recipes = new Object2BooleanOpenHashMap<>();
       private final Map<ResourceLocation, PlayerPredicate.IAdvancementPredicate> advancements = Maps.newHashMap();

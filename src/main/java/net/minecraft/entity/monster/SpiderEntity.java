@@ -4,23 +4,11 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
-import net.minecraft.entity.ai.goal.LeapAtTargetGoal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -33,6 +21,7 @@ import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -51,14 +40,18 @@ public class SpiderEntity extends Monster {
 
    protected void registerGoals() {
       this.goalSelector.addGoal(1, new SwimGoal(this));
-      this.goalSelector.addGoal(3, new LeapAtTargetGoal(this, 0.4F));
-      this.goalSelector.addGoal(4, new SpiderEntity.AttackGoal(this));
+      this.goalSelector.addGoal(2, new SearchForTargetGoal<>(this, PlayerEntity.class, 1.13D, 30, EntityPredicates.NO_CREATIVE_OR_SPECTATOR::test, true));
+      this.goalSelector.addGoal(3, new SearchForTargetGoal<>(this, VillagerEntity.class, 1.13D, 30, null, true));
+
+      this.goalSelector.addGoal(3, new BetterLeapAtTargetGoal<>(this, 0.4F));
+      this.goalSelector.addGoal(4, new AttackGoal(this));
       this.goalSelector.addGoal(5, new WaterAvoidingRandomWalkingGoal(this, 0.8D));
       this.goalSelector.addGoal(6, new LookAtGoal(this, PlayerEntity.class, 8.0F));
       this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
       this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-      this.targetSelector.addGoal(2, new SpiderEntity.TargetGoal<>(this, PlayerEntity.class));
-      this.targetSelector.addGoal(3, new SpiderEntity.TargetGoal<>(this, IronGolemEntity.class));
+      this.targetSelector.addGoal(2, new TargetGoal<>(this, PlayerEntity.class));
+      this.targetSelector.addGoal(4, new TargetGoal<>(this, VillagerEntity.class));
+      this.targetSelector.addGoal(3, new TargetGoal<>(this, IronGolemEntity.class));
    }
 
    public double getPassengersRidingOffset() {
@@ -139,22 +132,27 @@ public class SpiderEntity extends Monster {
    @Nullable
    public ILivingEntityData finalizeSpawn(IServerWorld p_213386_1_, DifficultyInstance p_213386_2_, SpawnReason p_213386_3_, @Nullable ILivingEntityData p_213386_4_, @Nullable CompoundNBT p_213386_5_) {
       p_213386_4_ = super.finalizeSpawn(p_213386_1_, p_213386_2_, p_213386_3_, p_213386_4_, p_213386_5_);
-      if (p_213386_1_.getRandom().nextInt(100) == 0) {
+      int chance = switch (p_213386_2_.getDifficulty()) {
+          case PEACEFUL, EASY -> 0;
+          case NORMAL -> 20;
+          case HARD -> 90;
+      };
+      if (p_213386_1_.getRandom().nextInt(100 - chance) == 0) {
          SkeletonEntity skeletonentity = EntityType.SKELETON.create(this.level);
          skeletonentity.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
-         skeletonentity.finalizeSpawn(p_213386_1_, p_213386_2_, p_213386_3_, (ILivingEntityData)null, (CompoundNBT)null);
+         skeletonentity.finalizeSpawn(p_213386_1_, p_213386_2_, p_213386_3_, (ILivingEntityData) null, (CompoundNBT) null);
          skeletonentity.startRiding(this);
       }
 
       if (p_213386_4_ == null) {
-         p_213386_4_ = new SpiderEntity.GroupData();
+         p_213386_4_ = new GroupData();
          if (p_213386_1_.getDifficulty() == Difficulty.HARD && p_213386_1_.getRandom().nextFloat() < 0.1F * p_213386_2_.getSpecialMultiplier()) {
-            ((SpiderEntity.GroupData)p_213386_4_).setRandomEffect(p_213386_1_.getRandom());
+            ((GroupData)p_213386_4_).setRandomEffect(p_213386_1_.getRandom());
          }
       }
 
-      if (p_213386_4_ instanceof SpiderEntity.GroupData) {
-         Effect effect = ((SpiderEntity.GroupData)p_213386_4_).effect;
+      if (p_213386_4_ instanceof GroupData) {
+         Effect effect = ((GroupData)p_213386_4_).effect;
          if (effect != null) {
             this.addEffect(new EffectInstance(effect, Integer.MAX_VALUE));
          }

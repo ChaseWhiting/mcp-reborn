@@ -3,6 +3,7 @@ package net.minecraft.item;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tags.ItemTags;
@@ -21,6 +22,10 @@ public class ShieldItem extends Item {
 
    public String getDescriptionId(ItemStack p_77667_1_) {
       return p_77667_1_.getTagElement("BlockEntityTag") != null ? this.getDescriptionId() + '.' + getColor(p_77667_1_).getName() : super.getDescriptionId(p_77667_1_);
+   }
+
+   public int getWeight(ItemStack bundle) {
+      return 24;
    }
 
    @OnlyIn(Dist.CLIENT)

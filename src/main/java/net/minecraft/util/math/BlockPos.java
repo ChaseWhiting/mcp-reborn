@@ -44,6 +44,10 @@ public class BlockPos extends Vector3i {
       super(p_i46030_1_, p_i46030_2_, p_i46030_3_);
    }
 
+   public Vector3d asVector() {
+      return new Vector3d(this);
+   }
+
    public BlockPos(double p_i46031_1_, double p_i46031_3_, double p_i46031_5_) {
       super(p_i46031_1_, p_i46031_3_, p_i46031_5_);
    }

@@ -9,10 +9,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import net.minecraft.inventory.IInventory;
@@ -21,6 +18,7 @@ import net.minecraft.loot.functions.ILootFunction;
 import net.minecraft.loot.functions.LootFunctionManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.WeightedItemStack;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +39,22 @@ public class LootTable {
       this.functions = p_i51265_3_;
       this.compositeFunction = LootFunctionManager.compose(p_i51265_3_);
    }
+
+
+
+   /**
+    * Applies the loot functions to the item stack, based on the given context and functions.
+    *
+    * @param stack    The original item stack
+    * @param context  The loot context to apply
+    * @param functions The functions to apply
+    * @return A modified item stack after applying all functions
+    */
+   private ItemStack applyLootFunctions(ItemStack stack, LootContext context, ILootFunction[] functions) {
+      BiFunction<ItemStack, LootContext, ItemStack> compositeFunction = LootFunctionManager.compose(functions);
+      return compositeFunction.apply(stack, context);
+   }
+
 
    public static Consumer<ItemStack> createStackSplitter(Consumer<ItemStack> p_216124_0_) {
       return (p_216125_1_) -> {

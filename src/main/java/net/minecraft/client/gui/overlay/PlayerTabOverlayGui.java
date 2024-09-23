@@ -26,7 +26,7 @@ import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -50,7 +50,7 @@ public class PlayerTabOverlayGui extends AbstractGui {
    }
 
    private ITextComponent decorateName(NetworkPlayerInfo p_238524_1_, IFormattableTextComponent p_238524_2_) {
-      return p_238524_1_.getGameMode() == GameType.SPECTATOR ? p_238524_2_.withStyle(TextFormatting.ITALIC) : p_238524_2_;
+      return p_238524_1_.getGameMode() == Gamemode.SPECTATOR ? p_238524_2_.withStyle(TextFormatting.ITALIC) : p_238524_2_;
    }
 
    public void setVisible(boolean p_175246_1_) {
@@ -163,8 +163,8 @@ public class PlayerTabOverlayGui extends AbstractGui {
                k2 += 9;
             }
 
-            this.minecraft.font.drawShadow(p_238523_1_, this.getNameForDisplay(networkplayerinfo1), (float)k2, (float)l2, networkplayerinfo1.getGameMode() == GameType.SPECTATOR ? -1862270977 : -1);
-            if (p_238523_4_ != null && networkplayerinfo1.getGameMode() != GameType.SPECTATOR) {
+            this.minecraft.font.drawShadow(p_238523_1_, this.getNameForDisplay(networkplayerinfo1), (float)k2, (float)l2, networkplayerinfo1.getGameMode() == Gamemode.SPECTATOR ? -1862270977 : -1);
+            if (p_238523_4_ != null && networkplayerinfo1.getGameMode() != Gamemode.SPECTATOR) {
                int l5 = k2 + i + 1;
                int i6 = l5 + l;
                if (i6 - l5 > 5) {
@@ -305,7 +305,7 @@ public class PlayerTabOverlayGui extends AbstractGui {
       public int compare(NetworkPlayerInfo p_compare_1_, NetworkPlayerInfo p_compare_2_) {
          ScorePlayerTeam scoreplayerteam = p_compare_1_.getTeam();
          ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getTeam();
-         return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameMode() != GameType.SPECTATOR, p_compare_2_.getGameMode() != GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getName() : "").compare(p_compare_1_.getProfile().getName(), p_compare_2_.getProfile().getName(), String::compareToIgnoreCase).result();
+         return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameMode() != Gamemode.SPECTATOR, p_compare_2_.getGameMode() != Gamemode.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getName() : "").compare(p_compare_1_.getProfile().getName(), p_compare_2_.getProfile().getName(), String::compareToIgnoreCase).result();
       }
    }
 }

@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import net.minecraft.entity.ICrossbowUser;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.monster.AbstractSkeletonEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.monster.PillagerCaptainEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
@@ -153,6 +154,8 @@ public class RangedCrossbowAttackGoal<T extends Monster & IRangedAttackMob & ICr
       this.crossbowState = RangedCrossbowAttackGoal.CrossbowState.CHARGED;
       if (this.mob instanceof PillagerCaptainEntity) {
          this.attackDelay = 10 + this.mob.getRandom().nextInt(10);
+      } else if (this.mob instanceof AbstractSkeletonEntity){
+         this.attackDelay = 8 + this.mob.getRandom().nextInt(12);
       } else {
          this.attackDelay = 20 + this.mob.getRandom().nextInt(20);
       }

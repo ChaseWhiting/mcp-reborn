@@ -24,6 +24,9 @@ public class StrayEntity extends AbstractSkeletonEntity {
       return checkMonsterSpawnRules(p_223327_0_, p_223327_1_, p_223327_2_, p_223327_3_, p_223327_4_) && (p_223327_2_ == SpawnReason.SPAWNER || p_223327_1_.canSeeSky(p_223327_3_));
    }
 
+
+
+
    protected SoundEvent getAmbientSound() {
       return SoundEvents.STRAY_AMBIENT;
    }
@@ -36,7 +39,7 @@ public class StrayEntity extends AbstractSkeletonEntity {
       return SoundEvents.STRAY_DEATH;
    }
 
-   SoundEvent getStepSound() {
+   public SoundEvent getStepSound() {
       return SoundEvents.STRAY_STEP;
    }
 
@@ -47,5 +50,10 @@ public class StrayEntity extends AbstractSkeletonEntity {
       }
 
       return abstractarrowentity;
+   }
+
+   @Override
+   public void onCrossbowAttackPerformed() {
+      this.noActionTime = 0;
    }
 }

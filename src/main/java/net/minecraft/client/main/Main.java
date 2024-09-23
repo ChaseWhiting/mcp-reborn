@@ -28,6 +28,7 @@ import net.minecraft.client.util.UndeclaredException;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.groovy.GroovyCommand;
+import net.minecraft.server.Scripts;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.DefaultUncaughtExceptionHandler;
 import net.minecraft.util.JSONUtils;
@@ -38,14 +39,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class Main {
    private static final Logger LOGGER = LogManager.getLogger();
 
    public static void main(String[] p_main_0_) {
-      GroovyScriptLoader.loadGroovyScripts(GroovyCommand.PATH, false);
-
       OptionParser optionparser = new OptionParser();
       optionparser.allowsUnrecognizedOptions();
       optionparser.accepts("demo");
@@ -134,19 +134,7 @@ public class Main {
               new GameConfiguration.GameInformation(flag1, s3, s4, false, flag3), // Set disableMultiplayer to false
               new GameConfiguration.ServerInformation(s7, integer)
       );
-      Thread thread = new Thread("Client Shutdown Thread") {
-         public void run() {
-            Minecraft minecraft1 = Minecraft.getInstance();
-            if (minecraft1 != null) {
-               IntegratedServer integratedserver = minecraft1.getSingleplayerServer();
-               if (integratedserver != null) {
-                  integratedserver.halt(true);
-               }
-
-            }
-         }
-      };
-      thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+      Thread thread = getClientShutdownThread();
       Runtime.getRuntime().addShutdownHook(thread);
       new Empty3i();
 
@@ -207,6 +195,23 @@ public class Main {
          minecraft.destroy();
       }
 
+   }
+
+   private static @NotNull Thread getClientShutdownThread() {
+      Thread thread = new Thread("Client Shutdown Thread") {
+         public void run() {
+            Minecraft minecraft1 = Minecraft.getInstance();
+            if (minecraft1 != null) {
+               IntegratedServer integratedserver = minecraft1.getSingleplayerServer();
+               if (integratedserver != null) {
+                  integratedserver.halt(true);
+               }
+
+            }
+         }
+      };
+      thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+      return thread;
    }
 
    private static OptionalInt ofNullable(@Nullable Integer p_224732_0_) {

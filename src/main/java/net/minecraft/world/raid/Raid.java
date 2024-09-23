@@ -45,10 +45,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.BossInfo;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerBossInfo;
 import net.minecraft.world.server.ServerWorld;
@@ -697,6 +694,7 @@ public class Raid {
       boolean isEasyDifficulty = difficulty == Difficulty.EASY;
       boolean isNormalDifficulty = difficulty == Difficulty.NORMAL;
       int potentialSpawns;
+      boolean veryHard = this.level.getGameRules().getBoolean(GameRules.RULE_VERYHARD);
       switch(waveMember) {
          case WITCH:
             if (isEasyDifficulty || waveNumber <= 2 || waveNumber == 4) {
@@ -727,6 +725,9 @@ public class Raid {
 
             default:
             return 0;
+      }
+      if (veryHard) {
+         potentialSpawns = potentialSpawns + 3;
       }
 
       return potentialSpawns > 0 ? randomGenerator.nextInt(potentialSpawns + 1) : 0;
@@ -761,13 +762,22 @@ public class Raid {
       return p_221326_1_;
    }
 
-   public int getNumGroups(Difficulty p_221306_1_) {
-      switch(p_221306_1_) {
+   public int getNumGroups(Difficulty difficulty) {
+      switch(difficulty) {
       case EASY:
+         if (this.level.getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
+            return 6;
+         }
          return 3;
       case NORMAL:
+         if (this.level.getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
+            return 8;
+         }
          return 5;
       case HARD:
+         if (this.level.getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
+            return 12;
+         }
          return 7;
       default:
          return 0;

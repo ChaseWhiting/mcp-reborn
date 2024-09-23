@@ -21,7 +21,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import org.apache.logging.log4j.LogManager;
@@ -31,8 +31,8 @@ public class PlayerInteractionManager {
    private static final Logger LOGGER = LogManager.getLogger();
    public ServerWorld level;
    public ServerPlayerEntity player;
-   private GameType gameModeForPlayer = GameType.NOT_SET;
-   private GameType previousGameModeForPlayer = GameType.NOT_SET;
+   private Gamemode gameModeForPlayer = Gamemode.NOT_SET;
+   private Gamemode previousGameModeForPlayer = Gamemode.NOT_SET;
    private boolean isDestroyingBlock;
    private int destroyProgressStart;
    private BlockPos destroyPos = BlockPos.ZERO;
@@ -46,11 +46,11 @@ public class PlayerInteractionManager {
       this.level = p_i50702_1_;
    }
 
-   public void setGameModeForPlayer(GameType p_73076_1_) {
+   public void setGameModeForPlayer(Gamemode p_73076_1_) {
       this.setGameModeForPlayer(p_73076_1_, p_73076_1_ != this.gameModeForPlayer ? this.gameModeForPlayer : this.previousGameModeForPlayer);
    }
 
-   public void setGameModeForPlayer(GameType p_241820_1_, GameType p_241820_2_) {
+   public void setGameModeForPlayer(Gamemode p_241820_1_, Gamemode p_241820_2_) {
       this.previousGameModeForPlayer = p_241820_2_;
       this.gameModeForPlayer = p_241820_1_;
       p_241820_1_.updatePlayerAbilities(this.player.abilities);
@@ -59,11 +59,11 @@ public class PlayerInteractionManager {
       this.level.updateSleepingPlayerList();
    }
 
-   public GameType getGameModeForPlayer() {
+   public Gamemode getGameModeForPlayer() {
       return this.gameModeForPlayer;
    }
 
-   public GameType getPreviousGameModeForPlayer() {
+   public Gamemode getPreviousGameModeForPlayer() {
       return this.previousGameModeForPlayer;
    }
 
@@ -75,8 +75,8 @@ public class PlayerInteractionManager {
       return this.gameModeForPlayer.isCreative();
    }
 
-   public void updateGameMode(GameType p_73077_1_) {
-      if (this.gameModeForPlayer == GameType.NOT_SET) {
+   public void updateGameMode(Gamemode p_73077_1_) {
+      if (this.gameModeForPlayer == Gamemode.NOT_SET) {
          this.gameModeForPlayer = p_73077_1_;
       }
 
@@ -253,7 +253,7 @@ public class PlayerInteractionManager {
    }
 
    public ActionResultType useItem(ServerPlayerEntity p_187250_1_, World p_187250_2_, ItemStack p_187250_3_, Hand p_187250_4_) {
-      if (this.gameModeForPlayer == GameType.SPECTATOR) {
+      if (this.gameModeForPlayer == Gamemode.SPECTATOR) {
          return ActionResultType.PASS;
       } else if (p_187250_1_.getCooldowns().isOnCooldown(p_187250_3_.getItem())) {
          return ActionResultType.PASS;
@@ -291,7 +291,7 @@ public class PlayerInteractionManager {
    public ActionResultType useItemOn(ServerPlayerEntity p_219441_1_, World p_219441_2_, ItemStack p_219441_3_, Hand p_219441_4_, BlockRayTraceResult p_219441_5_) {
       BlockPos blockpos = p_219441_5_.getBlockPos();
       BlockState blockstate = p_219441_2_.getBlockState(blockpos);
-      if (this.gameModeForPlayer == GameType.SPECTATOR) {
+      if (this.gameModeForPlayer == Gamemode.SPECTATOR) {
          INamedContainerProvider inamedcontainerprovider = blockstate.getMenuProvider(p_219441_2_, blockpos);
          if (inamedcontainerprovider != null) {
             p_219441_1_.openMenu(inamedcontainerprovider);

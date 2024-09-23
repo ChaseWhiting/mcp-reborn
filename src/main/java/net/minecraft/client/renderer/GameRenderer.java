@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.AbstractOption;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
@@ -48,7 +49,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.GameType;
+import net.minecraft.world.Gamemode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -139,21 +140,21 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
 
    }
 
-   private void loadEffect(ResourceLocation p_175069_1_) {
+   private void loadEffect(ResourceLocation shader) {
       if (this.postEffect != null) {
          this.postEffect.close();
       }
 
       try {
-         this.postEffect = new ShaderGroup(this.minecraft.getTextureManager(), this.resourceManager, this.minecraft.getMainRenderTarget(), p_175069_1_);
+         this.postEffect = new ShaderGroup(this.minecraft.getTextureManager(), this.resourceManager, this.minecraft.getMainRenderTarget(), shader);
          this.postEffect.resize(this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
          this.effectActive = true;
       } catch (IOException ioexception) {
-         LOGGER.warn("Failed to load shader: {}", p_175069_1_, ioexception);
+         LOGGER.warn("Failed to load shader: {}", shader, ioexception);
          this.effectIndex = EFFECT_NONE;
          this.effectActive = false;
       } catch (JsonSyntaxException jsonsyntaxexception) {
-         LOGGER.warn("Failed to parse shader: {}", p_175069_1_, jsonsyntaxexception);
+         LOGGER.warn("Failed to parse shader: {}", shader, jsonsyntaxexception);
          this.effectIndex = EFFECT_NONE;
          this.effectActive = false;
       }
@@ -175,6 +176,9 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
    }
 
    public void tick() {
+
+
+
       this.tickFov();
       this.lightTexture.tick();
       if (this.minecraft.getCameraEntity() == null) {
@@ -200,6 +204,14 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
          if (this.itemActivationTicks == 0) {
             this.itemActivationItem = null;
          }
+      }
+
+      if (minecraft.options.enableCustomShaders) {
+         ResourceLocation selectedShader = AbstractOption.SHADERS[minecraft.options.selectedShaderIndex];
+         this.loadEffect(selectedShader);
+      } else {
+         if(this.postEffect != null)
+         this.postEffect.close();
       }
 
    }
@@ -362,7 +374,7 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
          }
 
          boolean flag = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity)this.minecraft.getCameraEntity()).isSleeping();
-         if (this.minecraft.options.getCameraType().isFirstPerson() && !flag && !this.minecraft.options.hideGui && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
+         if (this.minecraft.options.getCameraType().isFirstPerson() && !flag && !this.minecraft.options.hideGui && this.minecraft.gameMode.getPlayerMode() != Gamemode.SPECTATOR) {
             this.lightTexture.turnOnLightLayer();
             this.itemInHandRenderer.renderHandsWithItems(p_228381_3_, p_228381_1_, this.renderBuffers.bufferSource(), this.minecraft.player, this.minecraft.getEntityRenderDispatcher().getPackedLightCoords(this.minecraft.player, p_228381_3_));
             this.lightTexture.turnOffLightLayer();
@@ -402,7 +414,7 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
 
    public static float getNightVisionScale(LivingEntity p_180438_0_, float p_180438_1_) {
       int i = p_180438_0_.getEffect(Effects.NIGHT_VISION).getDuration();
-      return i > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)i - p_180438_1_) * (float)Math.PI * 0.2F) * 0.3F;
+      return i > 200 ? 1F : 0.7F + MathHelper.sin(((float)i - p_180438_1_) * (float)Math.PI * 0.2F) * 0.3F;
    }
 
    public void render(float p_195458_1_, long p_195458_2_, boolean p_195458_4_) {
@@ -548,7 +560,7 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
             if (raytraceresult != null && raytraceresult.getType() == RayTraceResult.Type.BLOCK) {
                BlockPos blockpos = ((BlockRayTraceResult)raytraceresult).getBlockPos();
                BlockState blockstate = this.minecraft.level.getBlockState(blockpos);
-               if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR) {
+               if (this.minecraft.gameMode.getPlayerMode() == Gamemode.SPECTATOR) {
                   flag = blockstate.getMenuProvider(this.minecraft.level, blockpos) != null;
                } else {
                   CachedBlockInfo cachedblockinfo = new CachedBlockInfo(this.minecraft.level, blockpos, false);

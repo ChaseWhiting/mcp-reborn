@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.monster.bogged.BoggedEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,15 +22,29 @@ public abstract class LayerRenderer<T extends Entity, M extends EntityModel<T>> 
       this.renderer = p_i50926_1_;
    }
 
-   protected static <T extends LivingEntity> void coloredCutoutModelCopyLayerRender(EntityModel<T> p_229140_0_, EntityModel<T> p_229140_1_, ResourceLocation p_229140_2_, MatrixStack p_229140_3_, IRenderTypeBuffer p_229140_4_, int p_229140_5_, T p_229140_6_, float p_229140_7_, float p_229140_8_, float p_229140_9_, float p_229140_10_, float p_229140_11_, float p_229140_12_, float p_229140_13_, float p_229140_14_, float p_229140_15_) {
-      if (!p_229140_6_.isInvisible()) {
-         p_229140_0_.copyPropertiesTo(p_229140_1_);
-         p_229140_1_.prepareMobModel(p_229140_6_, p_229140_7_, p_229140_8_, p_229140_12_);
-         p_229140_1_.setupAnim(p_229140_6_, p_229140_7_, p_229140_8_, p_229140_9_, p_229140_10_, p_229140_11_);
-         renderColoredCutoutModel(p_229140_1_, p_229140_2_, p_229140_3_, p_229140_4_, p_229140_5_, p_229140_6_, p_229140_13_, p_229140_14_, p_229140_15_);
+   protected static <T extends LivingEntity> void coloredCutoutModelCopyLayerRender(EntityModel<T> baseModel, EntityModel<T> overlayModel, ResourceLocation texture, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float partialTicks, float red, float green, float blue) {
+      if (!entity.isInvisible()) {
+         baseModel.copyPropertiesTo(overlayModel);
+         overlayModel.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
+         overlayModel.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+         renderColoredCutoutModel(overlayModel, texture, matrixStack, renderTypeBuffer, packedLight, entity, red, green, blue);
       }
-
    }
+
+   protected static <A extends BoggedEntity> void createBogged(EntityModel<A> baseModel, EntityModel<A> overlayModel, ResourceLocation texture, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, A entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float partialTicks, float red, float green, float blue) {
+         baseModel.copyPropertiesTo(overlayModel);
+         overlayModel.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
+         overlayModel.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+         renderColoredCutoutModel(overlayModel, texture, matrixStack, renderTypeBuffer, packedLight, entity, red, green, blue);
+   }
+
+   protected static <T extends LivingEntity> void coloredCutoutModelCopyLayerRenderNoInvisible(EntityModel<T> baseModel, EntityModel<T> overlayModel, ResourceLocation texture, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float partialTicks, float red, float green, float blue) {
+         baseModel.copyPropertiesTo(overlayModel);
+         overlayModel.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
+         overlayModel.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+         renderColoredCutoutModel(overlayModel, texture, matrixStack, renderTypeBuffer, packedLight, entity, red, green, blue);
+   }
+
 
    protected static <T extends LivingEntity> void renderColoredCutoutModel(EntityModel<T> p_229141_0_, ResourceLocation p_229141_1_, MatrixStack p_229141_2_, IRenderTypeBuffer p_229141_3_, int p_229141_4_, T p_229141_5_, float p_229141_6_, float p_229141_7_, float p_229141_8_) {
       IVertexBuilder ivertexbuilder = p_229141_3_.getBuffer(RenderType.entityCutoutNoCull(p_229141_1_));

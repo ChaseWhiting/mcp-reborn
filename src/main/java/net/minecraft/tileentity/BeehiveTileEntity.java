@@ -33,6 +33,7 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
     private final List<BeehiveTileEntity.Bee> stored = Lists.newArrayList();
     @Nullable
     private BlockPos savedFlowerPos = null;
+    public int maxSize = 3;
 
     public BeehiveTileEntity() {
         super(TileEntityType.BEEHIVE);
@@ -65,7 +66,7 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
     }
 
     public boolean isFull() {
-        return this.stored.size() == 5;
+        return this.stored.size() == maxSize;
     }
 
     public void emptyAllLivingFromHive(@Nullable PlayerEntity player, BlockState blockState, BeehiveTileEntity.State hiveState) {
@@ -129,7 +130,7 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
     }
 
     public void addOccupantWithPresetTicks(Entity entity, boolean flag, int ticks) {
-        if (this.stored.size() < 5) {
+        if (this.stored.size() < maxSize) {
             entity.stopRiding();
             entity.ejectPassengers();
             CompoundNBT compoundNBT = new CompoundNBT();
@@ -311,7 +312,9 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
         super.load(p_230337_1_, p_230337_2_);
         this.stored.clear();
         ListNBT listnbt = p_230337_2_.getList("Bees", 10);
-
+        if (p_230337_2_.contains("MaxSize")) {
+            this.maxSize = p_230337_2_.getInt("MaxSize");
+        }
         for (int i = 0; i < listnbt.size(); ++i) {
             CompoundNBT compoundnbt = listnbt.getCompound(i);
             BeehiveTileEntity.Bee beehivetileentity$bee = new BeehiveTileEntity.Bee(compoundnbt.getCompound("EntityData"), compoundnbt.getInt("TicksInHive"), compoundnbt.getInt("MinOccupationTicks"));
@@ -328,6 +331,7 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
     public CompoundNBT save(CompoundNBT p_189515_1_) {
         super.save(p_189515_1_);
         p_189515_1_.put("Bees", this.writeBees());
+        p_189515_1_.putInt("MaxSize", this.maxSize);
         if (this.hasSavedFlowerPos()) {
             p_189515_1_.put("FlowerPos", NBTUtil.writeBlockPos(this.savedFlowerPos));
         }

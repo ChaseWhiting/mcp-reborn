@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.BlockPosArgument;
 import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.Mob;
@@ -29,10 +30,12 @@ import net.minecraft.profiler.IProfileResult;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.DebugUtils;
 import net.minecraft.util.PathCalculation;
+import net.minecraft.util.ProfilerParser;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
+import net.minecraft.world.NuclearExplosion;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,6 +107,11 @@ public class DebugCommand {
 
                       .then(Commands.literal("testNodes").then(Commands.argument("radius", IntegerArgumentType.integer(0, 40)).executes(context -> findPossibleNodes(context, IntegerArgumentType.getInteger(context, "radius")))))
 
+                      .then(Commands.literal("nuke")
+                              .then(Commands.argument("radius", IntegerArgumentType.integer(0,500))
+                                      .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                              .executes(context -> nuclearBombTest(context, IntegerArgumentType.getInteger(context, "radius"), BlockPosArgument.getLoadedBlockPos(context, "pos"))))))
+
 
 
 
@@ -146,6 +154,14 @@ public class DebugCommand {
       debugGoalEnabled = true;
       debugPathEnabled = true;
       shouldRender = true;
+      return 1;
+   }
+
+   public static int nuclearBombTest(CommandContext<CommandSource> context, int radius, BlockPos explosion) {
+      NuclearExplosion nuclearExplosion = new NuclearExplosion(context.getSource().getLevel(), null, null, null, explosion.getX(),explosion.getY(),explosion.getZ(),radius == 0 ? 6 : radius, true, NuclearExplosion.Mode.DESTROY);
+      nuclearExplosion.explode();
+      nuclearExplosion.finalizeExplosion(true);
+
       return 1;
    }
 
@@ -266,7 +282,8 @@ public class DebugCommand {
          float f = (float)iprofileresult.getNanoDuration() / 1.0E9F;
          float f1 = (float)iprofileresult.getTickDuration() / f;
          p_198336_0_.sendSuccess(new TranslationTextComponent("commands.debug.stopped", String.format(Locale.ROOT, "%.2f", f), iprofileresult.getTickDuration(), String.format("%.2f", f1)), true);
-         return MathHelper.floor(f1);
+          ProfilerParser.parse("debug");
+          return MathHelper.floor(f1);
       }
    }
 

@@ -32,6 +32,7 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.fallout.Radiation;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ElytraItem;
 import net.minecraft.item.Item;
@@ -172,6 +173,9 @@ public class ClientPlayerEntity extends AbstractClientPlayerEntity {
    }
 
    public void tick() {
+      if (Radiation.radPerLevel(this.radiationManager.getRads()) > 6) {
+         this.minecraft.getSoundManager().pause();
+      }
       if (this.level.hasChunkAt(new BlockPos(this.getX(), 0.0D, this.getZ()))) {
          super.tick();
          if (this.isPassenger()) {
@@ -456,8 +460,8 @@ public class ClientPlayerEntity extends AbstractClientPlayerEntity {
       return this.showDeathScreen;
    }
 
-   public void playSound(SoundEvent p_184185_1_, float p_184185_2_, float p_184185_3_) {
-      this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), p_184185_1_, this.getSoundSource(), p_184185_2_, p_184185_3_, false);
+   public void playSound(SoundEvent p_184185_1_, float volume, float pitch) {
+      this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), p_184185_1_, this.getSoundSource(), volume, pitch, false);
    }
 
    public void playNotifySound(SoundEvent p_213823_1_, SoundCategory p_213823_2_, float p_213823_3_, float p_213823_4_) {
