@@ -86,6 +86,8 @@ public class AnvilScreen extends AbstractRepairScreen<RepairContainer> {
       if (i > 0) {
          int j = 8453920;
          ITextComponent itextcomponent;
+         assert this.minecraft != null : "how could this happen?";
+         assert this.minecraft.player != null;
          if (i >= 40 && !this.minecraft.player.abilities.instabuild) {
             itextcomponent = TOO_EXPENSIVE_TEXT;
             j = 16736352;

@@ -2,11 +2,13 @@ package net.minecraft.entity.item;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.monster.GreatHungerEntity;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.potion.Potions;
+import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
@@ -31,11 +33,20 @@ public class ExperienceBottleEntity extends ProjectileItemEntity {
       return 0.07F;
    }
 
-   protected void onHit(RayTraceResult p_70227_1_) {
-      super.onHit(p_70227_1_);
+   protected void onHit(RayTraceResult result) {
+      super.onHit(result);
       if (!this.level.isClientSide) {
          this.level.levelEvent(2002, this.blockPosition(), PotionUtils.getColor(Potions.WATER));
-         int i = 3 + this.level.random.nextInt(5) + this.level.random.nextInt(5);
+         if (result.getType() == RayTraceResult.Type.ENTITY && result instanceof EntityRayTraceResult) {
+            EntityRayTraceResult entityResult = (EntityRayTraceResult) result;
+
+            if (entityResult.getEntity() instanceof GreatHungerEntity) {
+               addXp((GreatHungerEntity) entityResult.getEntity());
+               this.remove();
+               return;
+            }
+         }
+         int i = generateRandomValue(3, 5, 5);
 
          while(i > 0) {
             int j = ExperienceOrbEntity.getExperienceValue(i);
@@ -45,6 +56,13 @@ public class ExperienceBottleEntity extends ProjectileItemEntity {
 
          this.remove();
       }
+   }
 
+   public int generateRandomValue(int val, int val2, int val3) {
+      return val + this.level.random.nextInt(val2) + this.level.random.nextInt(val3);
+   }
+
+   private void addXp(GreatHungerEntity entity) {
+      entity.setStoredExperiencePoints(entity.getStoredExperiencePoints() + generateRandomValue(2, 3, 3));
    }
 }

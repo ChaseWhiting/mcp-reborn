@@ -1,5 +1,5 @@
 {
-    "parent": "item/bundle",
+    "parent": "item/generated",
     "textures": {
         "layer0": "item/bundle_filled"
     }

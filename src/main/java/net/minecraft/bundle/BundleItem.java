@@ -1,13 +1,14 @@
 package net.minecraft.bundle;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.TooltipComponent;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,7 +20,6 @@ import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
@@ -33,7 +33,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class BundleItem extends Item {
     private static final String TAG_ITEMS = "Items";
     private static final String TAG_WEIGHT = "Weight";
+    private static final String TAG_COLOUR = "Colour";
     private static final int BUNDLE_IN_BUNDLE_WEIGHT = 4;
+    private BundleColour colour = BundleColour.REGULAR;
     private static final int BAR_COLOR = MathHelper.color(0.4F, 0.4F, 1.0F);
 
     public BundleItem() {
@@ -46,6 +48,27 @@ public class BundleItem extends Item {
         nbt.putInt(TAG_WEIGHT, weight);
         bundle.setTag(nbt);
         return bundle;
+    }
+
+    public String getColourTag() {
+        return TAG_COLOUR;
+    }
+
+    @Override
+    public void fillItemCategory(ItemGroup itemGroup, NonNullList<ItemStack> items) {
+        if (this.allowdedIn(ItemGroup.TAB_COMBAT) && (itemGroup == ItemGroup.TAB_COMBAT || itemGroup == ItemGroup.TAB_SEARCH)) {
+            for (BundleColour colour : BundleColour.inOrder()) {
+                ItemStack coloredBundle = new ItemStack(Items.BUNDLE);
+                CompoundNBT nbt = coloredBundle.getOrCreateTag();
+                nbt.putInt(TAG_COLOUR, colour.getId());
+                coloredBundle.setTag(nbt);
+                    items.add(coloredBundle);
+            }
+        }
+    }
+
+    public static void setWeight(ItemStack stack, int weight) {
+        stack.getOrCreateTag().putInt("Weight", weight);
     }
 
     public ItemStack lastItem(ItemStack bundle) {
@@ -88,19 +111,17 @@ public class BundleItem extends Item {
                 int availableSpace = (getMaxWeight(bundleStack) - getContentWeight(bundleStack)) / getItemWeight(slotStack, bundleStack);
                 int itemsToAdd = Math.min(slotStack.getCount(), availableSpace);
 
+// Check if the total items to be added exceed the available space
                 if (itemsToAdd > 0) {
+                    // Ensure the number of items added doesn't exceed the maximum weight
                     ItemStack stackToInsert = slotStack.copy();
                     stackToInsert.setCount(itemsToAdd);
 
-                    int itemsInserted = add((BundleItem) bundleStack.getItem(), bundleStack, slot.safeTake(stackToInsert.getCount(), availableSpace, player), clickAction);
+                    // Insert items and reduce the stack count accordingly
+                    int itemsInserted = add((BundleItem) bundleStack.getItem(), bundleStack, stackToInsert, clickAction);
                     if (itemsInserted > 0) {
                         this.playInsertSound(player);
                         slotStack.shrink(itemsInserted);
-                    }
-
-                    // If there are leftover items that couldn't be added to the bundle, return them to the slot
-                    if (slotStack.getCount() > 0) {
-                        slot.set(slotStack); // Return the remaining items back to the slot
                     }
                 }
             }
@@ -152,7 +173,7 @@ public class BundleItem extends Item {
     public ActionResult<ItemStack> use(World p_150760_, PlayerEntity p_150761_, Hand p_150762_) {
         ItemStack itemstack = p_150761_.getItemInHand(p_150762_);
         if (p_150761_.isDiscrete()) {
-            if (dropOne(itemstack, p_150761_)) {
+            if (dropItems(itemstack, p_150761_, 1, false)) {
                 this.playRemoveOneSound(p_150761_);
                 p_150761_.awardStat(Stats.ITEM_USED.get(this));
                 return ActionResult.sidedSuccess(itemstack, p_150760_.isClientSide);
@@ -184,9 +205,33 @@ public class BundleItem extends Item {
     }
 
     @Override
+    public boolean verifyTagAfterLoad(CompoundNBT nbt) {
+        if (!nbt.contains(TAG_COLOUR)) {
+            nbt.putInt(TAG_COLOUR, this.colour.getId());
+            return true;
+        }
+        return super.verifyTagAfterLoad(nbt);
+    }
+
+    @Override
     public void inventoryTick(ItemStack bundle, World level, Entity entity, int slot, boolean holding) {
         super.inventoryTick(bundle, level, entity, slot, holding);
         updateMaxWeight(bundle);
+        if (bundle.getOrCreateTag().contains(TAG_COLOUR)) {
+            this.colour = BundleColour.byId(bundle.getOrCreateTag().getInt(TAG_COLOUR));
+            bundle.getOrCreateTag().putInt(TAG_COLOUR, this.colour.getId());
+        } else {
+            bundle.getOrCreateTag().putInt(TAG_COLOUR, this.colour.getId());
+        }
+    }
+
+    public static int getBundleId(ItemStack stack) {
+        CompoundNBT nbt = stack.getOrCreateTag();
+        if (nbt.contains(TAG_COLOUR)) {
+            return nbt.getInt(TAG_COLOUR);
+        } else {
+            return 0;
+        }
     }
 
     private void updateMaxWeight(ItemStack bundle) {
@@ -203,12 +248,28 @@ public class BundleItem extends Item {
         if (!nbt.contains(TAG_WEIGHT)) {
             nbt.putInt(TAG_WEIGHT, 64);
         }
-        return nbt.getInt(TAG_WEIGHT);
+        int weight = nbt.getInt(TAG_WEIGHT);
+        if (EnchantmentHelper.has(stack, Enchantments.DEEP_POCKETS)) {
+            weight *= EnchantmentHelper.getItemEnchantmentLevel(Enchantments.DEEP_POCKETS, stack);
+        }
+        return weight;
     }
 
     public void setMaxWeight(ItemStack stack, int weight) {
         CompoundNBT nbt = stack.getOrCreateTag();
         nbt.putInt(TAG_WEIGHT, weight);
+    }
+
+    public static void setColour(ItemStack stack, BundleColour colour) {
+        stack.getOrCreateTag().putInt(TAG_COLOUR, colour.getId());
+    }
+
+    public static void setColour(ItemStack stack, DyeColor dye) {
+        setColour(stack, BundleColour.byDye(dye));
+    }
+
+    public static void setColour(ItemStack stack, int colour) {
+        stack.getOrCreateTag().putInt(TAG_COLOUR, BundleColour.byId(colour).getId());
     }
 
     private static int add(BundleItem bundle, ItemStack bundleStack, ItemStack itemStack, ClickAction action) {
@@ -220,80 +281,60 @@ public class BundleItem extends Item {
 
             int currentWeight = getContentWeight(bundleStack);
             int itemWeight = getItemWeight(itemStack, bundleStack);
-            int insertCount = Math.min(itemStack.getCount(), (bundle.getMaxWeight(bundleStack) - currentWeight) / itemWeight);
-            int totalWeight = currentWeight + (itemWeight * itemStack.getCount());
+            int availableSpace = bundle.getMaxWeight(bundleStack) - currentWeight;
+            int insertCount = Math.min(itemStack.getCount(), availableSpace / itemWeight);
 
-            // Check if the total weight exceeds the maximum allowed weight
-            if (totalWeight > bundle.getMaxWeight(bundleStack)) {
-                // If the stack size is 1, skip this process
-                if (itemStack.getMaxStackSize() > 1) {
-                    // Decrease the item count until the total weight is within the limit
-                    while (itemStack.getCount() > 0 && totalWeight > bundle.getMaxWeight(bundleStack)) {
-                        itemStack.shrink(1);  // Decrease the item count by 1
-                        totalWeight = currentWeight + (itemWeight * itemStack.getCount());  // Recalculate the total weight
-                    }
-                }
-
-                // If after shrinking the count the total weight is still greater, return 0
-                if (totalWeight > bundle.getMaxWeight(bundleStack)) {
-                    return 0;
-                }
+            if (insertCount <= 0) {
+                return 0; // No space for any items
             }
 
-            // If the insert count is still 0, return 0
-            if (insertCount == 0) {
-                return 0;
-            } else {
-                ListNBT itemList = tag.getList(TAG_ITEMS, 10);
-                boolean itemAdded = false;
+            ListNBT itemList = tag.getList(TAG_ITEMS, 10);
+            boolean itemAdded = false;
+            int itemsInserted = 0;
 
-                // Iterate through the list to find a matching item
-                for (int i = 0; i < itemList.size(); i++) {
-                    CompoundNBT existingTag = itemList.getCompound(i);
-                    ItemStack existingStack = ItemStack.of(existingTag);
+            // Iterate through the list to try to add items
+            for (int i = 0; i < itemList.size(); i++) {
+                CompoundNBT existingTag = itemList.getCompound(i);
+                ItemStack existingStack = ItemStack.of(existingTag);
 
-                    // Check if the existing item matches the one being added
-                    if (ItemStack.isSame(existingStack, itemStack) && ItemStack.tagMatches(existingStack, itemStack)) {
-                        // Calculate the potential new count
-                        int potentialNewCount = existingStack.getCount() + insertCount;
+                // If the item type and tag match, try to merge stacks
+                if (ItemStack.isSame(existingStack, itemStack) && ItemStack.tagMatches(existingStack, itemStack)) {
+                    int newCount = Math.min(existingStack.getCount() + insertCount, existingStack.getMaxStackSize());
+                    int itemsToAdd = newCount - existingStack.getCount();
 
-                        // If adding items would exceed the max stack size, prevent any insertion
-                        if (potentialNewCount > existingStack.getMaxStackSize()) {
-                            return 0;
-                        }
+                    existingStack.setCount(newCount);
+                    existingStack.save(existingTag); // Save updated count
+                    itemList.set(i, existingTag);
 
-                        // Add the items to the existing stack
-                        int newCount = Math.min(potentialNewCount, existingStack.getMaxStackSize());
-                        existingStack.setCount(newCount);
-                        existingStack.save(existingTag);
-                        itemList.set(i, existingTag);
+                    itemStack.shrink(itemsToAdd); // Reduce the incoming stack count
+                    insertCount -= itemsToAdd;
+                    itemsInserted += itemsToAdd;
+                    itemAdded = true;
 
-                        itemAdded = true;
+                    // If no more items are left to add, break early
+                    if (insertCount <= 0) {
                         break;
                     }
                 }
-
-                // If no matching item was found, add a new entry
-                if (!itemAdded) {
-                    // Ensure that the new item stack doesn't exceed the max stack size
-                    if (insertCount > itemStack.getMaxStackSize()) {
-                        return 0;
-                    }
-
-                    ItemStack newItemStack = itemStack.copy();
-                    newItemStack.setCount(insertCount);
-                    CompoundNBT newTag = new CompoundNBT();
-                    newItemStack.save(newTag);
-                    itemList.add(newTag);
-                }
-
-                tag.put(TAG_ITEMS, itemList);
-
-                // Remove the added items from the player's inventory
-                itemStack.shrink(insertCount);
-
-                return insertCount;
             }
+
+            // If we still have items to add after attempting to merge stacks, create new entries
+            while (insertCount > 0) {
+                ItemStack newStack = itemStack.copy();
+                int countToAdd = Math.min(insertCount, newStack.getMaxStackSize());
+                newStack.setCount(countToAdd);
+
+                CompoundNBT newTag = new CompoundNBT();
+                newStack.save(newTag);
+                itemList.add(newTag);
+
+                itemStack.shrink(countToAdd); // Reduce the item held by the player
+                insertCount -= countToAdd;
+                itemsInserted += countToAdd;
+            }
+
+            tag.put(TAG_ITEMS, itemList); // Update the NBT data
+            return itemsInserted; // Return the total number of items inserted
         } else {
             return 0;
         }
@@ -303,43 +344,6 @@ public class BundleItem extends Item {
         return p_150757_.getItem() == (Items.BUNDLE) ? Optional.empty() : p_150758_.stream().filter(CompoundNBT.class::isInstance).map(CompoundNBT.class::cast).filter((p_186350_) -> {
             return ItemStack.tagMatches(ItemStack.of(p_186350_), p_150757_);
         }).findFirst();
-    }
-
-    private static int addTest(BundleItem bundle, ItemStack p_150764_, ItemStack p_150765_) {
-        if (!p_150765_.isEmpty() && p_150765_.getItem().canFitInsideContainerItems()) {
-            CompoundNBT compoundtag = p_150764_.getOrCreateTag();
-            if (!compoundtag.contains(TAG_ITEMS)) {
-                compoundtag.put(TAG_ITEMS, new ListNBT());
-            }
-
-            int i = getContentWeight(p_150764_);
-            int j = bundle.getWeight(p_150765_);
-            int k = Math.min(p_150765_.getCount(), (64 - i) / j);
-            if (k == 0) {
-                return 0;
-            } else {
-                ListNBT listtag = compoundtag.getList(TAG_ITEMS, 10);
-                Optional<CompoundNBT> optional = getMatchingItem(p_150765_, listtag);
-                if (optional.isPresent()) {
-                    CompoundNBT compoundtag1 = optional.get();
-                    ItemStack itemstack = ItemStack.of(compoundtag1);
-                    itemstack.grow(k);
-                    itemstack.save(compoundtag1);
-                    listtag.remove(compoundtag1);
-                    listtag.add(0, compoundtag1);
-                } else {
-                    ItemStack itemstack1 = p_150765_.copy();
-                    itemstack1.setCount(k);
-                    CompoundNBT compoundtag2 = new CompoundNBT();
-                    itemstack1.save(compoundtag2);
-                    listtag.add(0, compoundtag2);
-                }
-
-                return k;
-            }
-        } else {
-            return 0;
-        }
     }
 
     private static int getItemWeight(ItemStack p_150777_, ItemStack bundle) {
@@ -488,7 +492,7 @@ public class BundleItem extends Item {
     }
 
 
-    private static Stream<ItemStack> getContents(ItemStack p_150783_) {
+    public static Stream<ItemStack> getContents(ItemStack p_150783_) {
         CompoundNBT compound = p_150783_.getTag();
         if (compound == null) {
             return Stream.empty();
@@ -525,12 +529,11 @@ public class BundleItem extends Item {
                 // Calculate the starting index to ensure we don't go out of bounds
                 int startIndex = Math.max(0, lastIndex - maxItemsToShow + 1);
 
-                for (int i = startIndex; i <= lastIndex; i++) {
+                for (int i = lastIndex; i >= startIndex; i--) {
                     CompoundNBT tag = itemList.getCompound(i);
                     ItemStack item = ItemStack.of(tag);
 
                     // Get the rarity color
-
 
                     // Create a text component for the item's name using the rarity color
                     IFormattableTextComponent itemNameComponent = new StringTextComponent(item.getHoverName().getString()).rarity(item);
@@ -551,7 +554,7 @@ public class BundleItem extends Item {
     }
 
     public void onDestroyed(ItemEntity p_150728_) {
-        onContainerDestroyed(p_150728_, getContents(p_150728_.getItem()));
+        dropAllContents(p_150728_, getContents(p_150728_.getItem()));
     }
 
     private void playRemoveOneSound(Entity p_186343_) {
@@ -566,12 +569,21 @@ public class BundleItem extends Item {
         p_186354_.playSound(SoundEvents.BUNDLE_DROP_CONTENTS, 0.8F, 0.8F + p_186354_.level.getRandom().nextFloat() * 0.4F);
     }
 
-    public static void onContainerDestroyed(ItemEntity p_150953_, Stream<ItemStack> p_150954_) {
+    public static void dropAllContents(ItemEntity p_150953_, Stream<ItemStack> p_150954_) {
         World level = p_150953_.level;
         if (!level.isClientSide) {
             p_150954_.forEach((p_296893_) -> {
                 level.addFreshEntity(new ItemEntity(level, p_150953_.getX(), p_150953_.getY(), p_150953_.getZ(), p_296893_));
             });
+            p_150953_.getItem().removeTagKey(TAG_ITEMS);
         }
     }
+
+
+    public String getDescriptionId(ItemStack p_77667_1_) {
+        BundleColour colour = BundleColour.byId(p_77667_1_.getOrCreateTag().getInt("Colour"));
+        return colour.getTranslation().getString();
+    }
+
+
 }

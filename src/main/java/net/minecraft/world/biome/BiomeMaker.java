@@ -394,6 +394,7 @@ public class BiomeMaker {
    private static Biome baseBadlandsBiome(ConfiguredSurfaceBuilder<SurfaceBuilderConfig> p_244224_0_, float p_244224_1_, float p_244224_2_, boolean p_244224_3_, boolean p_244224_4_) {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.commonSpawns(mobspawninfo$builder);
+      mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.GREAT_HUNGER, 90, 2, 3));
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(p_244224_0_);
       DefaultBiomeFeatures.addDefaultOverworldLandMesaStructures(biomegenerationsettings$builder);
       biomegenerationsettings$builder.addStructureStart(p_244224_3_ ? StructureFeatures.RUINED_PORTAL_MOUNTAIN : StructureFeatures.RUINED_PORTAL_STANDARD);

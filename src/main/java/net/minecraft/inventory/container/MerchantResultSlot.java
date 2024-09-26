@@ -1,5 +1,6 @@
 package net.minecraft.inventory.container;
 
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.entity.merchant.IMerchant;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.MerchantInventory;

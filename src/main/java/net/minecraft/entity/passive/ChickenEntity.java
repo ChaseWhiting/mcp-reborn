@@ -34,7 +34,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
 public class ChickenEntity extends Animal {
-   private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS);
+   private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS, Items.BEE_POLLEN);
    public float flap;
    public float flapSpeed;
    public float oFlapSpeed;

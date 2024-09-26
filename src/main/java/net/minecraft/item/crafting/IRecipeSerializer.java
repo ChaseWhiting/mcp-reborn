@@ -1,6 +1,7 @@
 package net.minecraft.item.crafting;
 
 import com.google.gson.JsonObject;
+import net.minecraft.bundle.BundleColour;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -9,6 +10,8 @@ public interface IRecipeSerializer<T extends IRecipe<?>> {
    IRecipeSerializer<ShapedRecipe> SHAPED_RECIPE = register("crafting_shaped", new ShapedRecipe.Serializer());
    IRecipeSerializer<ShapelessRecipe> SHAPELESS_RECIPE = register("crafting_shapeless", new ShapelessRecipe.Serializer());
    SpecialRecipeSerializer<ArmorDyeRecipe> ARMOR_DYE = register("crafting_special_armordye", new SpecialRecipeSerializer<>(ArmorDyeRecipe::new));
+   SpecialRecipeSerializer<BundleColourChangeRecipe> BUNDLE_DYE = register("crafting_bundle_dye", new SpecialRecipeSerializer<>(BundleColourChangeRecipe::new));
+
    SpecialRecipeSerializer<BookCloningRecipe> BOOK_CLONING = register("crafting_special_bookcloning", new SpecialRecipeSerializer<>(BookCloningRecipe::new));
    SpecialRecipeSerializer<MapCloningRecipe> MAP_CLONING = register("crafting_special_mapcloning", new SpecialRecipeSerializer<>(MapCloningRecipe::new));
    SpecialRecipeSerializer<MapExtendingRecipe> MAP_EXTENDING = register("crafting_special_mapextending", new SpecialRecipeSerializer<>(MapExtendingRecipe::new));

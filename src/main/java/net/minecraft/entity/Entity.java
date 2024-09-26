@@ -342,6 +342,10 @@ public abstract class Entity implements INameable, ICommandSource {
         this.removed = true;
     }
 
+    public void discard() {
+        this.remove();
+    }
+
     public void setPose(Pose p_213301_1_) {
         this.entityData.set(DATA_POSE, p_213301_1_);
     }

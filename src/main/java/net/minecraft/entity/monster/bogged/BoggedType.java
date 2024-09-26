@@ -3,6 +3,7 @@ package net.minecraft.entity.monster.bogged;
 import com.google.common.collect.Maps;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.Util;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 
@@ -115,6 +116,10 @@ public enum BoggedType {
         this.name = p_i241911_4_;
         this.arrowCooldown = arrowShooCooldown;
         this.hasMushrooms = hasMushrooms;
+    }
+
+    public TranslationTextComponent getTranslation() {
+        return new TranslationTextComponent("entity.minecraft." + this.name);
     }
 
     public int getArrowCooldown() {

@@ -13,6 +13,7 @@ import net.minecraft.entity.ai.brain.Memory;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.monster.HoglinEntity;
+import net.minecraft.entity.monster.bogged.BoggedEntity;
 import net.minecraft.entity.monster.piglin.AbstractPiglinEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -79,6 +80,8 @@ public class MemoryModuleType<U> {
    public static final MemoryModuleType<IronGolemEntity> ATTACKABLE_GOLEM = register("nearest_golem");
 
    public static final MemoryModuleType<List<AbstractPiglinEntity>> NEARBY_ADULT_PIGLINS = register("nearby_adult_piglins");
+   public static final MemoryModuleType<List<BoggedEntity>> NEARBY_BOGGED = register("nearby_bogged");
+
    public static final MemoryModuleType<List<AbstractPiglinEntity>> NEAREST_VISIBLE_ADULT_PIGLINS = register("nearest_visible_adult_piglins");
    public static final MemoryModuleType<List<HoglinEntity>> NEAREST_VISIBLE_ADULT_HOGLINS = register("nearest_visible_adult_hoglins");
    public static final MemoryModuleType<AbstractPiglinEntity> NEAREST_VISIBLE_ADULT_PIGLIN = register("nearest_visible_adult_piglin");

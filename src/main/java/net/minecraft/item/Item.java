@@ -52,9 +52,12 @@ public class Item implements IItemProvider {
    private final boolean isFireResistant;
    private final Item craftingRemainingItem;
    @Nullable
-   private String descriptionId;
+   public String descriptionId;
    @Nullable
    private final Food foodProperties;
+
+
+
 
    public static int getId(Item p_150891_0_) {
       return p_150891_0_ == null ? 0 : Registry.ITEM.getId(p_150891_0_);
@@ -357,6 +360,8 @@ public class Item implements IItemProvider {
 
    public int getWeight(ItemStack stack) {
       Item item = stack.getItem();
+
+
 
       if (this.weight != -1) {
          return this.weight;

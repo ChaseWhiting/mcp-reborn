@@ -156,6 +156,11 @@ public abstract class LivingEntity extends Entity {
     protected float rotOffs;
     protected int deathScore;
     protected float lastHurt;
+
+    public boolean isJumping() {
+        return jumping;
+    }
+
     protected boolean jumping;
     public float xxa;
     public float yya;

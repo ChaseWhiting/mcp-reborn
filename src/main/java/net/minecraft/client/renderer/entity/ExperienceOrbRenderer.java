@@ -30,36 +30,54 @@ public class ExperienceOrbRenderer extends EntityRenderer<ExperienceOrbEntity> {
       return MathHelper.clamp(super.getBlockLightLevel(p_225624_1_, p_225624_2_) + 7, 0, 15);
    }
 
-   public void render(ExperienceOrbEntity p_225623_1_, float p_225623_2_, float p_225623_3_, MatrixStack p_225623_4_, IRenderTypeBuffer p_225623_5_, int p_225623_6_) {
-      p_225623_4_.pushPose();
-      int i = p_225623_1_.getIcon();
-      float f = (float)(i % 4 * 16 + 0) / 64.0F;
-      float f1 = (float)(i % 4 * 16 + 16) / 64.0F;
-      float f2 = (float)(i / 4 * 16 + 0) / 64.0F;
-      float f3 = (float)(i / 4 * 16 + 16) / 64.0F;
-      float f4 = 1.0F;
-      float f5 = 0.5F;
-      float f6 = 0.25F;
-      float f7 = 255.0F;
-      float f8 = ((float)p_225623_1_.tickCount + p_225623_3_) / 2.0F;
-      int j = (int)((MathHelper.sin(f8 + 0.0F) + 1.0F) * 0.5F * 255.0F);
-      int k = 255;
-      int l = (int)((MathHelper.sin(f8 + 4.1887903F) + 1.0F) * 0.1F * 255.0F);
-      p_225623_4_.translate(0.0D, (double)0.1F, 0.0D);
-      p_225623_4_.mulPose(this.entityRenderDispatcher.cameraOrientation());
-      p_225623_4_.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-      float f9 = 0.3F;
-      p_225623_4_.scale(0.3F, 0.3F, 0.3F);
-      IVertexBuilder ivertexbuilder = p_225623_5_.getBuffer(RENDER_TYPE);
-      MatrixStack.Entry matrixstack$entry = p_225623_4_.last();
-      Matrix4f matrix4f = matrixstack$entry.pose();
-      Matrix3f matrix3f = matrixstack$entry.normal();
-      vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, -0.25F, j, 255, l, f, f3, p_225623_6_);
-      vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, -0.25F, j, 255, l, f1, f3, p_225623_6_);
-      vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.75F, j, 255, l, f1, f2, p_225623_6_);
-      vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, 0.75F, j, 255, l, f, f2, p_225623_6_);
-      p_225623_4_.popPose();
-      super.render(p_225623_1_, p_225623_2_, p_225623_3_, p_225623_4_, p_225623_5_, p_225623_6_);
+   public void render(ExperienceOrbEntity orbEntity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+      matrixStack.pushPose();
+
+      int iconIndex = orbEntity.getIcon();
+
+      // UV coordinates for the texture
+      float minU = (float)(iconIndex % 4 * 16) / 64.0F;
+      float maxU = (float)(iconIndex % 4 * 16 + 16) / 64.0F;
+      float minV = (float)(iconIndex / 4 * 16) / 64.0F;
+      float maxV = (float)(iconIndex / 4 * 16 + 16) / 64.0F;
+
+      // Orb size constants
+      float orbScale = 1.0F;
+      float orbHalfSize = 0.5F;
+      float orbQuarterSize = 0.25F;
+
+      // Color modulation constants
+      float colorMaxValue = 255.0F;
+      float tickOffset = ((float) orbEntity.tickCount + partialTicks) / 2.0F;
+
+      // Calculate color values based on tick count and partial ticks
+      int red = (int) ((MathHelper.sin(tickOffset) + 1.0F) * 0.5F * colorMaxValue);
+      int green = 255;
+      int blue = (int) ((MathHelper.sin(tickOffset + 4.1887903F) + 1.0F) * 0.1F * colorMaxValue);
+
+      // Transformations
+      matrixStack.translate(0.0D, 0.1D, 0.0D);
+      matrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+      matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+
+      // Scaling
+      float scale = 0.3F;
+      matrixStack.scale(scale, scale, scale);
+
+      // Vertex buffer and transformation matrices
+      IVertexBuilder vertexBuilder = buffer.getBuffer(RENDER_TYPE);
+      MatrixStack.Entry matrixEntry = matrixStack.last();
+      Matrix4f poseMatrix = matrixEntry.pose();
+      Matrix3f normalMatrix = matrixEntry.normal();
+
+      // Render the vertices
+      vertex(vertexBuilder, poseMatrix, normalMatrix, -orbHalfSize, -orbQuarterSize, red, green, blue, minU, maxV, packedLight);
+      vertex(vertexBuilder, poseMatrix, normalMatrix, orbHalfSize, -orbQuarterSize, red, green, blue, maxU, maxV, packedLight);
+      vertex(vertexBuilder, poseMatrix, normalMatrix, orbHalfSize, orbHalfSize + orbQuarterSize, red, green, blue, maxU, minV, packedLight);
+      vertex(vertexBuilder, poseMatrix, normalMatrix, -orbHalfSize, orbHalfSize + orbQuarterSize, red, green, blue, minU, minV, packedLight);
+
+      matrixStack.popPose();
+      super.render(orbEntity, entityYaw, partialTicks, matrixStack, buffer, packedLight);
    }
 
    private static void vertex(IVertexBuilder p_229102_0_, Matrix4f p_229102_1_, Matrix3f p_229102_2_, float p_229102_3_, float p_229102_4_, int p_229102_5_, int p_229102_6_, int p_229102_7_, float p_229102_8_, float p_229102_9_, int p_229102_10_) {

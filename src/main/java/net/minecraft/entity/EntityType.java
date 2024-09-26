@@ -49,6 +49,12 @@ public class EntityType<T extends Entity> {
    public static final EntityType<OwlEntity> OWL = register("owl", Builder.<OwlEntity>of(OwlEntity::new, EntityClassification.CREATURE).sized(0.7F, 0.8F).clientTrackingRange(12));
    public static final EntityType<QueenBeeEntity> QUEEN_BEE = register("queen_bee", EntityType.Builder.<QueenBeeEntity>of(QueenBeeEntity::new, EntityClassification.CREATURE).sized(0.9F, 0.79F).clientTrackingRange(10));
    public static final EntityType<FakeEndstoneBlockEntity> ENDSTONE_BLOCK = register("endstone_block", EntityType.Builder.<FakeEndstoneBlockEntity>of(FakeEndstoneBlockEntity::new, EntityClassification.MONSTER).sized(1,1).clientTrackingRange(12));
+
+
+   public static final EntityType<GreatHungerEntity> GREAT_HUNGER = register("great_hunger", EntityType.Builder.<GreatHungerEntity>of(GreatHungerEntity::new, EntityClassification.MONSTER).sized(0.65F,0.62F).clientTrackingRange(12));
+
+
+
    public static final EntityType<BeeEntity> BEE = register("bee", EntityType.Builder.<BeeEntity>of(BeeEntity::new, EntityClassification.CREATURE).sized(0.7F, 0.6F).clientTrackingRange(8));
    public static final EntityType<BlazeEntity> BLAZE = register("blaze", EntityType.Builder.<BlazeEntity>of(BlazeEntity::new, EntityClassification.MONSTER).fireImmune().sized(0.6F, 1.8F).clientTrackingRange(8));
    public static final EntityType<BoatEntity> BOAT = register("boat", EntityType.Builder.<BoatEntity>of(BoatEntity::new, EntityClassification.MISC).sized(1.375F, 0.5625F).clientTrackingRange(10));

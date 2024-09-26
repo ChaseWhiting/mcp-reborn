@@ -746,6 +746,7 @@ public class RecipeProvider implements IDataProvider {
       ShapedRecipeBuilder.shaped(Blocks.POLISHED_BLACKSTONE_PRESSURE_PLATE).define('#', Blocks.POLISHED_BLACKSTONE).pattern("##").unlockedBy("has_polished_blackstone", has(Blocks.POLISHED_BLACKSTONE)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Blocks.CHAIN).define('I', Items.IRON_INGOT).define('N', Items.IRON_NUGGET).pattern("N").pattern("I").pattern("N").unlockedBy("has_iron_nugget", has(Items.IRON_NUGGET)).unlockedBy("has_iron_ingot", has(Items.IRON_INGOT)).save(p_200404_0_);
       CustomRecipeBuilder.special(IRecipeSerializer.ARMOR_DYE).save(p_200404_0_, "armor_dye");
+      CustomRecipeBuilder.special(IRecipeSerializer.BUNDLE_DYE).save(p_200404_0_, "bundle_dye");
       CustomRecipeBuilder.special(IRecipeSerializer.BANNER_DUPLICATE).save(p_200404_0_, "banner_duplicate");
       CustomRecipeBuilder.special(IRecipeSerializer.BOOK_CLONING).save(p_200404_0_, "book_cloning");
       CustomRecipeBuilder.special(IRecipeSerializer.FIREWORK_ROCKET).save(p_200404_0_, "firework_rocket");

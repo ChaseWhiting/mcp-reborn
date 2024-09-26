@@ -3,6 +3,8 @@ package net.minecraft.entity.item;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MoverType;
@@ -49,6 +51,10 @@ public class ItemEntity extends Entity {
       this.setPos(p_i1709_2_, p_i1709_4_, p_i1709_6_);
       this.yRot = this.random.nextFloat() * 360.0F;
       this.setDeltaMovement(this.random.nextDouble() * 0.2D - 0.1D, 0.2D, this.random.nextDouble() * 0.2D - 0.1D);
+   }
+
+   public int getPickupDelay() {
+      return pickupDelay;
    }
 
    public ItemEntity(World p_i1710_1_, double p_i1710_2_, double p_i1710_4_, double p_i1710_6_, ItemStack p_i1710_8_) {
@@ -251,6 +257,20 @@ public class ItemEntity extends Entity {
 
          return false;
       }
+   }
+
+   public void destroy() {
+      this.getItem().onDestroyed(this);
+      this.remove();
+   }
+
+   public boolean spillBundleContents() {
+      if (this.getItem().getItem() instanceof BundleItem) {
+         this.getItem().onDestroyed(this);
+         this.remove();
+         return true;
+      }
+      return false;
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {

@@ -29,6 +29,7 @@ public class V2571 extends NamespacedSchema {
         registerMob(schema, entityMap, "minecraft:endstone_block");
         registerMob(schema, entityMap, "minecraft:colette");
         registerMob(schema, entityMap, "minecraft:bogged");
+        registerMob(schema, entityMap, "minecraft:great_hunger");
 
         registerMob(schema, entityMap, "minecraft:blackhole");
 

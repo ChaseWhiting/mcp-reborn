@@ -11,6 +11,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -870,7 +871,11 @@ public class Items {
    public static final Item VEX_SPAWN_EGG = registerItem("vex_spawn_egg", new SpawnEggItem(EntityType.VEX, 8032420, 15265265, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
 
    public static final Item VILLAGER_SPAWN_EGG = registerItem("villager_spawn_egg", new SpawnEggItem(EntityType.VILLAGER, 5651507, 12422002, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
-   public static final Item IRON_GOLEM_SPAWN_EGG = registerItem((String)"iron_golem_spawn_egg", new SpawnEggItem(EntityType.IRON_GOLEM, 14405058, 7643954, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
+   public static final Item IRON_GOLEM_SPAWN_EGG = registerItem((String)"iron_golem_spawn_egg", new SpawnEggItem(EntityType.IRON_GOLEM, 14405058, 7643954, (new Item.Properties()).tab(ItemGroup.TAB_MISC), (mob, world, pos, player) -> {
+      if (mob instanceof IronGolemEntity) {
+         mob.as(IronGolemEntity.class).setPlayerCreated(player != null);
+      }
+   }));
    public static final Item SNOW_GOLEM_SPAWN_EGG = registerItem((String)"snow_golem_spawn_egg", new SpawnEggItem(EntityType.SNOW_GOLEM, 14283506, 8496292, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item VINDICATOR_SPAWN_EGG = registerItem("vindicator_spawn_egg", new SpawnEggItem(EntityType.VINDICATOR, 9804699, 2580065, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));
    public static final Item WANDERING_TRADER_SPAWN_EGG = registerItem("wandering_trader_spawn_egg", new SpawnEggItem(EntityType.WANDERING_TRADER, 4547222, 15377456, (new Item.Properties()).tab(ItemGroup.TAB_MISC)));

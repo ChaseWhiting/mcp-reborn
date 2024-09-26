@@ -73,6 +73,7 @@ public class EntityRendererManager {
       this.register(EntityType.COLETTE, new ColetteRenderer(this));
       this.register(EntityType.HEROBRINE, new HerobrineRenderer(this));
       this.register(EntityType.ENDSTONE_BLOCK, new BlockEntityRenderer(this, new ResourceLocation("textures/entity/block/endstone.png")));
+      this.register(EntityType.GREAT_HUNGER, new GreatHungerRenderer(this));
       this.register(EntityType.ARMOR_STAND, new ArmorStandRenderer(this));
       this.register(EntityType.ARROW, new TippedArrowRenderer(this));
       this.register(EntityType.BONE_ARROW, new BoneArrowRenderer(this));

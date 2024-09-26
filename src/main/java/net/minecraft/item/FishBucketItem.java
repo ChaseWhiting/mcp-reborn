@@ -32,6 +32,10 @@ public class FishBucketItem extends BucketItem {
       this.type = p_i49022_1_;
    }
 
+   public int getWeight(ItemStack bundle) {
+      return 32;
+   }
+
    public void checkExtraContent(World p_203792_1_, ItemStack p_203792_2_, BlockPos p_203792_3_) {
       if (p_203792_1_ instanceof ServerWorld) {
          this.spawn((ServerWorld)p_203792_1_, p_203792_2_, p_203792_3_);

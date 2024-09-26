@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
+import net.minecraft.bundle.BundleColour;
 import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -348,8 +349,15 @@ public class ItemModelsProperties {
       register(Items.TRIDENT, new ResourceLocation("throwing"), (p_239419_0_, p_239419_1_, p_239419_2_) -> {
          return p_239419_2_ != null && p_239419_2_.isUsingItem() && p_239419_2_.getUseItem() == p_239419_0_ ? 1.0F : 0.0F;
       });
-      register(Items.BUNDLE, new ResourceLocation("filled"), (p_174625_, p_174626_, p_174627_) -> {
-         return BundleItem.getFullnessDisplay(p_174625_);
+//      register(Items.BUNDLE, new ResourceLocation("filled"), (p_174625_, p_174626_, p_174627_) -> {
+//         return BundleItem.getFullnessDisplay(p_174625_);
+//      });
+      register(Items.BUNDLE, new ResourceLocation("colour"), (item, clientWorld, entity) -> {
+         if (item.getOrCreateTag().contains("Colour")) {
+            return BundleItem.getBundleId(item);
+         }
+
+         return BundleColour.REGULAR.getId();
       });
    }
 

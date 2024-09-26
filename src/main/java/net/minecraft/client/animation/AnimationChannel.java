@@ -68,7 +68,7 @@ public class AnimationChannel {
             modelPart.zRot += vector.z();
         };
         public static final Target SCALE = (modelPart, vector) -> {
-            if (modelPart instanceof ModelRenderer) {
+            if (modelPart != null) {
                 ((ModelRenderer) modelPart).applyScale(vector);
             }
         };

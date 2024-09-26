@@ -34,7 +34,7 @@ public class ModelRenderer {
    public boolean visible = true;
    private String name;
    private final ObjectList<ModelRenderer.ModelBox> cubes = new ObjectArrayList<>();
-   private final ObjectList<ModelRenderer> children = new ObjectArrayList<>();
+   public final ObjectList<ModelRenderer> children = new ObjectArrayList<>();
    private static float scaleX = 1.0F,scaleY = 1.0F, scaleZ = 1.0F;
 
    public ModelRenderer(Model p_i1173_1_) {

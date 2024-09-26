@@ -33,7 +33,7 @@ public class BetterLeapAtTargetGoal<T extends Mob> extends Goal {
 				double dstSq = projectedVector.getLeft().lengthSqr();
 				double dstSqDot = projectedVector.getMiddle().lengthSqr();
 
-				if(dstSq >= 4.0D && dstSq <= 16.0D && dstSqDot <= 1.2f && this.leaper.getRandom().nextInt(5) == 0) {
+				if(dstSq >= 4.0D && dstSq <= 16.0D && dstSqDot <= 1.2f && this.leaper.getRandom().nextInt(3) == 0) {
 					this.forwardJumpDirection = projectedVector.getLeft().normalize();
 					this.upwardJumpDirection = projectedVector.getRight().normalize();
 					return true;

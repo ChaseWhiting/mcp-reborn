@@ -1,6 +1,10 @@
 package net.minecraft.entity.monster.bogged;
 
 import com.google.common.collect.Lists;
+import net.minecraft.block.BedBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -15,9 +19,14 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
-import net.minecraft.loot.LootParameters;
+import net.minecraft.loot.*;
+import net.minecraft.loot.RandomValueRange;
+import net.minecraft.loot.functions.LootingEnchantBonus;
+import net.minecraft.loot.functions.SetCount;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -26,11 +35,15 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.*;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.server.ServerWorld;
@@ -79,7 +92,7 @@ public class BoggedEntity extends AbstractSkeletonEntity implements IShearable, 
         this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, WolfEntity.class, 6.0F, 1.0D, 1.2D, entity -> {
             return this.getTrustedPlayer().get(0) == null;
         }));
-        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, IronGolemEntity.class, 4.5F, 1.2D, 1.0D, entity -> {
+        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, IronGolemEntity.class, 4.6F, 1.3D, 1.27D, entity -> {
             return !this.getMainHandItem().isEmpty();
         }));
         this.goalSelector.addGoal(5, new WaterAvoidingRandomWalkingGoal(this, 1.0D));
@@ -193,6 +206,10 @@ public class BoggedEntity extends AbstractSkeletonEntity implements IShearable, 
         return super.doHurtTarget(entity);
     }
 
+    protected ITextComponent getTypeName() {
+        return this.getBoggedType().getTranslation();
+    }
+
 
     public void aiStep() {
         super.aiStep();
@@ -217,12 +234,42 @@ public class BoggedEntity extends AbstractSkeletonEntity implements IShearable, 
         }
 
         if (this.mushroomRegrowTime > 0) {
-            --mushroomRegrowTime;
+            // Subtract getConversionProgress() but ensure mushroomRegrowTime doesn't go below 0
+            mushroomRegrowTime = Math.max(0, 1);
         }
         if (this.mushroomRegrowTime == 0) {
             mushroomRegrowTime = -1;
             this.regrowMushrooms();
         }
+    }
+
+    private int getConversionProgress() {
+        int i = 1;
+        if (this.random.nextFloat() < 0.01F) {
+            int j = 0;
+            BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
+            if (this.isEyeInFluid(FluidTags.WATER)) {
+                if (this.random.nextFloat() < 0.2F) {
+                    ++i;
+                }
+            }
+            for(int k = (int)this.getX() - 4; k < (int)this.getX() + 4 && j < 14; ++k) {
+                for(int l = (int)this.getY() - 4; l < (int)this.getY() + 4 && j < 14; ++l) {
+                    for(int i1 = (int)this.getZ() - 4; i1 < (int)this.getZ() + 4 && j < 14; ++i1) {
+                        BlockState block = this.level.getBlockState(blockpos$mutable.set(k, l, i1));
+                        if (block.getFluidState().getType() == Fluids.WATER || block.getBlock() == Blocks.WATER) {
+                            if (this.random.nextFloat() < 0.6F) {
+                                ++i;
+                            }
+
+                            ++j;
+                        }
+                    }
+                }
+            }
+        }
+
+        return i;
     }
 
     public ILivingEntityData finalizeSpawn(IServerWorld world, DifficultyInstance difficultyInstance, SpawnReason reason, @Nullable ILivingEntityData data, @Nullable CompoundNBT nbt) {
@@ -467,6 +514,8 @@ public class BoggedEntity extends AbstractSkeletonEntity implements IShearable, 
 
         return weightedItemStackList;
     }
+
+
 
     public void reassessWeaponGoal() {
         BoggedUtils.reassessWeapon(this);

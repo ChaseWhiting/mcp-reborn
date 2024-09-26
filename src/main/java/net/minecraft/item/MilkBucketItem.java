@@ -15,6 +15,10 @@ public class MilkBucketItem extends Item {
       super(p_i48481_1_);
    }
 
+   public int getWeight(ItemStack bundle) {
+      return 16;
+   }
+
    public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity entity) {
       if (entity instanceof ServerPlayerEntity) {
          ServerPlayerEntity serverplayerentity = (ServerPlayerEntity) entity;

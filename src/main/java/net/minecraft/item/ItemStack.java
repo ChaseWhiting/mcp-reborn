@@ -230,6 +230,10 @@ public final class ItemStack {
       this.updateEmptyCacheFlag();
    }
 
+   public void putInt(String obj, int integer) {
+      this.getOrCreateTag().putInt(obj, integer);
+   }
+
    public static ItemStack of(CompoundNBT p_199557_0_) {
       try {
          return new ItemStack(p_199557_0_);

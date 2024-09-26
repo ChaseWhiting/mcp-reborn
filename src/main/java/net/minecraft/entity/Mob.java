@@ -67,7 +67,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class Mob extends LivingEntity {
    private static final DataParameter<Byte> DATA_MOB_FLAGS_ID = EntityDataManager.defineId(Mob.class, DataSerializers.BYTE);
    public int ambientSoundTime;
-   protected int xpReward;
+   public int xpReward;
    protected LookController lookControl;
    protected MovementController moveControl;
    protected JumpController jumpControl;
@@ -89,7 +89,7 @@ public abstract class Mob extends LivingEntity {
    private final NonNullList<ItemStack> armorItems = NonNullList.withSize(4, ItemStack.EMPTY);
    protected final float[] armorDropChances = new float[4];
    private boolean canPickUpLoot;
-   private boolean persistenceRequired;
+   protected boolean persistenceRequired;
    private final Map<PathNodeType, Float> pathfindingMalus = Maps.newEnumMap(PathNodeType.class);
    private ResourceLocation lootTable;
    private long lootTableSeed;
@@ -253,7 +253,7 @@ public abstract class Mob extends LivingEntity {
       super.playHurtSound(p_184581_1_);
    }
 
-   private void resetAmbientSoundTime() {
+   protected void resetAmbientSoundTime() {
       this.ambientSoundTime = -this.getAmbientSoundInterval();
    }
 

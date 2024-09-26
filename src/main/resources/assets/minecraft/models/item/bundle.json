@@ -1,9 +1,110 @@
 {
-    "parent": "item/generated",
-    "textures": {
-        "layer0": "item/bundle"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "item/bundle_filled"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "colour": 0
+      },
+      "model": "item/regular_bundle"
     },
-    "overrides": [
-        { "predicate": { "filled": 0.0000001 }, "model": "item/bundle_filled" }
-    ]
+    {
+      "predicate": {
+        "colour": 1
+      },
+      "model": "item/white_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 2
+      },
+      "model": "item/light_gray_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 3
+      },
+      "model": "item/gray_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 4
+      },
+      "model": "item/black_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 5
+      },
+      "model": "item/brown_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 6
+      },
+      "model": "item/red_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 7
+      },
+      "model": "item/orange_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 8
+      },
+      "model": "item/yellow_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 9
+      },
+      "model": "item/lime_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 10
+      },
+      "model": "item/green_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 11
+      },
+      "model": "item/cyan_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 12
+      },
+      "model": "item/light_blue_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 13
+      },
+      "model": "item/blue_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 14
+      },
+      "model": "item/purple_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 15
+      },
+      "model": "item/magenta_bundle"
+    },
+    {
+      "predicate": {
+        "colour": 16
+      },
+      "model": "item/pink_bundle"
+    }
+  ]
 }
