@@ -29,6 +29,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class GreatHungerEntity extends Monster {
@@ -37,11 +38,12 @@ public class GreatHungerEntity extends Monster {
 	private static final DataParameter<Boolean> DIGGING = EntityDataManager.defineId(GreatHungerEntity.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Integer> SWALLOWED_ITEM_COUNT = EntityDataManager.defineId(GreatHungerEntity.class, DataSerializers.INT);
 	private static final DataParameter<Integer> SWALLOWED_ENTITY_COUNT = EntityDataManager.defineId(GreatHungerEntity.class, DataSerializers.INT);
-
 	private static final DataParameter<Integer> SAVED_XP = EntityDataManager.defineId(GreatHungerEntity.class, DataSerializers.INT);
 	private static final DataParameter<Integer> DATA_STATE = EntityDataManager.defineId(GreatHungerEntity.class, DataSerializers.INT);
 	private float clientSideSwallowTicks = 0.0F;
 	private float clientSideGrowProgress = 0.0F;
+	@OnlyIn(Dist.CLIENT)
+	public float mouthOpenTicks = 0;
 
 	// Entity swallowing data
 	public final List<CompoundNBT> swallowedEntitiesNBT = new ArrayList<>();
@@ -111,6 +113,10 @@ public class GreatHungerEntity extends Monster {
 		// Ensure it is a living entity and not too large
 		if (entity instanceof PlayerEntity) return false;
 
+		if (entity instanceof ItemEntity) {
+			if (entity.as(ItemEntity.class).isEdible() == false) return false;
+		}
+
 		float width = this.getBbWidth();
 		float height = this.getBbHeight();
 
@@ -175,18 +181,21 @@ public class GreatHungerEntity extends Monster {
 		}
 	}
 
+	@Override
 	public boolean requiresCustomPersistence() {
-		return super.requiresCustomPersistence() && (!this.swallowedEntitiesNBT.isEmpty() || !this.swallowedItems.isEmpty());
+		// If the entity has swallowed items or entities, it should not despawn
+		return super.requiresCustomPersistence() || !this.swallowedItems.isEmpty() || !this.swallowedEntitiesNBT.isEmpty();
 	}
 
-	public boolean removeWhenFarAway(double p_213397_1_) {
-		return !this.requiresCustomPersistence() && super.removeWhenFarAway(p_213397_1_);
+	@Override
+	public boolean removeWhenFarAway(double distanceToPlayer) {
+		// If the entity has swallowed any items or entities, do not remove it
+		return !this.requiresCustomPersistence() && super.removeWhenFarAway(distanceToPlayer);
 	}
 
 	@Override
 	public void aiStep() {
 		super.aiStep();
-		this.setPersistenceRequired();
 		this.xpReward = this.getExperienceAccumulation();
 		if (this.getSwallowedItemCount() > 0 || this.getStoredExperiencePoints() > 0) {
 			// Set the attack damage, but limit it to a maximum of 35
@@ -196,6 +205,51 @@ public class GreatHungerEntity extends Monster {
 			// Set the movement speed, but limit it to a maximum of 1
 			double movementSpeed = 0.15 + 0.001 * this.getSwallowedItemCount();
 			this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(Math.min(movementSpeed, 1));
+
+			// Separate base health and bonus health based on swallowed items
+			double bonusArmour = 3D + 0.002 * this.getSwallowedItemCount();
+			this.getAttribute(Attributes.ARMOR).setBaseValue(Math.min(bonusArmour, 30));
+			this.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(Math.min((bonusArmour - 3 + 6) / 4, 20));
+		}
+	}
+
+	private void spitOutItem(ItemEntity itementity) {
+		this.setAboutToSwallowItem(true);
+		if (!itementity.getItem().isEmpty() && !this.level.isClientSide) {
+			this.damage(itementity, 0.20, 0.25);
+
+			itementity.setPos(this.getX(), this.getY() + 0.8D, this.getZ());
+			itementity.setPickUpDelay(TickRangeConverter.rangeOfTicks(10, 40).randomValue(random));
+			itementity.setThrower(this.getUUID());
+			itementity.setEdible(false);
+			itementity.removed = false;
+			this.heal(itementity.getItem().isDamageableItem() ? 3F : 1F);
+			this.playSound(SoundEvents.FOX_SPIT, 1.0F, this.getVoicePitch());
+			this.level.addFreshEntity(itementity);
+			if (this.swallowedItems.contains(itementity)) {
+				swallowedItems.remove(itementity);
+			}
+			this.updateSwallowedItemCount();
+		}
+		this.setAboutToSwallowItem(false);
+	}
+
+	public void add(ItemEntity entity) {
+		this.spawnItem(entity.getItem(), 0, 0.1F + 0.003 * this.getSwallowedItemCount());
+	}
+
+
+	@Nullable
+	public ItemEntity spawnItem(ItemStack item, float raise, double deltaMod) {
+		if (item.isEmpty()) {
+			return null;
+		} else if (this.level.isClientSide) {
+			return null;
+		} else {
+			ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getY() + (double) raise, this.getZ(), item, deltaMod);
+			itementity.setDefaultPickUpDelay();
+			this.level.addFreshEntity(itementity);
+			return itementity;
 		}
 	}
 
@@ -446,12 +500,66 @@ public class GreatHungerEntity extends Monster {
 
 	public void tick() {
 		super.tick();
+		if (this.tick(this.getCurrentState() == State.FIGHT ? 30 : 80) && (this.getHealth() < this.getMaxHealth() || this.getCurrentState() == State.FIGHT && this.random.nextFloat() < 0.25F)) {
+			List<ItemEntity> itemList = new ArrayList<>(swallowedItems);
+			if (!itemList.isEmpty()) {
+				ItemEntity randomItem = itemList.get(random.nextInt(itemList.size()));
+				this.spitOutItem(randomItem);
+			}
+		}
+	}
+
+	public void damage(ItemEntity itementity, double min, double max) {
+		ItemStack itemStack = itementity.getItem();
+		// Check if the item is damageable
+		if (itemStack.isDamageableItem()) {
+			int currentDamage = itemStack.getDamageValue();
+			int maxDamage = itemStack.getMaxDamage();
+
+			// Calculate the current remaining durability
+			int remainingDurability = maxDamage - currentDamage;
+
+			// Calculate a random reduction between 20% and 45% of the remaining durability
+			double reductionPercentage = min + (random.nextDouble() * max);
+			int durabilityReduction = (int) (remainingDurability * reductionPercentage);
+
+			// Calculate the new remaining durability
+			int newRemainingDurability = remainingDurability - durabilityReduction;
+
+			// Set the new damage value (maxDamage - newRemainingDurability)
+			int newDamage = maxDamage - newRemainingDurability;
+
+			// Ensure the damage value is not negative (0 is fully damaged)
+			itemStack.setDamageValue(Math.min(newDamage, maxDamage));
+			itementity.setItem(itemStack);
+		}
+	}
+
+	public boolean doHurtTarget(Entity entity) {
+		if (super.doHurtTarget(entity)) {
+			if (entity instanceof PlayerEntity) {
+				PlayerEntity player = entity.asPlayer();
+				ItemStack item = player.inventory.takeRandomItemAndRemove(random);
+				if (item != null) {
+					 this.swallowItem(new ItemEntity(level, this.getX(),this.getY(),this.getZ(), item));
+				}
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
 	public void die(DamageSource source) {
 		super.die(source);
-		swallowedItems.forEach(item -> this.spawnAtLocation(item.getItem()));
+		swallowedItems.forEach(entity -> {
+			if (this.level.isServerSide) {
+				entity.removed = false;
+				this.add(entity);
+			}
+		});
 		swallowedItems.clear();
 		this.updateSwallowedItemCount();
 
@@ -459,6 +567,9 @@ public class GreatHungerEntity extends Monster {
 			Entity entity = EntityType.loadEntityRecursive(entityNBT, this.level, (entityIn) -> {
 				if (entityIn instanceof Mob) {
 					entityIn.as(Mob.class).xpReward = 0;
+				}
+				if (entityIn instanceof IAngerable) {
+					((IAngerable)entityIn).startPersistentAngerTimer();
 				}
 
 				// Randomize the position slightly around the death position to avoid cramming
@@ -522,7 +633,7 @@ public class GreatHungerEntity extends Monster {
 		@Override
 		public boolean canUse() {
 			if (this.mob.getTarget() != null) return false;
-			List<ItemEntity> nearbyItems = level.getEntitiesOfClass(ItemEntity.class, this.mob.getBoundingBox().inflate(12 + 0.03 * this.mob.getSwallowedItemCount(), 3.5 + 0.3 * this.mob.getSwallowedItemCount(), 12 + 0.03 * this.mob.getSwallowedItemCount()), itemEntity -> itemEntity.getItem() != null && itemEntity.getPickupDelay() < 80 && itemEntity.isAlive() && this.mob.canSee(itemEntity));
+			List<ItemEntity> nearbyItems = level.getEntitiesOfClass(ItemEntity.class, this.mob.getBoundingBox().inflate(12 + 0.03 * this.mob.getSwallowedItemCount(), 3.5 + 0.3 * this.mob.getSwallowedItemCount(), 12 + 0.03 * this.mob.getSwallowedItemCount()), itemEntity -> itemEntity.getItem() != null && itemEntity.getPickupDelay() < 80 && itemEntity.isAlive() && this.mob.canSee(itemEntity) && itemEntity.isEdible());
 			if (nearbyItems.isEmpty()) {
 				return false;
 			} else {
@@ -563,7 +674,7 @@ public class GreatHungerEntity extends Monster {
 				}
 			}
 
-			if (distance < 0.3F + 0.01F * mob.getSwallowedItemCount()) {
+			if (distance < 0.3F + 0.01F * mob.getSwallowedItemCount() && level.isServerSide) {
 				if (this.mob.swallowItem(itemToSwallow)) {
 					this.mob.playSwallowItemSound();
 					this.mob.setAboutToSwallowItem(false);
@@ -675,6 +786,7 @@ public class GreatHungerEntity extends Monster {
 		TRAP(0),
 		SWALLOW_ITEM(1),
 		IDLE(2),
+		SPIT_ITEM(4),
 		FIGHT(3);
 
 		private final int id;
@@ -693,6 +805,7 @@ public class GreatHungerEntity extends Monster {
 				case 1 -> SWALLOW_ITEM;
 				case 2 -> IDLE;
 				case 3 -> FIGHT;
+				case 4 -> SPIT_ITEM;
 				default -> IDLE;
 			};
 		}

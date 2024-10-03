@@ -36,6 +36,9 @@ public enum TextFormatting {
    ITALIC("ITALIC", 'o', true),
    RESET("RESET", 'r', -1, (Integer)null);
 
+
+
+
    private static final Map<String, TextFormatting> FORMATTING_BY_NAME = Arrays.stream(values()).collect(Collectors.toMap((p_199746_0_) -> {
       return cleanName(p_199746_0_.name);
    }, (p_199747_0_) -> {

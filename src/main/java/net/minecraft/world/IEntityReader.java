@@ -94,13 +94,20 @@ public interface IEntityReader {
 
    @Nullable
    default PlayerEntity getNearestPlayer(Entity p_217362_1_, double p_217362_2_) {
-      return this.getNearestPlayer(p_217362_1_.getX(), p_217362_1_.getY(), p_217362_1_.getZ(), p_217362_2_, false);
+      PlayerEntity player = this.getNearestPlayer(p_217362_1_.getX(), p_217362_1_.getY(), p_217362_1_.getZ(), p_217362_2_, false);
+      return player;
    }
 
    @Nullable
    default PlayerEntity getNearestPlayer(double p_217366_1_, double p_217366_3_, double p_217366_5_, double p_217366_7_, boolean p_217366_9_) {
       Predicate<Entity> predicate = p_217366_9_ ? EntityPredicates.NO_CREATIVE_OR_SPECTATOR : EntityPredicates.NO_SPECTATORS;
       return this.getNearestPlayer(p_217366_1_, p_217366_3_, p_217366_5_, p_217366_7_, predicate);
+   }
+
+   @Nullable
+   default PlayerEntity getNearestSurvivalPlayer(Entity entity, double p_217366_1_) {
+      Predicate<Entity> predicate = EntityPredicates.NO_CREATIVE_OR_SPECTATOR;
+      return this.getNearestPlayer(entity.getX(), entity.getY(), entity.getZ(), p_217366_1_, predicate);
    }
 
    default boolean hasNearbyAlivePlayer(double p_217358_1_, double p_217358_3_, double p_217358_5_, double p_217358_7_) {

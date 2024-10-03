@@ -13,6 +13,8 @@ build/
 /run/crash-reports
 options.txt
 usercache.json
+screenshots
+
 /run/options.txt
 /run/usercache.json
 saves

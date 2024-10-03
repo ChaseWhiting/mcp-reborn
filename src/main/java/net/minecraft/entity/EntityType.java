@@ -15,6 +15,7 @@ import net.minecraft.entity.item.minecart.*;
 import net.minecraft.entity.merchant.villager.*;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.monster.bogged.BoggedEntity;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.monster.piglin.*;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.passive.fish.*;
@@ -52,6 +53,7 @@ public class EntityType<T extends Entity> {
 
 
    public static final EntityType<GreatHungerEntity> GREAT_HUNGER = register("great_hunger", EntityType.Builder.<GreatHungerEntity>of(GreatHungerEntity::new, EntityClassification.MONSTER).sized(0.65F,0.62F).clientTrackingRange(12));
+   public static final EntityType<CreakingEntity> CREAKING = register("creaking", EntityType.Builder.<CreakingEntity>of(CreakingEntity::new, EntityClassification.MONSTER).sized(0.8F,2.7F).clientTrackingRange(12));
 
 
 

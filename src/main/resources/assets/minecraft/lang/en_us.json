@@ -95,6 +95,61 @@
   "commands.groovy.error": "Error executing Groovy script: %s",
   "narrator.button.difficulty_lock": "Difficulty lock",
   "narrator.button.difficulty_lock.unlocked": "Unlocked",
+
+
+
+
+
+
+  "block.minecraft.cooled_magma": "Cooled Magma",
+  "block.minecraft.coral_bed": "Coral Bed",
+  "block.minecraft.fan_block": "Fan Block",
+  "block.minecraft.grass_path": "Grass Path",
+  "block.minecraft.honey_extractor": "Honey Extractor",
+  "block.minecraft.wax_melter": "Wax Melter",
+  "elytraMovementVec": "Elytra Movement Vector",
+  "enchantment.minecraft.deep_pockets": "Deep Pockets",
+  "enchantment.minecraft.gravity_well": "Gravity Well",
+  "enchantment.minecraft.homing": "Homing",
+  "enchantment.minecraft.homing_animal_module": "Homing Animal Module",
+  "enchantment.minecraft.homing_monster_module": "Homing Monster Module",
+  "enchantment.minecraft.lightweight": "Lightweight",
+  "enchantment.minecraft.pathfinder": "Pathfinder",
+  "enchantment.minecraft.radiance": "Radiance",
+  "enchantment.minecraft.spectral_throw": "Spectral Throw",
+  "enchantment.minecraft.weight_curse": "Curse of Weight",
+  "entity.minecraft.blackhole": "Black Hole",
+  "entity.minecraft.bone_arrow": "Bone Arrow",
+  "entity.minecraft.colette": "Colette",
+  "entity.minecraft.creaking": "Creaking",
+  "entity.minecraft.custom_arrow": "Custom Arrow",
+  "entity.minecraft.endstone_block": "Endstone Block",
+  "entity.minecraft.frisbee": "Frisbee",
+  "entity.minecraft.gilded_ravager": "Gilded Ravager",
+  "entity.minecraft.grappling_hook": "Grappling Hook",
+  "entity.minecraft.great_hunger": "Great Hunger",
+  "entity.minecraft.marauder": "Marauder",
+  "entity.minecraft.owl": "Owl",
+  "entity.minecraft.queen_bee": "Queen Bee",
+  "item.minecraft.black_cape": "Black Cape",
+  "item.minecraft.coral_dye": "Coral Dye",
+  "item.minecraft.diamond_crossbow": "Diamond Crossbow",
+  "item.minecraft.frisbee": "Frisbee",
+  "item.minecraft.frozen_crossbow": "Frozen Crossbow",
+  "item.minecraft.gilded_arrow": "Gilded Arrow",
+  "item.minecraft.grappling_hook": "Grappling Hook",
+  "item.minecraft.mace": "Mace",
+  "item.minecraft.mojang_cape": "Mojang Cape",
+  "item.minecraft.netherite_shield": "Netherite Shield",
+  "item.minecraft.owl_spawn_egg": "Owl Spawn Egg",
+  "item.minecraft.wither_bone": "Wither Bone",
+
+
+
+
+
+
+
   "narrator.button.difficulty_lock.locked": "Locked",
   "narrator.screen.title": "Title Screen",
   "narrator.controls.reset": "Reset %s button",

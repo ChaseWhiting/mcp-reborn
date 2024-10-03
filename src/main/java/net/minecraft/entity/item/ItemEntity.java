@@ -37,9 +37,18 @@ public class ItemEntity extends Entity {
    private int age;
    private int pickupDelay;
    private int health = 5;
+   private boolean edible = true;
    private UUID thrower;
    private UUID owner;
    public final float bobOffs;
+
+   public boolean isEdible() {
+      return this.edible;
+   }
+
+   public void setEdible(boolean edible) {
+      this.edible = edible;
+   }
 
    public ItemEntity(EntityType<? extends ItemEntity> p_i50217_1_, World p_i50217_2_) {
       super(p_i50217_1_, p_i50217_2_);
@@ -61,6 +70,25 @@ public class ItemEntity extends Entity {
       this(p_i1710_1_, p_i1710_2_, p_i1710_4_, p_i1710_6_);
       this.setItem(p_i1710_8_);
    }
+
+   public ItemEntity(World world, double x, double y, double z, ItemStack item, double deltaModifier) {
+      this(world, x, y, z);
+      this.setItem(item);
+
+      // Generate a random angle in radians (0 to 2π)
+      double angle = this.random.nextDouble() * 2 * Math.PI;
+
+      // Generate a random radius for the movement
+      double radius = this.random.nextDouble() * deltaModifier;
+
+      // Convert polar coordinates to Cartesian coordinates
+      double deltaX = radius * Math.cos(angle);
+      double deltaZ = radius * Math.sin(angle);
+
+      // Set the delta movement in the X and Z directions to follow a circular pattern
+      this.setDeltaMovement(deltaX, Math.min(deltaModifier, 0.45F), deltaZ);
+   }
+
 
    @OnlyIn(Dist.CLIENT)
    private ItemEntity(ItemEntity p_i231561_1_) {
@@ -276,6 +304,7 @@ public class ItemEntity extends Entity {
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       p_213281_1_.putShort("Health", (short)this.health);
       p_213281_1_.putShort("Age", (short)this.age);
+      p_213281_1_.putBoolean("Edible", this.edible);
       p_213281_1_.putShort("PickupDelay", (short)this.pickupDelay);
       if (this.getThrower() != null) {
          p_213281_1_.putUUID("Thrower", this.getThrower());
@@ -296,6 +325,9 @@ public class ItemEntity extends Entity {
       this.age = p_70037_1_.getShort("Age");
       if (p_70037_1_.contains("PickupDelay")) {
          this.pickupDelay = p_70037_1_.getShort("PickupDelay");
+      }
+      if (p_70037_1_.contains("Edible")) {
+         this.setEdible(p_70037_1_.getBoolean("Edible"));
       }
 
       if (p_70037_1_.hasUUID("Owner")) {

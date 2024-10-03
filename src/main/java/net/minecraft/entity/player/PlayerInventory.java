@@ -1,7 +1,10 @@
 package net.minecraft.entity.player;
 
 import com.google.common.collect.ImmutableList;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.crash.CrashReport;
@@ -42,6 +45,46 @@ public class PlayerInventory implements IInventory, INameable {
       this.player = p_i1750_1_;
    }
 
+
+   public ItemStack takeRandomItemAndRemove(Random random) {
+      List<Integer> availableSlots = new ArrayList<>();
+      List<NonNullList<ItemStack>> compartments = ImmutableList.of(this.items, this.armor, this.offhand);
+
+      // Collect indices of all non-empty items in all compartments
+      for (int compartmentIndex = 0; compartmentIndex < compartments.size(); compartmentIndex++) {
+         NonNullList<ItemStack> compartment = compartments.get(compartmentIndex);
+         for (int i = 0; i < compartment.size(); i++) {
+            if (!compartment.get(i).isEmpty()) {
+               // Encode the compartment and item slot into availableSlots (compartment * 100 + slot index)
+               availableSlots.add(compartmentIndex * 100 + i);
+            }
+         }
+      }
+
+      // Check if there are any available items
+      if (availableSlots.isEmpty()) {
+         return ItemStack.EMPTY; // Return empty if no items are found
+      }
+
+      // Select a random slot
+      int randomSlot = availableSlots.get(random.nextInt(availableSlots.size()));
+
+      // Decode the compartment and slot index from the encoded slot number
+      int compartmentIndex = randomSlot / 100;
+      int itemSlot = randomSlot % 100;
+
+      // Get the selected compartment and item
+      NonNullList<ItemStack> selectedCompartment = compartments.get(compartmentIndex);
+      ItemStack selectedItem = selectedCompartment.get(itemSlot).copy();
+
+      // Set the item in the selected slot to empty
+      selectedCompartment.set(itemSlot, ItemStack.EMPTY);
+
+      return selectedItem;
+   }
+
+
+
    public ItemStack getSelected() {
       return isHotbarSlot(this.selected) ? this.items.get(this.selected) : ItemStack.EMPTY;
    }
@@ -67,6 +110,7 @@ public class PlayerInventory implements IInventory, INameable {
 
       return -1;
    }
+
 
    @OnlyIn(Dist.CLIENT)
    public void setPickedItem(ItemStack p_184434_1_) {

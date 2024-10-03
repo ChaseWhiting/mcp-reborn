@@ -49,7 +49,7 @@ public class TileEntityRendererDispatcher {
       this.register(TileEntityType.SKULL, new SkullTileEntityRenderer(this));
       this.register(TileEntityType.BANNER, new BannerTileEntityRenderer(this));
       this.register(TileEntityType.STRUCTURE_BLOCK, new StructureTileEntityRenderer(this));
-      this.register(TileEntityType.SHULKER_BOX, new ShulkerBoxTileEntityRenderer(new ShulkerModel(), this));
+      this.register(TileEntityType.SHULKER_BOX, new ShulkerBoxTileEntityRenderer(new ShulkerModel<>(), this));
       this.register(TileEntityType.BED, new BedTileEntityRenderer(this));
       this.register(TileEntityType.CONDUIT, new ConduitTileEntityRenderer(this));
       this.register(TileEntityType.BELL, new BellTileEntityRenderer(this));

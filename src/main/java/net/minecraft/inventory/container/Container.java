@@ -46,6 +46,27 @@ public abstract class Container {
       this.containerId = p_i50105_2_;
    }
 
+   @Nullable
+   private Slot getHoveredSlot(double mouseX, double mouseY) {
+      for (Slot slot : this.slots) {
+         if (isMouseOverSlot(slot, mouseX, mouseY)) {
+            return slot;
+         }
+      }
+      return null;
+   }
+
+   private boolean isMouseOverSlot(Slot slot, double mouseX, double mouseY) {
+      int slotX = slot.x;  // Assuming slot.xPos and slot.yPos are available in your Slot class.
+      int slotY = slot.y;
+      int slotWidth = 16; // Default Minecraft slot width
+      int slotHeight = 16; // Default Minecraft slot height
+
+      return mouseX >= slotX && mouseX <= slotX + slotWidth && mouseY >= slotY && mouseY <= slotY + slotHeight;
+   }
+
+
+
    public ItemStack getItem(int index) {
       return slots.get(index).getItem();
    }

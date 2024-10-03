@@ -100,7 +100,7 @@ public class GreatHungerModel<T extends GreatHungerEntity> extends EntityModel<T
 					headTiltAmplitude = 0.18F;  // Tilt the head forward more in "swallow item" state
 				}
 				if (entity.getCurrentState() == GreatHungerEntity.State.FIGHT) {
-					headTiltAmplitude = 0.26F;
+					headTiltAmplitude = 0.21F;
 					swayFrequency = 0.2F;
 					swayAmplitude = 0.02F;
 				}
@@ -116,7 +116,7 @@ public class GreatHungerModel<T extends GreatHungerEntity> extends EntityModel<T
 		// Mouth animation logic
 		if (entity.getTarget() != null || entity.getCurrentState() == GreatHungerEntity.State.FIGHT) {
 			this.openMouth(entity, 25, -37, 0.02F);
-		} else if (entity.getCurrentState() == GreatHungerEntity.State.SWALLOW_ITEM) {
+		} else if (entity.getCurrentState() == GreatHungerEntity.State.SWALLOW_ITEM || entity.getCurrentState() == GreatHungerEntity.State.SWALLOW_ITEM) {
 			this.openMouth(entity, 17, -40, 0.02F);
 		} else {
 			// Smoothly close the mouth if not swallowing

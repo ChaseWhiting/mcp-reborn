@@ -487,7 +487,7 @@ public class ShulkerEntity extends GolemEntity implements IMob {
       }
 
       public boolean canUse() {
-         return ShulkerEntity.this.level.getDifficulty() == Difficulty.PEACEFUL ? false : super.canUse();
+         return ShulkerEntity.this.level.getDifficulty() != Difficulty.PEACEFUL && super.canUse();
       }
 
       protected AxisAlignedBB getTargetSearchArea(double p_188511_1_) {

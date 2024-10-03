@@ -114,7 +114,7 @@ public class IntegratedServer extends MinecraftServer {
 
    public CrashReport fillReport(CrashReport p_71230_1_) {
       p_71230_1_ = super.fillReport(p_71230_1_);
-      p_71230_1_.getSystemDetails().setDetail("BoggedType", "Integrated Server (map_client.txt)");
+      p_71230_1_.getSystemDetails().setDetail("Type", "Integrated Server (map_client.txt)");
       p_71230_1_.getSystemDetails().setDetail("Is Modded", () -> {
          return this.getModdedStatus().orElse("Probably not. Jar signature remains and both client + server brands are untouched.");
       });

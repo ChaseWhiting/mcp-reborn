@@ -117,6 +117,10 @@ public class EnderDragonEntity extends Mob implements IMob {
       this.getEntityData().define(DATA_PHASE, PhaseType.HOVERING.getId());
    }
 
+   public boolean extraHealth() {
+      return false;
+   }
+
    public double[] getLatencyPos(int p_70974_1_, float p_70974_2_) {
       if (this.isDeadOrDying()) {
          p_70974_2_ = 0.0F;
@@ -341,12 +345,14 @@ public class EnderDragonEntity extends Mob implements IMob {
          } else {
             // Health regeneration
             if (this.tickCount % 10 == 0 && this.getHealth() < this.getMaxHealth()) {
-               this.setHealth(this.getHealth() + 2.0F); // Increase health regeneration rate
+               this.setHealth(this.getHealth() + (this.veryHardmode() ? 3 : 1)); // Increase health regeneration rate
             }
-            // Boost dragon's abilities
-            this.addEffect(new EffectInstance(Effects.DAMAGE_BOOST, 20, 1)); // Increase attack damage
-            this.addEffect(new EffectInstance(Effects.DAMAGE_RESISTANCE, 20, 1)); // Increase resistance
-            this.addEffect(new EffectInstance(Effects.MOVEMENT_SPEED, 20, 1)); // Increase speed
+            if (this.veryHardmode()) {
+               // Boost dragon's abilities
+               this.addEffect(new EffectInstance(Effects.DAMAGE_BOOST, 20, 0)); // Increase attack damage
+               this.addEffect(new EffectInstance(Effects.DAMAGE_RESISTANCE, 20, 0)); // Increase resistance
+               this.addEffect(new EffectInstance(Effects.MOVEMENT_SPEED, 20, 0)); // Increase speed
+            }
          }
       }
 
@@ -817,32 +823,7 @@ public class EnderDragonEntity extends Mob implements IMob {
       }
 
       if (p_184672_1_ == this.nearestCrystal) {
-         this.hurt(this.head, DamageSource.explosion(playerentity), 5.0F); // Reduce damage taken by the dragon
-      }
-
-      // Apply debuffs to the player who destroyed the crystal
-      if (playerentity != null) {
-         playerentity.addEffect(new EffectInstance(Effects.WEAKNESS, 200, 1)); // Weakness for 10 seconds
-         playerentity.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 200, 1)); // Slowness for 10 seconds
-         playerentity.addEffect(new EffectInstance(Effects.POISON, 100, 1)); // Poison for 5 seconds
-      }
-
-      // Summon hostile entities to attack the player
-      for (int i = 0; i < 3; i++) {
-         EndermanEntity enderman = EntityType.ENDERMAN.create(this.level);
-         if (enderman != null) {
-            enderman.setTarget(playerentity);
-            enderman.moveTo(p_184672_2_.getX() + this.random.nextDouble() * 5, p_184672_2_.getY(), p_184672_2_.getZ() + this.random.nextDouble() * 5, this.random.nextFloat() * 360.0F, 0.0F);
-            this.level.addFreshEntity(enderman);
-         }
-      }
-
-      // Inflict area damage around the destroyed crystal's position
-      List<LivingEntity> entities = this.level.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(p_184672_2_).inflate(10));
-      for (LivingEntity entity : entities) {
-         if (entity != this) {
-            entity.hurt(DamageSource.explosion(playerentity), 6.0F); // Deal 6 damage to nearby entities
-         }
+         this.hurt(this.head, DamageSource.explosion(playerentity), this.veryHardmode() ? 3 : 6); // Reduce damage taken by the dragon
       }
 
       this.phaseManager.getCurrentPhase().onCrystalDestroyed(p_184672_1_, p_184672_2_, p_184672_3_, playerentity);

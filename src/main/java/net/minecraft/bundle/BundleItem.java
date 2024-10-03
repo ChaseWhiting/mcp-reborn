@@ -34,7 +34,6 @@ public class BundleItem extends Item {
     private static final String TAG_ITEMS = "Items";
     private static final String TAG_WEIGHT = "Weight";
     private static final String TAG_COLOUR = "Colour";
-    private static final int BUNDLE_IN_BUNDLE_WEIGHT = 4;
     private BundleColour colour = BundleColour.REGULAR;
     private static final int BAR_COLOR = MathHelper.color(0.4F, 0.4F, 1.0F);
 
@@ -42,16 +41,30 @@ public class BundleItem extends Item {
         super(new Item.Properties().tab(ItemGroup.TAB_COMBAT).stacksTo(1));
     }
 
-    public ItemStack withWeight(int weight) {
-        ItemStack bundle = new ItemStack(Items.BUNDLE, 1);
-        CompoundNBT nbt = bundle.getOrCreateTag();
-        nbt.putInt(TAG_WEIGHT, weight);
-        bundle.setTag(nbt);
-        return bundle;
+    public void onScroll(PlayerEntity player, ItemStack bundleStack, int direction) {
+        CompoundNBT nbt = bundleStack.getOrCreateTag();
+        ListNBT itemList = nbt.getList(TAG_ITEMS, 10);
+
+        if (!itemList.isEmpty()) {
+            if (direction > 0) {
+                CompoundNBT firstItem = itemList.getCompound(0);
+                itemList.remove(0);
+                itemList.add(firstItem);
+            } else {
+                CompoundNBT lastItem = itemList.getCompound(itemList.size() - 1);
+                itemList.remove(itemList.size() - 1);
+                itemList.add(0, lastItem);
+            }
+
+
+            nbt.put(TAG_ITEMS, itemList);
+            bundleStack.setTag(nbt);
+        }
     }
 
-    public String getColourTag() {
-        return TAG_COLOUR;
+    @Override
+    public boolean hasCustomScrollBehaviour() {
+        return true;
     }
 
     @Override
@@ -71,17 +84,16 @@ public class BundleItem extends Item {
         stack.getOrCreateTag().putInt("Weight", weight);
     }
 
-    public ItemStack lastItem(ItemStack bundle) {
-        // Retrieve the NBT data from the bundle
+
+    public static ItemStack lastItem(ItemStack bundle) {
         CompoundNBT nbt = bundle.getTag();
 
-        // Check if the NBT data exists and contains the "Items" list
-        if (nbt != null && nbt.contains(TAG_ITEMS, 9)) { // 9 represents the tag type for LIST
-            ListNBT itemList = nbt.getList(TAG_ITEMS, 10); // 10 represents the tag type for COMPOUND
+        if (nbt != null && nbt.contains(TAG_ITEMS, 9)) {
+            ListNBT itemList = nbt.getList(TAG_ITEMS, 10);
 
-            // Check if the item list is not empty
+
             if (!itemList.isEmpty()) {
-                // Get the last item in the list
+
                 CompoundNBT tag = itemList.getCompound(itemList.size() - 1);
                 return ItemStack.of(tag);
             }
@@ -379,44 +391,37 @@ public class BundleItem extends Item {
             if (itemList.isEmpty()) {
                 return Optional.empty();
             } else {
-                // Get the last item in the list (the most recently added item)
+                // Get the last item in the list (after scrolling)
                 int lastIndex = itemList.size() - 1;
                 CompoundNBT itemTag = itemList.getCompound(lastIndex);
                 ItemStack itemStack = ItemStack.of(itemTag);
 
-                // Remove the item from the bundle
+                // Remove the last item
                 itemList.remove(lastIndex);
 
+                // If no items are left, clear the items list but keep the bundle
                 if (itemList.isEmpty()) {
-                    // If no items are left, clear the items list but keep the bundle
                     compoundNBT.remove(TAG_ITEMS);
                 } else {
                     compoundNBT.put(TAG_ITEMS, itemList);
                 }
 
-                if (!player.isShiftKeyDown()) {
-                    if (player.inventory.getCarried().getItem() != Items.BUNDLE) {
-                        // If the player isn't carrying anything, set the carried item to the removed item
-                        player.inventory.setCarried(itemStack);
-                    } else {
-                        // Try to find a free slot or a slot that matches the item type
+                // Update the NBT after removal
+                bundleStack.setTag(compoundNBT);
 
-                        player.inventory.add(itemStack);
-
-                    }
-                }
-
+                // Return the removed item
                 return Optional.of(itemStack);
             }
         }
     }
+
 
     public static boolean dropContents(ItemStack bundle, PlayerEntity player) {
         CompoundNBT compoundtag = bundle.getOrCreateTag();
         if (!compoundtag.contains(TAG_ITEMS)) {
             return false;
         } else {
-            if (player instanceof ServerPlayerEntity) {
+            if (player instanceof ServerPlayerEntity && player.level.isServerSide) {
                 ListNBT listtag = compoundtag.getList(TAG_ITEMS, 10);
 
                 for (int i = 0; i < listtag.size(); ++i) {
@@ -515,43 +520,70 @@ public class BundleItem extends Item {
         return super.getWeight(bundle) + bundle.getOrCreateTag().getInt("ItemWeight");
     }
 
-    public void appendHoverText(ItemStack p_150749_, World p_150750_, List<ITextComponent> p_150751_, ITooltipFlag p_150752_) {
-        p_150751_.add(new TranslationTextComponent("item.minecraft.bundle.fullness", getContentWeight(p_150749_), getMaxWeight(p_150749_)).withStyle(TextFormatting.GRAY));
-        CompoundNBT nbt = p_150749_.getOrCreateTag();
+    public void appendHoverText(ItemStack bundle, World level, List<ITextComponent> flags, ITooltipFlag tooltip) {
+        // Display the fullness of the bundle
+        flags.add(new TranslationTextComponent("item.minecraft.bundle.fullness", getContentWeight(bundle), getMaxWeight(bundle)).withStyle(TextFormatting.GRAY));
+
+        // Get the NBT data from the bundle
+        CompoundNBT nbt = bundle.getOrCreateTag();
 
         if (nbt.contains(TAG_ITEMS)) {
             ListNBT itemList = nbt.getList(TAG_ITEMS, 10);
             int lastIndex = itemList.size() - 1;
-            int maxItemsToShow = Minecraft.getInstance().options.amountBundleLineShow;
+
             if (lastIndex >= 0) {
-                p_150751_.add(new StringTextComponent("Current Items: ").withStyle(TextFormatting.GRAY));
+                // Show the last item separately
+                CompoundNBT lastItemTag = itemList.getCompound(lastIndex);
+                ItemStack lastItem = ItemStack.of(lastItemTag);
 
-                // Calculate the starting index to ensure we don't go out of bounds
-                int startIndex = Math.max(0, lastIndex - maxItemsToShow + 1);
+                // Display the "Current Item" (last item)
+                flags.add(new StringTextComponent("Selected Item: ").withStyle(TextFormatting.GRAY));
 
-                for (int i = lastIndex; i >= startIndex; i--) {
-                    CompoundNBT tag = itemList.getCompound(i);
-                    ItemStack item = ItemStack.of(tag);
+                // Get the item's name and rarity
+                IFormattableTextComponent lastItemNameComponent = new StringTextComponent(lastItem.getHoverName().getString()).rarity(lastItem);
 
-                    // Get the rarity color
+                // Get the item count, displayed in gray
+                ITextComponent lastItemCountComponent = new StringTextComponent(" (" + lastItem.getCount() + ")").withStyle(TextFormatting.GRAY);
 
-                    // Create a text component for the item's name using the rarity color
-                    IFormattableTextComponent itemNameComponent = new StringTextComponent(item.getHoverName().getString()).rarity(item);
+                // Combine the name and count, then add to the tooltip
+                flags.add(lastItemNameComponent.append(lastItemCountComponent));
 
-                    // Create a text component for the item count in gray
-                    ITextComponent itemCountComponent = new StringTextComponent(" (" + item.getCount() + ")").gray();
+                // Only show "Current Items" and the separator if there's more than one item
+                if (itemList.size() > 1) {
+                    // Separator line (optional, adds a little clarity between sections)
+                    flags.add(new StringTextComponent("-------------------").withStyle(TextFormatting.DARK_GRAY));
 
-                    // Combine the item name and item count components
-                    p_150751_.add(itemNameComponent.append(itemCountComponent));
-                }
+                    // Display the rest of the current items
+                    flags.add(new StringTextComponent("Current Items: ").withStyle(TextFormatting.GRAY));
 
-                // If there are more items than the maxItemsToShow, add a "..." to indicate there are more
-                if (startIndex > 0) {
-                    p_150751_.add(new StringTextComponent("...").withStyle(TextFormatting.GRAY));
+                    // Show the rest of the items in the bundle
+                    int maxItemsToShow = Minecraft.getInstance().options.amountBundleLineShow; // Assume this controls the number of items shown
+                    int startIndex = Math.max(0, lastIndex - maxItemsToShow + 1);
+
+                    for (int i = lastIndex - 1; i >= startIndex; i--) {
+                        CompoundNBT tag = itemList.getCompound(i);
+                        ItemStack item = ItemStack.of(tag);
+
+                        // Get the item's name and rarity
+                        IFormattableTextComponent itemNameComponent = new StringTextComponent(item.getHoverName().getString()).rarity(item);
+
+                        // Get the item count in gray
+                        ITextComponent itemCountComponent = new StringTextComponent(" (" + item.getCount() + ")").withStyle(TextFormatting.GRAY);
+
+                        // Combine name and count, then add to the tooltip
+                        flags.add(itemNameComponent.append(itemCountComponent));
+                    }
+
+                    // If there are more items than maxItemsToShow, add a "..." to indicate hidden items
+                    if (startIndex > 0) {
+                        flags.add(new StringTextComponent("...").withStyle(TextFormatting.GRAY));
+                    }
                 }
             }
         }
+        super.appendHoverText(bundle, level, flags, tooltip);
     }
+
 
     public void onDestroyed(ItemEntity p_150728_) {
         dropAllContents(p_150728_, getContents(p_150728_.getItem()));

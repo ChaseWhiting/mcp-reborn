@@ -377,6 +377,11 @@ public class BiomeMaker {
       return baseSavannaBiome(depth, height, temp, specialPortal, shattered, mobspawninfo$builder);
    }
 
+   public static Biome goldenSavannaBiome(float depth, float height, float temp, boolean specialPortal, boolean shattered) {
+      MobSpawnInfo.Builder mobspawninfo$builder = savannaMobs();
+      return baseSavannaBiome(depth, height, temp, specialPortal, shattered, mobspawninfo$builder);
+   }
+
    private static MobSpawnInfo.Builder savannaMobs() {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.farmAnimals(mobspawninfo$builder);

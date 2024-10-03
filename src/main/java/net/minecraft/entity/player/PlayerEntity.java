@@ -1796,6 +1796,15 @@ public abstract class PlayerEntity extends LivingEntity {
         return this.inventory.add(p_191521_1_);
     }
 
+    public boolean addOrDrop(ItemStack stack) {
+        if (addItem(stack)) {
+            return true;  // Item was successfully added
+        } else {
+            drop(stack, true);  // Item wasn't added, so we drop it
+            return false;  // Indicate that the item was not added
+        }
+    }
+
     public boolean addItem(ItemStack stack, boolean sound) {
         if (sound) {
             this.playEquipSound(stack);

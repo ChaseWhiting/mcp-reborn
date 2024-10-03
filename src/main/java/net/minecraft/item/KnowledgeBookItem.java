@@ -8,6 +8,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -55,6 +56,39 @@ public class KnowledgeBookItem extends Item {
       } else {
          LOGGER.error("Tag not valid: {}", (Object)compoundnbt);
          return ActionResult.fail(itemstack);
+      }
+   }
+
+   public static void addRecipe(ItemStack knowledgeBook, String recipe) {
+      if (knowledgeBook.getItem() == Items.KNOWLEDGE_BOOK) {
+         CompoundNBT nbt = knowledgeBook.getOrCreateTag();
+
+         // Check if the "Recipes" tag already exists
+         if (nbt.contains("Recipes", 9)) {
+            // Get the existing ListNBT of recipes
+            ListNBT listNBT = nbt.getList("Recipes", 8);
+
+            // Create a new StringNBT entry for the new recipe
+            listNBT.add(StringNBT.valueOf(recipe));
+
+            // Set the updated list back into the knowledge book NBT
+            nbt.put("Recipes", listNBT);
+         } else {
+            // If no recipes list exists, create a new one
+            ListNBT newListNBT = new ListNBT();
+
+            // Add the recipe to the new list
+            newListNBT.add(StringNBT.valueOf(recipe));
+
+            // Add the list to the NBT under the "Recipes" tag
+            nbt.put("Recipes", newListNBT);
+         }
+      }
+   }
+
+   public static void addRecipes(ItemStack knowledgeBook, String... recipes) {
+      for (String recipe : recipes) {
+         KnowledgeBookItem.addRecipe(knowledgeBook, recipe);
       }
    }
 }

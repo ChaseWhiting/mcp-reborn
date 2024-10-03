@@ -58,6 +58,14 @@ public class Item implements IItemProvider {
 
 
 
+   public boolean hasCustomScrollBehaviour() {
+      return false;
+   }
+
+
+   public void onScroll(PlayerEntity player, ItemStack scrollItem, int scrollDirection) {
+
+   }
 
    public static int getId(Item p_150891_0_) {
       return p_150891_0_ == null ? 0 : Registry.ITEM.getId(p_150891_0_);

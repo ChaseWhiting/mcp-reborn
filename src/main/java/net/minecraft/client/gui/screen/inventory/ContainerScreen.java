@@ -6,6 +6,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import java.util.Set;
 import javax.annotation.Nullable;
+
+import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IHasContainer;
 import net.minecraft.client.gui.screen.Screen;
@@ -81,6 +83,18 @@ public abstract class ContainerScreen<T extends Container> extends Screen implem
       this.leftPos = (this.width - this.imageWidth) / 2;
       this.topPos = (this.height - this.imageHeight) / 2;
    }
+
+   @Override
+   public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
+      Slot slot = this.findSlot(mouseX, mouseY);
+      int scrollDirection = scrollAmount > 0 ? -1 : 1;
+      if (slot != null && slot.hasItem() && slot.getItem().hasCustomScrollBehaviour()) {
+         slot.getItem().onScroll(inventory.player, slot.getItem(), scrollDirection);
+         return true;
+      }
+      return super.mouseScrolled(mouseX, mouseY, scrollAmount);
+   }
+
 
    public void render(MatrixStack p_230430_1_, int p_230430_2_, int p_230430_3_, float p_230430_4_) {
       int i = this.leftPos;

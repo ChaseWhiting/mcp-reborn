@@ -31,5 +31,6 @@ public class GreatHungerRenderer extends MobRenderer<GreatHungerEntity, GreatHun
       // Apply the smooth scale transition to the MatrixStack
       float currentScale = entity.getClientSideGrowProgress();
       matrixStack.scale(currentScale, currentScale, currentScale);
+      this.shadowRadius = 0.35F + 0.005F * entity.getSwallowedItemCount();
    }
 }

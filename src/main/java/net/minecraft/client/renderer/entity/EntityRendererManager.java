@@ -26,6 +26,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
+import net.minecraft.entity.monster.creaking.CreakingRenderer;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowRenderer;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -74,6 +75,7 @@ public class EntityRendererManager {
       this.register(EntityType.HEROBRINE, new HerobrineRenderer(this));
       this.register(EntityType.ENDSTONE_BLOCK, new BlockEntityRenderer(this, new ResourceLocation("textures/entity/block/endstone.png")));
       this.register(EntityType.GREAT_HUNGER, new GreatHungerRenderer(this));
+      this.register(EntityType.CREAKING, new CreakingRenderer(this));
       this.register(EntityType.ARMOR_STAND, new ArmorStandRenderer(this));
       this.register(EntityType.ARROW, new TippedArrowRenderer(this));
       this.register(EntityType.BONE_ARROW, new BoneArrowRenderer(this));

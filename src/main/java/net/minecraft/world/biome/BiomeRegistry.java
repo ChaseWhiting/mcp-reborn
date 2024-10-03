@@ -56,7 +56,7 @@ public abstract class BiomeRegistry {
       register(33, Biomes.GIANT_TREE_TAIGA_HILLS, BiomeMaker.giantTreeTaiga(0.45F, 0.3F, 0.3F, false));
       register(34, Biomes.WOODED_MOUNTAINS, BiomeMaker.mountainBiome(1.0F, 0.5F, ConfiguredSurfaceBuilders.GRASS, true));
       register(35, Biomes.SAVANNA, BiomeMaker.savannaBiome(0.125F, 0.05F, 1.2F, false, false));
-      register(174, Biomes.GOLDEN_SAVANNA, BiomeMaker.savannaBiome(0.120F, 0.042F, 1.36F, false, false));
+      register(51, Biomes.GOLDEN_SAVANNA, BiomeMaker.savannaBiome(0.120F, 0.042F, 1.36F, false, false));
       register(36, Biomes.SAVANNA_PLATEAU, BiomeMaker.savanaPlateauBiome());
       register(37, Biomes.BADLANDS, BiomeMaker.badlandsBiome(0.1F, 0.2F, false));
       register(38, Biomes.WOODED_BADLANDS_PLATEAU, BiomeMaker.woodedBadlandsPlateauBiome(1.5F, 0.025F));

@@ -524,6 +524,10 @@ public class CreativeScreen extends DisplayEffectsScreen<CreativeScreen.Creative
    }
 
    public boolean mouseScrolled(double p_231043_1_, double p_231043_3_, double p_231043_5_) {
+      if (super.mouseScrolled(p_231043_1_, p_231043_3_, p_231043_5_)) {
+         return true;
+      }
+
       if (!this.canScroll()) {
          return false;
       } else {
