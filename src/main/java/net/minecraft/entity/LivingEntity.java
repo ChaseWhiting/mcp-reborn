@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
@@ -87,6 +88,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ITag;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -156,6 +158,15 @@ public abstract class LivingEntity extends Entity {
     protected float rotOffs;
     protected int deathScore;
     protected float lastHurt;
+    public static final Predicate<LivingEntity> PLAYER_NOT_WEARING_DISGUISE_ITEM = $$0 -> {
+        if (!($$0 instanceof PlayerEntity)) {
+            return true;
+        }
+        PlayerEntity $$1 = (PlayerEntity) $$0;
+        ItemStack $$3 = $$1.getItemBySlot(EquipmentSlotType.HEAD);
+        return $$3.getItem() != Items.CARVED_PUMPKIN;
+    };
+
 
     public boolean isJumping() {
         return jumping;
@@ -1366,6 +1377,20 @@ public abstract class LivingEntity extends Entity {
 
         return lootcontext$builder;
     }
+
+
+    public boolean hasLineOfSight(Entity $$0, RayTraceContext.BlockMode $$1, RayTraceContext.FluidMode $$2, DoubleSupplier $$3) {
+        if ($$0.level() != this.level()) {
+            return false;
+        }
+        Vector3d $$4 = new Vector3d(this.getX(), this.getEyeY(), this.getZ());
+        Vector3d $$5 = new Vector3d($$0.getX(), $$3.getAsDouble(), $$0.getZ());
+        if ($$5.distanceTo($$4) > 128.0) {
+            return false;
+        }
+        return this.level.clip(new RayTraceContext($$4, $$5, $$1, $$2, this)).getType() == RayTraceResult.Type.MISS;
+    }
+
 
     public void knockback(float strength, double xRatio, double zRatio) {
         // Adjust the knockback strength based on the entity's knockback resistance attribute

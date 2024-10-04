@@ -13182,5 +13182,82 @@
                     "random/bow"
                 ],
                 "subtitle": "subtitles.entity.bogged.shoot"
-            }
+            },
+            "entity.creaking.activate": {
+                "sounds": [
+                  "mob/creaking/creaking_activate"
+                ],
+                "subtitle": "subtitles.entity.creaking.activate"
+              },
+              "entity.creaking.ambient": {
+                "sounds": [
+                  "mob/creaking/creaking_idle1",
+                  "mob/creaking/creaking_idle2",
+                  "mob/creaking/creaking_idle3",
+                  "mob/creaking/creaking_idle4",
+                  "mob/creaking/creaking_idle5",
+                  "mob/creaking/creaking_idle6"
+                ],
+                "subtitle": "subtitles.entity.creaking.ambient"
+              },
+              "entity.creaking.attack": {
+                "sounds": [
+                  "mob/creaking/creaking_attack1",
+                  "mob/creaking/creaking_attack2",
+                  "mob/creaking/creaking_attack3",
+                  "mob/creaking/creaking_attack4"
+                ],
+                "subtitle": "subtitles.entity.creaking.attack"
+              },
+              "entity.creaking.deactivate": {
+                "sounds": [
+                  "mob/creaking/creaking_deactivate"
+                ],
+                "subtitle": "subtitles.entity.creaking.deactivate"
+              },
+              "entity.creaking.death": {
+                "sounds": [
+                  "mob/creaking/creaking_death"
+                ],
+                "subtitle": "subtitles.entity.creaking.death"
+              },
+              "entity.creaking.freeze": {
+                "sounds": [
+                  "mob/creaking/creaking_freeze1",
+                  "mob/creaking/creaking_freeze2",
+                  "mob/creaking/creaking_freeze3",
+                  "mob/creaking/creaking_freeze4"
+                ],
+                "subtitle": "subtitles.entity.creaking.freeze"
+              },
+              "entity.creaking.spawn": {
+                "sounds": [
+                  "mob/creaking/creaking_spawn"
+                ],
+                "subtitle": "subtitles.entity.creaking.spawn"
+              },
+              "entity.creaking.step": {
+                "sounds": [
+                  "mob/creaking/creaking_step1",
+                  "mob/creaking/creaking_step2",
+                  "mob/creaking/creaking_step3",
+                  "mob/creaking/creaking_step4",
+                  "mob/creaking/creaking_step5"
+                ],
+                "subtitle": "subtitles.block.generic.footsteps"
+              },
+              "entity.creaking.sway": {
+                "sounds": [
+                  "mob/creaking/creaking_sway"
+                ],
+                "subtitle": "subtitles.entity.creaking.sway"
+              },
+              "entity.creaking.unfreeze": {
+                "sounds": [
+                  "mob/creaking/creaking_unfreeze1",
+                  "mob/creaking/creaking_unfreeze2",
+                  "mob/creaking/creaking_unfreeze3"
+                ],
+                "subtitle": "subtitles.entity.creaking.unfreeze"
+              }
 }

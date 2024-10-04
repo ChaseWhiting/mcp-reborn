@@ -84,7 +84,6 @@ public class BundleItem extends Item {
         stack.getOrCreateTag().putInt("Weight", weight);
     }
 
-
     public static ItemStack lastItem(ItemStack bundle) {
         CompoundNBT nbt = bundle.getTag();
 

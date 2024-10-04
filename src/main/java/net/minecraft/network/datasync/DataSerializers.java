@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Pose;
@@ -23,313 +24,329 @@ import net.minecraft.util.text.ITextComponent;
 
 public class DataSerializers {
    private static final IntIdentityHashBiMap<IDataSerializer<?>> SERIALIZERS = new IntIdentityHashBiMap<>(16);
+
    public static final IDataSerializer<Byte> BYTE = new IDataSerializer<Byte>() {
-      public void write(PacketBuffer p_187160_1_, Byte p_187160_2_) {
-         p_187160_1_.writeByte(p_187160_2_);
+      public void write(PacketBuffer buffer, Byte value) {
+         buffer.writeByte(value);
       }
 
-      public Byte read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readByte();
+      public Byte read(PacketBuffer buffer) {
+         return buffer.readByte();
       }
 
-      public Byte copy(Byte p_192717_1_) {
-         return p_192717_1_;
+      public Byte copy(Byte value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<Integer> INT = new IDataSerializer<Integer>() {
-      public void write(PacketBuffer p_187160_1_, Integer p_187160_2_) {
-         p_187160_1_.writeVarInt(p_187160_2_);
+      public void write(PacketBuffer buffer, Integer value) {
+         buffer.writeVarInt(value);
       }
 
-      public Integer read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readVarInt();
+      public Integer read(PacketBuffer buffer) {
+         return buffer.readVarInt();
       }
 
-      public Integer copy(Integer p_192717_1_) {
-         return p_192717_1_;
+      public Integer copy(Integer value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<Float> FLOAT = new IDataSerializer<Float>() {
-      public void write(PacketBuffer p_187160_1_, Float p_187160_2_) {
-         p_187160_1_.writeFloat(p_187160_2_);
+      public void write(PacketBuffer buffer, Float value) {
+         buffer.writeFloat(value);
       }
 
-      public Float read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readFloat();
+      public Float read(PacketBuffer buffer) {
+         return buffer.readFloat();
       }
 
-      public Float copy(Float p_192717_1_) {
-         return p_192717_1_;
+      public Float copy(Float value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<String> STRING = new IDataSerializer<String>() {
-      public void write(PacketBuffer p_187160_1_, String p_187160_2_) {
-         p_187160_1_.writeUtf(p_187160_2_);
+      public void write(PacketBuffer buffer, String value) {
+         buffer.writeUtf(value);
       }
 
-      public String read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readUtf(32767);
+      public String read(PacketBuffer buffer) {
+         return buffer.readUtf(32767);
       }
 
-      public String copy(String p_192717_1_) {
-         return p_192717_1_;
+      public String copy(String value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<ITextComponent> COMPONENT = new IDataSerializer<ITextComponent>() {
-      public void write(PacketBuffer p_187160_1_, ITextComponent p_187160_2_) {
-         p_187160_1_.writeComponent(p_187160_2_);
+      public void write(PacketBuffer buffer, ITextComponent value) {
+         buffer.writeComponent(value);
       }
 
-      public ITextComponent read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readComponent();
+      public ITextComponent read(PacketBuffer buffer) {
+         return buffer.readComponent();
       }
 
-      public ITextComponent copy(ITextComponent p_192717_1_) {
-         return p_192717_1_;
+      public ITextComponent copy(ITextComponent value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<Optional<ITextComponent>> OPTIONAL_COMPONENT = new IDataSerializer<Optional<ITextComponent>>() {
-      public void write(PacketBuffer p_187160_1_, Optional<ITextComponent> p_187160_2_) {
-         if (p_187160_2_.isPresent()) {
-            p_187160_1_.writeBoolean(true);
-            p_187160_1_.writeComponent(p_187160_2_.get());
+      public void write(PacketBuffer buffer, Optional<ITextComponent> value) {
+         if (value.isPresent()) {
+            buffer.writeBoolean(true);
+            buffer.writeComponent(value.get());
          } else {
-            p_187160_1_.writeBoolean(false);
+            buffer.writeBoolean(false);
          }
-
       }
 
-      public Optional<ITextComponent> read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readBoolean() ? Optional.of(p_187159_1_.readComponent()) : Optional.empty();
+      public Optional<ITextComponent> read(PacketBuffer buffer) {
+         return buffer.readBoolean() ? Optional.of(buffer.readComponent()) : Optional.empty();
       }
 
-      public Optional<ITextComponent> copy(Optional<ITextComponent> p_192717_1_) {
-         return p_192717_1_;
+      public Optional<ITextComponent> copy(Optional<ITextComponent> value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<ItemStack> ITEM_STACK = new IDataSerializer<ItemStack>() {
-      public void write(PacketBuffer p_187160_1_, ItemStack p_187160_2_) {
-         p_187160_1_.writeItem(p_187160_2_);
+      public void write(PacketBuffer buffer, ItemStack value) {
+         buffer.writeItem(value);
       }
 
-      public ItemStack read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readItem();
+      public ItemStack read(PacketBuffer buffer) {
+         return buffer.readItem();
       }
 
-      public ItemStack copy(ItemStack p_192717_1_) {
-         return p_192717_1_.copy();
+      public ItemStack copy(ItemStack value) {
+         return value.copy();
       }
    };
+
    public static final IDataSerializer<Optional<BlockState>> BLOCK_STATE = new IDataSerializer<Optional<BlockState>>() {
-      public void write(PacketBuffer p_187160_1_, Optional<BlockState> p_187160_2_) {
-         if (p_187160_2_.isPresent()) {
-            p_187160_1_.writeVarInt(Block.getId(p_187160_2_.get()));
+      public void write(PacketBuffer buffer, Optional<BlockState> value) {
+         if (value.isPresent()) {
+            buffer.writeVarInt(Block.getId(value.get()));
          } else {
-            p_187160_1_.writeVarInt(0);
+            buffer.writeVarInt(0);
          }
-
       }
 
-      public Optional<BlockState> read(PacketBuffer p_187159_1_) {
-         int i = p_187159_1_.readVarInt();
-         return i == 0 ? Optional.empty() : Optional.of(Block.stateById(i));
+      public Optional<BlockState> read(PacketBuffer buffer) {
+         int id = buffer.readVarInt();
+         return id == 0 ? Optional.empty() : Optional.of(Block.stateById(id));
       }
 
-      public Optional<BlockState> copy(Optional<BlockState> p_192717_1_) {
-         return p_192717_1_;
+      public Optional<BlockState> copy(Optional<BlockState> value) {
+         return value;
       }
    };
 
    public static final IDataSerializer<CustomArrowType> CUSTOM_ARROW_TYPE = new IDataSerializer<CustomArrowType>() {
-      public void write(PacketBuffer buffer, CustomArrowType type) {
-         buffer.writeUtf(type.getName().toString());
+      public void write(PacketBuffer buffer, CustomArrowType value) {
+         buffer.writeUtf(value.getName().toString());
       }
 
-      @Override
       public CustomArrowType read(PacketBuffer buffer) {
-         String s = buffer.readUtf();
-         return CustomArrowType.getCustomArrowTypeByName(s);
+         String name = buffer.readUtf();
+         return CustomArrowType.getCustomArrowTypeByName(name);
       }
 
-      @Override
-      public CustomArrowType copy(CustomArrowType type) {
-         return type;
+      public CustomArrowType copy(CustomArrowType value) {
+         return value;
       }
    };
 
    public static final IDataSerializer<Boolean> BOOLEAN = new IDataSerializer<Boolean>() {
-      public void write(PacketBuffer p_187160_1_, Boolean p_187160_2_) {
-         p_187160_1_.writeBoolean(p_187160_2_);
+      public void write(PacketBuffer buffer, Boolean value) {
+         buffer.writeBoolean(value);
       }
 
-      public Boolean read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readBoolean();
+      public Boolean read(PacketBuffer buffer) {
+         return buffer.readBoolean();
       }
 
-      public Boolean copy(Boolean p_192717_1_) {
-         return p_192717_1_;
+      public Boolean copy(Boolean value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<IParticleData> PARTICLE = new IDataSerializer<IParticleData>() {
-      public void write(PacketBuffer p_187160_1_, IParticleData p_187160_2_) {
-         p_187160_1_.writeVarInt(Registry.PARTICLE_TYPE.getId(p_187160_2_.getType()));
-         p_187160_2_.writeToNetwork(p_187160_1_);
+      public void write(PacketBuffer buffer, IParticleData value) {
+         buffer.writeVarInt(Registry.PARTICLE_TYPE.getId(value.getType()));
+         value.writeToNetwork(buffer);
       }
 
-      public IParticleData read(PacketBuffer p_187159_1_) {
-         return this.readParticle(p_187159_1_, Registry.PARTICLE_TYPE.byId(p_187159_1_.readVarInt()));
+      public IParticleData read(PacketBuffer buffer) {
+         return this.readParticle(buffer, Registry.PARTICLE_TYPE.byId(buffer.readVarInt()));
       }
 
-      private <T extends IParticleData> T readParticle(PacketBuffer p_200543_1_, ParticleType<T> p_200543_2_) {
-         return p_200543_2_.getDeserializer().fromNetwork(p_200543_2_, p_200543_1_);
+      private <T extends IParticleData> T readParticle(PacketBuffer buffer, ParticleType<T> type) {
+         return type.getDeserializer().fromNetwork(type, buffer);
       }
 
-      public IParticleData copy(IParticleData p_192717_1_) {
-         return p_192717_1_;
+      public IParticleData copy(IParticleData value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<Rotations> ROTATIONS = new IDataSerializer<Rotations>() {
-      public void write(PacketBuffer p_187160_1_, Rotations p_187160_2_) {
-         p_187160_1_.writeFloat(p_187160_2_.getX());
-         p_187160_1_.writeFloat(p_187160_2_.getY());
-         p_187160_1_.writeFloat(p_187160_2_.getZ());
+      public void write(PacketBuffer buffer, Rotations value) {
+         buffer.writeFloat(value.getX());
+         buffer.writeFloat(value.getY());
+         buffer.writeFloat(value.getZ());
       }
 
-      public Rotations read(PacketBuffer p_187159_1_) {
-         return new Rotations(p_187159_1_.readFloat(), p_187159_1_.readFloat(), p_187159_1_.readFloat());
+      public Rotations read(PacketBuffer buffer) {
+         return new Rotations(buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
       }
 
-      public Rotations copy(Rotations p_192717_1_) {
-         return p_192717_1_;
+      public Rotations copy(Rotations value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<BlockPos> BLOCK_POS = new IDataSerializer<BlockPos>() {
-      public void write(PacketBuffer p_187160_1_, BlockPos p_187160_2_) {
-         p_187160_1_.writeBlockPos(p_187160_2_);
+      public void write(PacketBuffer buffer, BlockPos value) {
+         buffer.writeBlockPos(value);
       }
 
-      public BlockPos read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readBlockPos();
+      public BlockPos read(PacketBuffer buffer) {
+         return buffer.readBlockPos();
       }
 
-      public BlockPos copy(BlockPos p_192717_1_) {
-         return p_192717_1_;
+      public BlockPos copy(BlockPos value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<Optional<BlockPos>> OPTIONAL_BLOCK_POS = new IDataSerializer<Optional<BlockPos>>() {
-      public void write(PacketBuffer p_187160_1_, Optional<BlockPos> p_187160_2_) {
-         p_187160_1_.writeBoolean(p_187160_2_.isPresent());
-         if (p_187160_2_.isPresent()) {
-            p_187160_1_.writeBlockPos(p_187160_2_.get());
+      public void write(PacketBuffer buffer, Optional<BlockPos> value) {
+         buffer.writeBoolean(value.isPresent());
+         if (value.isPresent()) {
+            buffer.writeBlockPos(value.get());
          }
-
       }
 
-      public Optional<BlockPos> read(PacketBuffer p_187159_1_) {
-         return !p_187159_1_.readBoolean() ? Optional.empty() : Optional.of(p_187159_1_.readBlockPos());
+      public Optional<BlockPos> read(PacketBuffer buffer) {
+         return buffer.readBoolean() ? Optional.of(buffer.readBlockPos()) : Optional.empty();
       }
 
-      public Optional<BlockPos> copy(Optional<BlockPos> p_192717_1_) {
-         return p_192717_1_;
+      public Optional<BlockPos> copy(Optional<BlockPos> value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<Direction> DIRECTION = new IDataSerializer<Direction>() {
-      public void write(PacketBuffer p_187160_1_, Direction p_187160_2_) {
-         p_187160_1_.writeEnum(p_187160_2_);
+      public void write(PacketBuffer buffer, Direction value) {
+         buffer.writeEnum(value);
       }
 
-      public Direction read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readEnum(Direction.class);
+      public Direction read(PacketBuffer buffer) {
+         return buffer.readEnum(Direction.class);
       }
 
-      public Direction copy(Direction p_192717_1_) {
-         return p_192717_1_;
+      public Direction copy(Direction value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<Optional<UUID>> OPTIONAL_UUID = new IDataSerializer<Optional<UUID>>() {
-      public void write(PacketBuffer p_187160_1_, Optional<UUID> p_187160_2_) {
-         p_187160_1_.writeBoolean(p_187160_2_.isPresent());
-         if (p_187160_2_.isPresent()) {
-            p_187160_1_.writeUUID(p_187160_2_.get());
+      public void write(PacketBuffer buffer, Optional<UUID> value) {
+         buffer.writeBoolean(value.isPresent());
+         if (value.isPresent()) {
+            buffer.writeUUID(value.get());
          }
-
       }
 
-      public Optional<UUID> read(PacketBuffer p_187159_1_) {
-         return !p_187159_1_.readBoolean() ? Optional.empty() : Optional.of(p_187159_1_.readUUID());
+      public Optional<UUID> read(PacketBuffer buffer) {
+         return buffer.readBoolean() ? Optional.of(buffer.readUUID()) : Optional.empty();
       }
 
-      public Optional<UUID> copy(Optional<UUID> p_192717_1_) {
-         return p_192717_1_;
+      public Optional<UUID> copy(Optional<UUID> value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<CompoundNBT> COMPOUND_TAG = new IDataSerializer<CompoundNBT>() {
-      public void write(PacketBuffer p_187160_1_, CompoundNBT p_187160_2_) {
-         p_187160_1_.writeNbt(p_187160_2_);
+      public void write(PacketBuffer buffer, CompoundNBT value) {
+         buffer.writeNbt(value);
       }
 
-      public CompoundNBT read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readNbt();
+      public CompoundNBT read(PacketBuffer buffer) {
+         return buffer.readNbt();
       }
 
-      public CompoundNBT copy(CompoundNBT p_192717_1_) {
-         return p_192717_1_.copy();
+      public CompoundNBT copy(CompoundNBT value) {
+         return value.copy();
       }
    };
+
    public static final IDataSerializer<VillagerData> VILLAGER_DATA = new IDataSerializer<VillagerData>() {
-      public void write(PacketBuffer p_187160_1_, VillagerData p_187160_2_) {
-         p_187160_1_.writeVarInt(Registry.VILLAGER_TYPE.getId(p_187160_2_.getType()));
-         p_187160_1_.writeVarInt(Registry.VILLAGER_PROFESSION.getId(p_187160_2_.getProfession()));
-         p_187160_1_.writeVarInt(p_187160_2_.getLevel());
+      public void write(PacketBuffer buffer, VillagerData value) {
+         buffer.writeVarInt(Registry.VILLAGER_TYPE.getId(value.getType()));
+         buffer.writeVarInt(Registry.VILLAGER_PROFESSION.getId(value.getProfession()));
+         buffer.writeVarInt(value.getLevel());
       }
 
-      public VillagerData read(PacketBuffer p_187159_1_) {
-         return new VillagerData(Registry.VILLAGER_TYPE.byId(p_187159_1_.readVarInt()), Registry.VILLAGER_PROFESSION.byId(p_187159_1_.readVarInt()), p_187159_1_.readVarInt());
+      public VillagerData read(PacketBuffer buffer) {
+         return new VillagerData(
+                 Registry.VILLAGER_TYPE.byId(buffer.readVarInt()),
+                 Registry.VILLAGER_PROFESSION.byId(buffer.readVarInt()),
+                 buffer.readVarInt()
+         );
       }
 
-      public VillagerData copy(VillagerData p_192717_1_) {
-         return p_192717_1_;
+      public VillagerData copy(VillagerData value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<OptionalInt> OPTIONAL_UNSIGNED_INT = new IDataSerializer<OptionalInt>() {
-      public void write(PacketBuffer p_187160_1_, OptionalInt p_187160_2_) {
-         p_187160_1_.writeVarInt(p_187160_2_.orElse(-1) + 1);
+      public void write(PacketBuffer buffer, OptionalInt value) {
+         buffer.writeVarInt(value.orElse(-1) + 1);
       }
 
-      public OptionalInt read(PacketBuffer p_187159_1_) {
-         int i = p_187159_1_.readVarInt();
-         return i == 0 ? OptionalInt.empty() : OptionalInt.of(i - 1);
+      public OptionalInt read(PacketBuffer buffer) {
+         int value = buffer.readVarInt();
+         return value == 0 ? OptionalInt.empty() : OptionalInt.of(value - 1);
       }
 
-      public OptionalInt copy(OptionalInt p_192717_1_) {
-         return p_192717_1_;
+      public OptionalInt copy(OptionalInt value) {
+         return value;
       }
    };
+
    public static final IDataSerializer<Pose> POSE = new IDataSerializer<Pose>() {
-      public void write(PacketBuffer p_187160_1_, Pose p_187160_2_) {
-         p_187160_1_.writeEnum(p_187160_2_);
+      public void write(PacketBuffer buffer, Pose value) {
+         buffer.writeEnum(value);
       }
 
-      public Pose read(PacketBuffer p_187159_1_) {
-         return p_187159_1_.readEnum(Pose.class);
+      public Pose read(PacketBuffer buffer) {
+         return buffer.readEnum(Pose.class);
       }
 
-      public Pose copy(Pose p_192717_1_) {
-         return p_192717_1_;
+      public Pose copy(Pose value) {
+         return value;
       }
    };
 
-   public static void registerSerializer(IDataSerializer<?> p_187189_0_) {
-      SERIALIZERS.add(p_187189_0_);
+   public static void registerSerializer(IDataSerializer<?> serializer) {
+      SERIALIZERS.add(serializer);
    }
 
    @Nullable
-   public static IDataSerializer<?> getSerializer(int p_187190_0_) {
-      return SERIALIZERS.byId(p_187190_0_);
+   public static IDataSerializer<?> getSerializer(int id) {
+      return SERIALIZERS.byId(id);
    }
 
-   public static int getSerializedId(IDataSerializer<?> p_187188_0_) {
-      return SERIALIZERS.getId(p_187188_0_);
+   public static int getSerializedId(IDataSerializer<?> serializer) {
+      return SERIALIZERS.getId(serializer);
    }
 
    static {

@@ -47,6 +47,13 @@ public class ModelRenderer {
       p_i46358_1_.accept(this);
    }
 
+   public void reset() {
+      this.xRot = 0;
+      this.yRot = 0;
+      this.zRot = 0;
+     // this.children.forEach(model -> reset());
+   }
+
    public ModelRenderer(int p_i225949_1_, int p_i225949_2_, int p_i225949_3_, int p_i225949_4_) {
       this.setTexSize(p_i225949_1_, p_i225949_2_);
       this.texOffs(p_i225949_3_, p_i225949_4_);

@@ -6,6 +6,17 @@ public class SoundEvents {
    public static final SoundEvent AMBIENT_CAVE = register("ambient.cave");
 
 
+   public static final SoundEvent CREAKING_AMBIENT = SoundEvents.register("entity.creaking.ambient");
+   public static final SoundEvent CREAKING_ACTIVATE = SoundEvents.register("entity.creaking.activate");
+   public static final SoundEvent CREAKING_DEACTIVATE = SoundEvents.register("entity.creaking.deactivate");
+   public static final SoundEvent CREAKING_ATTACK = SoundEvents.register("entity.creaking.attack");
+   public static final SoundEvent CREAKING_DEATH = SoundEvents.register("entity.creaking.death");
+   public static final SoundEvent CREAKING_STEP = SoundEvents.register("entity.creaking.step");
+   public static final SoundEvent CREAKING_FREEZE = SoundEvents.register("entity.creaking.freeze");
+   public static final SoundEvent CREAKING_UNFREEZE = SoundEvents.register("entity.creaking.unfreeze");
+   public static final SoundEvent CREAKING_SPAWN = SoundEvents.register("entity.creaking.spawn");
+   public static final SoundEvent CREAKING_SWAY = SoundEvents.register("entity.creaking.sway");
+
 
    public static final SoundEvent AMBIENT_BASALT_DELTAS_ADDITIONS = register("ambient.basalt_deltas.additions");
    public static final SoundEvent AMBIENT_BASALT_DELTAS_LOOP = register("ambient.basalt_deltas.loop");

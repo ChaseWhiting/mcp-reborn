@@ -10563,6 +10563,121 @@
     "minecraft/sounds/pipboy/loop/radiation_3.ogg": {
       "hash": "917c89a722573c599717745de4ef23d0b260a3fe",
       "size": 13686
+    },
+
+
+
+    "minecraft/sounds/mob/creaking/attack.ogg": {
+      "hash": "df4517de11a3e24e17741c9948c750dce32268c7",
+      "size": 12148
+    },
+    "minecraft/sounds/mob/creaking/creaking_activate.ogg": {
+      "hash": "d740ea697c1f09e1bdc68dccd43a2aee48759072",
+      "size": 23185
+    },
+    "minecraft/sounds/mob/creaking/creaking_attack1.ogg": {
+      "hash": "2f8b4b2fac21934fdd211e88ecdb189ff7a45af3",
+      "size": 12069
+    },
+    "minecraft/sounds/mob/creaking/creaking_attack2.ogg": {
+      "hash": "bdb2725d1c4d522bd285ae31f73b7ce177cf3346",
+      "size": 11917
+    },
+    "minecraft/sounds/mob/creaking/creaking_attack3.ogg": {
+      "hash": "f40f393e9297f2a49bec801eb71d0b4cd4a702cd",
+      "size": 10741
+    },
+    "minecraft/sounds/mob/creaking/creaking_attack4.ogg": {
+      "hash": "c571097934b0b767baa6a98316f2a3c2ada08577",
+      "size": 10190
+    },
+    "minecraft/sounds/mob/creaking/creaking_deactivate.ogg": {
+      "hash": "639157a1c66558da9f66045150f66885c2adabbe",
+      "size": 14337
+    },
+    "minecraft/sounds/mob/creaking/creaking_death.ogg": {
+      "hash": "582b5617690565a1a8c8f11a3a5717e76be402c7",
+      "size": 30817
+    },
+    "minecraft/sounds/mob/creaking/creaking_freeze1.ogg": {
+      "hash": "6be14445d7574aedf48232e4d028420738bc56c5",
+      "size": 9254
+    },
+    "minecraft/sounds/mob/creaking/creaking_freeze2.ogg": {
+      "hash": "1d2b77fca163ae74eabbcee782dbb2e9f8e54d7c",
+      "size": 12038
+    },
+    "minecraft/sounds/mob/creaking/creaking_freeze3.ogg": {
+      "hash": "ee61f8f3f2b268f4435c49722298d92a403ac253",
+      "size": 12791
+    },
+    "minecraft/sounds/mob/creaking/creaking_freeze4.ogg": {
+      "hash": "f3ca6e1c943b3fa1520247f00d8283800f94fb04",
+      "size": 14621
+    },
+    "minecraft/sounds/mob/creaking/creaking_idle1.ogg": {
+      "hash": "6b6a1f07a8fb3b97c6d6cc4d3810e33c2701c47a",
+      "size": 19722
+    },
+    "minecraft/sounds/mob/creaking/creaking_idle2.ogg": {
+      "hash": "d91e759d9c17fa11c5f9a98542774c6af5735d52",
+      "size": 21260
+    },
+    "minecraft/sounds/mob/creaking/creaking_idle3.ogg": {
+      "hash": "75aad92df36ba44928e934674069694ad03f42f9",
+      "size": 16750
+    },
+    "minecraft/sounds/mob/creaking/creaking_idle4.ogg": {
+      "hash": "30cbb388cfac2e93e06628218f5ad334bfef60e9",
+      "size": 20438
+    },
+    "minecraft/sounds/mob/creaking/creaking_idle5.ogg": {
+      "hash": "38b17e27ba3eb6b8e549c295040f21d965ed347c",
+      "size": 14591
+    },
+    "minecraft/sounds/mob/creaking/creaking_idle6.ogg": {
+      "hash": "9822ae94c710bcd4130f78bb353eefecfd614c2f",
+      "size": 14552
+    },
+    "minecraft/sounds/mob/creaking/creaking_spawn.ogg": {
+      "hash": "cd47b9f60b4fd86af8d4877540920ea4b557d829",
+      "size": 37775
+    },
+    "minecraft/sounds/mob/creaking/creaking_step1.ogg": {
+      "hash": "46a4197001b67c84ff3752c96afce6e747936774",
+      "size": 8561
+    },
+    "minecraft/sounds/mob/creaking/creaking_step2.ogg": {
+      "hash": "0d68cf80d3018c93de2f3048114dd7452d75b8da",
+      "size": 6564
+    },
+    "minecraft/sounds/mob/creaking/creaking_step3.ogg": {
+      "hash": "3f6d5f2b9ea4f0091d971e05a2551a4386ecf299",
+      "size": 9309
+    },
+    "minecraft/sounds/mob/creaking/creaking_step4.ogg": {
+      "hash": "6c3ac56c7444bfee116bb7cf52b01b90f3319608",
+      "size": 8500
+    },
+    "minecraft/sounds/mob/creaking/creaking_step5.ogg": {
+      "hash": "5c5eaa8d9f0acd439140e81270789da9ecf6694d",
+      "size": 11470
+    },
+    "minecraft/sounds/mob/creaking/creaking_sway.ogg": {
+      "hash": "a2e9e1a394ae33e36d110b1a3a1adfd5e5b53b24",
+      "size": 8857
+    },
+    "minecraft/sounds/mob/creaking/creaking_unfreeze1.ogg": {
+      "hash": "e8591bd70a7a73bc824fdbb82adc198cb22ea6e1",
+      "size": 15504
+    },
+    "minecraft/sounds/mob/creaking/creaking_unfreeze2.ogg": {
+      "hash": "3f9d592a660e95a22ccc7952dcecbc378fde271e",
+      "size": 13585
+    },
+    "minecraft/sounds/mob/creaking/creaking_unfreeze3.ogg": {
+      "hash": "a1a1eed5307c991ad0b64e0cb6fce87f20f713c5",
+      "size": 8617
     }
   }
 }

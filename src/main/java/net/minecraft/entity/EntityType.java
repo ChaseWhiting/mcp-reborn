@@ -53,7 +53,7 @@ public class EntityType<T extends Entity> {
 
 
    public static final EntityType<GreatHungerEntity> GREAT_HUNGER = register("great_hunger", EntityType.Builder.<GreatHungerEntity>of(GreatHungerEntity::new, EntityClassification.MONSTER).sized(0.65F,0.62F).clientTrackingRange(12));
-   public static final EntityType<CreakingEntity> CREAKING = register("creaking", EntityType.Builder.<CreakingEntity>of(CreakingEntity::new, EntityClassification.MONSTER).sized(0.8F,2.7F).clientTrackingRange(12));
+   public static final EntityType<CreakingEntity> CREAKING = register("creaking", EntityType.Builder.<CreakingEntity>of(CreakingEntity::new, EntityClassification.MONSTER).fireImmune().sized(0.9F,2.7F).clientTrackingRange(12));
 
 
 

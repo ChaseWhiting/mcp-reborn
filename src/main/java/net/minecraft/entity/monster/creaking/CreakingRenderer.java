@@ -9,8 +9,7 @@ public class CreakingRenderer extends MobRenderer<CreakingEntity, CreakingModel<
     private static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/creaking.png");
 
     public CreakingRenderer(EntityRendererManager manager) {
-        super(manager, new CreakingModel<>(), 0.5F);
-        this.addLayer(new CreakingEyesLayer<>(this));
+        super(manager, new CreakingModel<>(), 0.7F);
     }
 
     public ResourceLocation getTextureLocation(CreakingEntity p_234791_) {
