@@ -40,17 +40,13 @@ import net.minecraft.block.BlockEventData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.INPC;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
+import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.merchant.IReputationTracking;
 import net.minecraft.entity.merchant.IReputationType;
+import net.minecraft.entity.monster.RayTracing;
 import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.passive.horse.SkeletonHorseEntity;
@@ -984,6 +980,12 @@ public class ServerWorld extends World implements ISeedReader {
    public void gameEvent(@Nullable PlayerEntity player, GameEvent event, BlockPos position, int eventData) {
       this.server.getPlayerList().broadcast(player, (double)position.getX(), (double)position.getY(), (double)position.getZ(), 64.0D, this.dimension(), new SPlayGameEventPacket(event, position, eventData, false));
       this.onGameEvent(event, position, player);
+
+      switch (event) {
+         case UPDATE_BLOCK -> {
+               this.setBlockAndUpdate(position, Block.stateById(eventData));
+         }
+      }
    }
 
    public void onGameEvent(GameEvent gameEvent, BlockPos position, @Nullable PlayerEntity player) {
@@ -1002,6 +1004,17 @@ public class ServerWorld extends World implements ISeedReader {
          }
 
       }
+   }
+
+   @Nullable
+   public RayTracing addRayTracing() {
+      BlockPos $$0 = this.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING, new BlockPos(this.levelData.getXSpawn() + MathHelper.randomBetweenInclusive(random, -8, 8), this.levelData.getYSpawn(), this.levelData.getZSpawn() + MathHelper.randomBetweenInclusive(random, -8, 8)));
+      RayTracing $$1 = EntityType.RAY_TRACING.spawn(this, null, null, null, $$0, SpawnReason.EVENT, false, false);
+      if ($$1 != null) {
+         $$1.yRot = (this.getSharedSpawnAngle());
+         $$1.restrictTo(new BlockPos(this.levelData.getXSpawn(), this.levelData.getYSpawn(), this.levelData.getXSpawn()), this.server.getSpawnProtectionRadius());
+      }
+      return $$1;
    }
 
    public void broadcastEntityEvent(Entity p_72960_1_, byte p_72960_2_) {

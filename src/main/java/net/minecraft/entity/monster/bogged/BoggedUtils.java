@@ -67,13 +67,13 @@ public class BoggedUtils {
         public static List<WeightedItemStack> createMushroomList(Item item1, Item item2, int weight, int min, int max) {
             return List.of(
                     new WeightedItemStack.Builder()
-                            .addWeightedItem(new ItemStack(item1), weight, min, max) // Use weight and rolls for each item
-                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0)) // Set bonus rolls if needed
+                            .addWeightedItem(new ItemStack(item1), weight, min, max)
+                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0))
                             .build(),
 
                     new WeightedItemStack.Builder()
-                            .addWeightedItem(new ItemStack(item2), weight, min, max) // Use weight and rolls for each item
-                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0)) // Set bonus rolls if needed
+                            .addWeightedItem(new ItemStack(item2), weight, min, max)
+                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0))
                             .build()
             );
         }
@@ -81,8 +81,8 @@ public class BoggedUtils {
         public static List<WeightedItemStack> createSingleItemStack(Item item, int weight, int min, int max) {
             return List.of(
                     new WeightedItemStack.Builder()
-                            .addWeightedItem(new ItemStack(item), weight, min, max) // Use weight and rolls for the item
-                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0)) // Set bonus rolls if needed
+                            .addWeightedItem(new ItemStack(item), weight, min, max)
+                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0))
                             .build()
             );
         }
@@ -93,22 +93,20 @@ public class BoggedUtils {
                     .filter(item -> item != Items.WITHER_ROSE)
                     .collect(Collectors.toList());
 
-            // If there are fewer than two flowers, return an empty list
             if (flowers.size() < 2) {
                 return List.of();
             }
 
-            // Shuffle and pick two random flowers
             Collections.shuffle(flowers);
             return List.of(
                     new WeightedItemStack.Builder()
-                            .addWeightedItem(new ItemStack(flowers.get(0)), 1, min, max) // Use a weight of 1, adjust if needed
-                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0)) // Set bonus rolls if needed
+                            .addWeightedItem(new ItemStack(flowers.get(0)), 1, min, max)
+                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0))
                             .build(),
 
                     new WeightedItemStack.Builder()
-                            .addWeightedItem(new ItemStack(flowers.get(1)), 1, min, max) // Use a weight of 1, adjust if needed
-                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0)) // Set bonus rolls if needed
+                            .addWeightedItem(new ItemStack(flowers.get(1)), 1, min, max)
+                            .setBonusRolls(new WeightedItemStack.RandomValueRange(0, 0))
                             .build()
             );
         }
@@ -138,7 +136,6 @@ public class BoggedUtils {
                 bogged.setPersistenceRequired();
             }
             bogged.shear(SoundCategory.PLAYERS);
-            //this.level.gameEvent(GameEvent.SHEAR, player);
             if (!bogged.level.isClientSide) {
                 itemInHand.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
             }
@@ -190,14 +187,11 @@ public class BoggedUtils {
             BoggedType type = entity.getBoggedType();
 
             return switch (type) {
-                case BOGGED -> canConvertTo(BoggedType.PARCHED, entity);  // BOGGED converts to PARCHED in water
-                case PARCHED -> canConvertTo(BoggedType.BLOSSOMED, entity);  // PARCHED to BLOSSOMED
-                case BLOSSOMED -> canConvertTo(BoggedType.BOGGED, entity);  // BLOSSOMED back to BOGGED
+                case BOGGED, FROSTED -> canConvertTo(BoggedType.PARCHED, entity);
+                case PARCHED, FESTERED_BROWN -> canConvertTo(BoggedType.BLOSSOMED, entity);
+                case BLOSSOMED -> canConvertTo(BoggedType.BOGGED, entity);
                 case WITHERED -> true;
-                case FESTERED ->
-                        canConvertTo(BoggedType.FESTERED_BROWN, entity);  // FESTERED leads to FESTERED_BROWN in water
-                case FESTERED_BROWN -> canConvertTo(BoggedType.BLOSSOMED, entity);  // FESTERED_BROWN to BLOSSOMED
-                case FROSTED -> canConvertTo(BoggedType.PARCHED, entity);  // FROSTED leads to PARCHED
+                case FESTERED -> canConvertTo(BoggedType.FESTERED_BROWN, entity);
                 default -> false;
             };
         }
@@ -221,13 +215,13 @@ public class BoggedUtils {
             }
 
             if (itemstack.getItem() == Items.BOW) {
-                int i = entity.getAttackInterval(); // Base interval from BoggedType
+                int i = entity.getAttackInterval();
                 if (entity.level.getDifficulty() == Difficulty.HARD) {
-                    i = (int) (i * 0.7); // Reduce by 30% on Hard Mode
+                    i = (int) (i * 0.7);
                 }
 
                 if (entity.veryHardmode()) {
-                    i = (int) (i * 0.7); // Further reduce by 30% on Very Hardmode
+                    i = (int) (i * 0.7);
                 }
 
                 entity.bowGoal.setMinAttackInterval(i);

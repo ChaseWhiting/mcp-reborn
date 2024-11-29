@@ -34,6 +34,8 @@ public abstract class Placement<DC extends IPlacementConfig> {
    public static final Placement<FeatureSpreadConfig> GLOWSTONE = register("glowstone", new GlowstonePlacement(FeatureSpreadConfig.CODEC));
    public static final Placement<NoPlacementConfig> END_GATEWAY = register("end_gateway", new EndGateway(NoPlacementConfig.CODEC));
    public static final Placement<NoPlacementConfig> DARK_OAK_TREE = register("dark_oak_tree", new DarkOakTreePlacement(NoPlacementConfig.CODEC));
+   public static final Placement<NoPlacementConfig> PALE_OAK_TREE = register("pale_oak_tree", new DarkOakTreePlacement(NoPlacementConfig.CODEC));
+
    public static final Placement<NoPlacementConfig> ICEBERG = register("iceberg", new IcebergPlacement(NoPlacementConfig.CODEC));
    public static final Placement<NoPlacementConfig> END_ISLAND = register("end_island", new EndIsland(NoPlacementConfig.CODEC));
    public static final Placement<DecoratedPlacementConfig> DECORATED = register("decorated", new DecoratedPlacement(DecoratedPlacementConfig.CODEC));

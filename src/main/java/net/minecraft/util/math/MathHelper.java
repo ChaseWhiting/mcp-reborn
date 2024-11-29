@@ -31,6 +31,14 @@ public class MathHelper {
       return SIN[(int)(p_76134_0_ * 10430.378F + 16384.0F) & '\uffff'];
    }
 
+   public static int randomBetweenInclusive(Random $$0, int $$1, int $$2) {
+      return $$0.nextInt($$2 - $$1 + 1) + $$1;
+   }
+
+   public static float randomBetween(Random $$0, float $$1, float $$2) {
+      return $$0.nextFloat() * ($$2 - $$1) + $$1;
+   }
+
    public static float sqrt(float p_76129_0_) {
       return (float)Math.sqrt((double)p_76129_0_);
    }
@@ -77,11 +85,11 @@ public class MathHelper {
       return p_76143_0_ > (double)i ? i + 1 : i;
    }
 
-   public static int clamp(int p_76125_0_, int p_76125_1_, int p_76125_2_) {
-      if (p_76125_0_ < p_76125_1_) {
-         return p_76125_1_;
+   public static int clamp(int currentValue, int minimumValue, int maxValue) {
+      if (currentValue < minimumValue) {
+         return minimumValue;
       } else {
-         return p_76125_0_ > p_76125_2_ ? p_76125_2_ : p_76125_0_;
+         return currentValue > maxValue ? maxValue : currentValue;
       }
    }
 

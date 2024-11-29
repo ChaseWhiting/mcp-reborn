@@ -32,12 +32,12 @@ public class JigsawBlock extends Block implements ITileEntityProvider {
       p_206840_1_.add(ORIENTATION);
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      return p_185499_1_.setValue(ORIENTATION, p_185499_2_.rotation().rotate(p_185499_1_.getValue(ORIENTATION)));
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      return state.setValue(ORIENTATION, rotation.rotation().rotate(state.getValue(ORIENTATION)));
    }
 
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      return p_185471_1_.setValue(ORIENTATION, p_185471_2_.rotation().rotate(p_185471_1_.getValue(ORIENTATION)));
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      return state.setValue(ORIENTATION, mirroring.rotation().rotate(state.getValue(ORIENTATION)));
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {

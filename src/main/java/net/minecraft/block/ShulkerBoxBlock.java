@@ -293,11 +293,11 @@ public class ShulkerBoxBlock extends ContainerBlock {
       return new ItemStack(getBlockByColor(p_190953_0_));
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      return p_185499_1_.setValue(FACING, p_185499_2_.rotate(p_185499_1_.getValue(FACING)));
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
    }
 
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      return p_185471_1_.rotate(p_185471_2_.getRotation(p_185471_1_.getValue(FACING)));
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 }

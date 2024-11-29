@@ -71,6 +71,13 @@ public final class Vector3f {
       this.z *= p_195898_1_;
    }
 
+   public Vector3f mulA(float p) {
+      this.x *= p;
+      this.y *= p;
+      this.z *= p;
+      return this;
+   }
+
    @OnlyIn(Dist.CLIENT)
    public void mul(float p_229192_1_, float p_229192_2_, float p_229192_3_) {
       this.x *= p_229192_1_;
@@ -169,6 +176,13 @@ public final class Vector3f {
       this.x = this.x * f + p_229190_1_.x * p_229190_2_;
       this.y = this.y * f + p_229190_1_.y * p_229190_2_;
       this.z = this.z * f + p_229190_1_.z * p_229190_2_;
+   }
+
+   public Vector3f lerp(Vector3f other, float t, Vector3f dest) {
+      dest.x = Math.fma(other.x() - this.x, t, this.x);
+      dest.y = Math.fma(other.y() - this.y, t, this.y);
+      dest.z = Math.fma(other.z() - this.z, t, this.z);
+      return dest;
    }
 
    @OnlyIn(Dist.CLIENT)

@@ -115,6 +115,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.SectionPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -125,7 +126,7 @@ import net.minecraft.util.text.filter.IChatFilter;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeManager;
+import net.minecraft.world.biome.*;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.IWorldInfo;
 import org.apache.logging.log4j.LogManager;
@@ -763,7 +764,9 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
                   List<Monster> list = this.level.getEntitiesOfClass(Monster.class, new AxisAlignedBB(vector3d.x() - 8.0D, vector3d.y() - 5.0D, vector3d.z() - 8.0D, vector3d.x() + 8.0D, vector3d.y() + 5.0D, vector3d.z() + 8.0D), (p_241146_1_) -> {
                      return p_241146_1_.isPreventingPlayerRest(this);
                   });
-                  if (!list.isEmpty()) {
+                  Optional<RegistryKey<Biome>> biomeKey = this.level.getBiomeName(this.blockPosition());
+
+                  if (!list.isEmpty() || biomeKey.isPresent() && biomeKey.get() == Biomes.PALE_GARDEN) {
                      return Either.left(PlayerEntity.SleepResult.NOT_SAFE);
                   }
                }
@@ -1347,6 +1350,9 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
 
          this.respawnPosition = p_242111_2_;
          this.respawnDimension = p_242111_1_;
+         if (!Float.isFinite(p_242111_3_)) {
+            p_242111_3_ = 0.0f;
+         }
          this.respawnAngle = p_242111_3_;
          this.respawnForced = p_242111_4_;
       } else {

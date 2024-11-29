@@ -24,32 +24,17 @@ public class AnimationChannel {
         this.keyframes = keyframes;
     }
 
-    public interface Interpolation {
-        Vector3f apply(Vector3f vector, float progress, Keyframe[] keyframes, int startIndex, int endIndex, float factor);
+    public AnimationChannel(String target, Keyframe... keyframes) {
+        this.target = switch (target) {
+            case "rotation", "rot", "ROTATION" -> Targets.ROTATION;
+            case "position", "pos", "POSITION" -> Targets.POSITION;
+            default -> Targets.SCALE;
+        };
+        this.keyframes = keyframes;
     }
 
-    public static class Interpolations {
-        public static final Interpolation LINEAR = (vector, progress, keyframes, startIndex, endIndex, factor) -> {
-            Vector3f startVector = keyframes[startIndex].getTarget();
-            Vector3f endVector = keyframes[endIndex].getTarget();
-            return new Vector3f(
-                MathHelper.lerp(progress, startVector.x(), endVector.x()) * factor,
-                MathHelper.lerp(progress, startVector.y(), endVector.y()) * factor,
-                MathHelper.lerp(progress, startVector.z(), endVector.z()) * factor
-            );
-        };
-
-        public static final Interpolation CATMULLROM = (vector, progress, keyframes, startIndex, endIndex, factor) -> {
-            Vector3f vector1 = keyframes[Math.max(0, startIndex - 1)].getTarget();
-            Vector3f vector2 = keyframes[startIndex].getTarget();
-            Vector3f vector3 = keyframes[endIndex].getTarget();
-            Vector3f vector4 = keyframes[Math.min(keyframes.length - 1, endIndex + 1)].getTarget();
-            return new Vector3f(
-                MathUtil.catmullRom(progress, vector1.x(), vector2.x(), vector3.x(), vector4.x()) * factor,
-                MathUtil.catmullRom(progress, vector1.y(), vector2.z(), vector3.y(), vector4.y()) * factor,
-                MathUtil.catmullRom(progress, vector1.z(), vector2.z(), vector3.z(), vector4.z()) * factor
-            );
-        };
+    public interface Interpolation {
+        Vector3f apply(Vector3f vector, float progress, Keyframe[] keyframes, int startIndex, int endIndex, float factor);
     }
 
     public interface Target {
@@ -57,20 +42,18 @@ public class AnimationChannel {
     }
 
     public static class Targets {
-        public static final Target POSITION = (modelPart, vector) -> {
-            modelPart.xRot += vector.z();
-            modelPart.yRot += vector.y();
-            modelPart.zRot += vector.z();
-        };
-        public static final Target ROTATION = (modelPart, vector) -> {
-            modelPart.xRot += vector.x();
-            modelPart.yRot += vector.y();
-            modelPart.zRot += vector.z();
-        };
-        public static final Target SCALE = (modelPart, vector) -> {
-            if (modelPart != null) {
-                ((ModelRenderer) modelPart).applyScale(vector);
-            }
-        };
+        public static final AnimationChannel.Target POSITION = net.minecraft.client.animation.Targets.POSITION;
+        public static final AnimationChannel.Target ROTATION = net.minecraft.client.animation.Targets.ROTATION;
+        public static final AnimationChannel.Target SCALE = net.minecraft.client.animation.Targets.SCALE;
     }
+
+    public static class Interpolations {
+        public static final AnimationChannel.Interpolation LINEAR = net.minecraft.client.animation.Interpolations.LINEAR;
+
+        public static final AnimationChannel.Interpolation CATMULLROM = net.minecraft.client.animation.Interpolations.CATMULLROM;
+
+        public static final AnimationChannel.Interpolation EXPONENTIAL = net.minecraft.client.animation.Interpolations.EXPONENTIAL;
+
+    }
+
 }

@@ -113,16 +113,16 @@ public class CropsBlock extends BushBlock implements IGrowable {
          }
       }
 
-      BlockPos blockpos1 = p_180672_2_.north();
-      BlockPos blockpos2 = p_180672_2_.south();
-      BlockPos blockpos3 = p_180672_2_.west();
-      BlockPos blockpos4 = p_180672_2_.east();
-      boolean flag = p_180672_0_ == p_180672_1_.getBlockState(blockpos3).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(blockpos4).getBlock();
-      boolean flag1 = p_180672_0_ == p_180672_1_.getBlockState(blockpos1).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(blockpos2).getBlock();
+      BlockPos northPosition = p_180672_2_.north();
+      BlockPos southPosition = p_180672_2_.south();
+      BlockPos westPosition = p_180672_2_.west();
+      BlockPos eastPosition = p_180672_2_.east();
+      boolean flag = p_180672_0_ == p_180672_1_.getBlockState(westPosition).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(eastPosition).getBlock();
+      boolean flag1 = p_180672_0_ == p_180672_1_.getBlockState(northPosition).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(southPosition).getBlock();
       if (flag && flag1) {
          f /= 2.0F;
       } else {
-         boolean flag2 = p_180672_0_ == p_180672_1_.getBlockState(blockpos3.north()).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(blockpos4.north()).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(blockpos4.south()).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(blockpos3.south()).getBlock();
+         boolean flag2 = p_180672_0_ == p_180672_1_.getBlockState(westPosition.north()).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(eastPosition.north()).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(eastPosition.south()).getBlock() || p_180672_0_ == p_180672_1_.getBlockState(westPosition.south()).getBlock();
          if (flag2) {
             f /= 2.0F;
          }

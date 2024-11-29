@@ -3,6 +3,8 @@ package net.minecraft.client.animation;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import net.minecraft.client.animation.definitions.Animation;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,27 +15,48 @@ import net.minecraft.util.math.vector.Vector3f;
 public class KeyframeAnimations {
     public static void animate(HierarchicalModel<?> model, AnimationDefinition animationDefinition, long currentTime, float partialTicks, Vector3f tempVector) {
         float elapsedSeconds = getElapsedSeconds(animationDefinition, currentTime);
+
+        // Iterate over each bone and its animation channels
         for (Map.Entry<String, List<AnimationChannel>> entry : animationDefinition.getBoneAnimations().entrySet()) {
             Optional<ModelRenderer> optional = model.getAnyDescendantWithName(entry.getKey());
             List<AnimationChannel> animationChannels = entry.getValue();
+
             optional.ifPresent((modelPart) -> {
                 animationChannels.forEach((animationChannel) -> {
                     Keyframe[] keyframes = animationChannel.getKeyframes();
+
+                    // Binary search to find the current keyframe index
                     int i = Math.max(0, MathHelper.binarySearch(0, keyframes.length, (index) -> {
                         return elapsedSeconds <= keyframes[index].getTimestamp();
                     }) - 1);
                     int j = Math.min(keyframes.length - 1, i + 1);
-                    Keyframe keyframe = keyframes[i];
-                    Keyframe keyframe1 = keyframes[j];
-                    float deltaTime = elapsedSeconds - keyframe.getTimestamp();
+
+                    Keyframe keyframeStart = keyframes[i];
+                    Keyframe keyframeEnd = keyframes[j];
+                    float deltaTime = elapsedSeconds - keyframeStart.getTimestamp();
                     float progress;
+
+                    // Calculate progress between the two keyframes
                     if (j != i) {
-                        progress = MathHelper.clamp(deltaTime / (keyframe1.getTimestamp() - keyframe.getTimestamp()), 0.0F, 1.0F);
+                        progress = MathHelper.clamp(deltaTime / (keyframeEnd.getTimestamp() - keyframeStart.getTimestamp()), 0.0F, 1.0F);
                     } else {
                         progress = 0.0F;
                     }
 
-                    keyframe1.getInterpolation().apply(tempVector, progress, keyframes, i, j, partialTicks);
+                    // Get the start and end vectors from the two keyframes
+                    Vector3f startVector = keyframeStart.getTarget();    // Target values for the start keyframe
+                    Vector3f endVector = keyframeEnd.getTarget();     // Target values for the end keyframe
+
+                    tempVector.set(
+                            MathHelper.lerp(progress, startVector.x(), endVector.x()),
+                            MathHelper.lerp(progress, startVector.y(), endVector.y()),
+                            MathHelper.lerp(progress, startVector.z(), endVector.z())
+                    );
+
+                    // Use the interpolation from the end keyframe to apply the transformation
+                    keyframeEnd.getInterpolation().apply(tempVector, progress, keyframes, i, j, partialTicks);
+
+                    // Apply the result to the modelPart using the channel's target (preserving the vector set at the end)
                     animationChannel.getTarget().apply(modelPart, tempVector);
                 });
             });
@@ -46,14 +69,14 @@ public class KeyframeAnimations {
     }
 
     public static Vector3f posVec(float x, float y, float z) {
-        return new Vector3f(x, -y, z);
+        return Animation.posVec(x, y, z);
     }
 
     public static Vector3f degreeVec(float x, float y, float z) {
-        return new Vector3f(x * ((float) Math.PI / 180F), y * ((float) Math.PI / 180F), z * ((float) Math.PI / 180F));
+        return Animation.degreeVec(x, y, z);
     }
 
     public static Vector3f scaleVec(double x, double y, double z) {
-        return new Vector3f((float) (x - 1.0D), (float) (y - 1.0D), (float) (z - 1.0D));
+        return Animation.scaleVec(x, y, z);
     }
 }

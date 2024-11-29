@@ -24,17 +24,17 @@ public class BoatItem extends Item {
       this.type = p_i48526_1_;
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-      RayTraceResult raytraceresult = getPlayerPOVHitResult(p_77659_1_, p_77659_2_, RayTraceContext.FluidMode.ANY);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      RayTraceResult raytraceresult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.ANY);
       if (raytraceresult.getType() == RayTraceResult.Type.MISS) {
          return ActionResult.pass(itemstack);
       } else {
-         Vector3d vector3d = p_77659_2_.getViewVector(1.0F);
+         Vector3d vector3d = player.getViewVector(1.0F);
          double d0 = 5.0D;
-         List<Entity> list = p_77659_1_.getEntities(p_77659_2_, p_77659_2_.getBoundingBox().expandTowards(vector3d.scale(5.0D)).inflate(1.0D), ENTITY_PREDICATE);
+         List<Entity> list = world.getEntities(player, player.getBoundingBox().expandTowards(vector3d.scale(5.0D)).inflate(1.0D), ENTITY_PREDICATE);
          if (!list.isEmpty()) {
-            Vector3d vector3d1 = p_77659_2_.getEyePosition(1.0F);
+            Vector3d vector3d1 = player.getEyePosition(1.0F);
 
             for(Entity entity : list) {
                AxisAlignedBB axisalignedbb = entity.getBoundingBox().inflate((double)entity.getPickRadius());
@@ -45,21 +45,21 @@ public class BoatItem extends Item {
          }
 
          if (raytraceresult.getType() == RayTraceResult.Type.BLOCK) {
-            BoatEntity boatentity = new BoatEntity(p_77659_1_, raytraceresult.getLocation().x, raytraceresult.getLocation().y, raytraceresult.getLocation().z);
+            BoatEntity boatentity = new BoatEntity(world, raytraceresult.getLocation().x, raytraceresult.getLocation().y, raytraceresult.getLocation().z);
             boatentity.setType(this.type);
-            boatentity.yRot = p_77659_2_.yRot;
-            if (!p_77659_1_.noCollision(boatentity, boatentity.getBoundingBox().inflate(-0.1D))) {
+            boatentity.yRot = player.yRot;
+            if (!world.noCollision(boatentity, boatentity.getBoundingBox().inflate(-0.1D))) {
                return ActionResult.fail(itemstack);
             } else {
-               if (!p_77659_1_.isClientSide) {
-                  p_77659_1_.addFreshEntity(boatentity);
-                  if (!p_77659_2_.abilities.instabuild) {
+               if (!world.isClientSide) {
+                  world.addFreshEntity(boatentity);
+                  if (!player.abilities.instabuild) {
                      itemstack.shrink(1);
                   }
                }
 
-               p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
-               return ActionResult.sidedSuccess(itemstack, p_77659_1_.isClientSide());
+               player.awardStat(Stats.ITEM_USED.get(this));
+               return ActionResult.sidedSuccess(itemstack, world.isClientSide());
             }
          } else {
             return ActionResult.pass(itemstack);

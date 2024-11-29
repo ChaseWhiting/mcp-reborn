@@ -1,6 +1,7 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Creature;
 import net.minecraft.entity.ai.RandomPositionGenerator;
@@ -15,6 +16,7 @@ public class RandomWalkingGoal extends Goal {
    protected int interval;
    protected boolean forceTrigger;
    private boolean checkNoActionTime;
+   private Predicate<Creature> predicate = null;
 
    public RandomWalkingGoal(Creature p_i1648_1_, double p_i1648_2_) {
       this(p_i1648_1_, p_i1648_2_, 120);
@@ -32,7 +34,22 @@ public class RandomWalkingGoal extends Goal {
       this.setFlags(EnumSet.of(Goal.Flag.MOVE));
    }
 
+   public RandomWalkingGoal(Creature p_i231550_1_, double p_i231550_2_, int p_i231550_4_, boolean p_i231550_5_, Predicate<Creature> predicate) {
+      this.mob = p_i231550_1_;
+      this.speedModifier = p_i231550_2_;
+      this.interval = p_i231550_4_;
+      this.checkNoActionTime = p_i231550_5_;
+      this.predicate = predicate;
+      this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+   }
+
    public boolean canUse() {
+      if (this.predicate != null) {
+         if (!predicate.test(mob)) {
+            return false;
+         }
+      }
+
       if (this.mob.isVehicle()) {
          return false;
       } else {
@@ -65,6 +82,12 @@ public class RandomWalkingGoal extends Goal {
    }
 
    public boolean canContinueToUse() {
+      if (this.predicate != null) {
+         if (!predicate.test(mob)) {
+            return false;
+         }
+      }
+
       return !this.mob.getNavigation().isDone() && !this.mob.isVehicle();
    }
 

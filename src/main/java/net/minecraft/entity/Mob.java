@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.OreBlock;
 import net.minecraft.client.renderer.debug.EntityAIDebugRenderer;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ai.EntitySenses;
@@ -18,7 +17,6 @@ import net.minecraft.entity.ai.controller.BodyController;
 import net.minecraft.entity.ai.controller.JumpController;
 import net.minecraft.entity.ai.controller.LookController;
 import net.minecraft.entity.ai.controller.MovementController;
-import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.GoalSelector;
 import net.minecraft.entity.ai.goal.PrioritizedGoal;
@@ -30,10 +28,13 @@ import net.minecraft.entity.item.LeashKnotEntity;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fallout.Skills;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
+import net.minecraft.item.tool.AxeItem;
+import net.minecraft.item.tool.BowItem;
+import net.minecraft.item.tool.SwordItem;
+import net.minecraft.item.tool.ToolItem;
 import net.minecraft.loot.LootContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.FloatNBT;
@@ -71,10 +72,10 @@ public abstract class Mob extends LivingEntity {
    protected LookController lookControl;
    protected MovementController moveControl;
    protected JumpController jumpControl;
-   private final BodyController bodyRotationControl;
+   protected BodyController bodyRotationControl;
    protected PathNavigator navigation;
    protected final GoalSelector goalSelector;
-   protected final GoalSelector targetSelector;
+   public final GoalSelector targetSelector;
    private UUID blindnessModifierUUID = UUID.fromString("c79c47ee-9d5b-4fb3-a887-ce5683051cc4");
    private AttributeModifier blindnessModifier = new AttributeModifier(
            blindnessModifierUUID,
@@ -936,13 +937,13 @@ public abstract class Mob extends LivingEntity {
 
    public static EquipmentSlotType getEquipmentSlotForItem(ItemStack p_184640_0_) {
       Item item = p_184640_0_.getItem();
-      if (item != Blocks.CARVED_PUMPKIN.asItem() && (!(item instanceof BlockItem) || !(((BlockItem)item).getBlock() instanceof AbstractSkullBlock))) {
+      if (item != Blocks.CARVED_PUMPKIN.asItem() && item != Blocks.WHITE_CARVED_PUMPKIN.asItem() && (!(item instanceof BlockItem) || !(((BlockItem)item).getBlock() instanceof AbstractSkullBlock))) {
          if (item instanceof ArmorItem) {
             return ((ArmorItem)item).getSlot();
          } else if (item == Items.ELYTRA || item instanceof AbstractCapeItem) {
             return EquipmentSlotType.CHEST;
          }  else {
-            return item == Items.SHIELD || item == Items.NETHERITE_SHIELD ? EquipmentSlotType.OFFHAND : EquipmentSlotType.MAINHAND;
+            return item == Items.SHIELD || item == Items.NETHERITE_SHIELD || item == Items.SHIELD_OF_CTHULHU ? EquipmentSlotType.OFFHAND : EquipmentSlotType.MAINHAND;
 
          }
       } else {
@@ -1465,6 +1466,12 @@ public abstract class Mob extends LivingEntity {
             float chance = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(player) * 0.05F;
             if (this.random.nextFloat() < chance) {
                player.getCooldowns().addCooldown(Items.NETHERITE_SHIELD, 20); // Cooldown for 30 ticks for netherite shield
+               this.level.broadcastEntityEvent(player, (byte)30);
+            }
+         } else if (shieldItemStack.getItem() == Items.SHIELD_OF_CTHULHU) { // Replace MyModItems with your actual mod item registry class
+            float chance = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(player) * 0.05F;
+            if (this.random.nextFloat() < chance) {
+               player.getCooldowns().addCooldown(Items.SHIELD_OF_CTHULHU, 20); // Cooldown for 30 ticks for netherite shield
                this.level.broadcastEntityEvent(player, (byte)30);
             }
          }

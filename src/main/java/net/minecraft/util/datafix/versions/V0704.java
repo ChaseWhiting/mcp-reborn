@@ -88,6 +88,7 @@ public class V0704 extends Schema {
       p_209318_0_.put("minecraft:end_portal", "minecraft:end_portal");
       p_209318_0_.put("minecraft:end_gateway", "minecraft:end_gateway");
       p_209318_0_.put("minecraft:sign", "minecraft:sign");
+      p_209318_0_.put("minecraft:creaking_heart", "minecraft:creaking_heart");
       p_209318_0_.put("minecraft:shield", "minecraft:banner");
    });
    protected static final HookFunction ADD_NAMES = new HookFunction() {
@@ -126,6 +127,7 @@ public class V0704 extends Schema {
       });
       p_registerBlockEntities_1_.registerSimple(map, "minecraft:noteblock");
       p_registerBlockEntities_1_.registerSimple(map, "minecraft:piston");
+      p_registerBlockEntities_1_.registerSimple(map, "minecraft:creaking_heart");
       registerInventory(p_registerBlockEntities_1_, map, "minecraft:brewing_stand");
       p_registerBlockEntities_1_.registerSimple(map, "minecraft:enchanting_table");
       p_registerBlockEntities_1_.registerSimple(map, "minecraft:end_portal");

@@ -1,6 +1,8 @@
 package net.minecraft.item;
 
 import java.util.Random;
+import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -44,12 +46,11 @@ public class ArmorStandItem extends Item {
                if (armorstandentity == null) {
                   return ActionResultType.FAIL;
                }
-
-               serverworld.addFreshEntityWithPassengers(armorstandentity);
                float f = (float)MathHelper.floor((MathHelper.wrapDegrees(p_195939_1_.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
                armorstandentity.moveTo(armorstandentity.getX(), armorstandentity.getY(), armorstandentity.getZ(), f, 0.0F);
                this.randomizePose(armorstandentity, world.random);
-               world.addFreshEntity(armorstandentity);
+               serverworld.addFreshEntityWithPassengers(armorstandentity);
+
                world.playSound((PlayerEntity)null, armorstandentity.getX(), armorstandentity.getY(), armorstandentity.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundCategory.BLOCKS, 0.75F, 0.8F);
             }
 

@@ -2,6 +2,8 @@ package net.minecraft.data;
 
 import java.util.Optional;
 import java.util.stream.IntStream;
+
+import net.minecraft.client.renderer.model.Model;
 import net.minecraft.util.ResourceLocation;
 
 public class StockModelShapes {
@@ -25,6 +27,10 @@ public class StockModelShapes {
    public static final ModelsUtil DOOR_TOP_HINGE = create("door_top_rh", "_top_hinge", StockTextureAliases.TOP, StockTextureAliases.BOTTOM);
    public static final ModelsUtil FENCE_POST = create("fence_post", "_post", StockTextureAliases.TEXTURE);
    public static final ModelsUtil FENCE_SIDE = create("fence_side", "_side", StockTextureAliases.TEXTURE);
+   public static final ModelsUtil FLOWERBED_1 = create("flowerbed_1", "_1", StockTextureAliases.FLOWERBED, StockTextureAliases.STEM);
+   public static final ModelsUtil FLOWERBED_2 = create("flowerbed_2", "_2", StockTextureAliases.FLOWERBED, StockTextureAliases.STEM);
+   public static final ModelsUtil FLOWERBED_3 = create("flowerbed_3", "_3", StockTextureAliases.FLOWERBED, StockTextureAliases.STEM);
+   public static final ModelsUtil FLOWERBED_4 = create("flowerbed_4", "_4", StockTextureAliases.FLOWERBED, StockTextureAliases.STEM);
    public static final ModelsUtil FENCE_INVENTORY = create("fence_inventory", "_inventory", StockTextureAliases.TEXTURE);
    public static final ModelsUtil WALL_POST = create("template_wall_post", "_post", StockTextureAliases.WALL);
    public static final ModelsUtil WALL_LOW_SIDE = create("template_wall_side", "_side", StockTextureAliases.WALL);
@@ -58,6 +64,8 @@ public class StockModelShapes {
    public static final ModelsUtil RAIL_RAISED_NE = create("template_rail_raised_ne", "_raised_ne", StockTextureAliases.RAIL);
    public static final ModelsUtil RAIL_RAISED_SW = create("template_rail_raised_sw", "_raised_sw", StockTextureAliases.RAIL);
    public static final ModelsUtil CARPET = create("carpet", StockTextureAliases.WOOL);
+   public static final ModelsUtil MOSSY_CARPET_SIDE = create("mossy_carpet_side", StockTextureAliases.SIDE);
+
    public static final ModelsUtil CORAL_FAN = create("coral_fan", StockTextureAliases.FAN);
    public static final ModelsUtil CORAL_WALL_FAN = create("coral_wall_fan", StockTextureAliases.FAN);
    public static final ModelsUtil GLAZED_TERRACOTTA = create("template_glazed_terracotta", StockTextureAliases.PATTERN);

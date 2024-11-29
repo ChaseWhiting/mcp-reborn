@@ -89,8 +89,7 @@ public abstract class ContainerScreen<T extends Container> extends Screen implem
       Slot slot = this.findSlot(mouseX, mouseY);
       int scrollDirection = scrollAmount > 0 ? -1 : 1;
       if (slot != null && slot.hasItem() && slot.getItem().hasCustomScrollBehaviour()) {
-         slot.getItem().onScroll(inventory.player, slot.getItem(), scrollDirection);
-         return true;
+         return slot.getItem().onScroll(inventory.player, slot.getItem(), scrollDirection);
       }
       return super.mouseScrolled(mouseX, mouseY, scrollAmount);
    }

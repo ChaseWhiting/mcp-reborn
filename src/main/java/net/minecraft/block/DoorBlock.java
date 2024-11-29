@@ -202,12 +202,12 @@ public class DoorBlock extends Block {
       return PushReaction.DESTROY;
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      return p_185499_1_.setValue(FACING, p_185499_2_.rotate(p_185499_1_.getValue(FACING)));
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
    }
 
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      return p_185471_2_ == Mirror.NONE ? p_185471_1_ : p_185471_1_.rotate(p_185471_2_.getRotation(p_185471_1_.getValue(FACING))).cycle(HINGE);
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      return mirroring == Mirror.NONE ? state : state.rotate(mirroring.getRotation(state.getValue(FACING))).cycle(HINGE);
    }
 
    @OnlyIn(Dist.CLIENT)

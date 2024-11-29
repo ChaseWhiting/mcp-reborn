@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
@@ -28,6 +29,7 @@ import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.monster.SpiderEntity;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.fluid.FluidState;
@@ -35,11 +37,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effects;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.IResourceManagerReloadListener;
-import net.minecraft.util.CachedBlockInfo;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ScreenShotHelper;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -50,6 +48,8 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.Gamemode;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -136,6 +136,8 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
          this.loadEffect(new ResourceLocation("shaders/post/spider.json"));
       } else if (p_175066_1_ instanceof EndermanEntity) {
          this.loadEffect(new ResourceLocation("shaders/post/invert.json"));
+      } else if (p_175066_1_ instanceof CreakingEntity) {
+         this.loadEffect(new ResourceLocation("shaders/post/desaturate.json"));
       }
 
    }
@@ -206,13 +208,10 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
          }
       }
 
-      if (minecraft.options.enableCustomShaders) {
-         ResourceLocation selectedShader = AbstractOption.SHADERS[minecraft.options.selectedShaderIndex];
-         this.loadEffect(selectedShader);
-      } else {
-         if(this.postEffect != null)
-         this.postEffect.close();
-      }
+
+//         if(this.postEffect != null)
+//            this.postEffect.close();
+
 
    }
 

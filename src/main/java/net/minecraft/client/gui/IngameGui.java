@@ -155,7 +155,7 @@ public class IngameGui extends AbstractGui {
       }
 
       ItemStack itemstack = this.minecraft.player.inventory.getArmor(3);
-      if (this.minecraft.options.getCameraType().isFirstPerson() && itemstack.getItem() == Blocks.CARVED_PUMPKIN.asItem()) {
+      if (this.minecraft.options.getCameraType().isFirstPerson() && itemstack.getItem() == Blocks.CARVED_PUMPKIN.asItem() || this.minecraft.options.getCameraType().isFirstPerson() && itemstack.getItem() == Blocks.WHITE_CARVED_PUMPKIN.asItem()) {
          this.renderPumpkin();
       }
 
@@ -774,6 +774,10 @@ public class IngameGui extends AbstractGui {
                i6 += 36;
             } else if (playerentity.hasEffect(Effects.WITHER)) {
                i6 += 72;
+            } else if (playerentity.hasEffect(Effects.ROOTED)) {
+               i6 += 153;
+            } else if (playerentity.hasEffect(Effects.HONEY)) {
+               i6 += 108;
             }
 
             int j4 = 0;

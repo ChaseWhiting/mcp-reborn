@@ -107,14 +107,14 @@ public class ArmorItem extends Item implements IArmorVanishable {
       };
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
       EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
-      ItemStack itemstack1 = p_77659_2_.getItemBySlot(equipmentslottype);
+      ItemStack itemstack1 = player.getItemBySlot(equipmentslottype);
       if (itemstack1.isEmpty()) {
-         p_77659_2_.setItemSlot(equipmentslottype, itemstack.copy());
+         player.setItemSlot(equipmentslottype, itemstack.copy());
          itemstack.setCount(0);
-         return ActionResult.sidedSuccess(itemstack, p_77659_1_.isClientSide());
+         return ActionResult.sidedSuccess(itemstack, world.isClientSide());
       } else {
          return ActionResult.fail(itemstack);
       }

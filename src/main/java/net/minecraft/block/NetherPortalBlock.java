@@ -109,20 +109,20 @@ public class NetherPortalBlock extends Block {
       return ItemStack.EMPTY;
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      switch(p_185499_2_) {
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      switch(rotation) {
       case COUNTERCLOCKWISE_90:
       case CLOCKWISE_90:
-         switch((Direction.Axis)p_185499_1_.getValue(AXIS)) {
+         switch((Direction.Axis) state.getValue(AXIS)) {
          case Z:
-            return p_185499_1_.setValue(AXIS, Direction.Axis.X);
+            return state.setValue(AXIS, Direction.Axis.X);
          case X:
-            return p_185499_1_.setValue(AXIS, Direction.Axis.Z);
+            return state.setValue(AXIS, Direction.Axis.Z);
          default:
-            return p_185499_1_;
+            return state;
          }
       default:
-         return p_185499_1_;
+         return state;
       }
    }
 

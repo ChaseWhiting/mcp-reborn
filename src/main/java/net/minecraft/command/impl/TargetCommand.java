@@ -114,7 +114,7 @@ public class TargetCommand {
                 validTargets = validTargets.stream().filter(entity -> entity != mob).collect(Collectors.toList());
                 if (validTargets.isEmpty()) {
                     Logger.getLogger(TargetCommand.class.getName()).warning("No valid targets available for mob: " + mob.getName().getString());
-                    continue; // Skip to the next mob if there are no valid targets
+                    continue;
                 }
                 Random random = mob.getRandom();
                 int index = random.nextInt(validTargets.size());
@@ -130,7 +130,7 @@ public class TargetCommand {
             String formatted = String.format("Out of %s mobs, %s set their target to random ones in the specified list", entityList.size(), mobTarget);
             source.sendSuccess(new StringTextComponent(formatted), true);
         }
-        return 1; // Returning the number of mobs that successfully set a target
+        return 1;
     }
 
     public static int setOne(LivingEntity target, List<Mob> entityList) {
@@ -140,7 +140,6 @@ public class TargetCommand {
                 entity.setTarget(target);
                 mobTarget++;
             } catch (Exception e) {
-                // Log the exception instead of printing the stack trace
                 Logger.getLogger(TargetCommand.class.getName()).warning("Failed to set target for mob: " + e.getMessage());
             }
         }

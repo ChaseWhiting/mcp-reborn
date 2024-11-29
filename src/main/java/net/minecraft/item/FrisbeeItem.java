@@ -32,36 +32,36 @@ public class FrisbeeItem extends Item {
    }
 
    @Override
-   public ActionResult<ItemStack> use(World world, PlayerEntity playerEntity, Hand hand) {
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
       RegistryKey<World> level = world.dimension();
       if (!Arrays.asList(data.getDimensions()).contains(level)) {
-         return ActionResult.fail(playerEntity.getItemInHand(hand));
+         return ActionResult.fail(player.getItemInHand(hand));
       }
-      ItemStack itemstack = playerEntity.getItemInHand(hand);
-      world.playSound(null, playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(),
+      ItemStack itemstack = player.getItemInHand(hand);
+      world.playSound(null, player.getX(), player.getY(), player.getZ(),
               SoundEvents.ENDER_PEARL_THROW, SoundCategory.NEUTRAL, 0.5F,
               0.4F / (random.nextFloat() * 0.4F + 0.8F));
-      playerEntity.getCooldowns().addCooldown(this, cooldown);
+      player.getCooldowns().addCooldown(this, cooldown);
 
       if (!world.isClientSide) {
          ItemStack stack = new ItemStack(this);
-         getDistance(playerEntity, data);
-         FrisbeeEntity frisbeeEntity = new FrisbeeEntity(EntityType.FRISBEE, playerEntity, world, data, itemstack);
-         frisbeeEntity.setOwner(playerEntity);
-         frisbeeEntity.shootFromRotation(playerEntity, playerEntity.xRot, playerEntity.yRot, 0.0F,
-                 getVelocity(playerEntity), 1.0F);
+         getDistance(player, data);
+         FrisbeeEntity frisbeeEntity = new FrisbeeEntity(EntityType.FRISBEE, player, world, data, itemstack);
+         frisbeeEntity.setOwner(player);
+         frisbeeEntity.shootFromRotation(player, player.xRot, player.yRot, 0.0F,
+                 getVelocity(player), 1.0F);
          stack.setDamageValue(itemstack.getDamageValue());
 
          TransferEnchantments.transferEnchantments(itemstack, stack);
          frisbeeEntity.setItemStack(stack);
          frisbeeEntity.setItem(stack);
          frisbeeEntity.setNoGravity(true);
-         data.triggerOnThrow(frisbeeEntity, playerEntity);
+         data.triggerOnThrow(frisbeeEntity, player);
          world.addFreshEntity(frisbeeEntity);
       }
 
-      playerEntity.awardStat(Stats.ITEM_USED.get(this));
-      if (!playerEntity.abilities.instabuild) {
+      player.awardStat(Stats.ITEM_USED.get(this));
+      if (!player.abilities.instabuild) {
          itemstack.shrink(1);
       }
 

@@ -34,7 +34,19 @@ public enum TextFormatting {
    STRIKETHROUGH("STRIKETHROUGH", 'm', true),
    UNDERLINE("UNDERLINE", 'n', true),
    ITALIC("ITALIC", 'o', true),
-   RESET("RESET", 'r', -1, (Integer)null);
+   RESET("RESET", 'r', -1, (Integer)null),
+   WHITEE("WHITEE", 'g', 16, 0xFFFFFF),
+   LIGHT_BLUE("LIGHT_BLUE", 'h', 17, 0x9696FF),
+   LIGHT_GREEN("LIGHT_GREEN", 'i', 18, 0x96FF96),
+   ORANGEE("ORANGEE", 'j', 19, 0xFFC896),
+   LIGHT_RED("LIGHT_RED", 'p', 20, 0xFF9696),
+   PINK("PINK", 'q', 21, 0xFF96FF),
+   LIGHT_PURPLEE("LIGHT_PURPLEE", 's', 22, 0xD2A0FF),
+   LIME("LIME", 't', 23, 0x96FF0A),
+   YELLOWW("YELLOWW", 'u', 24, 0xFFFF0A),
+   CYAN("CYAN", 'v', 25, 0x05C8FF),
+   REDD("REDD", 'w', 26, 0xFF2864),
+   PURPLEE("PURPLEE", 'x', 27, 0xB428FF);;
 
 
 

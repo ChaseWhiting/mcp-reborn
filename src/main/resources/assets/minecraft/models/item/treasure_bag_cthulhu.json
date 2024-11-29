@@ -1,0 +1,6 @@
+{
+    "parent": "item/boss_bag",
+    "textures": {
+        "layer0": "item/treasure_bag_cthulhu"
+    }
+}

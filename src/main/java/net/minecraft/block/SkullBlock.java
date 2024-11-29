@@ -34,12 +34,12 @@ public class SkullBlock extends AbstractSkullBlock {
       return this.defaultBlockState().setValue(ROTATION, Integer.valueOf(MathHelper.floor((double)(p_196258_1_.getRotation() * 16.0F / 360.0F) + 0.5D) & 15));
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      return p_185499_1_.setValue(ROTATION, Integer.valueOf(p_185499_2_.rotate(p_185499_1_.getValue(ROTATION), 16)));
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      return state.setValue(ROTATION, Integer.valueOf(rotation.rotate(state.getValue(ROTATION), 16)));
    }
 
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      return p_185471_1_.setValue(ROTATION, Integer.valueOf(p_185471_2_.mirror(p_185471_1_.getValue(ROTATION), 16)));
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      return state.setValue(ROTATION, Integer.valueOf(mirroring.mirror(state.getValue(ROTATION), 16)));
    }
 
    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {

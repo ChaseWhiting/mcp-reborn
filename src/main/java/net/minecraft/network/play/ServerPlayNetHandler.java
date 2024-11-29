@@ -31,6 +31,7 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IJumpingMount;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
@@ -57,62 +58,8 @@ import net.minecraft.nbt.StringNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.PacketThreadUtil;
-import net.minecraft.network.play.client.CAnimateHandPacket;
-import net.minecraft.network.play.client.CChatMessagePacket;
-import net.minecraft.network.play.client.CClickWindowPacket;
-import net.minecraft.network.play.client.CClientSettingsPacket;
-import net.minecraft.network.play.client.CClientStatusPacket;
-import net.minecraft.network.play.client.CCloseWindowPacket;
-import net.minecraft.network.play.client.CConfirmTeleportPacket;
-import net.minecraft.network.play.client.CConfirmTransactionPacket;
-import net.minecraft.network.play.client.CCreativeInventoryActionPacket;
-import net.minecraft.network.play.client.CCustomPayloadPacket;
-import net.minecraft.network.play.client.CEditBookPacket;
-import net.minecraft.network.play.client.CEnchantItemPacket;
-import net.minecraft.network.play.client.CEntityActionPacket;
-import net.minecraft.network.play.client.CHeldItemChangePacket;
-import net.minecraft.network.play.client.CInputPacket;
-import net.minecraft.network.play.client.CJigsawBlockGeneratePacket;
-import net.minecraft.network.play.client.CKeepAlivePacket;
-import net.minecraft.network.play.client.CLockDifficultyPacket;
-import net.minecraft.network.play.client.CMarkRecipeSeenPacket;
-import net.minecraft.network.play.client.CMoveVehiclePacket;
-import net.minecraft.network.play.client.CPickItemPacket;
-import net.minecraft.network.play.client.CPlaceRecipePacket;
-import net.minecraft.network.play.client.CPlayerAbilitiesPacket;
-import net.minecraft.network.play.client.CPlayerDiggingPacket;
-import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
-import net.minecraft.network.play.client.CPlayerTryUseItemPacket;
-import net.minecraft.network.play.client.CQueryEntityNBTPacket;
-import net.minecraft.network.play.client.CQueryTileEntityNBTPacket;
-import net.minecraft.network.play.client.CRenameItemPacket;
-import net.minecraft.network.play.client.CResourcePackStatusPacket;
-import net.minecraft.network.play.client.CSeenAdvancementsPacket;
-import net.minecraft.network.play.client.CSelectTradePacket;
-import net.minecraft.network.play.client.CSetDifficultyPacket;
-import net.minecraft.network.play.client.CSpectatePacket;
-import net.minecraft.network.play.client.CSteerBoatPacket;
-import net.minecraft.network.play.client.CTabCompletePacket;
-import net.minecraft.network.play.client.CUpdateBeaconPacket;
-import net.minecraft.network.play.client.CUpdateCommandBlockPacket;
-import net.minecraft.network.play.client.CUpdateJigsawBlockPacket;
-import net.minecraft.network.play.client.CUpdateMinecartCommandBlockPacket;
-import net.minecraft.network.play.client.CUpdateRecipeBookStatusPacket;
-import net.minecraft.network.play.client.CUpdateSignPacket;
-import net.minecraft.network.play.client.CUpdateStructureBlockPacket;
-import net.minecraft.network.play.client.CUseEntityPacket;
-import net.minecraft.network.play.server.SChangeBlockPacket;
-import net.minecraft.network.play.server.SChatPacket;
-import net.minecraft.network.play.server.SConfirmTransactionPacket;
-import net.minecraft.network.play.server.SDisconnectPacket;
-import net.minecraft.network.play.server.SHeldItemChangePacket;
-import net.minecraft.network.play.server.SKeepAlivePacket;
-import net.minecraft.network.play.server.SMoveVehiclePacket;
-import net.minecraft.network.play.server.SPlayerPositionLookPacket;
-import net.minecraft.network.play.server.SQueryNBTResponsePacket;
-import net.minecraft.network.play.server.SSetSlotPacket;
-import net.minecraft.network.play.server.STabCompletePacket;
+import net.minecraft.network.play.client.*;
+import net.minecraft.network.play.server.*;
 import net.minecraft.potion.Effects;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.CommandBlockLogic;
@@ -121,14 +68,7 @@ import net.minecraft.tileentity.JigsawTileEntity;
 import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.tileentity.StructureBlockTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SharedConstants;
-import net.minecraft.util.StringUtils;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.concurrent.ThreadTaskExecutor;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -891,6 +831,47 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
       this.player.connection.send(new SPlayerPositionLookPacket(p_175089_1_ - d0, p_175089_3_ - d1, p_175089_5_ - d2, p_175089_7_ - f, p_175089_8_ - f1, p_175089_9_, this.awaitingTeleport));
    }
 
+   @Override
+   public void handleDash(CPlayerDashPacket packet) {
+      PacketThreadUtil.ensureRunningOnSameThread(packet, this, this.player.getLevel());
+      Vector3d lookDirection = player.getLookAngle();
+      if (player.getOffhandItem() != null && player.getOffhandItem().getItem() == Items.SHIELD_OF_CTHULHU &&
+              !player.getCooldowns().isOnCooldown(Items.SHIELD_OF_CTHULHU) && player.getUseItem() != null && player.getUseItem().getItem() == Items.SHIELD_OF_CTHULHU) {
+
+         ItemStack shield = packet.getShield();
+         shield.hurtAndBreak(5, player, (player) -> {
+            player.broadcastBreakEvent(Hand.OFF_HAND); // Notify of break event for offhand
+         });
+
+         int cooldown = player.isOnGround() ? 35 : 60;  // Different cooldowns based on whether the player is airborne
+         player.getCooldowns().addCooldown(Items.SHIELD_OF_CTHULHU, cooldown);
+         player.invulnerableTime += 2;
+
+
+
+         double dashRange = 1.7;
+         AxisAlignedBB dashBox = player.getBoundingBox().expandTowards(
+                 lookDirection.x * dashRange,
+                 lookDirection.y * dashRange,
+                 lookDirection.z * dashRange
+         ).inflate(0.8, 1, 0.8);
+
+         // Find entities in the expanded bounding box
+         List<LivingEntity> nearbyEntities = player.level.getEntitiesOfClass(LivingEntity.class,
+                 dashBox,
+                 (entity) -> entity != null && entity != player && entity.isAlive());
+
+         // Deal damage to entities within the dash range
+         for (LivingEntity target : nearbyEntities) {
+            if (player.getRandom().nextBoolean()) {
+               shield.hurt(1, player);
+            }
+            target.knockback(1.0f, player.getX() - target.getX(), player.getZ() - target.getZ());
+            target.hurt(DamageSource.playerAttack(player), 6.0F);
+         }
+      }
+   }
+
    public void handlePlayerAction(CPlayerDiggingPacket p_147345_1_) {
       PacketThreadUtil.ensureRunningOnSameThread(p_147345_1_, this, this.player.getLevel());
       BlockPos blockpos = p_147345_1_.getPos();
@@ -1288,6 +1269,11 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
             ((RecipeBookContainer)this.player.containerMenu).handlePlacement(p_194308_1_.isShiftDown(), p_241165_2_, this.player);
          });
       }
+   }
+
+   public void handleGameEvent(SPlayGameEventPacket p_147277_1_) {
+      PacketThreadUtil.ensureRunningOnSameThread(p_147277_1_, this, this.player.getLevel());
+      this.player.level.gameEvent(p_147277_1_.getType(), p_147277_1_.getPos(), p_147277_1_.getData());
    }
 
    public void handleContainerButtonClick(CEnchantItemPacket p_147338_1_) {

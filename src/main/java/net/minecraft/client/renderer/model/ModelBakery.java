@@ -78,6 +78,7 @@ public class ModelBakery {
    public static final RenderMaterial NO_PATTERN_SHIELD = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("entity/shield_base_nopattern"));
    public static final RenderMaterial NETHERITE_SHIELD = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("entity/netherite_shield"));
 
+
    public static final List<ResourceLocation> DESTROY_STAGES = IntStream.range(0, 10).mapToObj((p_229323_0_) -> {
       return new ResourceLocation("block/destroy_stage_" + p_229323_0_);
    }).collect(Collectors.toList());

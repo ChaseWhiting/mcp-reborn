@@ -5,6 +5,7 @@ import java.time.temporal.ChronoField;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.animation.AnimationState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntitySize;
@@ -30,8 +31,10 @@ import net.minecraft.world.World;
 
 public class BatEntity extends AmbientEntity {
    private static final DataParameter<Byte> DATA_ID_FLAGS = EntityDataManager.defineId(BatEntity.class, DataSerializers.BYTE);
-   private static final EntityPredicate BAT_RESTING_TARGETING = (new EntityPredicate()).range(4.0D).allowSameTeam();
+   static final EntityPredicate BAT_RESTING_TARGETING = (new EntityPredicate()).range(4.0D).allowSameTeam();
    private BlockPos targetPosition;
+   public final AnimationState flyAnimationState = new AnimationState();
+   public final AnimationState restAnimationState = new AnimationState();
 
    public BatEntity(EntityType<? extends BatEntity> p_i50290_1_, World p_i50290_2_) {
       super(p_i50290_1_, p_i50290_2_);
@@ -91,62 +94,75 @@ public class BatEntity extends AmbientEntity {
       }
 
    }
+   private void setupAnimationStates() {
+      if (this.isResting()) {
+         this.flyAnimationState.stop();
+         this.restAnimationState.startIfStopped(this.tickCount);
+      } else {
+         this.restAnimationState.stop();
+         this.flyAnimationState.startIfStopped(this.tickCount);
+      }
+   }
 
    public void tick() {
       super.tick();
-      if (this.isResting()) {
-         this.setDeltaMovement(Vector3d.ZERO);
-         this.setPosRaw(this.getX(), (double)MathHelper.floor(this.getY()) + 1.0D - (double)this.getBbHeight(), this.getZ());
-      } else {
-         this.setDeltaMovement(this.getDeltaMovement().multiply(1.0D, 0.6D, 1.0D));
+      if (!(this instanceof PaleGardenBatEntity)) {
+         if (this.isResting()) {
+            this.setDeltaMovement(Vector3d.ZERO);
+            this.setPosRaw(this.getX(), (double)MathHelper.floor(this.getY()) + 1.0D - (double)this.getBbHeight(), this.getZ());
+         } else {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(1.0D, 0.6D, 1.0D));
+         }
+         this.setupAnimationStates();
       }
-
    }
 
    protected void customServerAiStep() {
       super.customServerAiStep();
-      BlockPos blockpos = this.blockPosition();
-      BlockPos blockpos1 = blockpos.above();
-      if (this.isResting()) {
-         boolean flag = this.isSilent();
-         if (this.level.getBlockState(blockpos1).isRedstoneConductor(this.level, blockpos)) {
-            if (this.random.nextInt(200) == 0) {
-               this.yHeadRot = (float)this.random.nextInt(360);
-            }
+      if (!(this instanceof PaleGardenBatEntity)) {
+         BlockPos blockpos = this.blockPosition();
+         BlockPos blockpos1 = blockpos.above();
+         if (this.isResting()) {
+            boolean flag = this.isSilent();
+            if (this.level.getBlockState(blockpos1).isRedstoneConductor(this.level, blockpos)) {
+               if (this.random.nextInt(200) == 0) {
+                  this.yHeadRot = (float)this.random.nextInt(360);
+               }
 
-            if (this.level.getNearestPlayer(BAT_RESTING_TARGETING, this) != null) {
+               if (this.level.getNearestPlayer(BAT_RESTING_TARGETING, this) != null) {
+                  this.setResting(false);
+                  if (!flag) {
+                     this.level.levelEvent((PlayerEntity)null, 1025, blockpos, 0);
+                  }
+               }
+            } else {
                this.setResting(false);
                if (!flag) {
                   this.level.levelEvent((PlayerEntity)null, 1025, blockpos, 0);
                }
             }
          } else {
-            this.setResting(false);
-            if (!flag) {
-               this.level.levelEvent((PlayerEntity)null, 1025, blockpos, 0);
+            if (this.targetPosition != null && (!this.level.isEmptyBlock(this.targetPosition) || this.targetPosition.getY() < 1)) {
+               this.targetPosition = null;
             }
-         }
-      } else {
-         if (this.targetPosition != null && (!this.level.isEmptyBlock(this.targetPosition) || this.targetPosition.getY() < 1)) {
-            this.targetPosition = null;
-         }
 
-         if (this.targetPosition == null || this.random.nextInt(30) == 0 || this.targetPosition.closerThan(this.position(), 2.0D)) {
-            this.targetPosition = new BlockPos(this.getX() + (double)this.random.nextInt(7) - (double)this.random.nextInt(7), this.getY() + (double)this.random.nextInt(6) - 2.0D, this.getZ() + (double)this.random.nextInt(7) - (double)this.random.nextInt(7));
-         }
+            if (this.targetPosition == null || this.random.nextInt(30) == 0 || this.targetPosition.closerThan(this.position(), 2.0D)) {
+               this.targetPosition = new BlockPos(this.getX() + (double)this.random.nextInt(7) - (double)this.random.nextInt(7), this.getY() + (double)this.random.nextInt(6) - 2.0D, this.getZ() + (double)this.random.nextInt(7) - (double)this.random.nextInt(7));
+            }
 
-         double d2 = (double)this.targetPosition.getX() + 0.5D - this.getX();
-         double d0 = (double)this.targetPosition.getY() + 0.1D - this.getY();
-         double d1 = (double)this.targetPosition.getZ() + 0.5D - this.getZ();
-         Vector3d vector3d = this.getDeltaMovement();
-         Vector3d vector3d1 = vector3d.add((Math.signum(d2) * 0.5D - vector3d.x) * (double)0.1F, (Math.signum(d0) * (double)0.7F - vector3d.y) * (double)0.1F, (Math.signum(d1) * 0.5D - vector3d.z) * (double)0.1F);
-         this.setDeltaMovement(vector3d1);
-         float f = (float)(MathHelper.atan2(vector3d1.z, vector3d1.x) * (double)(180F / (float)Math.PI)) - 90.0F;
-         float f1 = MathHelper.wrapDegrees(f - this.yRot);
-         this.zza = 0.5F;
-         this.yRot += f1;
-         if (this.random.nextInt(100) == 0 && this.level.getBlockState(blockpos1).isRedstoneConductor(this.level, blockpos1)) {
-            this.setResting(true);
+            double d2 = (double)this.targetPosition.getX() + 0.5D - this.getX();
+            double d0 = (double)this.targetPosition.getY() + 0.1D - this.getY();
+            double d1 = (double)this.targetPosition.getZ() + 0.5D - this.getZ();
+            Vector3d vector3d = this.getDeltaMovement();
+            Vector3d vector3d1 = vector3d.add((Math.signum(d2) * 0.5D - vector3d.x) * (double)0.1F, (Math.signum(d0) * (double)0.7F - vector3d.y) * (double)0.1F, (Math.signum(d1) * 0.5D - vector3d.z) * (double)0.1F);
+            this.setDeltaMovement(vector3d1);
+            float f = (float)(MathHelper.atan2(vector3d1.z, vector3d1.x) * (double)(180F / (float)Math.PI)) - 90.0F;
+            float f1 = MathHelper.wrapDegrees(f - this.yRot);
+            this.zza = 0.5F;
+            this.yRot += f1;
+            if (this.random.nextInt(100) == 0 && this.level.getBlockState(blockpos1).isRedstoneConductor(this.level, blockpos1)) {
+               this.setResting(true);
+            }
          }
       }
 
@@ -210,6 +226,17 @@ public class BatEntity extends AmbientEntity {
       int i = localdate.get(ChronoField.DAY_OF_MONTH);
       int j = localdate.get(ChronoField.MONTH_OF_YEAR);
       return j == 10 && i >= 20 || j == 11 && i <= 3;
+   }
+
+   // Ensure the animations are stopped/started correctly after transitioning
+   private void updateAnimationsOnRestingStateChange() {
+      if (this.isResting()) {
+         this.restAnimationState.startIfStopped(this.tickCount);
+         this.flyAnimationState.stop(); // Stop flying animation
+      } else {
+         this.flyAnimationState.startIfStopped(this.tickCount);
+         this.restAnimationState.stop(); // Stop resting animation
+      }
    }
 
    protected float getStandingEyeHeight(Pose p_213348_1_, EntitySize p_213348_2_) {

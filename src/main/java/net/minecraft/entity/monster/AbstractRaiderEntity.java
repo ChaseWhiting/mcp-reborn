@@ -14,9 +14,12 @@ import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.RandomPositionGenerator;
+import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.MoveTowardsRaidGoal;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -62,8 +65,21 @@ public abstract class AbstractRaiderEntity extends PatrollerEntity {
       super.registerGoals();
       this.goalSelector.addGoal(1, new PromoteLeaderGoal<>(this));
       this.goalSelector.addGoal(3, new MoveTowardsRaidGoal<>(this));
+      if (!(this instanceof MarauderEntity) && !(this instanceof VindicatorEntity) && !(this instanceof RavagerEntity) && !(this instanceof GildedRavagerEntity)) {
+         this.goalSelector.addGoal(1, new AvoidEntityGoal<CreakingEntity>(this, CreakingEntity.class, this.getCreakingRunDistance(), this.getCreakingSpeedMods()[0], this.getCreakingSpeedMods()[1]));
+
+      }
       this.goalSelector.addGoal(4, new InvadeHomeGoal(this, (double)1.05F, 1));
       this.goalSelector.addGoal(5, new CelebrateRaidLossGoal(this));
+   }
+
+
+   public float getCreakingRunDistance() {
+      return 8.0f;
+   }
+
+   public float[] getCreakingSpeedMods() {
+      return new float[]{1.0f, 1.2f};
    }
 
    protected void defineSynchedData() {

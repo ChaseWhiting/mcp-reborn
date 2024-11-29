@@ -23,7 +23,9 @@ import net.minecraft.world.gen.feature.ProbabilityConfig;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public abstract class WorldCarver<C extends ICarverConfig> {
-   public static final WorldCarver<ProbabilityConfig> CAVE = register("cave", new CaveWorldCarver(ProbabilityConfig.CODEC, 256));
+   public static final WorldCarver<ProbabilityConfig> CAVE = register("cave", new CaveWorldCarver(ProbabilityConfig.CODEC, 320));
+   public static final WorldCarver<ProbabilityConfig> PALE_GARDEN_CARVER = register("pale_garden_cave", new PaleGardenCaveCarver(ProbabilityConfig.CODEC, 256));
+
    public static final WorldCarver<ProbabilityConfig> NETHER_CAVE = register("nether_cave", new NetherCaveCarver(ProbabilityConfig.CODEC));
    public static final WorldCarver<ProbabilityConfig> CANYON = register("canyon", new CanyonWorldCarver(ProbabilityConfig.CODEC));
    public static final WorldCarver<ProbabilityConfig> UNDERWATER_CANYON = register("underwater_canyon", new UnderwaterCanyonWorldCarver(ProbabilityConfig.CODEC));

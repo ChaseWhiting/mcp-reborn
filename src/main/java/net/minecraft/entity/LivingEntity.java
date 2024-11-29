@@ -44,9 +44,13 @@ import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.monster.*;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.passive.IFlyingAnimal;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -56,6 +60,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
+import net.minecraft.item.tool.terraria.AccessoryHolderItem;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameterSets;
 import net.minecraft.loot.LootParameters;
@@ -149,7 +154,7 @@ public abstract class LivingEntity extends Entity {
     @Nullable
     protected PlayerEntity lastHurtByPlayer;
     protected int lastHurtByPlayerTime;
-    protected boolean dead;
+    public boolean dead;
     protected int noActionTime;
     protected float oRun;
     protected float run;
@@ -164,7 +169,7 @@ public abstract class LivingEntity extends Entity {
         }
         PlayerEntity $$1 = (PlayerEntity) $$0;
         ItemStack $$3 = $$1.getItemBySlot(EquipmentSlotType.HEAD);
-        return $$3.getItem() != Items.CARVED_PUMPKIN;
+        return $$3.getItem() != Items.CARVED_PUMPKIN && $$3.getItem() != Items.WHITE_CARVED_PUMPKIN;
     };
 
 
@@ -915,6 +920,23 @@ public abstract class LivingEntity extends Entity {
         if (this instanceof IWitherMob && p_70687_1_.getEffect() == Effects.WITHER) {
             return false;
         }
+        if (p_70687_1_.getEffect() == Effects.CONFUSED) {
+            if (this instanceof IWitherMob || this instanceof EnderDragonEntity ||
+                    this instanceof EndermanEntity ||
+                    this instanceof ShulkerEntity ||
+                    this instanceof MagmaCubeEntity ||
+                    this instanceof WitchEntity ||
+                    this instanceof CaveSpiderEntity ||
+
+            this instanceof SpiderEntity || this instanceof HuskEntity || this instanceof RavagerEntity || this instanceof HoglinEntity || this instanceof IronGolemEntity) {
+
+                if ((this instanceof SpiderEntity && !(this instanceof CaveSpiderEntity)) || this instanceof HuskEntity || this instanceof RavagerEntity || this instanceof IronGolemEntity) {
+                    return this.nextFloat() < 0.45F;
+                }
+
+                return false;
+            }
+        }
         if (this.getMobType() == CreatureAttribute.UNDEAD) {
             Effect effect = p_70687_1_.getEffect();
             if (effect == Effects.REGENERATION || effect == Effects.POISON) {
@@ -1068,6 +1090,15 @@ public abstract class LivingEntity extends Entity {
             } else {
                 this.lastHurt = p_70097_2_;
                 this.invulnerableTime = p_70097_1_.isExplosion() && (p_70097_1_.getEntity() instanceof FireworkRocketEntity || p_70097_1_.getDirectEntity() instanceof FireworkRocketEntity) ? 5 : invulnerableDuration;
+                if (this instanceof PlayerEntity) {
+                    PlayerEntity player = this.asPlayer();
+                    if (player.getAccessoryHolder() != null && player.hasItemInHolder(player.getAccessoryHolder(), Items.CROSS_NECKLACE)) {
+                        AccessoryHolderItem.getContents(player.getAccessoryHolder()).filter(item -> item.get() == Items.CROSS_NECKLACE).forEach(item -> {
+                            item.hurt(1, player);
+                        });
+                        this.invulnerableTime = 40;
+                    }
+                }
                 this.actuallyHurt(p_70097_1_, p_70097_2_);
                 this.hurtDuration = 10;
                 this.hurtTime = this.hurtDuration;
@@ -1139,6 +1170,9 @@ public abstract class LivingEntity extends Entity {
             if (this.isDeadOrDying()) {
                 if (!this.checkTotemDeathProtection(p_70097_1_)) {
                     SoundEvent soundevent = this.getDeathSound();
+                    if (this instanceof CreakingEntity) {
+                        soundevent = null;
+                    }
                     if (flag1 && soundevent != null) {
                         this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
                     }
@@ -2000,7 +2034,8 @@ public abstract class LivingEntity extends Entity {
         }
 
         Vector3d vector3d = this.getDeltaMovement();
-        this.setDeltaMovement(vector3d.x, (double) f, vector3d.z);
+        boolean flag = this.hasEffect(Effects.GRAVITATION);
+        this.setDeltaMovement(vector3d.x, flag ? -f : f, vector3d.z);
         if (this.isSprinting()) {
             float f1 = this.yRot * ((float) Math.PI / 180F);
             this.setDeltaMovement(this.getDeltaMovement().add((double) (-MathHelper.sin(f1) * 0.2F), 0.0D, (double) (MathHelper.cos(f1) * 0.2F)));
@@ -2028,11 +2063,28 @@ public abstract class LivingEntity extends Entity {
 
     public void travel(Vector3d p_213352_1_) {
         if (this.isEffectiveAi() || this.isControlledByLocalInstance()) {
+            if (this.hasEffect(Effects.CONFUSED) && !(this instanceof PlayerEntity)) {
+                // Scale down the reversed movement vector to reduce backward movement
+                double scaleFactor = 0.4 + (this.random.nextDouble() * 0.2); // Scale factor between 0.4 and 0.6
+
+                // Reduce the backward motion and add jitter for x and z directions
+                double newX = -p_213352_1_.x * scaleFactor + (this.random.nextDouble() - 0.5) * 0.4;
+                double newZ = -p_213352_1_.z * scaleFactor + (this.random.nextDouble() - 0.5) * 0.4;
+
+                // Apply these changes to create the new movement vector
+                p_213352_1_ = new Vector3d(newX, p_213352_1_.y, newZ);
+            }
+
+
             double d0 = 0.08D;
             boolean flag = this.getDeltaMovement().y <= 0.0D;
             if (flag && this.hasEffect(Effects.SLOW_FALLING)) {
                 d0 = 0.01D;
                 this.fallDistance = 0.0F;
+            }
+
+            if (this.hasEffect(Effects.GRAVITATION)) {
+                d0 = -d0;
             }
 
             FluidState fluidstate = this.level.getFluidState(this.blockPosition());

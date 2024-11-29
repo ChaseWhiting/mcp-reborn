@@ -1,6 +1,7 @@
 package net.minecraft.state.properties;
 
 import net.minecraft.block.WallHeight;
+import net.minecraft.block.WallSide;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
@@ -11,8 +12,12 @@ import net.minecraft.world.gen.feature.jigsaw.JigsawOrientation;
 public class BlockStateProperties {
    public static final BooleanProperty ATTACHED = BooleanProperty.create("attached");
    public static final BooleanProperty BOTTOM = BooleanProperty.create("bottom");
+   public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+   public static final BooleanProperty NATURAL = BooleanProperty.create("natural");
+
    public static final BooleanProperty CONDITIONAL = BooleanProperty.create("conditional");
    public static final BooleanProperty DISARMED = BooleanProperty.create("disarmed");
+   public static final BooleanProperty TIP = BooleanProperty.create("tip");
    public static final BooleanProperty DRAG = BooleanProperty.create("drag");
    public static final BooleanProperty ENABLED = BooleanProperty.create("enabled");
    public static final BooleanProperty EXTENDED = BooleanProperty.create("extended");
@@ -75,6 +80,8 @@ public class BlockStateProperties {
    public static final IntegerProperty AGE_5 = IntegerProperty.create("age", 0, 5);
    public static final IntegerProperty AGE_7 = IntegerProperty.create("age", 0, 7);
    public static final IntegerProperty AGE_15 = IntegerProperty.create("age", 0, 15);
+   public static final IntegerProperty FLOWER_AMOUNT = IntegerProperty.create("flower_amount", 1, 4);
+
    public static final IntegerProperty AGE_25 = IntegerProperty.create("age", 0, 25);
    public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, 6);
    public static final IntegerProperty DELAY = IntegerProperty.create("delay", 1, 4);

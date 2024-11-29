@@ -5,6 +5,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.DamageSource;
@@ -23,6 +24,12 @@ public class MagmaBlock extends Block {
 
    public void stepOn(World p_176199_1_, BlockPos p_176199_2_, Entity p_176199_3_) {
       if (!p_176199_3_.fireImmune() && p_176199_3_ instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)p_176199_3_)) {
+         if (p_176199_3_ instanceof PlayerEntity) {
+            PlayerEntity player = p_176199_3_.asPlayer();
+            if (player.getAccessoryHolder() != null) {
+               if (player.hasItemInHolder(player.getAccessoryHolder(), Items.OBSIDIAN_SKULL) || player.hasItemInHolder(player.getAccessoryHolder(), Items.MOLTEN_SKULL_ROSE)) return;
+            }
+         }
          p_176199_3_.hurt(DamageSource.HOT_FLOOR, 1.0F);
       }
 

@@ -1,23 +1,14 @@
 package net.minecraft.entity.ai.goal;
 
 import java.util.EnumSet;
-import java.util.List;
 
-import net.minecraft.entity.Creature;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.RandomPositionGenerator;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.monster.AbstractSkeletonEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.item.BowItem;
+import net.minecraft.item.tool.BowItem;
 import net.minecraft.item.Items;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.potion.Effects;
 
 public class RangedBowAttackGoal<T extends Monster & IRangedAttackMob> extends Goal {
     private final T mob;
@@ -50,6 +41,8 @@ public class RangedBowAttackGoal<T extends Monster & IRangedAttackMob> extends G
     }
 
     protected boolean isHoldingBow() {
+        if (mob.hasEffect(Effects.CONFUSED)) return false;
+
         return this.mob.isHolding(Items.BOW) || this.mob.isHolding(Items.BONE_BOW);
     }
 

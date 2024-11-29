@@ -2,13 +2,20 @@ package net.minecraft.util.math;
 
 import com.google.common.collect.AbstractIterator;
 import com.mojang.serialization.Codec;
+
+import java.util.ArrayDeque;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.dispenser.IPosition;
 import net.minecraft.util.AxisRotation;
 import net.minecraft.util.Direction;
@@ -17,6 +24,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -293,6 +301,42 @@ public class BlockPos extends Vector3i {
       return withinManhattanStream(p_239584_0_, p_239584_1_, p_239584_2_, p_239584_1_).filter(p_239584_3_).findFirst();
    }
 
+   public static int breadthFirstTraversal(BlockPos startPos, int maxDepth, int maxNodes, BiConsumer<BlockPos, Consumer<BlockPos>> neighborProvider, Function<BlockPos, TraversalNodeStatus> nodeEvaluator) {
+      ArrayDeque<Pair<BlockPos, Integer>> queue = new ArrayDeque<>();
+      LongOpenHashSet visited = new LongOpenHashSet();
+      queue.add(Pair.of(startPos, 0));
+      int traversedNodes = 0;
+
+      while (!queue.isEmpty()) {
+         Pair<BlockPos, Integer> current = queue.poll();
+         BlockPos currentPosition = current.getLeft();
+         int currentDepth = current.getRight();
+         long currentPositionHash = currentPosition.asLong();
+
+         if (!visited.add(currentPositionHash) || nodeEvaluator.apply(currentPosition) == TraversalNodeStatus.SKIP) {
+            continue;
+         }
+
+         if (nodeEvaluator.apply(currentPosition) == TraversalNodeStatus.STOP) {
+            break;
+         }
+
+         if (++traversedNodes >= maxNodes) {
+            return traversedNodes;
+         }
+
+         if (currentDepth >= maxDepth) {
+            continue;
+         }
+
+         neighborProvider.accept(currentPosition, neighbor ->
+                 queue.add(Pair.of(neighbor, currentDepth + 1))
+         );
+      }
+
+      return traversedNodes;
+   }
+
    public static Stream<BlockPos> withinManhattanStream(BlockPos p_239588_0_, int p_239588_1_, int p_239588_2_, int p_239588_3_) {
       return StreamSupport.stream(withinManhattan(p_239588_0_, p_239588_1_, p_239588_2_, p_239588_3_).spliterator(), false);
    }
@@ -487,5 +531,11 @@ public class BlockPos extends Vector3i {
       public BlockPos immutable() {
          return new BlockPos(this);
       }
+   }
+
+   public static enum TraversalNodeStatus {
+      ACCEPT,
+      SKIP,
+      STOP
    }
 }

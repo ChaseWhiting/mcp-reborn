@@ -7,5 +7,6 @@ public class VillagesPools {
       SavannaVillagePools.bootstrap();
       DesertVillagePools.bootstrap();
       TaigaVillagePools.bootstrap();
+      PaleVillagePools.bootstrap();
    }
 }

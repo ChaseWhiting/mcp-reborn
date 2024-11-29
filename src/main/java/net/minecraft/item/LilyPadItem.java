@@ -18,10 +18,10 @@ public class LilyPadItem extends BlockItem {
       return ActionResultType.PASS;
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      BlockRayTraceResult blockraytraceresult = getPlayerPOVHitResult(p_77659_1_, p_77659_2_, RayTraceContext.FluidMode.SOURCE_ONLY);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      BlockRayTraceResult blockraytraceresult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
       BlockRayTraceResult blockraytraceresult1 = blockraytraceresult.withPosition(blockraytraceresult.getBlockPos().above());
-      ActionResultType actionresulttype = super.useOn(new ItemUseContext(p_77659_2_, p_77659_3_, blockraytraceresult1));
-      return new ActionResult<>(actionresulttype, p_77659_2_.getItemInHand(p_77659_3_));
+      ActionResultType actionresulttype = super.useOn(new ItemUseContext(player, hand, blockraytraceresult1));
+      return new ActionResult<>(actionresulttype, player.getItemInHand(hand));
    }
 }

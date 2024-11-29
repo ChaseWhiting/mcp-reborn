@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.RedstoneTransmitterBlock;
+import net.minecraft.entity.monster.creaking.block.CreakingHeartBlockEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.datafix.TypeReferences;
@@ -26,7 +27,7 @@ public class TileEntityType<T extends TileEntity> {
    public static final TileEntityType<JukeboxTileEntity> JUKEBOX = register("jukebox", TileEntityType.Builder.of(JukeboxTileEntity::new, Blocks.JUKEBOX));
    public static final TileEntityType<DispenserTileEntity> DISPENSER = register("dispenser", TileEntityType.Builder.of(DispenserTileEntity::new, Blocks.DISPENSER));
    public static final TileEntityType<DropperTileEntity> DROPPER = register("dropper", TileEntityType.Builder.of(DropperTileEntity::new, Blocks.DROPPER));
-   public static final TileEntityType<SignTileEntity> SIGN = register("sign", TileEntityType.Builder.of(SignTileEntity::new, Blocks.OAK_SIGN, Blocks.SPRUCE_SIGN, Blocks.BIRCH_SIGN, Blocks.ACACIA_SIGN, Blocks.JUNGLE_SIGN, Blocks.DARK_OAK_SIGN, Blocks.OAK_WALL_SIGN, Blocks.SPRUCE_WALL_SIGN, Blocks.BIRCH_WALL_SIGN, Blocks.ACACIA_WALL_SIGN, Blocks.JUNGLE_WALL_SIGN, Blocks.DARK_OAK_WALL_SIGN, Blocks.CRIMSON_SIGN, Blocks.CRIMSON_WALL_SIGN, Blocks.WARPED_SIGN, Blocks.WARPED_WALL_SIGN));
+   public static final TileEntityType<SignTileEntity> SIGN = register("sign", TileEntityType.Builder.of(SignTileEntity::new, Blocks.OAK_SIGN, Blocks.SPRUCE_SIGN, Blocks.BIRCH_SIGN, Blocks.ACACIA_SIGN, Blocks.JUNGLE_SIGN, Blocks.DARK_OAK_SIGN, Blocks.OAK_WALL_SIGN, Blocks.SPRUCE_WALL_SIGN, Blocks.BIRCH_WALL_SIGN, Blocks.ACACIA_WALL_SIGN, Blocks.JUNGLE_WALL_SIGN, Blocks.DARK_OAK_WALL_SIGN, Blocks.CRIMSON_SIGN, Blocks.CRIMSON_WALL_SIGN, Blocks.WARPED_SIGN, Blocks.WARPED_WALL_SIGN, Blocks.PALE_OAK_SIGN, Blocks.PALE_OAK_WALL_SIGN));
    public static final TileEntityType<MobSpawnerTileEntity> MOB_SPAWNER = register("mob_spawner", TileEntityType.Builder.of(MobSpawnerTileEntity::new, Blocks.SPAWNER));
    public static final TileEntityType<PistonTileEntity> PISTON = register("piston", TileEntityType.Builder.of(PistonTileEntity::new, Blocks.MOVING_PISTON));
    public static final TileEntityType<BrewingStandTileEntity> BREWING_STAND = register("brewing_stand", TileEntityType.Builder.of(BrewingStandTileEntity::new, Blocks.BREWING_STAND));
@@ -50,6 +51,8 @@ public class TileEntityType<T extends TileEntity> {
    public static final TileEntityType<LecternTileEntity> LECTERN = register("lectern", TileEntityType.Builder.of(LecternTileEntity::new, Blocks.LECTERN));
    public static final TileEntityType<BellTileEntity> BELL = register("bell", TileEntityType.Builder.of(BellTileEntity::new, Blocks.BELL));
    public static final TileEntityType<JigsawTileEntity> JIGSAW = register("jigsaw", TileEntityType.Builder.of(JigsawTileEntity::new, Blocks.JIGSAW));
+   public static final TileEntityType<CreakingHeartBlockEntity> CREAKING_HEART = register("creaking_heart", TileEntityType.Builder.of(CreakingHeartBlockEntity::new, Blocks.CREAKING_HEART));
+
    public static final TileEntityType<CampfireTileEntity> CAMPFIRE = register("campfire", TileEntityType.Builder.of(CampfireTileEntity::new, Blocks.CAMPFIRE, Blocks.SOUL_CAMPFIRE));
    public static final TileEntityType<BeehiveTileEntity> BEEHIVE = register("beehive", TileEntityType.Builder.of(BeehiveTileEntity::new, Blocks.BEE_NEST, Blocks.BEEHIVE));
    private final Supplier<? extends T> factory;

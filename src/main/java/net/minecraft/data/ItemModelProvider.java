@@ -275,6 +275,7 @@ public class ItemModelProvider {
       this.generateFlatItem(Items.WRITTEN_BOOK, FLAT_ITEM);
       this.generateFlatItem(Items.YELLOW_DYE, FLAT_ITEM);
       this.generateFlatItem(Items.DEBUG_STICK, Items.STICK, FLAT_HANDHELD_ITEM);
+      this.generateFlatItem(Items.PALE_STICK, FLAT_HANDHELD_ITEM);
       this.generateFlatItem(Items.ENCHANTED_GOLDEN_APPLE, Items.GOLDEN_APPLE, FLAT_ITEM);
    }
 }

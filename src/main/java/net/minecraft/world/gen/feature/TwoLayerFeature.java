@@ -18,13 +18,13 @@ public class TwoLayerFeature extends AbstractFeatureSizeType {
    private final int lowerSize;
    private final int upperSize;
 
-   public TwoLayerFeature(int p_i232025_1_, int p_i232025_2_, int p_i232025_3_) {
-      this(p_i232025_1_, p_i232025_2_, p_i232025_3_, OptionalInt.empty());
+   public TwoLayerFeature(int limit, int p_i232025_2_, int p_i232025_3_) {
+      this(limit, p_i232025_2_, p_i232025_3_, OptionalInt.empty());
    }
 
-   public TwoLayerFeature(int p_i232026_1_, int p_i232026_2_, int p_i232026_3_, OptionalInt p_i232026_4_) {
+   public TwoLayerFeature(int limit, int p_i232026_2_, int p_i232026_3_, OptionalInt p_i232026_4_) {
       super(p_i232026_4_);
-      this.limit = p_i232026_1_;
+      this.limit = limit;
       this.lowerSize = p_i232026_2_;
       this.upperSize = p_i232026_3_;
    }

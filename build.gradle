@@ -58,6 +58,11 @@ dependencies {
     shade 'org.codehaus.groovy:groovy:3.0.9'
     implementation 'org.codehaus.groovy:groovy:3.0.9'
     implementation 'org.jetbrains:annotations:24.0.1'
+    implementation 'org.deeplearning4j:deeplearning4j-core:1.0.0-M1.1'
+    implementation 'org.deeplearning4j:rl4j-core:1.0.0-M1.1'
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
+
+    implementation 'org.nd4j:nd4j-native-platform:1.0.0-M1.1'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation 'org.apache.commons:commons-math3:3.6.1'
 

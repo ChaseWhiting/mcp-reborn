@@ -2,9 +2,12 @@ package net.minecraft.client.animation;
 
 import java.util.Optional;
 import java.util.function.Function;
+
+import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.model.Model;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
@@ -42,15 +45,32 @@ public abstract class HierarchicalModel<E extends Entity> extends EntityModel<E>
 
     public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         this.root().render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+
+
+        this.getAllParts().forEach(modelRenderer -> {
+            modelRenderer.applyScale(new Vector3f(0, 0, 0));
+            modelRenderer.temporaryX = 0f;
+            modelRenderer.temporaryY = 0f;
+            modelRenderer.temporaryZ = 0f;
+        });
     }
 
     public void render(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         this.root().render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 
-    public void setRotationAngles(E entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // Default implementation, you can override in your model class
+
+    public void setupAnim(E entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.getAllParts().forEach(ModelRenderer::reset);
     }
+
+    public void headTurn(ModelRenderer head, float netHeadYaw, float headPitch) {
+        head.yRot = netHeadYaw * ((float)Math.PI / 180F);
+        head.xRot = headPitch * ((float)Math.PI / 180F);
+    }
+
+    public abstract ImmutableSet<ModelRenderer> getAllParts();
+
 
     public abstract ModelRenderer root();
 
@@ -80,10 +100,14 @@ public abstract class HierarchicalModel<E extends Entity> extends EntityModel<E>
         this.animate(animationState, animationDefinition, partialTicks, 1.0F);
     }
 
-    protected void animateWalk(AnimationDefinition animationDefinition, float p1, float p2, float p3, float p4) {
-        long time = (long) (p1 * 50.0F * p3);
-        float factor = Math.min(p2 * p4, 1.0F);
-        KeyframeAnimations.animate(this, animationDefinition, time, factor, ANIMATION_VECTOR_CACHE);
+    protected void animateWalk(AnimationDefinition animationDefinition,
+                               float limbSwing,
+                               float limbSwingAmount,
+                               float baseSpeed,
+                               float intensityClamp) {
+        long animationTime = (long) (limbSwing * 50.0F * baseSpeed);
+        float animationIntensity = Math.min(limbSwingAmount * intensityClamp, 1.0F);
+        KeyframeAnimations.animate(this, animationDefinition, animationTime, animationIntensity, ANIMATION_VECTOR_CACHE);
     }
 
     protected void animate(AnimationState animationState, AnimationDefinition animationDefinition, float partialTicks, float factor) {

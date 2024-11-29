@@ -138,74 +138,72 @@ public class FireworkUtility {
         FireworkUtility.Builder builder = new FireworkUtility.Builder();
         FireworkType fireworkType = FireworkType.getRandomType();
         DyeColor[] colors;
-        DyeColor[] flickerColors;
-
-        switch (fireworkType) {
-            case HALLOWEEN:
+        DyeColor[] flickerColors = switch (fireworkType) {
+            case HALLOWEEN -> {
                 colors = new DyeColor[]{DyeColor.ORANGE, DyeColor.BLACK};
-                flickerColors = new DyeColor[]{DyeColor.ORANGE, DyeColor.RED};
-                break;
-            case LIME:
+                yield new DyeColor[]{DyeColor.ORANGE, DyeColor.RED};
+            }
+            case LIME -> {
                 colors = new DyeColor[]{DyeColor.LIME, DyeColor.WHITE};
-                flickerColors = new DyeColor[]{DyeColor.LIME, DyeColor.YELLOW};
-                break;
-            case SUNSET:
+                yield new DyeColor[]{DyeColor.LIME, DyeColor.YELLOW};
+            }
+            case SUNSET -> {
                 colors = new DyeColor[]{DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.RED};
-                flickerColors = new DyeColor[]{DyeColor.PINK, DyeColor.PURPLE};
-                break;
-            case OCEAN:
+                yield new DyeColor[]{DyeColor.PINK, DyeColor.PURPLE};
+            }
+            case OCEAN -> {
                 colors = new DyeColor[]{DyeColor.BLUE, DyeColor.CYAN, DyeColor.LIGHT_BLUE};
-                flickerColors = new DyeColor[]{DyeColor.WHITE, DyeColor.GRAY};
-                break;
-            case FOREST:
+                yield new DyeColor[]{DyeColor.WHITE, DyeColor.GRAY};
+            }
+            case FOREST -> {
                 colors = new DyeColor[]{DyeColor.GREEN, DyeColor.BROWN, DyeColor.LIME};
-                flickerColors = new DyeColor[]{DyeColor.YELLOW, DyeColor.ORANGE};
-                break;
-            case GALAXY:
+                yield new DyeColor[]{DyeColor.YELLOW, DyeColor.ORANGE};
+            }
+            case GALAXY -> {
                 colors = new DyeColor[]{DyeColor.PURPLE, DyeColor.BLUE, DyeColor.BLACK};
-                flickerColors = new DyeColor[]{DyeColor.MAGENTA, DyeColor.CYAN};
-                break;
-            case RAINBOW:
+                yield new DyeColor[]{DyeColor.MAGENTA, DyeColor.CYAN};
+            }
+            case RAINBOW -> {
                 colors = new DyeColor[]{DyeColor.RED, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.GREEN, DyeColor.BLUE, DyeColor.PURPLE};
-                flickerColors = new DyeColor[]{DyeColor.WHITE};
-                break;
-            case FIRE:
+                yield new DyeColor[]{DyeColor.WHITE};
+            }
+            case FIRE -> {
                 colors = new DyeColor[]{DyeColor.RED, DyeColor.ORANGE, DyeColor.YELLOW};
-                flickerColors = new DyeColor[]{DyeColor.WHITE, DyeColor.GRAY};
-                break;
-            case ICE:
+                yield new DyeColor[]{DyeColor.WHITE, DyeColor.GRAY};
+            }
+            case ICE -> {
                 colors = new DyeColor[]{DyeColor.LIGHT_BLUE, DyeColor.CYAN, DyeColor.WHITE};
-                flickerColors = new DyeColor[]{DyeColor.GRAY, DyeColor.LIGHT_GRAY};
-                break;
-            case VOLCANO:
+                yield new DyeColor[]{DyeColor.GRAY, DyeColor.LIGHT_GRAY};
+            }
+            case VOLCANO -> {
                 colors = new DyeColor[]{DyeColor.RED, DyeColor.BLACK, DyeColor.ORANGE};
-                flickerColors = new DyeColor[]{DyeColor.YELLOW};
-                break;
-            case DESERT:
+                yield new DyeColor[]{DyeColor.YELLOW};
+            }
+            case DESERT -> {
                 colors = new DyeColor[]{DyeColor.YELLOW, DyeColor.BROWN, DyeColor.ORANGE};
-                flickerColors = new DyeColor[]{DyeColor.WHITE, DyeColor.LIGHT_GRAY};
-                break;
-            case TROPICAL:
+                yield new DyeColor[]{DyeColor.WHITE, DyeColor.LIGHT_GRAY};
+            }
+            case TROPICAL -> {
                 colors = new DyeColor[]{DyeColor.LIME, DyeColor.YELLOW, DyeColor.CYAN};
-                flickerColors = new DyeColor[]{DyeColor.PINK, DyeColor.ORANGE};
-                break;
-            case AURORA:
+                yield new DyeColor[]{DyeColor.PINK, DyeColor.ORANGE};
+            }
+            case AURORA -> {
                 colors = new DyeColor[]{DyeColor.LIGHT_BLUE, DyeColor.MAGENTA, DyeColor.PURPLE};
-                flickerColors = new DyeColor[]{DyeColor.WHITE, DyeColor.CYAN};
-                break;
-            case METALLIC:
+                yield new DyeColor[]{DyeColor.WHITE, DyeColor.CYAN};
+            }
+            case METALLIC -> {
                 colors = new DyeColor[]{DyeColor.GRAY, DyeColor.LIGHT_GRAY, DyeColor.BLACK};
-                flickerColors = new DyeColor[]{DyeColor.WHITE};
-                break;
-            case STORM:
+                yield new DyeColor[]{DyeColor.WHITE};
+            }
+            case STORM -> {
                 colors = new DyeColor[]{DyeColor.BLACK, DyeColor.GRAY, DyeColor.LIGHT_BLUE};
-                flickerColors = new DyeColor[]{DyeColor.WHITE, DyeColor.CYAN};
-                break;
-            default:
+                yield new DyeColor[]{DyeColor.WHITE, DyeColor.CYAN};
+            }
+            default -> {
                 colors = randomColors();
-                flickerColors = randomColors();
-                break;
-        }
+                yield randomColors();
+            }
+        };
 
         return builder.addExplosion(FireworkRocketItem.Shape.getRandomShape(), colors, flickerColors, true, true).build();
     }

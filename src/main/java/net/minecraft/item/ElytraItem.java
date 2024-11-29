@@ -27,14 +27,14 @@ public class ElytraItem extends Item implements IArmorVanishable {
       return p_82789_2_.getItem() == Items.PHANTOM_MEMBRANE;
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
       EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
-      ItemStack itemstack1 = p_77659_2_.getItemBySlot(equipmentslottype);
+      ItemStack itemstack1 = player.getItemBySlot(equipmentslottype);
       if (itemstack1.isEmpty()) {
-         p_77659_2_.setItemSlot(equipmentslottype, itemstack.copy());
+         player.setItemSlot(equipmentslottype, itemstack.copy());
          itemstack.setCount(0);
-         return ActionResult.sidedSuccess(itemstack, p_77659_1_.isClientSide());
+         return ActionResult.sidedSuccess(itemstack, world.isClientSide());
       } else {
          return ActionResult.fail(itemstack);
       }
@@ -49,16 +49,16 @@ public class ElytraItem extends Item implements IArmorVanishable {
       Vector3d vector3d = entity.getDeltaMovement(); // Get the current movement vector
 
       if (vector3d.y > -0.5D) {
-         entity.fallDistance = 1.0F; // If the player is not falling too fast, set fall distance to 1.0
+         entity.fallDistance = 1.0F;
       }
 
-      Vector3d vector3d1 = entity.getLookAngle(); // Get the direction the player is looking
-      float f = entity.xRot * ((float)Math.PI / 180F); // Convert the player's rotation to radians
-      double d1 = Math.sqrt(vector3d1.x * vector3d1.x + vector3d1.z * vector3d1.z); // Calculate horizontal component of look angle
-      double d3 = Math.sqrt(getHorizontalDistanceSqr(vector3d)); // Calculate horizontal speed
-      double d4 = vector3d1.length(); // Get the length of the look angle vector
-      float f1 = MathHelper.cos(f); // Get the cosine of the rotation angle
-      f1 = (float)((double)f1 * (double)f1 * Math.min(1.0D, d4 / 0.4D)); // Adjust the cosine value based on look angle
+      Vector3d vector3d1 = entity.getLookAngle();
+      float f = entity.xRot * ((float)Math.PI / 180F);
+      double d1 = Math.sqrt(vector3d1.x * vector3d1.x + vector3d1.z * vector3d1.z);
+      double d3 = Math.sqrt(getHorizontalDistanceSqr(vector3d));
+      double d4 = vector3d1.length();
+      float f1 = MathHelper.cos(f);
+      f1 = (float)((double)f1 * (double)f1 * Math.min(1.0D, d4 / 0.4D));
 
       // Modify the vertical speed based on the adjusted cosine value
       vector3d = entity.getDeltaMovement().add(0.0D, d0 * (-1.0D + (double)f1 * 0.75D), 0.0D);

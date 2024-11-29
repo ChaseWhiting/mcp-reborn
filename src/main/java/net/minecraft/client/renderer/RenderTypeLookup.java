@@ -35,8 +35,12 @@ public class RenderTypeLookup {
       p_228395_0_.put(Blocks.ACACIA_LEAVES, rendertype1);
       p_228395_0_.put(Blocks.BIRCH_LEAVES, rendertype1);
       p_228395_0_.put(Blocks.DARK_OAK_LEAVES, rendertype1);
+      p_228395_0_.put(Blocks.PALE_OAK_LEAVES, rendertype1);
       RenderType rendertype2 = RenderType.cutout();
       p_228395_0_.put(Blocks.OAK_SAPLING, rendertype2);
+      p_228395_0_.put(Blocks.PALE_OAK_SAPLING, rendertype2);
+      p_228395_0_.put(Blocks.PALE_HANGING_MOSS, rendertype2);
+      p_228395_0_.put(Blocks.PALE_MOSS_CARPET, rendertype2);
       p_228395_0_.put(Blocks.SPRUCE_SAPLING, rendertype2);
       p_228395_0_.put(Blocks.BIRCH_SAPLING, rendertype2);
       p_228395_0_.put(Blocks.JUNGLE_SAPLING, rendertype2);
@@ -78,6 +82,10 @@ public class RenderTypeLookup {
       p_228395_0_.put(Blocks.PINK_TULIP, rendertype2);
       p_228395_0_.put(Blocks.OXEYE_DAISY, rendertype2);
       p_228395_0_.put(Blocks.CORNFLOWER, rendertype2);
+      p_228395_0_.put(Blocks.CLOSED_EYEBLOSSOM, rendertype2);
+      p_228395_0_.put(Blocks.OPEN_EYEBLOSSOM, rendertype2);
+      p_228395_0_.put(Blocks.PINK_PETALS, rendertype2);
+      p_228395_0_.put(Blocks.PALE_LEAF_PILE, rendertype2);
       p_228395_0_.put(Blocks.WITHER_ROSE, rendertype2);
       p_228395_0_.put(Blocks.LILY_OF_THE_VALLEY, rendertype2);
       p_228395_0_.put(Blocks.BROWN_MUSHROOM, rendertype2);
@@ -92,6 +100,7 @@ public class RenderTypeLookup {
       p_228395_0_.put(Blocks.REDSTONE_WIRE, rendertype2);
       p_228395_0_.put(Blocks.WHEAT, rendertype2);
       p_228395_0_.put(Blocks.OAK_DOOR, rendertype2);
+      p_228395_0_.put(Blocks.PALE_OAK_DOOR, rendertype2);
       p_228395_0_.put(Blocks.LADDER, rendertype2);
       p_228395_0_.put(Blocks.RAIL, rendertype2);
       p_228395_0_.put(Blocks.IRON_DOOR, rendertype2);
@@ -101,6 +110,7 @@ public class RenderTypeLookup {
       p_228395_0_.put(Blocks.SUGAR_CANE, rendertype2);
       p_228395_0_.put(Blocks.REPEATER, rendertype2);
       p_228395_0_.put(Blocks.OAK_TRAPDOOR, rendertype2);
+      p_228395_0_.put(Blocks.PALE_OAK_TRAPDOOR, rendertype2);
       p_228395_0_.put(Blocks.SPRUCE_TRAPDOOR, rendertype2);
       p_228395_0_.put(Blocks.BIRCH_TRAPDOOR, rendertype2);
       p_228395_0_.put(Blocks.JUNGLE_TRAPDOOR, rendertype2);

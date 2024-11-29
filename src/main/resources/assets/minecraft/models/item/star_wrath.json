@@ -1,0 +1,27 @@
+{
+	"parent": "minecraft:item/handheld",
+	"textures": {
+		"layer0": "item/star_wrath"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [-28.94, 71.88, 73.86],
+			"translation": [-1.5, 7.75, 1.5]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [179.45, -84.67, 134.17],
+			"translation": [-0.5, 7.75, 1.75]
+		},
+		"firstperson_righthand": {
+			"rotation": [-52.27, 75.5, 75.03],
+			"translation": [-0.25, 7.75, 1.5]
+		},
+		"firstperson_lefthand": {
+			"rotation": [36.82, -78.99, 15.5],
+			"translation": [-0.5, 7.75, 1.75]
+		},
+		"ground": {
+			"translation": [0, 5.25, 0]
+		}
+	}
+}

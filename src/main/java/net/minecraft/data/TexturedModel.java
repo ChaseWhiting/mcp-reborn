@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.model.Model;
 import net.minecraft.util.ResourceLocation;
 
 public class TexturedModel {
@@ -18,6 +19,11 @@ public class TexturedModel {
    public static final TexturedModel.ISupplier ORIENTABLE_ONLY_TOP = createDefault(ModelTextures::orientableCubeOnlyTop, StockModelShapes.CUBE_ORIENTABLE);
    public static final TexturedModel.ISupplier ORIENTABLE = createDefault(ModelTextures::orientableCube, StockModelShapes.CUBE_ORIENTABLE_TOP_BOTTOM);
    public static final TexturedModel.ISupplier CARPET = createDefault(ModelTextures::wool, StockModelShapes.CARPET);
+   public static final TexturedModel.ISupplier MOSSY_CARPET_SIDE = TexturedModel.createDefault(ModelTextures::side, StockModelShapes.MOSSY_CARPET_SIDE);
+   public static final ISupplier FLOWERBED_1 = TexturedModel.createDefault(ModelTextures::flowerbed, StockModelShapes.FLOWERBED_1);
+   public static final ISupplier FLOWERBED_2 = TexturedModel.createDefault(ModelTextures::flowerbed, StockModelShapes.FLOWERBED_2);
+   public static final ISupplier FLOWERBED_3 = TexturedModel.createDefault(ModelTextures::flowerbed, StockModelShapes.FLOWERBED_3);
+   public static final ISupplier FLOWERBED_4 = TexturedModel.createDefault(ModelTextures::flowerbed, StockModelShapes.FLOWERBED_4);
    public static final TexturedModel.ISupplier GLAZED_TERRACOTTA = createDefault(ModelTextures::pattern, StockModelShapes.GLAZED_TERRACOTTA);
    public static final TexturedModel.ISupplier CORAL_FAN = createDefault(ModelTextures::fan, StockModelShapes.CORAL_FAN);
    public static final TexturedModel.ISupplier PARTICLE_ONLY = createDefault(ModelTextures::particle, StockModelShapes.PARTICLE_ONLY);

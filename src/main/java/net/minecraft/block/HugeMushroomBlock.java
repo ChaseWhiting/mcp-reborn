@@ -35,12 +35,12 @@ public class HugeMushroomBlock extends Block {
       return p_196271_3_.is(this) ? p_196271_1_.setValue(PROPERTY_BY_DIRECTION.get(p_196271_2_), Boolean.valueOf(false)) : super.updateShape(p_196271_1_, p_196271_2_, p_196271_3_, p_196271_4_, p_196271_5_, p_196271_6_);
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      return p_185499_1_.setValue(PROPERTY_BY_DIRECTION.get(p_185499_2_.rotate(Direction.NORTH)), p_185499_1_.getValue(NORTH)).setValue(PROPERTY_BY_DIRECTION.get(p_185499_2_.rotate(Direction.SOUTH)), p_185499_1_.getValue(SOUTH)).setValue(PROPERTY_BY_DIRECTION.get(p_185499_2_.rotate(Direction.EAST)), p_185499_1_.getValue(EAST)).setValue(PROPERTY_BY_DIRECTION.get(p_185499_2_.rotate(Direction.WEST)), p_185499_1_.getValue(WEST)).setValue(PROPERTY_BY_DIRECTION.get(p_185499_2_.rotate(Direction.UP)), p_185499_1_.getValue(UP)).setValue(PROPERTY_BY_DIRECTION.get(p_185499_2_.rotate(Direction.DOWN)), p_185499_1_.getValue(DOWN));
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      return state.setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.NORTH)), state.getValue(NORTH)).setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.SOUTH)), state.getValue(SOUTH)).setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.EAST)), state.getValue(EAST)).setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.WEST)), state.getValue(WEST)).setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.UP)), state.getValue(UP)).setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.DOWN)), state.getValue(DOWN));
    }
 
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      return p_185471_1_.setValue(PROPERTY_BY_DIRECTION.get(p_185471_2_.mirror(Direction.NORTH)), p_185471_1_.getValue(NORTH)).setValue(PROPERTY_BY_DIRECTION.get(p_185471_2_.mirror(Direction.SOUTH)), p_185471_1_.getValue(SOUTH)).setValue(PROPERTY_BY_DIRECTION.get(p_185471_2_.mirror(Direction.EAST)), p_185471_1_.getValue(EAST)).setValue(PROPERTY_BY_DIRECTION.get(p_185471_2_.mirror(Direction.WEST)), p_185471_1_.getValue(WEST)).setValue(PROPERTY_BY_DIRECTION.get(p_185471_2_.mirror(Direction.UP)), p_185471_1_.getValue(UP)).setValue(PROPERTY_BY_DIRECTION.get(p_185471_2_.mirror(Direction.DOWN)), p_185471_1_.getValue(DOWN));
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      return state.setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.NORTH)), state.getValue(NORTH)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.SOUTH)), state.getValue(SOUTH)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.EAST)), state.getValue(EAST)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.WEST)), state.getValue(WEST)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.UP)), state.getValue(UP)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.DOWN)), state.getValue(DOWN));
    }
 
    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {

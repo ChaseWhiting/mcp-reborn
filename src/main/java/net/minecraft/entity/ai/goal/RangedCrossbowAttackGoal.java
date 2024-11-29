@@ -9,6 +9,7 @@ import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.monster.PillagerCaptainEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.*;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.RangedInteger;
 
 public class RangedCrossbowAttackGoal<T extends Monster & IRangedAttackMob & ICrossbowUser> extends Goal {
@@ -29,6 +30,8 @@ public class RangedCrossbowAttackGoal<T extends Monster & IRangedAttackMob & ICr
    }
 
    public boolean canUse() {
+      if (mob.hasEffect(Effects.CONFUSED)) return false;
+
       return this.isValidTarget() && this.isHoldingCrossbow();
    }
 
@@ -37,6 +40,8 @@ public class RangedCrossbowAttackGoal<T extends Monster & IRangedAttackMob & ICr
    }
 
    public boolean canContinueToUse() {
+      if (mob.hasEffect(Effects.CONFUSED)) return false;
+
       return this.isValidTarget() && (this.canUse() || !this.mob.getNavigation().isDone()) && this.isHoldingCrossbow() || !this.mob.getNavigation().isDone() && AbstractCrossbowItem.isHoldingAbstractCrossbowItem(this.mob);
    }
 

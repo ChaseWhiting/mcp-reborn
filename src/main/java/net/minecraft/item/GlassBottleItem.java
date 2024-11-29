@@ -24,30 +24,30 @@ public class GlassBottleItem extends Item {
       super(p_i48523_1_);
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      List<AreaEffectCloudEntity> list = p_77659_1_.getEntitiesOfClass(AreaEffectCloudEntity.class, p_77659_2_.getBoundingBox().inflate(2.0D), (p_210311_0_) -> {
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      List<AreaEffectCloudEntity> list = world.getEntitiesOfClass(AreaEffectCloudEntity.class, player.getBoundingBox().inflate(2.0D), (p_210311_0_) -> {
          return p_210311_0_ != null && p_210311_0_.isAlive() && p_210311_0_.getOwner() instanceof EnderDragonEntity;
       });
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
+      ItemStack itemstack = player.getItemInHand(hand);
       if (!list.isEmpty()) {
          AreaEffectCloudEntity areaeffectcloudentity = list.get(0);
          areaeffectcloudentity.setRadius(areaeffectcloudentity.getRadius() - 0.5F);
-         p_77659_1_.playSound((PlayerEntity)null, p_77659_2_.getX(), p_77659_2_.getY(), p_77659_2_.getZ(), SoundEvents.BOTTLE_FILL_DRAGONBREATH, SoundCategory.NEUTRAL, 1.0F, 1.0F);
-         return ActionResult.sidedSuccess(this.turnBottleIntoItem(itemstack, p_77659_2_, new ItemStack(Items.DRAGON_BREATH)), p_77659_1_.isClientSide());
+         world.playSound((PlayerEntity)null, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL_DRAGONBREATH, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+         return ActionResult.sidedSuccess(this.turnBottleIntoItem(itemstack, player, new ItemStack(Items.DRAGON_BREATH)), world.isClientSide());
       } else {
-         RayTraceResult raytraceresult = getPlayerPOVHitResult(p_77659_1_, p_77659_2_, RayTraceContext.FluidMode.SOURCE_ONLY);
+         RayTraceResult raytraceresult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
          if (raytraceresult.getType() == RayTraceResult.Type.MISS) {
             return ActionResult.pass(itemstack);
          } else {
             if (raytraceresult.getType() == RayTraceResult.Type.BLOCK) {
                BlockPos blockpos = ((BlockRayTraceResult)raytraceresult).getBlockPos();
-               if (!p_77659_1_.mayInteract(p_77659_2_, blockpos)) {
+               if (!world.mayInteract(player, blockpos)) {
                   return ActionResult.pass(itemstack);
                }
 
-               if (p_77659_1_.getFluidState(blockpos).is(FluidTags.WATER)) {
-                  p_77659_1_.playSound(p_77659_2_, p_77659_2_.getX(), p_77659_2_.getY(), p_77659_2_.getZ(), SoundEvents.BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
-                  return ActionResult.sidedSuccess(this.turnBottleIntoItem(itemstack, p_77659_2_, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)), p_77659_1_.isClientSide());
+               if (world.getFluidState(blockpos).is(FluidTags.WATER)) {
+                  world.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+                  return ActionResult.sidedSuccess(this.turnBottleIntoItem(itemstack, player, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)), world.isClientSide());
                }
             }
 

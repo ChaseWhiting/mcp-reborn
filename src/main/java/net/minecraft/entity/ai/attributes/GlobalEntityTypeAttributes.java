@@ -15,9 +15,11 @@ import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.monster.bogged.BoggedEntity;
 import net.minecraft.entity.monster.creaking.CreakingEntity;
+import net.minecraft.entity.monster.creaking.CreakingTransient;
 import net.minecraft.entity.monster.piglin.PiglinBruteEntity;
 import net.minecraft.entity.monster.piglin.PiglinEntity;
 import net.minecraft.entity.passive.*;
+import net.minecraft.entity.passive.allay.AllayEntity;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.passive.horse.AbstractChestedHorseEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
@@ -25,6 +27,10 @@ import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.entity.passive.horse.SkeletonHorseEntity;
 import net.minecraft.entity.passive.horse.ZombieHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
+import net.minecraft.entity.terraria.boss.twins.RetinazerEntity;
+import net.minecraft.entity.terraria.creature.WormEntity;
+import net.minecraft.entity.terraria.monster.demoneye.DemonEyeEntity;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
@@ -39,6 +45,7 @@ public class GlobalEntityTypeAttributes {
             .put(EntityType.GREAT_HUNGER, GreatHungerEntity.createMonsterAttributes().build())
             .put(EntityType.ENDSTONE_BLOCK, FakeEndstoneBlockEntity.createAttributes())
             .put(EntityType.BAT, BatEntity.createAttributes().build())
+            .put(EntityType.PALE_GARDEN_BAT, PaleGardenBatEntity.createAttributes().build())
             .put(EntityType.OWL, OwlEntity.createAttributes().build())
             .put(EntityType.QUEEN_BEE, QueenBeeEntity.createAttributes().build())
             .put(EntityType.BEE, BeeEntity.createAttributes().build())
@@ -117,6 +124,14 @@ public class GlobalEntityTypeAttributes {
             .put(EntityType.ZOMBIE_HORSE, ZombieHorseEntity.createAttributes().build())
             .put(EntityType.ZOMBIE_VILLAGER, ZombieEntity.createAttributes().build())
             .put(EntityType.CREAKING, CreakingEntity.createAttributes().build())
+            .put(EntityType.CREAKING_TRANSIENT, CreakingTransient.createAttributes().build())
+            .put(EntityType.ALLAY, AllayEntity.createAttributes().build())
+            .put(EntityType.DEMON_EYE, DemonEyeEntity.createAttributes().build())
+            .put(EntityType.EYE_OF_CTHULHU, EyeOfCthulhuEntity.createAttributes().build())
+            .put(EntityType.RETINAZER, RetinazerEntity.createAttributes().build())
+            .put(EntityType.GIANT_WORM, WormEntity.createMobAttributes().build())
+            .put(EntityType.EYE_OF_CTHULHU_SECOND_FORM, EyeOfCthulhuEntity.createAttributes().build())
+            .put(EntityType.RAY_TRACING, RayTracing.createAttributes().build())
             .put(EntityType.ZOMBIFIED_PIGLIN, ZombifiedPiglinEntity.createAttributes().build()).build();
 
     public static AttributeModifierMap getSupplier(EntityType<? extends LivingEntity> p_233835_0_) {

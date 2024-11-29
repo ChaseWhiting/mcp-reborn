@@ -35,6 +35,8 @@ import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.passive.ParrotEntity;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.passive.StriderEntity;
@@ -55,6 +57,11 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.tool.AxeItem;
+import net.minecraft.item.tool.SwordItem;
+import net.minecraft.item.tool.terraria.AccessoryHolderItem;
+import net.minecraft.item.tool.terraria.MoltenSkullRoseItem;
+import net.minecraft.item.tool.terraria.ObsidianRoseItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -898,6 +905,9 @@ public abstract class PlayerEntity extends LivingEntity {
     }
 
     public boolean isInvulnerableTo(DamageSource p_180431_1_) {
+
+
+
         if (super.isInvulnerableTo(p_180431_1_)) {
             return true;
         } else if (p_180431_1_ == DamageSource.DROWN) {
@@ -911,7 +921,7 @@ public abstract class PlayerEntity extends LivingEntity {
         }
     }
 
-    public boolean hurt(DamageSource p_70097_1_, float p_70097_2_) {
+    public boolean hurt(DamageSource p_70097_1_, float damage) {
         if (this.isInvulnerableTo(p_70097_1_)) {
             return false;
         } else if (this.abilities.invulnerable && !p_70097_1_.isBypassInvul()) {
@@ -924,26 +934,77 @@ public abstract class PlayerEntity extends LivingEntity {
                 this.removeEntitiesOnShoulder();
                 if (p_70097_1_.scalesWithDifficulty()) {
                     if (this.level.getDifficulty() == Difficulty.PEACEFUL && !this.veryHardmode()) {
-                        p_70097_2_ = 0.0F;
+                        damage = 0.0F;
                     }
 
                     if (this.level.getDifficulty() == Difficulty.EASY) {
-                        p_70097_2_ = Math.min(p_70097_2_ / 2.0F + 1.0F, p_70097_2_);
+                        damage = Math.min(damage / 2.0F + 1.0F, damage);
                     }
 
                     if (this.level.getDifficulty() == Difficulty.HARD) {
-                        p_70097_2_ = p_70097_2_ * 3.0F / 2.0F;
+                        damage = damage * 3.0F / 2.0F;
                     }
 
                     // Add scaling for very hardmode
                     if (this.veryHardmode()) {
-                        p_70097_2_ *= 2.0F; // Example: Double the damage in very hardmode
+                        damage *= 2.0F;
                     }
                 }
 
-                return p_70097_2_ == 0.0F ? false : super.hurt(p_70097_1_, p_70097_2_);
+                boolean hasObsidianRose = false;
+
+                ItemStack stack = hasAccessoryHolder() ? inventory.getItem(inventory.findSlotMatching(Items.ACCESSORY_HOLDER)) : null;
+
+                if (stack != null) {
+                    for (ItemStack item : AccessoryHolderItem.getContents(stack).collect(Collectors.toList())) {
+                        if (item.getItem() instanceof ObsidianRoseItem || item.getItem() instanceof MoltenSkullRoseItem) {
+                            hasObsidianRose = true;
+                        }
+                    }
+                }
+
+                if (hasObsidianRose && (p_70097_1_ == DamageSource.LAVA || p_70097_1_ == DamageSource.ON_FIRE || p_70097_1_ == DamageSource.IN_FIRE || p_70097_1_ == DamageSource.HOT_FLOOR)) {
+                    damage *= 0.4375;
+                }
+
+                if (this.getHealth() < (this.getMaxHealth() / 2) && this.getAccessoryHolder() != null && this.hasItemInHolder(getAccessoryHolder(), Items.FROZEN_SHIELD)) {
+                    damage *= 0.75;
+                    AccessoryHolderItem.getContents(this.getAccessoryHolder()).filter(item -> item.get() == Items.FROZEN_SHIELD).forEach(item -> {
+                        item.hurt(1, this);
+                    });
+                }
+
+                if (this.getAccessoryHolder() != null && this.hasItemInHolder(getAccessoryHolder(), Items.WORM_SCARF)) {
+                    damage *= 0.83;
+                    AccessoryHolderItem.getContents(this.getAccessoryHolder()).filter(item -> item.get() == Items.WORM_SCARF).forEach(item -> {
+                        item.hurt(1, this);
+                    });
+                }
+
+                if (this.getAccessoryHolder() != null && this.hasItemInHolder(getAccessoryHolder(), Items.SHIELD_OF_CTHULHU)) {
+                    damage *= 0.98;
+                }
+
+
+                return damage == 0.0F ? false : super.hurt(p_70097_1_, damage);
             }
         }
+    }
+
+    public boolean hasAccessoryHolder() {
+        return inventory.findSlotMatching(Items.ACCESSORY_HOLDER) != -1;
+    }
+
+    @Nullable
+    public ItemStack getAccessoryHolder() {
+        return hasAccessoryHolder() ? inventory.getItem(inventory.findSlotMatching(Items.ACCESSORY_HOLDER)) : null;
+    }
+
+    public boolean hasItemInHolder(ItemStack holder, Item item) {
+        for (ItemStack stack : AccessoryHolderItem.getContents(holder).collect(Collectors.toList())) {
+            if (stack.getItem() == item) return true;
+        }
+        return false;
     }
 
     protected void blockUsingShield(LivingEntity p_190629_1_) {
@@ -969,7 +1030,7 @@ public abstract class PlayerEntity extends LivingEntity {
     }
 
     protected void hurtCurrentlyUsedShield(float p_184590_1_) {
-        if (this.useItem.getItem() == Items.SHIELD || this.useItem.getItem() == Items.NETHERITE_SHIELD) {
+        if (this.useItem.getItem() == Items.SHIELD || this.useItem.getItem() == Items.NETHERITE_SHIELD || this.useItem.get() == Items.SHIELD_OF_CTHULHU) {
             if (!this.level.isClientSide) {
                 this.awardStat(Stats.ITEM_USED.get(this.useItem.getItem()));
             }
@@ -1298,7 +1359,9 @@ public abstract class PlayerEntity extends LivingEntity {
 
                         this.causeFoodExhaustion(0.1F);
                     } else {
-                        this.level.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_NODAMAGE, this.getSoundSource(), 1.0F, 1.0F);
+                        if (!(p_71059_1_ instanceof CreakingEntity)) {
+                            this.level.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_NODAMAGE, this.getSoundSource(), 1.0F, 1.0F);
+                        }
                         if (flag4) {
                             p_71059_1_.clearFire();
                         }
@@ -1322,6 +1385,7 @@ public abstract class PlayerEntity extends LivingEntity {
         if (this.random.nextFloat() < f) {
             this.getCooldowns().addCooldown(Items.SHIELD, 100);
             this.getCooldowns().addCooldown(Items.NETHERITE_SHIELD, 30);
+            this.getCooldowns().addCooldown(Items.SHIELD_OF_CTHULHU, 45);
             this.stopUsingItem();
             this.level.broadcastEntityEvent(this, (byte) 30);
         }
@@ -1622,6 +1686,19 @@ public abstract class PlayerEntity extends LivingEntity {
         EntityType<?> entityType = entity.getType();
         incrementKillCount(entityType);
         this.awardStat(Stats.ENTITY_KILLED.get(entityType));
+
+        if (random.nextFloat() < 0.75f) {
+            if (entity instanceof VillagerEntity && this.getOffhandItem() != null && this.getOffhandItem().getItem() == Items.CREAKING_HEART_ITEM) {
+                if (CreakingHeartItem.hasRoom(this.getOffhandItem())) {
+                    CreakingHeartItem.addEntityToCreakingHeart(this.getOffhandItem(), entity);
+                }
+            } else if (entity instanceof VillagerEntity && this.getMainHandItem() != null && this.getMainHandItem().getItem() == Items.CREAKING_HEART_ITEM) {
+                if (CreakingHeartItem.hasRoom(this.getMainHandItem())) {
+                    CreakingHeartItem.addEntityToCreakingHeart(this.getMainHandItem(), entity);
+                }
+            }
+        }
+
     }
 
     public void makeStuckInBlock(BlockState p_213295_1_, Vector3d p_213295_2_) {
@@ -1698,7 +1775,10 @@ public abstract class PlayerEntity extends LivingEntity {
         if (!this.abilities.invulnerable) {
             if (!this.level.isClientSide) {
                 if (this.veryHardmode()) {
-                    exhaustionAmount *= 3; // Double the exhaustion in veryHardmode
+                    exhaustionAmount *= 3;
+                }
+                if (this.hasEffect(Effects.ROOTED)) {
+                    exhaustionAmount *= Math.min(6, this.getEffect(Effects.ROOTED).getAmplifier() + 1);
                 }
                 this.foodData.addExhaustion(exhaustionAmount);
             }

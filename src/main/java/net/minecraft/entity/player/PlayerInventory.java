@@ -157,6 +157,17 @@ public class PlayerInventory implements IInventory, INameable {
       return -1;
    }
 
+   @OnlyIn(Dist.CLIENT)
+   public int findSlotMatching(Item item) {
+      for(int i = 0; i < this.items.size(); ++i) {
+         if (!this.items.get(i).isEmpty() && this.items.get(i).getItem() == item) {
+            return i;
+         }
+      }
+
+      return -1;
+   }
+
    public int findSlotMatchingUnusedItem(ItemStack p_194014_1_) {
       for(int i = 0; i < this.items.size(); ++i) {
          ItemStack itemstack = this.items.get(i);
@@ -599,6 +610,18 @@ public class PlayerInventory implements IInventory, INameable {
       for(List<ItemStack> list : this.compartments) {
          for(ItemStack itemstack : list) {
             if (!itemstack.isEmpty() && itemstack.sameItem(p_70431_1_)) {
+               return true;
+            }
+         }
+      }
+
+      return false;
+   }
+
+   public boolean contains(Item item) {
+      for(List<ItemStack> list : this.compartments) {
+         for(ItemStack itemstack : list) {
+            if (itemstack.getItem() == item) {
                return true;
             }
          }

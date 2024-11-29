@@ -39,6 +39,7 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.IReputationTracking;
 import net.minecraft.entity.merchant.IReputationType;
 import net.minecraft.entity.monster.WitchEntity;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.villager.IVillagerDataHolder;

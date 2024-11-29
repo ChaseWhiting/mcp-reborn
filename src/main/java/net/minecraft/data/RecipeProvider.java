@@ -124,6 +124,7 @@ public class RecipeProvider implements IDataProvider {
       woodFromLogs(p_200404_0_, Blocks.STRIPPED_DARK_OAK_WOOD, Blocks.STRIPPED_DARK_OAK_LOG);
       woodFromLogs(p_200404_0_, Blocks.STRIPPED_JUNGLE_WOOD, Blocks.STRIPPED_JUNGLE_LOG);
       woodFromLogs(p_200404_0_, Blocks.STRIPPED_OAK_WOOD, Blocks.STRIPPED_OAK_LOG);
+      woodFromLogs(p_200404_0_, Blocks.STRIPPED_PALE_OAK_WOOD, Blocks.STRIPPED_PALE_LOG);
       woodFromLogs(p_200404_0_, Blocks.STRIPPED_SPRUCE_WOOD, Blocks.STRIPPED_SPRUCE_LOG);
       woodFromLogs(p_200404_0_, Blocks.STRIPPED_CRIMSON_HYPHAE, Blocks.STRIPPED_CRIMSON_STEM);
       woodFromLogs(p_200404_0_, Blocks.STRIPPED_WARPED_HYPHAE, Blocks.STRIPPED_WARPED_STEM);
@@ -180,12 +181,14 @@ public class RecipeProvider implements IDataProvider {
       woodenSign(p_200404_0_, Blocks.JUNGLE_SIGN, Blocks.JUNGLE_PLANKS);
       woodenButton(p_200404_0_, Blocks.OAK_BUTTON, Blocks.OAK_PLANKS);
       woodenDoor(p_200404_0_, Blocks.OAK_DOOR, Blocks.OAK_PLANKS);
+      woodenDoor(p_200404_0_, Blocks.PALE_OAK_DOOR, Blocks.PALE_OAK_PLANKS);
       woodenFence(p_200404_0_, Blocks.OAK_FENCE, Blocks.OAK_PLANKS);
       woodenFenceGate(p_200404_0_, Blocks.OAK_FENCE_GATE, Blocks.OAK_PLANKS);
       woodenPressurePlate(p_200404_0_, Blocks.OAK_PRESSURE_PLATE, Blocks.OAK_PLANKS);
       woodenSlab(p_200404_0_, Blocks.OAK_SLAB, Blocks.OAK_PLANKS);
       woodenStairs(p_200404_0_, Blocks.OAK_STAIRS, Blocks.OAK_PLANKS);
       woodenTrapdoor(p_200404_0_, Blocks.OAK_TRAPDOOR, Blocks.OAK_PLANKS);
+      woodenTrapdoor(p_200404_0_, Blocks.PALE_OAK_TRAPDOOR, Blocks.PALE_OAK_PLANKS);
       woodenSign(p_200404_0_, Blocks.OAK_SIGN, Blocks.OAK_PLANKS);
       woodenButton(p_200404_0_, Blocks.SPRUCE_BUTTON, Blocks.SPRUCE_PLANKS);
       woodenDoor(p_200404_0_, Blocks.SPRUCE_DOOR, Blocks.SPRUCE_PLANKS);

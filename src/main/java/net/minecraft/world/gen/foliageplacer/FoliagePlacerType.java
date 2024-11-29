@@ -2,6 +2,7 @@ package net.minecraft.world.gen.foliageplacer;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.gen.trunkplacer.PaleOakLargeTrunkPlacer;
 
 public class FoliagePlacerType<P extends FoliagePlacer> {
    public static final FoliagePlacerType<BlobFoliagePlacer> BLOB_FOLIAGE_PLACER = register("blob_foliage_placer", BlobFoliagePlacer.CODEC);
@@ -13,6 +14,8 @@ public class FoliagePlacerType<P extends FoliagePlacer> {
    public static final FoliagePlacerType<JungleFoliagePlacer> MEGA_JUNGLE_FOLIAGE_PLACER = register("jungle_foliage_placer", JungleFoliagePlacer.CODEC);
    public static final FoliagePlacerType<MegaPineFoliagePlacer> MEGA_PINE_FOLIAGE_PLACER = register("mega_pine_foliage_placer", MegaPineFoliagePlacer.CODEC);
    public static final FoliagePlacerType<DarkOakFoliagePlacer> DARK_OAK_FOLIAGE_PLACER = register("dark_oak_foliage_placer", DarkOakFoliagePlacer.CODEC);
+   public static final FoliagePlacerType<PaleOakLargeFoliagePlacer> PALE_OAK_FOLIAGE_PLACER = register("pale_oak_foliage_placer", PaleOakLargeFoliagePlacer.CODEC);
+
    private final Codec<P> codec;
 
    private static <P extends FoliagePlacer> FoliagePlacerType<P> register(String p_236773_0_, Codec<P> p_236773_1_) {

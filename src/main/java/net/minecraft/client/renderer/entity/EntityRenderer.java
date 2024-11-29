@@ -14,6 +14,7 @@ import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.item.*;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
@@ -185,7 +186,7 @@ public abstract class EntityRenderer<T extends Entity> {
                       && !(entity1 instanceof LightningBoltEntity));
       ITextComponent maxHealthComponent = new TranslationTextComponent("attribute.name.generic.max_health");
 
-      if (minecraft.options.showEntityHealth() && !minecraft.options.hideGui && entities.isEmpty() && !(distance > 8.5D) && !(entity instanceof WitherEntity) && !(entity instanceof EnderDragonEntity) && !displayName.getString().equals(minecraft.getUser().getName())) {
+      if (minecraft.options.showEntityHealth() && !minecraft.options.hideGui && entities.isEmpty() && !(distance > 8.5D) && !(entity instanceof CreakingEntity) && !(entity instanceof WitherEntity) && !(entity instanceof EnderDragonEntity) && !displayName.getString().equals(minecraft.getUser().getName())) {
          boolean isDiscrete = !entity.isDiscrete();
          FontRenderer fontRenderer = this.getFont();
          float yOffset = entity.getBbHeight() + 0.5F;

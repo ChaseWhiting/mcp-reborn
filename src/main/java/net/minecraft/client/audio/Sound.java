@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class Sound implements ISoundEventAccessor<Sound> {
    private final ResourceLocation location;
-   private final float volume;
+   final float volume;
    private final float pitch;
    private final int weight;
    private final Sound.Type type;

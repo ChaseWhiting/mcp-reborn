@@ -23,15 +23,7 @@ import net.minecraft.world.gen.blockstateprovider.ForestFlowerBlockStateProvider
 import net.minecraft.world.gen.blockstateprovider.PlainFlowerBlockStateProvider;
 import net.minecraft.world.gen.blockstateprovider.SimpleBlockStateProvider;
 import net.minecraft.world.gen.blockstateprovider.WeightedBlockStateProvider;
-import net.minecraft.world.gen.foliageplacer.AcaciaFoliagePlacer;
-import net.minecraft.world.gen.foliageplacer.BlobFoliagePlacer;
-import net.minecraft.world.gen.foliageplacer.BushFoliagePlacer;
-import net.minecraft.world.gen.foliageplacer.DarkOakFoliagePlacer;
-import net.minecraft.world.gen.foliageplacer.FancyFoliagePlacer;
-import net.minecraft.world.gen.foliageplacer.JungleFoliagePlacer;
-import net.minecraft.world.gen.foliageplacer.MegaPineFoliagePlacer;
-import net.minecraft.world.gen.foliageplacer.PineFoliagePlacer;
-import net.minecraft.world.gen.foliageplacer.SpruceFoliagePlacer;
+import net.minecraft.world.gen.foliageplacer.*;
 import net.minecraft.world.gen.placement.AtSurfaceWithExtraConfig;
 import net.minecraft.world.gen.placement.CaveEdgeConfig;
 import net.minecraft.world.gen.placement.ChanceConfig;
@@ -43,17 +35,8 @@ import net.minecraft.world.gen.placement.NoiseDependant;
 import net.minecraft.world.gen.placement.Placement;
 import net.minecraft.world.gen.placement.TopSolidRangeConfig;
 import net.minecraft.world.gen.placement.TopSolidWithNoiseConfig;
-import net.minecraft.world.gen.treedecorator.AlterGroundTreeDecorator;
-import net.minecraft.world.gen.treedecorator.BeehiveTreeDecorator;
-import net.minecraft.world.gen.treedecorator.CocoaTreeDecorator;
-import net.minecraft.world.gen.treedecorator.LeaveVineTreeDecorator;
-import net.minecraft.world.gen.treedecorator.TrunkVineTreeDecorator;
-import net.minecraft.world.gen.trunkplacer.DarkOakTrunkPlacer;
-import net.minecraft.world.gen.trunkplacer.FancyTrunkPlacer;
-import net.minecraft.world.gen.trunkplacer.ForkyTrunkPlacer;
-import net.minecraft.world.gen.trunkplacer.GiantTrunkPlacer;
-import net.minecraft.world.gen.trunkplacer.MegaJungleTrunkPlacer;
-import net.minecraft.world.gen.trunkplacer.StraightTrunkPlacer;
+import net.minecraft.world.gen.treedecorator.*;
+import net.minecraft.world.gen.trunkplacer.*;
 import net.minecraft.world.server.ServerWorld;
 
 public class Features {
@@ -120,6 +103,7 @@ public class Features {
    public static final ConfiguredFeature<?, ?> PILE_SNOW = register("pile_snow", Feature.BLOCK_PILE.configured(new BlockStateProvidingFeatureConfig(new SimpleBlockStateProvider(Features.States.SNOW))));
    public static final ConfiguredFeature<?, ?> PILE_ICE = register("pile_ice", Feature.BLOCK_PILE.configured(new BlockStateProvidingFeatureConfig((new WeightedBlockStateProvider()).add(Features.States.BLUE_ICE, 1).add(Features.States.PACKED_ICE, 5))));
    public static final ConfiguredFeature<?, ?> PILE_PUMPKIN = register("pile_pumpkin", Feature.BLOCK_PILE.configured(new BlockStateProvidingFeatureConfig((new WeightedBlockStateProvider()).add(Features.States.PUMPKIN, 19).add(Features.States.JACK_O_LANTERN, 1))));
+   public static final ConfiguredFeature<?, ?> PILE_WHITE_PUMPKIN = register("pile_white_pumpkin", Feature.BLOCK_PILE.configured(new BlockStateProvidingFeatureConfig((new WeightedBlockStateProvider()).add(States.WHITE_PUMPKIN, 19).add(Blocks.WHITE_JACK_O_LANTERN.defaultBlockState(), 1))));
    public static final ConfiguredFeature<?, ?> PATCH_FIRE = register("patch_fire", Feature.RANDOM_PATCH.configured((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.FIRE), SimpleBlockPlacer.INSTANCE)).tries(64).whitelist(ImmutableSet.of(Features.States.NETHERRACK.getBlock())).noProjection().build()).decorated(Features.Placements.FIRE));
    public static final ConfiguredFeature<?, ?> PATCH_SOUL_FIRE = register("patch_soul_fire", Feature.RANDOM_PATCH.configured((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.SOUL_FIRE), new SimpleBlockPlacer())).tries(64).whitelist(ImmutableSet.of(Features.States.SOUL_SOIL.getBlock())).noProjection().build()).decorated(Features.Placements.FIRE));
    public static final ConfiguredFeature<?, ?> PATCH_BROWN_MUSHROOM = register("patch_brown_mushroom", Feature.RANDOM_PATCH.configured((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.BROWN_MUSHROOM), SimpleBlockPlacer.INSTANCE)).tries(64).noProjection().build()));
@@ -127,6 +111,8 @@ public class Features {
    public static final ConfiguredFeature<?, ?> PATCH_CRIMSON_ROOTS = register("patch_crimson_roots", Feature.RANDOM_PATCH.configured((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.CRIMSON_ROOTS), new SimpleBlockPlacer())).tries(64).noProjection().build()).range(128));
    public static final ConfiguredFeature<?, ?> PATCH_SUNFLOWER = register("patch_sunflower", Feature.RANDOM_PATCH.configured((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.SUNFLOWER), new DoublePlantBlockPlacer())).tries(64).noProjection().build()).decorated(Features.Placements.ADD_32).decorated(Features.Placements.HEIGHTMAP_SQUARE).count(10));
    public static final ConfiguredFeature<?, ?> PATCH_PUMPKIN = register("patch_pumpkin", Feature.RANDOM_PATCH.configured((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.PUMPKIN), SimpleBlockPlacer.INSTANCE)).tries(64).whitelist(ImmutableSet.of(Features.States.GRASS_BLOCK.getBlock())).noProjection().build()).decorated(Features.Placements.HEIGHTMAP_DOUBLE_SQUARE).chance(32));
+   public static final ConfiguredFeature<?, ?> PATCH_WHITE_PUMPKIN = register("patch_white_pumpkin", Feature.RANDOM_PATCH.configured((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(States.WHITE_PUMPKIN), SimpleBlockPlacer.INSTANCE)).tries(128).whitelist(ImmutableSet.of(Features.States.GRASS_BLOCK.getBlock(), Blocks.PALE_MOSS_BLOCK.defaultBlockState().getBlock())).noProjection().build()).decorated(Features.Placements.HEIGHTMAP_DOUBLE_SQUARE).chance(1));
+
    public static final ConfiguredFeature<?, ?> PATCH_TAIGA_GRASS = register("patch_taiga_grass", Feature.RANDOM_PATCH.configured(Features.Configs.TAIGA_GRASS_CONFIG));
    public static final ConfiguredFeature<?, ?> PATCH_BERRY_BUSH = register("patch_berry_bush", Feature.RANDOM_PATCH.configured(Features.Configs.SWEET_BERRY_BUSH_CONFIG));
    public static final ConfiguredFeature<?, ?> PATCH_GRASS_PLAIN = register("patch_grass_plain", Feature.RANDOM_PATCH.configured(Features.Configs.DEFAULT_GRASS_CONFIG).decorated(Features.Placements.HEIGHTMAP_DOUBLE_SQUARE).decorated(Placement.COUNT_NOISE.configured(new NoiseDependant(-0.8D, 5, 10))));
@@ -209,6 +195,83 @@ public class Features {
    );
 
    public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> DARK_OAK = register("dark_oak", Feature.TREE.configured((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.DARK_OAK_LOG), new SimpleBlockStateProvider(Features.States.DARK_OAK_LEAVES), new DarkOakFoliagePlacer(FeatureSpread.fixed(0), FeatureSpread.fixed(0)), new DarkOakTrunkPlacer(6, 2, 1), new ThreeLayerFeature(1, 1, 0, 1, 2, OptionalInt.empty()))).maxWaterDepth(Integer.MAX_VALUE).heightmap(Heightmap.Type.MOTION_BLOCKING).ignoreVines().build()));
+   public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> PALE_OAK = register("pale_oak",
+           Feature.TREE.configured(
+                   (new BaseTreeFeatureConfig.Builder(
+                           new SimpleBlockStateProvider(Blocks.PALE_OAK_LOG.defaultBlockState()),  // Log block
+                           new SimpleBlockStateProvider(Blocks.PALE_OAK_LEAVES.defaultBlockState()),  // Leaves block
+                           new DarkOakFoliagePlacer(FeatureSpread.fixed(0), FeatureSpread.fixed(0)),  // Foliage placer
+                           new DarkOakTrunkPlacer(6, 2, 1),  // Trunk placer
+                           new ThreeLayerFeature(1, 1, 0, 1, 2, OptionalInt.empty()))  // Feature size
+                   )
+                           .decorators(ImmutableList.of(
+                                   new PaleMossDecorator(0.15f, 0.4F),  // The existing PaleMossDecorator
+                                   new PaleOakTreeGroundDecorator()  // Replaces ground with pale moss blocks
+                           ))
+                           .ignoreVines()
+                           .build()
+           )
+   );
+   public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> TALL_PALE_OAK = register("tall_pale_oak",
+           Feature.TREE.configured(
+                   (new BaseTreeFeatureConfig.Builder(
+                           new SimpleBlockStateProvider(Blocks.PALE_OAK_LOG.defaultBlockState()),  // Log block
+                           new SimpleBlockStateProvider(Blocks.PALE_OAK_LEAVES.defaultBlockState()),  // Leaves block
+                           new DarkOakFoliagePlacer(FeatureSpread.fixed(0), FeatureSpread.fixed(0)),  // Foliage placer
+                           new DarkOakTrunkPlacer(8, 2, 1),  // Trunk placer (increased height from 6 to 11)
+                           new ThreeLayerFeature(2, 1, 1, 1, 3, OptionalInt.empty()))  // Feature size
+                   )
+                           .decorators(ImmutableList.of(
+                                   new PaleMossDecorator(0.9f, 0.95F),  // The existing PaleMossDecorator
+                                   new PaleOakTreeGroundDecorator()  // Replaces ground with pale moss blocks
+                           ))
+                           .ignoreVines()
+                           .build()
+           )
+   );
+
+   public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> HUGE_PALE_OAK = register("huge_pale_oak",
+           Feature.TREE.configured(
+                   (new BaseTreeFeatureConfig.Builder(
+                           new SimpleBlockStateProvider(Blocks.PALE_OAK_LOG.defaultBlockState()),  // Log block
+                           new SimpleBlockStateProvider(Blocks.PALE_OAK_LEAVES.defaultBlockState()),  // Leaves block
+                           new DarkOakFoliagePlacer(FeatureSpread.fixed(0), FeatureSpread.fixed(0)),  // Foliage placer
+                           new PaleOakLargeTrunkPlacer(7, 2, 2),  // Trunk placer (increased height from 6 to 11)
+                           new ThreeLayerFeature(4, 2, 3, 3, 5, OptionalInt.empty())  // Feature size
+                   )
+                           .decorators(ImmutableList.of(
+                                   new PaleMossDecorator(0.9f, 0.95F, 0.8F),  // The existing PaleMossDecorator
+                                   new PaleOakTreeGroundDecorator(8, 12)  // Replaces ground with pale moss blocks
+                           ))
+                           .ignoreVines()
+                           .build()
+           )
+   ));
+   public static final ConfiguredFeature<?, ?> PALE_MOSS_VEGETATION = register("pale_moss_vegetation",
+           Feature.RANDOM_PATCH.configured(
+                   (new BlockClusterFeatureConfig.Builder(
+                           new WeightedBlockStateProvider()
+                                   .add(Blocks.PALE_MOSS_CARPET.defaultBlockState(), 25)
+                                   .add(Blocks.GRASS.defaultBlockState(), 50)
+                                   .add(Blocks.TALL_GRASS.defaultBlockState(), 10),
+                           SimpleBlockPlacer.INSTANCE)
+                           .tries(64)  // number of block placement attempts
+                           .build()
+                   )
+           ));
+
+   public static final ConfiguredFeature<?, ?> PALE_MOSS_GROUND_REPLACEMENT = register("pale_moss_ground_replacement",
+           Feature.REPLACE_BLOBS.configured(
+                           new BlobReplacementConfig(
+                                   Blocks.GRASS_BLOCK.defaultBlockState(),  // The block to be replaced
+                                   Blocks.PALE_MOSS_BLOCK.defaultBlockState(),  // The block replacing it
+                                   FeatureSpread.of(2, 4)  // The size of the replacement blob (controls the range)
+                           )
+                   ).decorated(Placement.RANGE.configured(new TopSolidRangeConfig(82, 0, 95)))  // Limit to Y 82-95
+                   .squared().count(1)  // The number of blobs to place per chunk
+   );
+
+
    public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> BIRCH = register("birch", Feature.TREE.configured((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.BIRCH_LOG), new SimpleBlockStateProvider(Features.States.BIRCH_LEAVES), new BlobFoliagePlacer(FeatureSpread.fixed(2), FeatureSpread.fixed(0), 3), new StraightTrunkPlacer(5, 2, 0), new TwoLayerFeature(1, 0, 1))).ignoreVines().build()));
    public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> ACACIA = register("acacia", Feature.TREE.configured((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.ACACIA_LOG), new SimpleBlockStateProvider(Features.States.ACACIA_LEAVES), new AcaciaFoliagePlacer(FeatureSpread.fixed(2), FeatureSpread.fixed(0)), new ForkyTrunkPlacer(5, 2, 2), new TwoLayerFeature(1, 0, 2))).ignoreVines().build()));
    public static final ConfiguredFeature<BaseTreeFeatureConfig, ?> SPRUCE = register("spruce", Feature.TREE.configured((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.SPRUCE_LOG), new SimpleBlockStateProvider(Features.States.SPRUCE_LEAVES), new SpruceFoliagePlacer(FeatureSpread.of(2, 1), FeatureSpread.of(0, 2), FeatureSpread.of(1, 1)), new StraightTrunkPlacer(5, 2, 1), new TwoLayerFeature(2, 0, 2))).ignoreVines().build()));
@@ -248,10 +311,28 @@ public class Features {
    }, () -> {
       return Feature.NO_BONEMEAL_FLOWER.configured((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.LILY_OF_THE_VALLEY), SimpleBlockPlacer.INSTANCE)).tries(64).build());
    });
+   private static final  ImmutableList<Supplier<ConfiguredFeature<?,?>>> EYEBLOSSOMS = ImmutableList.of(() -> {
+      return Feature.RANDOM_PATCH.configured(new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks.CLOSED_EYEBLOSSOM.defaultBlockState()), SimpleBlockPlacer.INSTANCE).tries(6).build());
+   });
+   public static final ConfiguredFeature<?, ?> EYEBLOSSOM_FEATURE = register("eyeblossom_feature", Feature.SIMPLE_RANDOM_SELECTOR.configured(new SingleRandomFeature(EYEBLOSSOMS)).count(FeatureSpread.of(-1, 4)).decorated(Features.Placements.ADD_32).decorated(Features.Placements.HEIGHTMAP_SQUARE).count(5));
+
+   private static final  ImmutableList<Supplier<ConfiguredFeature<?,?>>> EYEBLOSSOMS_LARGE = ImmutableList.of(() -> {
+      return Feature.RANDOM_PATCH.configured(new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks.CLOSED_EYEBLOSSOM.defaultBlockState()), SimpleBlockPlacer.INSTANCE).tries(8).build());
+   });
+   public static final ConfiguredFeature<?, ?> EYEBLOSSOM_FEATURE_LARGE = register("eyeblossom_feature_large", Feature.SIMPLE_RANDOM_SELECTOR.configured(new SingleRandomFeature(EYEBLOSSOMS_LARGE)).count(FeatureSpread.of(-1, 2)).decorated(Features.Placements.ADD_32).decorated(Features.Placements.HEIGHTMAP_SQUARE).count(6));
+
+
    public static final ConfiguredFeature<?, ?> FOREST_FLOWER_VEGETATION_COMMON = register("forest_flower_vegetation_common", Feature.SIMPLE_RANDOM_SELECTOR.configured(new SingleRandomFeature(FOREST_FLOWER_FEATURES)).count(FeatureSpread.of(-1, 4)).decorated(Features.Placements.ADD_32).decorated(Features.Placements.HEIGHTMAP_SQUARE).count(5));
    public static final ConfiguredFeature<?, ?> FOREST_FLOWER_VEGETATION = register("forest_flower_vegetation", Feature.SIMPLE_RANDOM_SELECTOR.configured(new SingleRandomFeature(FOREST_FLOWER_FEATURES)).count(FeatureSpread.of(-3, 4)).decorated(Features.Placements.ADD_32).decorated(Features.Placements.HEIGHTMAP_SQUARE).count(5));
-   public static final ConfiguredFeature<?, ?> DARK_FOREST_VEGETATION_BROWN = register("dark_forest_vegetation_brown", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(HUGE_BROWN_MUSHROOM.weighted(0.025F), HUGE_RED_MUSHROOM.weighted(0.05F), DARK_OAK.weighted(0.6666667F), BIRCH.weighted(0.2F), FANCY_OAK.weighted(0.1F)), OAK)).decorated(Placement.DARK_OAK_TREE.configured(IPlacementConfig.NONE)));
-   public static final ConfiguredFeature<?, ?> DARK_FOREST_VEGETATION_RED = register("dark_forest_vegetation_red", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(HUGE_RED_MUSHROOM.weighted(0.025F), HUGE_BROWN_MUSHROOM.weighted(0.05F), DARK_OAK.weighted(0.6666667F), BIRCH.weighted(0.2F), FANCY_OAK.weighted(0.1F)), OAK)).decorated(Placement.DARK_OAK_TREE.configured(IPlacementConfig.NONE)));
+   public static final ConfiguredFeature<?, ?> PALE_GARDEN_VEGETATION = register("pale_garden_vegetation",
+           Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(
+                   ImmutableList.of(
+                           PALE_OAK.weighted(0.6666667F),
+                           HUGE_PALE_OAK.weighted(0.27F)),
+                   PALE_OAK))
+                   .decorated(Placement.PALE_OAK_TREE.configured(IPlacementConfig.NONE)));
+   public static final ConfiguredFeature<?, ?> DARK_FOREST_VEGETATION_BROWN = register("dark_forest_vegetation_brown", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(HUGE_BROWN_MUSHROOM.weighted(0.025F), HUGE_RED_MUSHROOM.weighted(0.05F), DARK_OAK.weighted(0.6666667F), PALE_OAK.weighted(0.01F), BIRCH.weighted(0.2F), FANCY_OAK.weighted(0.1F)), OAK)).decorated(Placement.DARK_OAK_TREE.configured(IPlacementConfig.NONE)));
+   public static final ConfiguredFeature<?, ?> DARK_FOREST_VEGETATION_RED = register("dark_forest_vegetation_red", Feature.RANDOM_SELECTOR.configured(new MultipleRandomFeatureConfig(ImmutableList.of(HUGE_RED_MUSHROOM.weighted(0.025F), HUGE_BROWN_MUSHROOM.weighted(0.05F), DARK_OAK.weighted(0.6666667F), BIRCH.weighted(0.2F), PALE_OAK.weighted(0.01F), FANCY_OAK.weighted(0.1F)), OAK)).decorated(Placement.DARK_OAK_TREE.configured(IPlacementConfig.NONE)));
    public static final ConfiguredFeature<?, ?> WARM_OCEAN_VEGETATION = register("warm_ocean_vegetation", Feature.SIMPLE_RANDOM_SELECTOR.configured(new SingleRandomFeature(ImmutableList.of(() -> {
       return Feature.CORAL_TREE.configured(IFeatureConfig.NONE);
    }, () -> {
@@ -337,7 +418,10 @@ public class Features {
       protected static final BlockState BIRCH_LOG = Blocks.BIRCH_LOG.defaultBlockState();
       protected static final BlockState BIRCH_LEAVES = Blocks.BIRCH_LEAVES.defaultBlockState();
       protected static final BlockState DARK_OAK_LOG = Blocks.DARK_OAK_LOG.defaultBlockState();
+      protected static final BlockState PALE_OAK_LOG = Blocks.PALE_OAK_LOG.defaultBlockState();
       protected static final BlockState DARK_OAK_LEAVES = Blocks.DARK_OAK_LEAVES.defaultBlockState();
+      protected static final BlockState PALE_OAK_LEAVES = Blocks.PALE_OAK_LEAVES.defaultBlockState();
+
       protected static final BlockState GRASS_BLOCK = Blocks.GRASS_BLOCK.defaultBlockState();
       protected static final BlockState LARGE_FERN = Blocks.LARGE_FERN.defaultBlockState();
       protected static final BlockState TALL_GRASS = Blocks.TALL_GRASS.defaultBlockState();
@@ -355,6 +439,8 @@ public class Features {
       protected static final BlockState DEAD_BUSH = Blocks.DEAD_BUSH.defaultBlockState();
       protected static final BlockState MELON = Blocks.MELON.defaultBlockState();
       protected static final BlockState PUMPKIN = Blocks.PUMPKIN.defaultBlockState();
+      protected static final BlockState WHITE_PUMPKIN = Blocks.WHITE_PUMPKIN.defaultBlockState();
+
       protected static final BlockState SWEET_BERRY_BUSH = Blocks.SWEET_BERRY_BUSH.defaultBlockState().setValue(SweetBerryBushBlock.AGE, Integer.valueOf(3));
       protected static final BlockState FIRE = Blocks.FIRE.defaultBlockState();
       protected static final BlockState SOUL_FIRE = Blocks.SOUL_FIRE.defaultBlockState();

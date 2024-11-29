@@ -15,6 +15,7 @@ import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.monster.MarauderEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.tool.FishingRodItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.Direction;
@@ -341,6 +342,12 @@ public class ItemModelsProperties {
          return entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F;
       });
       register(Items.NETHERITE_SHIELD, new ResourceLocation("blocking"), (item, world, entity) -> {
+         if (entity instanceof MarauderEntity && entity.getItemBySlot(EquipmentSlotType.OFFHAND) == item) {
+            return 1.0F;
+         }
+         return entity != null && entity.isUsingItem() && entity.getUseItem() == item ? 1.0F : 0.0F;
+      });
+      register(Items.SHIELD_OF_CTHULHU, new ResourceLocation("blocking"), (item, world, entity) -> {
          if (entity instanceof MarauderEntity && entity.getItemBySlot(EquipmentSlotType.OFFHAND) == item) {
             return 1.0F;
          }

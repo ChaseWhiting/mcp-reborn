@@ -44,6 +44,7 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
          }
       }
 
+
       for(int k = 0; k < 4; ++k) {
          final EquipmentSlotType equipmentslottype = SLOT_IDS[k];
          this.addSlot(new Slot(inventory, 39 - k, 8, 8 + k * 18) {

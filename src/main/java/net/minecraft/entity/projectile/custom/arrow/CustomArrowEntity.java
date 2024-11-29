@@ -181,8 +181,10 @@ public class CustomArrowEntity extends AbstractArrowEntity {
     public void tick() {
         super.tick();
 
-        List<Monster> nearbyEntities = this.level.getEntitiesOfClass(Monster.class, this.getBoundingBox().inflate(1.6D));
-        if (!nearbyEntities.isEmpty() && this.getArrowType() == CustomArrowType.FIREWORK && this.getGravityLevel() <= 0) {
+        List<Monster> nearbyEntities = this.level.getEntitiesOfClass(Monster.class, this.getBoundingBox().inflate(1.6D), monster -> monster != this.getOwner());
+        PlayerEntity player = level.getNearestSurvivalPlayer(this, 1);
+        if (player==this.getOwner()) player = null;
+        if ((!nearbyEntities.isEmpty() || player != null) && this.getArrowType() == CustomArrowType.FIREWORK && this.getGravityLevel() <= 0) {
             this.spawnFireworkOnBlockHit(true);
         }
     }

@@ -30,6 +30,13 @@ public abstract class VoxelShape {
       return i >= this.shape.getSize(p_197762_1_) ? Double.POSITIVE_INFINITY : this.get(p_197762_1_, i);
    }
 
+   public VoxelShape singleEncompassing() {
+      if (this.isEmpty()) {
+         return VoxelShapes.empty();
+      }
+      return VoxelShapes.box(this.min(Direction.Axis.X), this.min(Direction.Axis.Y), this.min(Direction.Axis.Z), this.max(Direction.Axis.X), this.max(Direction.Axis.Y), this.max(Direction.Axis.Z));
+   }
+
    public double max(Direction.Axis p_197758_1_) {
       int i = this.shape.lastFull(p_197758_1_);
       return i <= 0 ? Double.NEGATIVE_INFINITY : this.get(p_197758_1_, i);

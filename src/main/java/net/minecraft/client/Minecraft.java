@@ -23,18 +23,14 @@ import com.mojang.serialization.Lifecycle;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.nio.ByteOrder;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,10 +41,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.audio.BackgroundMusicSelector;
-import net.minecraft.client.audio.BackgroundMusicTracks;
-import net.minecraft.client.audio.MusicTicker;
-import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.audio.*;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.DialogTexts;
 import net.minecraft.client.gui.FontRenderer;
@@ -139,6 +132,7 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.EnderCrystalEntity;
@@ -149,12 +143,16 @@ import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.player.ChatVisibility;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
+import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuSecondFormEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SkullItem;
 import net.minecraft.item.SpawnEggItem;
+import net.minecraft.item.tool.terraria.AccessoryHolderItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -164,6 +162,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.ProtocolType;
 import net.minecraft.network.handshake.client.CHandshakePacket;
 import net.minecraft.network.login.client.CLoginStartPacket;
+import net.minecraft.network.play.client.CPlayerDashPacket;
 import net.minecraft.network.play.client.CPlayerDiggingPacket;
 import net.minecraft.profiler.DataPoint;
 import net.minecraft.profiler.EmptyProfiler;
@@ -191,25 +190,13 @@ import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tileentity.SkullTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.FrameTimer;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Session;
-import net.minecraft.util.SharedConstants;
+import net.minecraft.util.*;
 import net.minecraft.util.Timer;
-import net.minecraft.util.Unit;
-import net.minecraft.util.Util;
 import net.minecraft.util.concurrent.RecursiveEventLoop;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.codec.DatapackCodec;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Bootstrap;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.Registry;
@@ -223,6 +210,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.listener.ChainedChunkStatusListener;
 import net.minecraft.world.chunk.listener.TrackingChunkStatusListener;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
@@ -359,7 +347,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
    });
 
    public static boolean isDebugging() {
-      return java.lang.management.ManagementFactory.getRuntimeMXBean()
+      return ManagementFactory.getRuntimeMXBean()
               .getInputArguments().toString().contains("-agentlib:jdwp");
    }
    @Nullable
@@ -1565,6 +1553,30 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
          this.setScreen(new AdvancementsScreen(this.player.connection.getAdvancements()));
       }
 
+      // Check for dash action in player tick or event handler
+      if (this.screen == null && this.overlay == null && this.options.keyDash.consumeClick()) {
+         // Check if the shield is in the player's offhand and not on cooldown
+         if (player.getOffhandItem() != null && player.getOffhandItem().getItem() == Items.SHIELD_OF_CTHULHU &&
+                 !player.getCooldowns().isOnCooldown(Items.SHIELD_OF_CTHULHU) && player.getUseItem() != null && player.getUseItem().getItem() == Items.SHIELD_OF_CTHULHU) {
+
+
+            // Get the player's look direction for dashing
+            Vector3d lookDirection = player.getLookAngle(); // Direction the player is facing
+            double dashSpeed = 1.5; // Adjust this value for dash speed
+            // Set the player's velocity to dash forward
+            player.setSprinting(true);  // Set sprinting for visual effect (optional)
+            player.setDeltaMovement(
+                    lookDirection.x * dashSpeed,
+                    player.getDeltaMovement().y,  // Preserve existing Y movement for gravity/falling
+                    lookDirection.z * dashSpeed
+            );
+
+            player.connection.send(new CPlayerDashPacket(lookDirection, player.getOffhandItem()));
+         }
+      }
+
+
+
       while(this.options.keySwapOffhand.consumeClick()) {
          if (!this.player.isSpectator()) {
             this.getConnection().send(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN));
@@ -1643,7 +1655,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
    }
 
    public void loadLevel(String levelName) {
-      this.doLoadLevel(levelName, DynamicRegistries.builtin(), Minecraft::loadDataPacks, Minecraft::loadWorldData, false, Minecraft.WorldSelectionType.BACKUP);
+      this.doLoadLevel(levelName, DynamicRegistries.builtin(), Minecraft::loadDataPacks, Minecraft::loadWorldData, false, WorldSelectionType.BACKUP);
    }
 
 
@@ -1662,13 +1674,13 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
                  .resultOrPartial(Util.prefix("Error reading worldgen settings after loading data packs: ", LOGGER::error))
                  .orElse(dimensionSettings);
          return new ServerWorldInfo(worldSettings, finalDimensionSettings, dataResult.lifecycle());
-      }, false, Minecraft.WorldSelectionType.CREATE);
+      }, false, WorldSelectionType.CREATE);
    }
 
 
    private void doLoadLevel(String levelName, DynamicRegistries.Impl dynamicRegistries, Function<SaveFormat.LevelSave, DatapackCodec> loadDataPacks,
                             Function4<SaveFormat.LevelSave, DynamicRegistries.Impl, IResourceManager, DatapackCodec, IServerConfiguration> loadWorldData,
-                            boolean isReload, Minecraft.WorldSelectionType worldSelectionType) {
+                            boolean isReload, WorldSelectionType worldSelectionType) {
 
       SaveFormat.LevelSave levelSave;
       try {
@@ -1680,7 +1692,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
          return;
       }
 
-      Minecraft.PackManager packManager;
+      PackManager packManager;
       try {
          packManager = this.makeServerStem(dynamicRegistries, loadDataPacks, loadWorldData, isReload, levelSave);
       } catch (Exception e) {
@@ -1702,7 +1714,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
       boolean isOldCustomizedWorld = serverConfiguration.worldGenSettings().isOldCustomizedWorld();
       boolean needsExperimentalConfirmation = serverConfiguration.worldGenSettingsLifecycle() != Lifecycle.stable();
 
-      if (worldSelectionType == Minecraft.WorldSelectionType.NONE || (!isOldCustomizedWorld && !needsExperimentalConfirmation)) {
+      if (worldSelectionType == WorldSelectionType.NONE || (!isOldCustomizedWorld && !needsExperimentalConfirmation)) {
          this.clearLevel();
          this.progressListener.set(null);
 
@@ -1764,7 +1776,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
          this.pendingConnection = networkManager;
       } else {
          this.displayExperimentalConfirmationDialog(worldSelectionType, levelName, isOldCustomizedWorld, () -> {
-            this.doLoadLevel(levelName, dynamicRegistries, loadDataPacks, loadWorldData, isReload, Minecraft.WorldSelectionType.NONE);
+            this.doLoadLevel(levelName, dynamicRegistries, loadDataPacks, loadWorldData, isReload, WorldSelectionType.NONE);
          });
          packManager.close();
 
@@ -1777,8 +1789,8 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
    }
 
 
-   private void displayExperimentalConfirmationDialog(Minecraft.WorldSelectionType p_241559_1_, String p_241559_2_, boolean p_241559_3_, Runnable p_241559_4_) {
-      if (p_241559_1_ == Minecraft.WorldSelectionType.BACKUP) {
+   private void displayExperimentalConfirmationDialog(WorldSelectionType p_241559_1_, String p_241559_2_, boolean p_241559_3_, Runnable p_241559_4_) {
+      if (p_241559_1_ == WorldSelectionType.BACKUP) {
          ITextComponent itextcomponent;
          ITextComponent itextcomponent1;
          if (p_241559_3_) {
@@ -1816,7 +1828,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
 
    }
 
-   public Minecraft.PackManager makeServerStem(DynamicRegistries.Impl p_238189_1_, Function<SaveFormat.LevelSave, DatapackCodec> p_238189_2_, Function4<SaveFormat.LevelSave, DynamicRegistries.Impl, IResourceManager, DatapackCodec, IServerConfiguration> p_238189_3_, boolean p_238189_4_, SaveFormat.LevelSave p_238189_5_) throws InterruptedException, ExecutionException {
+   public PackManager makeServerStem(DynamicRegistries.Impl p_238189_1_, Function<SaveFormat.LevelSave, DatapackCodec> p_238189_2_, Function4<SaveFormat.LevelSave, DynamicRegistries.Impl, IResourceManager, DatapackCodec, IServerConfiguration> p_238189_3_, boolean p_238189_4_, SaveFormat.LevelSave p_238189_5_) throws InterruptedException, ExecutionException {
       DatapackCodec datapackcodec = p_238189_2_.apply(p_238189_5_);
       ResourcePackList resourcepacklist = new ResourcePackList(new ServerPackFinder(), new FolderPackFinder(p_238189_5_.getLevelPath(FolderName.DATAPACK_DIR).toFile(), IPackNameDecorator.WORLD));
 
@@ -1826,7 +1838,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
          this.managedBlock(completablefuture::isDone);
          DataPackRegistries datapackregistries = completablefuture.get();
          IServerConfiguration iserverconfiguration = p_238189_3_.apply(p_238189_5_, p_238189_1_, datapackregistries.getResourceManager(), datapackcodec1);
-         return new Minecraft.PackManager(resourcepacklist, datapackregistries, iserverconfiguration);
+         return new PackManager(resourcepacklist, datapackregistries, iserverconfiguration);
       } catch (ExecutionException | InterruptedException interruptedexception) {
          resourcepacklist.close();
          throw interruptedexception;
@@ -2287,10 +2299,16 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
       if (this.screen instanceof WinGameScreen) {
          return BackgroundMusicTracks.CREDITS;
       } else if (this.player != null) {
+         if (isBossNearby(EyeOfCthulhuEntity.class, 300) || isBossNearby(EyeOfCthulhuSecondFormEntity.class, 300)) {
+            return BackgroundMusicTracks.CTHULHU_BOSS;
+         }
+
          if (this.player.level.dimension() == World.END) {
             return this.gui.getBossOverlay().shouldPlayMusic() ? BackgroundMusicTracks.END_BOSS : BackgroundMusicTracks.END;
          } else {
             Biome.Category biome$category = this.player.level.getBiome(this.player.blockPosition()).getBiomeCategory();
+
+
             if (!this.musicManager.isPlayingMusic(BackgroundMusicTracks.UNDER_WATER) && (!this.player.isUnderWater() || biome$category != Biome.Category.OCEAN && biome$category != Biome.Category.RIVER)) {
                return this.player.level.dimension() != World.NETHER && this.player.abilities.instabuild && this.player.abilities.mayfly ? BackgroundMusicTracks.CREATIVE : this.level.getBiomeManager().getNoiseBiomeAtPosition(this.player.blockPosition()).getBackgroundMusic().orElse(BackgroundMusicTracks.GAME);
             } else {
@@ -2301,6 +2319,13 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
          return BackgroundMusicTracks.MENU;
       }
    }
+
+   private boolean isBossNearby(Class<? extends Entity> type, int range) {
+      List<Entity> entities = this.player.level.getEntitiesOfClass(type, this.player.getBoundingBox().inflate(range));
+      if (!entities.isEmpty()) return true;
+      return false;
+   }
+
 
    public MinecraftSessionService getMinecraftSessionService() {
       return this.minecraftSessionService;

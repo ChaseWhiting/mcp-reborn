@@ -1,87 +1,109 @@
 package net.minecraft.client.renderer.entity.model;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import net.minecraft.client.animation.HierarchicalModel;
+import net.minecraft.client.animation.definitions.BatAnimation;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.renderer.model.Model;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BatModel extends SegmentedModel<BatEntity> {
-   private final ModelRenderer head;
-   private final ModelRenderer body;
-   private final ModelRenderer rightWing;
-   private final ModelRenderer leftWing;
-   private final ModelRenderer rightWingTip;
-   private final ModelRenderer leftWingTip;
+public class BatModel<T extends BatEntity> extends HierarchicalModel<T> {
+   protected ModelRenderer root;
+   protected ModelRenderer head;
+   protected ModelRenderer body;
+   protected ModelRenderer rightWing;
+   protected ModelRenderer leftWing;
+   protected ModelRenderer rightWingTip;
+   protected ModelRenderer leftWingTip;
+   protected ModelRenderer feet;
 
    public BatModel() {
-      this.texWidth = 64;
-      this.texHeight = 64;
-      this.head = new ModelRenderer(this, 0, 0);
-      this.head.addBox(-3.0F, -3.0F, -3.0F, 6.0F, 6.0F, 6.0F);
-      ModelRenderer modelrenderer = new ModelRenderer(this, 24, 0);
-      modelrenderer.addBox(-4.0F, -6.0F, -2.0F, 3.0F, 4.0F, 1.0F);
-      this.head.addChild(modelrenderer);
-      ModelRenderer modelrenderer1 = new ModelRenderer(this, 24, 0);
-      modelrenderer1.mirror = true;
-      modelrenderer1.addBox(1.0F, -6.0F, -2.0F, 3.0F, 4.0F, 1.0F);
-      this.head.addChild(modelrenderer1);
-      this.body = new ModelRenderer(this, 0, 16);
-      this.body.addBox(-3.0F, 4.0F, -3.0F, 6.0F, 12.0F, 6.0F);
-      this.body.texOffs(0, 34).addBox(-5.0F, 16.0F, 0.0F, 10.0F, 6.0F, 1.0F);
-      this.rightWing = new ModelRenderer(this, 42, 0);
-      this.rightWing.addBox(-12.0F, 1.0F, 1.5F, 10.0F, 16.0F, 1.0F);
-      this.rightWingTip = new ModelRenderer(this, 24, 16);
-      this.rightWingTip.setPos(-12.0F, 1.0F, 1.5F);
-      this.rightWingTip.addBox(-8.0F, 1.0F, 0.0F, 8.0F, 12.0F, 1.0F);
-      this.leftWing = new ModelRenderer(this, 42, 0);
-      this.leftWing.mirror = true;
-      this.leftWing.addBox(2.0F, 1.0F, 1.5F, 10.0F, 16.0F, 1.0F);
-      this.leftWingTip = new ModelRenderer(this, 24, 16);
-      this.leftWingTip.mirror = true;
-      this.leftWingTip.setPos(12.0F, 1.0F, 1.5F);
-      this.leftWingTip.addBox(0.0F, 1.0F, 0.0F, 8.0F, 12.0F, 1.0F);
+      this.texWidth = 32;
+      this.texHeight = 32;
+
+      // Root part
+      root = new ModelRenderer(this, "root");
+      root.setPos(0.0F, 0.0F, 0.0F);
+
+      // Body
+      this.body = new ModelRenderer(this, "body");
+      this.body.texOffs(0, 0).addBox(-1.5F, 0.0F, -1.0F, 3.0F, 5.0F, 2.0F);
+      this.body.setPos(0.0F, 17.0F, 0.0F);
+      root.addChild(body);
+
+      // Head
+      this.head = new ModelRenderer(this, "head");
+      this.head.texOffs(0, 7).addBox(-2.0F, -3.0F, -1.0F, 4.0F, 3.0F, 2.0F);
+      this.head.setPos(0.0F, 17.0F, 0.01F);
+      root.addChild(head);
+
+      // Right Ear
+      ModelRenderer rightEar = new ModelRenderer(this, "right_ear");
+      rightEar.texOffs(1, 15).addBox(-2.5F, -4.0F, 0.0F, 3.0F, 5.0F, 0.05F);
+      rightEar.setPos(-1.5F, -2.0F, 0F);
+      this.head.addChild(rightEar);
+
+      // Left Ear
+      ModelRenderer leftEar = new ModelRenderer(this, "left_ear");
+      leftEar.texOffs(8, 15).addBox(-0.1F, -3.0F, 0.0F, 3.0F, 5.0F, 0.05F);
+      leftEar.setPos(1.1F, -3.0F, 0F);
+      this.head.addChild(leftEar);
+
+      // Right Wing
+      this.rightWing = new ModelRenderer(this, "right_wing");
+      this.rightWing.texOffs(12, 0).addBox(-2.0F, -2.0F, 0.0F, 2.0F, 7.0F, 0.0F);
+      this.rightWing.setPos(-1.5F, 0.0F, 0.0F);
       this.body.addChild(this.rightWing);
-      this.body.addChild(this.leftWing);
+
+      // Right Wing Tip
+      this.rightWingTip = new ModelRenderer(this, "right_wing_tip");
+      this.rightWingTip.texOffs(16, 0).addBox(-6.0F, -2.0F, 0.0F, 6.0F, 8.0F, 0.0F);
+      this.rightWingTip.setPos(-2.0F, 0.0F, 0.0F);
       this.rightWing.addChild(this.rightWingTip);
+
+      // Left Wing
+      this.leftWing = new ModelRenderer(this, "left_wing");
+      this.leftWing.texOffs(12, 7).addBox(0.0F, -2.0F, 0.0F, 2.0F, 7.0F, 0.0F);
+      this.leftWing.setPos(1.5F, 0.0F, 0.0F);
+      this.body.addChild(this.leftWing);
+
+      // Left Wing Tip
+      this.leftWingTip = new ModelRenderer(this, "left_wing_tip");
+      this.leftWingTip.texOffs(16, 8).addBox(0.0F, -2.0F, 0.0F, 6.0F, 8.0F, 0.0F);
+      this.leftWingTip.setPos(2.0F, 0.0F, 0.0F);
       this.leftWing.addChild(this.leftWingTip);
+
+      // Feet
+      this.feet = new ModelRenderer(this, "feet");
+      this.feet.texOffs(16, 16).addBox(-1.5F, 0.0F, 0.0F, 3.0F, 2.0F, 0.0F);
+      this.feet.setPos(0.0F, 5.0F, 0.0F);
+      this.body.addChild(feet);
    }
 
-   public Iterable<ModelRenderer> parts() {
-      return ImmutableList.of(this.head, this.body);
-   }
-
-   public void setupAnim(BatEntity p_225597_1_, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
-      if (p_225597_1_.isResting()) {
-         this.head.xRot = p_225597_6_ * ((float)Math.PI / 180F);
-         this.head.yRot = (float)Math.PI - p_225597_5_ * ((float)Math.PI / 180F);
-         this.head.zRot = (float)Math.PI;
-         this.head.setPos(0.0F, -2.0F, 0.0F);
-         this.rightWing.setPos(-3.0F, 0.0F, 3.0F);
-         this.leftWing.setPos(3.0F, 0.0F, 3.0F);
-         this.body.xRot = (float)Math.PI;
-         this.rightWing.xRot = -0.15707964F;
-         this.rightWing.yRot = -1.2566371F;
-         this.rightWingTip.yRot = -1.7278761F;
-         this.leftWing.xRot = this.rightWing.xRot;
-         this.leftWing.yRot = -this.rightWing.yRot;
-         this.leftWingTip.yRot = -this.rightWingTip.yRot;
-      } else {
-         this.head.xRot = p_225597_6_ * ((float)Math.PI / 180F);
-         this.head.yRot = p_225597_5_ * ((float)Math.PI / 180F);
-         this.head.zRot = 0.0F;
-         this.head.setPos(0.0F, 0.0F, 0.0F);
-         this.rightWing.setPos(0.0F, 0.0F, 0.0F);
-         this.leftWing.setPos(0.0F, 0.0F, 0.0F);
-         this.body.xRot = ((float)Math.PI / 4F) + MathHelper.cos(p_225597_4_ * 0.1F) * 0.15F;
-         this.body.yRot = 0.0F;
-         this.rightWing.yRot = MathHelper.cos(p_225597_4_ * 1.3F) * (float)Math.PI * 0.25F;
-         this.leftWing.yRot = -this.rightWing.yRot;
-         this.rightWingTip.yRot = this.rightWing.yRot * 0.5F;
-         this.leftWingTip.yRot = -this.rightWing.yRot * 0.5F;
+   @Override
+   public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+      if (entity.isResting()) {
+         this.applyHeadRotation(entity.yRot);
       }
+      this.animate(entity.flyAnimationState, BatAnimation.BAT_FLYING, ageInTicks, 1.0f);
+      this.animate(entity.restAnimationState, BatAnimation.BAT_RESTING, ageInTicks, 1.0f);
+   }
 
+   @Override
+   public ImmutableSet<ModelRenderer> getAllParts() {
+      return ImmutableSet.of(this.body, this.feet, this.head, this.rightWing, this.leftWing, this.rightWingTip, this.leftWingTip);
+   }
+
+   @Override
+   public ModelRenderer root() {
+      return this.root;
+   }
+
+   private void applyHeadRotation(float $$0) {
+      this.head.yRot = $$0 * ((float)Math.PI / 180);
    }
 }

@@ -1,0 +1,22 @@
+{
+    "ambientocclusion": true,
+    "textures": {
+        "particle": "#side",
+        "side": "minecraft:block/pale_moss_carpet_side"
+    },
+    "elements": [
+        {
+            "from": [ 0, 0, 0.1 ],
+            "to": [ 16, 16, 0.1 ],
+            "shade": true,
+            "faces": {
+                "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
+                "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
+                "east": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
+                "west": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
+                "up": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
+                "down": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" }
+            }
+        }
+    ]
+}

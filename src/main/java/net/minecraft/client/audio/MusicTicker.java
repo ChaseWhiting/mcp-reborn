@@ -58,6 +58,14 @@ public class MusicTicker {
       this.nextSongDelay += 100;
    }
 
+   public float getMusicVolume() {
+      return this.currentMusic == null ? 0f : this.currentMusic.getVolume();
+   }
+
+   public void setMusicVolume(float volume) {
+      if (this.currentMusic==null)return;
+   }
+
    public boolean isPlayingMusic(BackgroundMusicSelector p_239540_1_) {
       return this.currentMusic == null ? false : p_239540_1_.getEvent().getLocation().equals(this.currentMusic.getLocation());
    }

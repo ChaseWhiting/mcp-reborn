@@ -180,13 +180,13 @@ public abstract class AbstractBlock {
    }
 
    @Deprecated
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      return p_185499_1_;
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      return state;
    }
 
    @Deprecated
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      return p_185471_1_;
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      return state;
    }
 
    @Deprecated

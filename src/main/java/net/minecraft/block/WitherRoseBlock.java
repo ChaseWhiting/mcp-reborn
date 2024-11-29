@@ -28,15 +28,15 @@ public class WitherRoseBlock extends FlowerBlock {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public void animateTick(BlockState p_180655_1_, World p_180655_2_, BlockPos p_180655_3_, Random p_180655_4_) {
-      VoxelShape voxelshape = this.getShape(p_180655_1_, p_180655_2_, p_180655_3_, ISelectionContext.empty());
+   public void animateTick(BlockState state, World world, BlockPos position, Random p_180655_4_) {
+      VoxelShape voxelshape = this.getShape(state, world, position, ISelectionContext.empty());
       Vector3d vector3d = voxelshape.bounds().getCenter();
-      double d0 = (double)p_180655_3_.getX() + vector3d.x;
-      double d1 = (double)p_180655_3_.getZ() + vector3d.z;
+      double d0 = (double)position.getX() + vector3d.x;
+      double d1 = (double)position.getZ() + vector3d.z;
 
       for(int i = 0; i < 3; ++i) {
          if (p_180655_4_.nextBoolean()) {
-            p_180655_2_.addParticle(ParticleTypes.SMOKE, d0 + p_180655_4_.nextDouble() / 5.0D, (double)p_180655_3_.getY() + (0.5D - p_180655_4_.nextDouble()), d1 + p_180655_4_.nextDouble() / 5.0D, 0.0D, 0.0D, 0.0D);
+            world.addParticle(ParticleTypes.SMOKE, d0 + p_180655_4_.nextDouble() / 5.0D, (double)position.getY() + (0.5D - p_180655_4_.nextDouble()), d1 + p_180655_4_.nextDouble() / 5.0D, 0.0D, 0.0D, 0.0D);
          }
       }
 

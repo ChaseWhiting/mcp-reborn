@@ -1,8 +1,11 @@
 package net.minecraft.network.play.server;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.network.play.IClientPlayNetHandler;
+import net.minecraft.network.INetHandler;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.IServerPlayNetHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.level.GameEvent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -10,10 +13,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.io.IOException;
 
-public class SPlayGameEventPacket implements IPacket<IClientPlayNetHandler> {
-   private GameEvent type;
-   private BlockPos pos;
-   private int data;
+public class SPlayGameEventPacket implements IPacket<INetHandler> {
+   public  GameEvent type;
+   public BlockPos pos;
+   public int data;
    private boolean globalEvent;
 
    public SPlayGameEventPacket() {
@@ -40,8 +43,12 @@ public class SPlayGameEventPacket implements IPacket<IClientPlayNetHandler> {
       p_148840_1_.writeBoolean(this.globalEvent);
    }
 
-   public void handle(IClientPlayNetHandler p_148833_1_) {
-      p_148833_1_.handleGameEvent(this);
+   public void handle(INetHandler handler) {
+      if (handler instanceof IClientPlayNetHandler) {
+         ((IClientPlayNetHandler)handler).handleGameEvent(this);
+      } else if (handler instanceof IServerPlayNetHandler) {
+         ((IServerPlayNetHandler)handler).handleGameEvent(this);
+      }
    }
 
    @OnlyIn(Dist.CLIENT)

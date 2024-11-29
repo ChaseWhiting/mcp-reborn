@@ -2,20 +2,8 @@ package net.minecraft.dispenser;
 
 import java.util.List;
 import java.util.Random;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.BeehiveBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CampfireBlock;
-import net.minecraft.block.CarvedPumpkinBlock;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.IBucketPickupHandler;
-import net.minecraft.block.RespawnAnchorBlock;
-import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.block.SkullBlock;
-import net.minecraft.block.TNTBlock;
-import net.minecraft.block.WitherSkeletonSkullBlock;
+
+import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IEquipable;
@@ -519,6 +507,16 @@ public interface IDispenseItemBehavior {
             } else {
                this.setSuccess(ArmorItem.dispenseArmor(p_82487_1_, p_82487_2_));
             }
+
+            return p_82487_2_;
+         }
+      });
+      DispenserBlock.registerBehavior(Blocks.WHITE_CARVED_PUMPKIN, new OptionalDispenseBehavior() {
+         protected ItemStack execute(IBlockSource p_82487_1_, ItemStack p_82487_2_) {
+            World world = p_82487_1_.getLevel();
+            BlockPos blockpos = p_82487_1_.getPos().relative(p_82487_1_.getBlockState().getValue(DispenserBlock.FACING));
+           WhiteCarvedPumpkinBlock carvedpumpkinblock = (WhiteCarvedPumpkinBlock) Blocks.CARVED_PUMPKIN;
+               this.setSuccess(ArmorItem.dispenseArmor(p_82487_1_, p_82487_2_));
 
             return p_82487_2_;
          }

@@ -17,7 +17,7 @@ public class LocateBiomeCommand {
    public static final DynamicCommandExceptionType ERROR_INVALID_BIOME = new DynamicCommandExceptionType((p_241052_0_) -> {
       return new TranslationTextComponent("commands.locatebiome.invalid", p_241052_0_);
    });
-   private static final DynamicCommandExceptionType ERROR_BIOME_NOT_FOUND = new DynamicCommandExceptionType((p_241050_0_) -> {
+   public static final DynamicCommandExceptionType ERROR_BIOME_NOT_FOUND = new DynamicCommandExceptionType((p_241050_0_) -> {
       return new TranslationTextComponent("commands.locatebiome.notFound", p_241050_0_);
    });
 

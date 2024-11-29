@@ -404,6 +404,9 @@ public abstract class PlayerList {
       p_232644_1_.getLevel().removePlayerImmediately(p_232644_1_);
       BlockPos blockpos = p_232644_1_.getRespawnPosition();
       float f = p_232644_1_.getRespawnAngle();
+      if (!Float.isFinite(f)) {
+         f = 0.0f;
+      }
       boolean flag = p_232644_1_.isRespawnForced();
       ServerWorld serverworld = this.server.getLevel(p_232644_1_.getRespawnDimension());
       Optional<Vector3d> optional;

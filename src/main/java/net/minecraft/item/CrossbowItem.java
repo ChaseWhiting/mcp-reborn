@@ -57,17 +57,17 @@ public class CrossbowItem extends ShootableItem implements IVanishable, ICrossbo
       return ARROW_OR_BONE_ARROW;
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
       if (isCharged(itemstack)) {
-         performShooting(p_77659_1_, p_77659_2_, p_77659_3_, itemstack, getShootingPower(itemstack), 1.0F);
+         performShooting(world, player, hand, itemstack, getShootingPower(itemstack), 1.0F);
          setCharged(itemstack, false);
          return ActionResult.consume(itemstack);
-      } else if (!p_77659_2_.getProjectile(itemstack).isEmpty()) {
+      } else if (!player.getProjectile(itemstack).isEmpty()) {
          if (!isCharged(itemstack)) {
             this.startSoundPlayed = false;
             this.midLoadSoundPlayed = false;
-            p_77659_2_.startUsingItem(p_77659_3_);
+            player.startUsingItem(hand);
          }
 
          return ActionResult.consume(itemstack);

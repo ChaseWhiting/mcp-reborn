@@ -79,8 +79,8 @@ public class PotionItem extends Item {
       return UseAction.DRINK;
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      return DrinkHelper.useDrink(p_77659_1_, p_77659_2_, p_77659_3_);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      return DrinkHelper.useDrink(world, player, hand);
    }
 
    public String getDescriptionId(ItemStack p_77667_1_) {

@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.animation.AnimationState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntitySize;
@@ -26,6 +27,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.ResetAngerGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -62,13 +64,20 @@ public class EndermanEntity extends Monster implements IAngerable {
    private static final DataParameter<Optional<BlockState>> DATA_CARRY_STATE = EntityDataManager.defineId(EndermanEntity.class, DataSerializers.BLOCK_STATE);
    private static final DataParameter<Boolean> DATA_CREEPY = EntityDataManager.defineId(EndermanEntity.class, DataSerializers.BOOLEAN);
    private static final DataParameter<Boolean> DATA_STARED_AT = EntityDataManager.defineId(EndermanEntity.class, DataSerializers.BOOLEAN);
+   private static final DataParameter<Integer> ATTACKING_TICKS = EntityDataManager.defineId(EndermanEntity.class, DataSerializers.INT);
+   private static final DataParameter<Integer> HURT_TICKS = EntityDataManager.defineId(EndermanEntity.class, DataSerializers.INT);
+
    private static final Predicate<LivingEntity> ENDERMITE_SELECTOR = (p_213626_0_) -> {
-      return p_213626_0_ instanceof EndermiteEntity && ((EndermiteEntity)p_213626_0_).isPlayerSpawned();
+      return p_213626_0_ instanceof EndermiteEntity;
    };
    private int lastStareSound = Integer.MIN_VALUE;
    private int targetChangeTime;
    private static final RangedInteger PERSISTENT_ANGER_TIME = TickRangeConverter.rangeOfSeconds(20, 39);
    private int remainingPersistentAngerTime;
+   public AnimationState holdingBlockState = new AnimationState();
+   public AnimationState attackState = new AnimationState();
+   public AnimationState hurtState = new AnimationState();
+
    private UUID persistentAngerTarget;
 
    public EndermanEntity(EntityType<? extends EndermanEntity> p_i50210_1_, World p_i50210_2_) {
@@ -130,6 +139,26 @@ public class EndermanEntity extends Monster implements IAngerable {
       this.entityData.define(DATA_CARRY_STATE, Optional.empty());
       this.entityData.define(DATA_CREEPY, false);
       this.entityData.define(DATA_STARED_AT, false);
+      this.entityData.define(ATTACKING_TICKS, 0);
+      this.entityData.define(HURT_TICKS, 0);
+
+
+   }
+
+   public void setAttackTicks(int time) {
+      this.entityData.set(ATTACKING_TICKS, time);
+   }
+
+   public int getAttackTicks() {
+      return this.entityData.get(ATTACKING_TICKS);
+   }
+
+   public void setHurtTicks(int time) {
+      this.entityData.set(HURT_TICKS, time);
+   }
+
+   public int getHurtTicks() {
+      return this.entityData.get(HURT_TICKS);
    }
 
    public void startPersistentAngerTimer() {
@@ -214,7 +243,7 @@ public class EndermanEntity extends Monster implements IAngerable {
 
    private boolean isLookingAtMe(PlayerEntity p_70821_1_) {
       ItemStack itemstack = p_70821_1_.inventory.armor.get(3);
-      if (itemstack.getItem() == Blocks.CARVED_PUMPKIN.asItem()) {
+      if (itemstack.getItem() == Blocks.CARVED_PUMPKIN.asItem() || itemstack.getItem() == Blocks.WHITE_CARVED_PUMPKIN.asItem()) {
          return false;
       } else {
          Vector3d vector3d = p_70821_1_.getViewVector(1.0F).normalize();
@@ -588,5 +617,30 @@ public class EndermanEntity extends Monster implements IAngerable {
          }
 
       }
+   }
+
+   public void tick() {
+      super.tick();
+      if (this.getAttackTicks() > 0) {
+         this.setAttackTicks(this.getAttackTicks() - 1);
+      }
+      if (this.hurtTime > 0) {
+         this.setHurtTicks(this.hurtTime);
+      }
+//      if (this.getHurtTicks() > 0) {
+//         this.setHurtTicks(this.getHurtTicks() - 1);
+//      }
+      if (this.level.isClientSide) setupAnimations();
+   }
+
+   public void setupAnimations() {
+      this.holdingBlockState.animateWhen(this.getCarriedBlock() != null, this.tickCount);
+      this.attackState.animateWhen(this.getAttackTicks() > 0, this.tickCount);
+      this.hurtState.animateWhen(this.getHurtTicks() > 0, this.tickCount);
+   }
+
+   public boolean doHurtTarget(Entity entity) {
+      this.setAttackTicks(8);
+      return super.doHurtTarget(entity);
    }
 }

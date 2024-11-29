@@ -367,7 +367,7 @@ public class GildedRavagerEntity extends AbstractRaiderEntity {
 
    class AttackGoal extends MeleeAttackGoal {
       public AttackGoal() {
-         super(GildedRavagerEntity.this, 1.0D, true);
+         super(GildedRavagerEntity.this, 0.75D, true);
       }
 
       protected double getAttackReachSqr(LivingEntity p_179512_1_) {

@@ -62,9 +62,9 @@
         {
             "predicate": {
                 "charged": 1,
-                "diamond_arrow": 1
+                "arrow": 1
             },
-            "model": "item/diamond_crossbow_diamond_arrow"
+            "model": "item/diamond_crossbow_arrow"
         }
     ]
 }

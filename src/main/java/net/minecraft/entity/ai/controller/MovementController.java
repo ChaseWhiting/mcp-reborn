@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.pathfinding.NodeProcessor;
 import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.potion.Effects;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -61,6 +62,8 @@ public class MovementController {
    }
 
    public void strafe(float strafeForwards, float strafeRight) {
+      if (mob.hasEffect(Effects.CONFUSED)) return;
+
       this.operation = MovementController.Action.STRAFE;
       this.strafeForwards = strafeForwards;
       this.strafeRight = strafeRight;

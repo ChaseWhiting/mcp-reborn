@@ -14,9 +14,7 @@ public enum Difficulty {
    NORMAL(2, "normal"),
    HARD(3, "hard");
 
-   private static final Difficulty[] BY_ID = Arrays.stream(values()).sorted(Comparator.comparingInt(Difficulty::getId)).toArray((p_199928_0_) -> {
-      return new Difficulty[p_199928_0_];
-   });
+   private static final Difficulty[] BY_ID = Arrays.stream(values()).sorted(Comparator.comparingInt(Difficulty::getId)).toArray(Difficulty[]::new);
    private final int id;
    private final String key;
 

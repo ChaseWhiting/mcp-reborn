@@ -1,6 +1,8 @@
 package net.minecraft.entity.monster;
 
 import java.util.EnumSet;
+
+import net.minecraft.client.animation.AnimationState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -20,6 +22,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
@@ -33,6 +36,9 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
    private float allowedHeightOffset = 0.5F;
    private int nextHeightOffsetChangeTick;
    private static final DataParameter<Byte> DATA_FLAGS_ID = EntityDataManager.defineId(BlazeEntity.class, DataSerializers.BYTE);
+   private static final DataParameter<Boolean> IS_DYING = EntityDataManager.defineId(BlazeEntity.class, DataSerializers.BOOLEAN);
+
+   public final AnimationState deathAnimationState = new AnimationState();
 
    public BlazeEntity(EntityType<? extends BlazeEntity> p_i50215_1_, World p_i50215_2_) {
       super(p_i50215_1_, p_i50215_2_);
@@ -65,6 +71,11 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
    protected void defineSynchedData() {
       super.defineSynchedData();
       this.entityData.define(DATA_FLAGS_ID, (byte)0);
+      this.entityData.define(IS_DYING, false);
+   }
+
+   public boolean isDying() {
+      return this.entityData.get(IS_DYING);
    }
 
    @Override
@@ -86,6 +97,31 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
 
    public float getBrightness() {
       return 1.0F;
+   }
+
+   public void tick() {
+      super.tick();
+
+
+      this.entityData.set(IS_DYING, this.deathTime > 0);
+
+   }
+
+
+   protected void tickDeath() {
+      ++this.deathTime;
+      this.deathAnimationState.animateWhen(this.isDying(), this.tickCount);
+      if (this.deathTime == 35) {
+         this.remove();
+
+         for (int i = 0; i < 20; ++i) {
+            double d0 = this.random.nextGaussian() * 0.02D;
+            double d1 = this.random.nextGaussian() * 0.02D;
+            double d2 = this.random.nextGaussian() * 0.02D;
+            this.level.addParticle(ParticleTypes.POOF, this.getRandomX(1.0D), this.getRandomY(), this.getRandomZ(1.0D), d0, d1, d2);
+         }
+      }
+
    }
 
    public void aiStep() {
@@ -119,7 +155,12 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
       --this.nextHeightOffsetChangeTick;
       if (this.nextHeightOffsetChangeTick <= 0) {
          this.nextHeightOffsetChangeTick = 100;
-         this.allowedHeightOffset = 0.5F + (float)this.random.nextGaussian() * 3.0F;
+         if (veryHardmode()) {
+            this.allowedHeightOffset = 1F + (float)this.random.nextGaussian() * 6.0F;
+         } else {
+            this.allowedHeightOffset = 0.5F + (float)this.random.nextGaussian() * 3.0F;
+
+         }
       }
 
       LivingEntity livingentity = this.getTarget();
@@ -167,6 +208,8 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
       }
 
       public boolean canUse() {
+         if (this.blaze.hasEffect(Effects.CONFUSED)) return false;
+
          LivingEntity livingentity = this.blaze.getTarget();
          return livingentity != null && livingentity.isAlive() && this.blaze.canAttack(livingentity);
       }
@@ -207,15 +250,28 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
                double d1 = livingentity.getX() - this.blaze.getX();
                double d2 = livingentity.getY(0.5D) - this.blaze.getY(0.5D);
                double d3 = livingentity.getZ() - this.blaze.getZ();
+               boolean hard = this.blaze.veryHardmode();
                if (this.attackTime <= 0) {
                   ++this.attackStep;
                   if (this.attackStep == 1) {
-                     this.attackTime = 60;
+                     if (hard) {
+                        this.attackTime = 40;
+                     } else {
+                        this.attackTime = 60;
+                     }
                      this.blaze.setCharged(true);
-                  } else if (this.attackStep <= 4) {
-                     this.attackTime = 6;
+                  } else if (hard ? this.attackStep <= 6 : this.attackStep <= 4) {
+                     if (hard) {
+                        this.attackTime = 4;
+                     } else {
+                        this.attackTime = 6;
+                     }
                   } else {
-                     this.attackTime = 100;
+                     if (hard) {
+                        this.attackTime = 60;
+                     } else {
+                        this.attackTime = 100;
+                     }
                      this.attackStep = 0;
                      this.blaze.setCharged(false);
                   }

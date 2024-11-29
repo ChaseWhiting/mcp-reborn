@@ -32,6 +32,8 @@ public class ParticleTypes {
    public static final BasicParticleType EXPLOSION = register("explosion", true);
    public static final ParticleType<BlockParticleData> FALLING_DUST = register("falling_dust", BlockParticleData.DESERIALIZER, BlockParticleData::codec);
    public static final BasicParticleType FIREWORK = register("firework", false);
+   public static final BasicParticleType PALE_OAK_LEAVES = register("pale_oak_leaves", false);
+
    public static final BasicParticleType FISHING = register("fishing", false);
    public static final BasicParticleType FLAME = register("flame", false);
    public static final BasicParticleType SOUL_FIRE_FLAME = register("soul_fire_flame", false);

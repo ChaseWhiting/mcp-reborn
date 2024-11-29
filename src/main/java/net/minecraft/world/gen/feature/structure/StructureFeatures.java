@@ -46,6 +46,11 @@ public class StructureFeatures {
    public static final StructureFeature<VillageConfig, ? extends Structure<VillageConfig>> VILLAGE_TAIGA = register("village_taiga", Structure.VILLAGE.configured(new VillageConfig(() -> {
       return TaigaVillagePools.START;
    }, 6)));
+   public static final PaleVIllageConfig config = new PaleVIllageConfig(() -> {
+
+      return PaleVillagePools.START;
+   }, 7);
+   public static final StructureFeature<VillageConfig, ? extends Structure<VillageConfig>> VILLAGE_PALE = register("village_pale", Structure.PALE_VILLAGE.configured(config));
    public static final StructureFeature<RuinedPortalFeature, ? extends Structure<RuinedPortalFeature>> RUINED_PORTAL_STANDARD = register("ruined_portal", Structure.RUINED_PORTAL.configured(new RuinedPortalFeature(RuinedPortalStructure.Location.STANDARD)));
    public static final StructureFeature<RuinedPortalFeature, ? extends Structure<RuinedPortalFeature>> RUINED_PORTAL_DESERT = register("ruined_portal_desert", Structure.RUINED_PORTAL.configured(new RuinedPortalFeature(RuinedPortalStructure.Location.DESERT)));
    public static final StructureFeature<RuinedPortalFeature, ? extends Structure<RuinedPortalFeature>> RUINED_PORTAL_JUNGLE = register("ruined_portal_jungle", Structure.RUINED_PORTAL.configured(new RuinedPortalFeature(RuinedPortalStructure.Location.JUNGLE)));

@@ -28,6 +28,10 @@ public class DefaultBiomeFeatures {
       p_243738_0_.addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.CANYON);
    }
 
+   public static void addPaleGardenCarvers(BiomeGenerationSettings.Builder p_243738_0_) {
+      p_243738_0_.addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.PALE_GARDEN_CAVE);
+   }
+
    public static void addOceanCarvers(BiomeGenerationSettings.Builder p_243740_0_) {
       p_243740_0_.addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.OCEAN_CAVE);
       p_243740_0_.addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.CANYON);
@@ -393,6 +397,7 @@ public class DefaultBiomeFeatures {
       p_243735_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SLIME, 100, 4, 4));
       p_243735_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ENDERMAN, 10, 1, 4));
       p_243735_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.WITCH, 5, 1, 1));
+      p_243735_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.CREAKING, 100, 1, 1));
    }
 
    public static void mooshroomSpawns(MobSpawnInfo.Builder p_243745_0_) {

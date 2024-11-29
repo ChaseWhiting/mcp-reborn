@@ -32,6 +32,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.ResetAngerGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TemptGoal;
+import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -150,6 +151,7 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
 
       p_213281_1_.putBoolean("HasNectar", this.hasNectar());
       p_213281_1_.putBoolean("HasStung", this.hasStung());
+      p_213281_1_.putBoolean("FromBeekeeper", this.fromBeeKeeper());
       p_213281_1_.putInt("TicksSincePollination", this.ticksWithoutNectarSinceExitingHive);
       p_213281_1_.putInt("CannotEnterHiveTicks", this.stayOutOfHiveCountdown);
       p_213281_1_.putInt("CropsGrownSincePollination", this.numCropsGrownSincePollination);
@@ -170,6 +172,7 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
       super.readAdditionalSaveData(p_70037_1_);
       this.setHasNectar(p_70037_1_.getBoolean("HasNectar"));
       this.setHasStung(p_70037_1_.getBoolean("HasStung"));
+      this.setFromBeeKeeper(p_70037_1_.getBoolean("FromBeekeeper"));
       this.ticksWithoutNectarSinceExitingHive = p_70037_1_.getInt("TicksSincePollination");
       this.stayOutOfHiveCountdown = p_70037_1_.getInt("CannotEnterHiveTicks");
       this.numCropsGrownSincePollination = p_70037_1_.getInt("CropsGrownSincePollination");
@@ -192,10 +195,24 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
             if (i > 0) {
                ((LivingEntity)p_70652_1_).addEffect(new EffectInstance(Effects.POISON, i * 20, 0));
             }
+
+            if (this.nextFloat() < 0.136F) {
+               int x = 5;
+               if (this.level.getDifficulty() == Difficulty.NORMAL) {
+                  x = 10;
+               } else if (this.level.getDifficulty() == Difficulty.HARD) {
+                  x = 15;
+               }
+
+               ((LivingEntity) p_70652_1_).addEffect(new EffectInstance(Effects.CONFUSED, x * 20, 0));
+            }
          }
 
-         this.setHasStung(true);
-         this.stopBeingAngry();
+         if (!fromBeeKeeper()) {
+            this.setHasStung(true);
+            this.stopBeingAngry();
+         }
+
          this.playSound(SoundEvents.BEE_STING, 1.0F, 1.0F);
       }
 
@@ -300,9 +317,13 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
          this.hurt(DamageSource.DROWN, 1.0F);
       }
 
-      if (flag) {
+      if (flag || fromBeeKeeper()) {
          ++this.timeSinceSting;
-         if (this.timeSinceSting % 5 == 0 && this.random.nextInt(MathHelper.clamp(1200 - this.timeSinceSting, 1, 1200)) == 0) {
+
+         if ((fromBeeKeeper() && this.timeSinceSting >= 10 * 20) || (!fromBeeKeeper() && this.timeSinceSting % 5 == 0 && this.random.nextInt(MathHelper.clamp(1200 - this.timeSinceSting, 1, 1200)) == 0)) {
+            if (fromBeeKeeper()) {
+               this.setInvulnerable(false);
+            }
             this.hurt(DamageSource.GENERIC, this.getHealth());
          }
       }
@@ -413,7 +434,7 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
    }
 
    private boolean isHiveValid() {
-      if (!this.hasHive()) {
+      if (!this.hasHive() || fromBeeKeeper()) {
          return false;
       } else {
          TileEntity tileentity = this.level.getBlockEntity(this.hivePos);
@@ -435,6 +456,14 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
 
    public boolean hasStung() {
       return this.getFlag(4);
+   }
+
+   public boolean fromBeeKeeper() {
+      return this.getFlag(32);
+   }
+
+   public void setFromBeeKeeper(boolean b) {
+      this.setFlag(32, b);
    }
 
    private void setHasStung(boolean p_226449_1_) {
@@ -595,6 +624,37 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
    static class AttackPlayerGoal extends NearestAttackableTargetGoal<PlayerEntity> {
       AttackPlayerGoal(BeeEntity p_i225719_1_) {
          super(p_i225719_1_, PlayerEntity.class, 10, true, false, p_i225719_1_::isAngryAt);
+      }
+
+      public boolean canUse() {
+         return this.beeCanTarget() && super.canUse();
+      }
+
+      public boolean canContinueToUse() {
+         boolean flag = this.beeCanTarget();
+         if (flag && this.mob.getTarget() != null) {
+            return super.canContinueToUse();
+         } else {
+            this.targetMob = null;
+            return false;
+         }
+      }
+
+      private boolean beeCanTarget() {
+         BeeEntity beeentity = (BeeEntity)this.mob;
+         return beeentity.isAngry() && !beeentity.hasStung();
+      }
+   }
+
+   public static class AttackMonstersGoal extends NearestAttackableTargetGoal<Monster> {
+      public AttackMonstersGoal(BeeEntity p_i225719_1_) {
+         super(p_i225719_1_, Monster.class, 10, true, false, monster -> {
+            PlayerEntity player = p_i225719_1_.level.getNearestSurvivalPlayer(p_i225719_1_, 5);
+            if (player != null) {
+               return !p_i225719_1_.isAngryAt(player) && monster != null && monster.as(Monster.class).getTarget() == player;
+            }
+            return false;
+         });
       }
 
       public boolean canUse() {

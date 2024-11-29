@@ -1,0 +1,17 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "zero"
+  },
+  "vertex": "post",
+  "fragment": "subtle_distortion",
+  "attributes": [ "Position" ],
+  "samplers": [
+    { "name": "DiffuseSampler" }
+  ],
+  "uniforms": [
+    { "name": "RadialConvergeX", "type": "float", "count": 3, "values": [ 1.0, 1.01, 1.02 ] },
+    { "name": "RadialConvergeY", "type": "float", "count": 3, "values": [ 1.0, 1.01, 1.02 ] }
+  ]
+}

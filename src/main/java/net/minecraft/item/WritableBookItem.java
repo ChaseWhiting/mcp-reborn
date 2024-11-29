@@ -30,11 +30,11 @@ public class WritableBookItem extends Item {
       }
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-      p_77659_2_.openItemGui(itemstack, p_77659_3_);
-      p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
-      return ActionResult.sidedSuccess(itemstack, p_77659_1_.isClientSide());
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      player.openItemGui(itemstack, hand);
+      player.awardStat(Stats.ITEM_USED.get(this));
+      return ActionResult.sidedSuccess(itemstack, world.isClientSide());
    }
 
    public static boolean makeSureTagIsValid(@Nullable CompoundNBT p_150930_0_) {

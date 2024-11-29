@@ -18,8 +18,13 @@ public class Effects {
    public static final Effect HEAL = register(6, "instant_health", new InstantEffect(EffectType.BENEFICIAL, 16262179));
    public static final Effect HARM = register(7, "instant_damage", new InstantEffect(EffectType.HARMFUL, 4393481));
    public static final Effect JUMP = register(8, "jump_boost", new Effect(EffectType.BENEFICIAL, 2293580));
+   public static final Effect GRAVITATION = register(36, "gravitation", new Effect(EffectType.BENEFICIAL, 2293580));
+
    public static final Effect CONFUSION = register(9, "nausea", new Effect(EffectType.HARMFUL, 5578058));
+   public static final Effect CONFUSED = register(35, "confused", new Effect(EffectType.HARMFUL, 5578058));
+
    public static final Effect REGENERATION = register(10, "regeneration", new Effect(EffectType.BENEFICIAL, 13458603));
+   public static final Effect HONEY = register(34, "honey", new Effect(EffectType.BENEFICIAL, 9643043));
    public static final Effect DAMAGE_RESISTANCE = register(11, "resistance", new Effect(EffectType.BENEFICIAL, 10044730));
    public static final Effect FIRE_RESISTANCE = register(12, "fire_resistance", new Effect(EffectType.BENEFICIAL, 14981690));
    public static final Effect WATER_BREATHING = register(13, "water_breathing", new Effect(EffectType.BENEFICIAL, 3035801));
@@ -30,6 +35,7 @@ public class Effects {
    public static final Effect WEAKNESS = register(18, "weakness", (new AttackDamageEffect(EffectType.HARMFUL, 4738376, -4.0D)).addAttributeModifier(Attributes.ATTACK_DAMAGE, "22653B89-116E-49DC-9B6B-9971489B5BE5", 0.0D, AttributeModifier.Operation.ADDITION));
    public static final Effect POISON = register(19, "poison", new Effect(EffectType.HARMFUL, 5149489));
    public static final Effect WITHER = register(20, "wither", new Effect(EffectType.HARMFUL, 3484199));
+   public static final Effect ROOTED = register(33, "rooted", new Effect(EffectType.HARMFUL, 817770));
    public static final Effect HEALTH_BOOST = register(21, "health_boost", (new HealthBoostEffect(EffectType.BENEFICIAL, 16284963)).addAttributeModifier(Attributes.MAX_HEALTH, "5D6F0BA2-1186-46AC-B896-C61C5CEE99CC", 4.0D, AttributeModifier.Operation.ADDITION));
    public static final Effect ABSORPTION = register(22, "absorption", new AbsorptionEffect(EffectType.BENEFICIAL, 2445989));
    public static final Effect SATURATION = register(23, "saturation", new InstantEffect(EffectType.BENEFICIAL, 16262179));

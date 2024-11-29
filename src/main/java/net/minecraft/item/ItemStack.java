@@ -117,8 +117,8 @@ public final class ItemStack {
       return this.getItem().hasCustomScrollBehaviour();
    }
 
-   public void onScroll(PlayerEntity player, ItemStack scrollItem, int scrollDirection) {
-      this.getItem().onScroll(player,scrollItem,scrollDirection);
+   public boolean onScroll(PlayerEntity player, ItemStack scrollItem, int scrollDirection) {
+      return this.getItem().onScroll(player,scrollItem,scrollDirection);
    }
 
    public ItemStack(IItemProvider p_i48203_1_) {

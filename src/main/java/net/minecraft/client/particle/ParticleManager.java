@@ -109,6 +109,7 @@ public class ParticleManager implements IFutureReloadListener {
       this.register(ParticleTypes.EXPLOSION_EMITTER, new HugeExplosionParticle.Factory());
       this.register(ParticleTypes.EXPLOSION, LargeExplosionParticle.Factory::new);
       this.register(ParticleTypes.FALLING_DUST, FallingDustParticle.Factory::new);
+      this.register(ParticleTypes.PALE_OAK_LEAVES, FallingLeavesParticle.PaleOakProvider::new);
       this.register(ParticleTypes.FIREWORK, FireworkParticle.SparkFactory::new);
       this.register(ParticleTypes.FISHING, WaterWakeParticle.Factory::new);
       this.register(ParticleTypes.FLAME, FlameParticle.Factory::new);
@@ -150,6 +151,7 @@ public class ParticleManager implements IFutureReloadListener {
       this.register(ParticleTypes.LANDING_OBSIDIAN_TEAR, DripParticle.LandingObsidianTearFactory::new);
       this.register(ParticleTypes.REVERSE_PORTAL, ReversePortalParticle.Factory::new);
       this.register(ParticleTypes.WHITE_ASH, WhiteAshParticle.Factory::new);
+
    }
 
    private <T extends IParticleData> void register(ParticleType<T> p_199283_1_, IParticleFactory<T> p_199283_2_) {

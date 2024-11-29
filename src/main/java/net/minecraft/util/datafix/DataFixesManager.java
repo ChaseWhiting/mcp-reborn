@@ -351,9 +351,6 @@ public class DataFixesManager {
       datafixer.addFixer(new SwapHandsFix(schema123, false, "Rename swapHands setting", "key_key.swapHands", "key_key.swapOffhand"));
       Schema schema124 = datafixer.addSchema(2568, V2568::new);
       datafixer.addFixer(new AddNewChoices(schema124, "Added Piglin Brute", TypeReferences.ENTITY));
-      Schema schema125 = datafixer.addSchema(2569, V2569::new);
-      datafixer.addFixer(new AddRaccoonDataFix(schema125, false));
-      datafixer.addFixer(new AddNewChoices(schema125, "Added Raccoon", TypeReferences.ENTITY));
       Schema schema126 = datafixer.addSchema(2570, V2570::new);
       datafixer.addFixer(new AddOwlDataFix(schema126, false));
       datafixer.addFixer(new AddNewChoices(schema126, "Added Owl", TypeReferences.ENTITY));

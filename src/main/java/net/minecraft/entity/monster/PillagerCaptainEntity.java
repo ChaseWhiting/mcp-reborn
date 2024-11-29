@@ -36,6 +36,11 @@ public class PillagerCaptainEntity extends PillagerEntity implements ICrossbowUs
         this.xpReward = 10;
     }
 
+    @Override
+    public float getCreakingRunDistance() {
+        return 2f;
+    }
+
     @OnlyIn(Dist.CLIENT)
     public boolean isChargingCrossbow() {
         return this.entityData.get(IS_CHARGING_CROSSBOW);

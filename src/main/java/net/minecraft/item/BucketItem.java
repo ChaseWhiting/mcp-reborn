@@ -41,9 +41,9 @@ public class BucketItem extends Item {
       return this.content == Fluids.EMPTY ? 4 : 16;
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-      RayTraceResult raytraceresult = getPlayerPOVHitResult(p_77659_1_, p_77659_2_, this.content == Fluids.EMPTY ? RayTraceContext.FluidMode.SOURCE_ONLY : RayTraceContext.FluidMode.NONE);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      RayTraceResult raytraceresult = getPlayerPOVHitResult(world, player, this.content == Fluids.EMPTY ? RayTraceContext.FluidMode.SOURCE_ONLY : RayTraceContext.FluidMode.NONE);
       if (raytraceresult.getType() == RayTraceResult.Type.MISS) {
          return ActionResult.pass(itemstack);
       } else if (raytraceresult.getType() != RayTraceResult.Type.BLOCK) {
@@ -53,35 +53,35 @@ public class BucketItem extends Item {
          BlockPos blockpos = blockraytraceresult.getBlockPos();
          Direction direction = blockraytraceresult.getDirection();
          BlockPos blockpos1 = blockpos.relative(direction);
-         if (p_77659_1_.mayInteract(p_77659_2_, blockpos) && p_77659_2_.mayUseItemAt(blockpos1, direction, itemstack)) {
+         if (world.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos1, direction, itemstack)) {
             if (this.content == Fluids.EMPTY) {
-               BlockState blockstate1 = p_77659_1_.getBlockState(blockpos);
+               BlockState blockstate1 = world.getBlockState(blockpos);
                if (blockstate1.getBlock() instanceof IBucketPickupHandler) {
-                  Fluid fluid = ((IBucketPickupHandler)blockstate1.getBlock()).takeLiquid(p_77659_1_, blockpos, blockstate1);
+                  Fluid fluid = ((IBucketPickupHandler)blockstate1.getBlock()).takeLiquid(world, blockpos, blockstate1);
                   if (fluid != Fluids.EMPTY) {
-                     p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
-                     p_77659_2_.playSound(fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
-                     ItemStack itemstack1 = DrinkHelper.createFilledResult(itemstack, p_77659_2_, new ItemStack(fluid.getBucket()));
-                     if (!p_77659_1_.isClientSide) {
-                        CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayerEntity)p_77659_2_, new ItemStack(fluid.getBucket()));
+                     player.awardStat(Stats.ITEM_USED.get(this));
+                     player.playSound(fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
+                     ItemStack itemstack1 = DrinkHelper.createFilledResult(itemstack, player, new ItemStack(fluid.getBucket()));
+                     if (!world.isClientSide) {
+                        CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayerEntity) player, new ItemStack(fluid.getBucket()));
                      }
 
-                     return ActionResult.sidedSuccess(itemstack1, p_77659_1_.isClientSide());
+                     return ActionResult.sidedSuccess(itemstack1, world.isClientSide());
                   }
                }
 
                return ActionResult.fail(itemstack);
             } else {
-               BlockState blockstate = p_77659_1_.getBlockState(blockpos);
+               BlockState blockstate = world.getBlockState(blockpos);
                BlockPos blockpos2 = blockstate.getBlock() instanceof ILiquidContainer && this.content == Fluids.WATER ? blockpos : blockpos1;
-               if (this.emptyBucket(p_77659_2_, p_77659_1_, blockpos2, blockraytraceresult)) {
-                  this.checkExtraContent(p_77659_1_, itemstack, blockpos2);
-                  if (p_77659_2_ instanceof ServerPlayerEntity) {
-                     CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayerEntity)p_77659_2_, blockpos2, itemstack);
+               if (this.emptyBucket(player, world, blockpos2, blockraytraceresult)) {
+                  this.checkExtraContent(world, itemstack, blockpos2);
+                  if (player instanceof ServerPlayerEntity) {
+                     CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayerEntity) player, blockpos2, itemstack);
                   }
 
-                  p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
-                  return ActionResult.sidedSuccess(this.getEmptySuccessItem(itemstack, p_77659_2_), p_77659_1_.isClientSide());
+                  player.awardStat(Stats.ITEM_USED.get(this));
+                  return ActionResult.sidedSuccess(this.getEmptySuccessItem(itemstack, player), world.isClientSide());
                } else {
                   return ActionResult.fail(itemstack);
                }

@@ -30,12 +30,18 @@ public class ModelRenderer {
    public float xRot;
    public float yRot;
    public float zRot;
+
+   public float temporaryX = 0f;
+   public float temporaryY = 0f;
+   public float temporaryZ = 0f;
+
+
    public boolean mirror;
    public boolean visible = true;
    private String name;
    private final ObjectList<ModelRenderer.ModelBox> cubes = new ObjectArrayList<>();
    public final ObjectList<ModelRenderer> children = new ObjectArrayList<>();
-   private static float scaleX = 1.0F,scaleY = 1.0F, scaleZ = 1.0F;
+   private float tempXScale = 0F, tempYScale = 0F, tempZScale = 0F;
 
    public ModelRenderer(Model p_i1173_1_) {
       p_i1173_1_.accept(this);
@@ -51,7 +57,10 @@ public class ModelRenderer {
       this.xRot = 0;
       this.yRot = 0;
       this.zRot = 0;
-     // this.children.forEach(model -> reset());
+      this.applyScale(new Vector3f(0, 0, 0));
+      temporaryX = 0f;
+      temporaryY = 0f;
+      temporaryZ = 0f;
    }
 
    public ModelRenderer(int p_i225949_1_, int p_i225949_2_, int p_i225949_3_, int p_i225949_4_) {
@@ -88,9 +97,9 @@ public class ModelRenderer {
    }
 
    public void applyScale(Vector3f scale) {
-      this.scaleX = scale.x();
-      this.scaleY = scale.y();
-      this.scaleZ = scale.z();
+      this.tempXScale = scale.x();
+      this.tempYScale = scale.y();
+      this.tempZScale = scale.z();
    }
 
    public void copyFrom(ModelRenderer p_217177_1_) {
@@ -163,36 +172,44 @@ public class ModelRenderer {
       this.render(matrixStack, vertexBuilder, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
    }
 
-   public void render(MatrixStack p_228309_1_, IVertexBuilder p_228309_2_, int p_228309_3_, int p_228309_4_, float p_228309_5_, float p_228309_6_, float p_228309_7_, float p_228309_8_) {
+   public void render(MatrixStack matrixStack, IVertexBuilder p_228309_2_, int p_228309_3_, int p_228309_4_, float p_228309_5_, float p_228309_6_, float p_228309_7_, float p_228309_8_) {
       if (this.visible) {
          if (!this.cubes.isEmpty() || !this.children.isEmpty()) {
-            p_228309_1_.pushPose();
-            this.translateAndRotate(p_228309_1_);
-            this.compile(p_228309_1_.last(), p_228309_2_, p_228309_3_, p_228309_4_, p_228309_5_, p_228309_6_, p_228309_7_, p_228309_8_);
+            matrixStack.pushPose();
+            this.translateAndRotate(matrixStack);
+            this.scaleApply(matrixStack);
+            this.compile(matrixStack.last(), p_228309_2_, p_228309_3_, p_228309_4_, p_228309_5_, p_228309_6_, p_228309_7_, p_228309_8_);
 
             for(ModelRenderer modelrenderer : this.children) {
-               modelrenderer.render(p_228309_1_, p_228309_2_, p_228309_3_, p_228309_4_, p_228309_5_, p_228309_6_, p_228309_7_, p_228309_8_);
+               modelrenderer.render(matrixStack, p_228309_2_, p_228309_3_, p_228309_4_, p_228309_5_, p_228309_6_, p_228309_7_, p_228309_8_);
             }
 
-            p_228309_1_.popPose();
+            matrixStack.popPose();
          }
       }
    }
 
+   public void scaleApply(MatrixStack stack) {
+         stack.scale(1 + this.tempXScale, 1 + this.tempYScale, 1 + this.tempZScale);
+   }
+
    public void translateAndRotate(MatrixStack p_228307_1_) {
-      p_228307_1_.translate((double)(this.x / 16.0F), (double)(this.y / 16.0F), (double)(this.z / 16.0F));
+      // Apply the temporary offsets without modifying the actual x, y, and z values
+      p_228307_1_.translate(
+              (double)((this.x + this.temporaryX) / 16.0F),
+              (double)((this.y + this.temporaryY) / 16.0F),
+              (double)((this.z + this.temporaryZ) / 16.0F)
+      );
+
       if (this.zRot != 0.0F) {
          p_228307_1_.mulPose(Vector3f.ZP.rotation(this.zRot));
       }
-
       if (this.yRot != 0.0F) {
          p_228307_1_.mulPose(Vector3f.YP.rotation(this.yRot));
       }
-
       if (this.xRot != 0.0F) {
          p_228307_1_.mulPose(Vector3f.XP.rotation(this.xRot));
       }
-
    }
 
    private void compile(MatrixStack.Entry p_228306_1_, IVertexBuilder p_228306_2_, int p_228306_3_, int p_228306_4_, float p_228306_5_, float p_228306_6_, float p_228306_7_, float p_228306_8_) {

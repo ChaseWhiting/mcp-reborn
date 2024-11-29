@@ -119,8 +119,8 @@ public class GLX {
       capsString = "Using framebuffer using " + GlStateManager._init_fbo(glcapabilities);
 
       try {
-         Processor[] aprocessor = (new SystemInfo()).getHardware().getProcessors();
-         cpuInfo = String.format("%dx %s", aprocessor.length, aprocessor[0]).replaceAll("\\s+", " ");
+         //Processor[] aprocessor = (new SystemInfo()).getHardware().getProcessors();
+        // cpuInfo = String.format("%dx %s", aprocessor.length, aprocessor[0]).replaceAll("\\s+", " ");
       } catch (Throwable throwable) {
       }
 

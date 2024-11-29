@@ -27,6 +27,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.server.ServerWorld;
 
 public class PiglinMobsSensor extends Sensor<LivingEntity> {
@@ -85,7 +86,7 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
             }
          } else if (livingentity instanceof PlayerEntity) {
             PlayerEntity playerentity = (PlayerEntity)livingentity;
-            if (!optional5.isPresent() && EntityPredicates.ATTACK_ALLOWED.test(livingentity) && !PiglinTasks.isWearingGold(playerentity)) {
+            if (!optional5.isPresent() && EntityPredicates.ATTACK_ALLOWED.test(livingentity) && !PiglinTasks.isWearingGold(playerentity) || p_212872_1_.getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
 
                optional5 = Optional.of(playerentity);
             }

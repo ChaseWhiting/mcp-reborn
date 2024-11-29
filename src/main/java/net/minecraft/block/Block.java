@@ -81,6 +81,7 @@ public class Block extends AbstractBlock implements IItemProvider {
       return blockstate == null ? Blocks.AIR.defaultBlockState() : blockstate;
    }
 
+
    public static Block byItem(@Nullable Item p_149634_0_) {
       return p_149634_0_ instanceof BlockItem ? ((BlockItem)p_149634_0_).getBlock() : Blocks.AIR;
    }
@@ -146,7 +147,7 @@ public class Block extends AbstractBlock implements IItemProvider {
    }
 
    public static boolean isExceptionForConnection(Block p_220073_0_) {
-      return p_220073_0_ instanceof LeavesBlock || p_220073_0_ == Blocks.BARRIER || p_220073_0_ == Blocks.CARVED_PUMPKIN || p_220073_0_ == Blocks.JACK_O_LANTERN || p_220073_0_ == Blocks.MELON || p_220073_0_ == Blocks.PUMPKIN || p_220073_0_.is(BlockTags.SHULKER_BOXES);
+      return p_220073_0_ instanceof LeavesBlock || p_220073_0_ == Blocks.BARRIER || p_220073_0_ == Blocks.CARVED_PUMPKIN || p_220073_0_ == Blocks.WHITE_CARVED_PUMPKIN || p_220073_0_ == Blocks.WHITE_JACK_O_LANTERN || p_220073_0_ == Blocks.WHITE_PUMPKIN || p_220073_0_ == Blocks.JACK_O_LANTERN || p_220073_0_ == Blocks.MELON || p_220073_0_ == Blocks.PUMPKIN || p_220073_0_.is(BlockTags.SHULKER_BOXES);
    }
 
    public boolean isRandomlyTicking(BlockState p_149653_1_) {
@@ -298,6 +299,10 @@ public class Block extends AbstractBlock implements IItemProvider {
       p_180657_2_.awardStat(Stats.BLOCK_MINED.get(this));
       p_180657_2_.causeFoodExhaustion(0.005F);
       dropResources(p_180657_4_, p_180657_1_, p_180657_3_, p_180657_5_, p_180657_2_, p_180657_6_);
+
+   if (this == Blocks.PALE_OAK_LOG || this == Blocks.PALE_MOSS_BLOCK || this == Blocks.PALE_OAK_PLANKS || this == Blocks.STRIPPED_PALE_LOG || this == Blocks.WHITE_PUMPKIN || this == Blocks.WHITE_CARVED_PUMPKIN || this == Blocks.WHITE_JACK_O_LANTERN) {
+      popResource(p_180657_1_, p_180657_3_, new ItemStack(this));
+   }
    }
 
    public void setPlacedBy(World p_180633_1_, BlockPos p_180633_2_, BlockState p_180633_3_, @Nullable LivingEntity p_180633_4_, ItemStack p_180633_5_) {

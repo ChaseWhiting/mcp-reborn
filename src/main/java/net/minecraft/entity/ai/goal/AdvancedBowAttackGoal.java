@@ -7,10 +7,10 @@ import net.minecraft.entity.monster.AbstractSkeletonEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.item.BowItem;
+import net.minecraft.item.tool.BowItem;
 import net.minecraft.item.Items;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -30,11 +30,6 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
     private boolean strafingClockwise;
     private boolean strafingBackwards;
     private int strafingTime = -1;
-    private boolean goodLineOfSight = true;
-    private int lineofSightCooldown = 0;
-    private int lineOfSightResetCooldown;
-    private float lastHealthChecked;
-    private BlockPos lastPosition;
 
 
     public AdvancedBowAttackGoal(T p_i47515_1_, double p_i47515_2_, int p_i47515_4_, float p_i47515_5_) {
@@ -46,50 +41,6 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
-    @SuppressWarnings("all")
-    public boolean hasGoodLineOfSight() {
-        LivingEntity livingEntity = this.mob.getTarget();
-        if (livingEntity == null) {
-            goodLineOfSight = false;
-            return goodLineOfSight;
-        }
-
-        if (lineofSightCooldown <= 0) {
-            lineofSightCooldown = 45;
-            lastHealthChecked = livingEntity.getHealth();
-            lastPosition = livingEntity.blockPosition().above();
-        } else {
-            lineofSightCooldown--;
-        }
-
-        boolean monster = shouldAvoidMonsterNearby();
-        boolean blocked = anyBlocked(livingEntity, livingEntity);
-        if (monster || blocked) {
-            goodLineOfSight = false;
-            return goodLineOfSight;
-        }
-
-        // Check if health hasn't changed after 45 ticks
-        if (lineofSightCooldown <= 0 && lastHealthChecked == livingEntity.getHealth()) {
-            // Check if the current position is closer to the mob
-            if (livingEntity.blockPosition().above().distSqr(this.mob.blockPosition()) < lastPosition.distSqr(this.mob.blockPosition())) {
-                // If the target is an Iron Golem or Player entity
-                if (livingEntity instanceof IronGolemEntity || livingEntity instanceof PlayerEntity) {
-                    goodLineOfSight = false;
-                    return goodLineOfSight;
-                }
-            }
-        }
-
-        // Reset cooldown for good line of sight
-        if (lineOfSightResetCooldown > 0) {
-            lineOfSightResetCooldown--;
-            goodLineOfSight = true;
-        }
-
-        return goodLineOfSight;
-    }
-
     public void setMinAttackInterval(int p_189428_1_) {
         this.attackIntervalMin = p_189428_1_;
     }
@@ -99,6 +50,8 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
     }
 
     protected boolean isHoldingBow() {
+        if (mob.hasEffect(Effects.CONFUSED)) return false;
+        
         return this.mob.isHolding(Items.BOW) || this.mob.isHolding(Items.BONE_BOW);
     }
 
@@ -137,7 +90,6 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
 
             // Check if there is a monster too close that should block pathfinding
             boolean avoidMonster = this.shouldAvoidMonsterNearby();
-            boolean goodlineOfSight = !hasGoodLineOfSight();
             // Existing strafing and movement logic for non-Iron Golem targets
             if (!(d0 > (double)this.attackRadiusSqr) && this.seeTime >= 20) {
                 if (!avoidMonster) {
@@ -303,9 +255,6 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
         return canShoot;
     }
 
-    /**
-     * Boolean method that checks for monsters in proximity and determines if we should avoid them.
-     */
     private boolean shouldAvoidMonsterNearby() {
         AxisAlignedBB boundingBox = this.mob.getBoundingBox().inflate(1D);  // Expanding bounding box by 0.85
         List<Monster> nearbyMonsters = this.mob.level.getEntitiesOfClass(Monster.class, boundingBox,

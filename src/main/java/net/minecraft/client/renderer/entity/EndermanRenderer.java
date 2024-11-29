@@ -19,7 +19,7 @@ public class EndermanRenderer extends MobRenderer<EndermanEntity, EndermanModel<
    private final Random random = new Random();
 
    public EndermanRenderer(EntityRendererManager p_i46182_1_) {
-      super(p_i46182_1_, new EndermanModel<>(0.0F), 0.5F);
+      super(p_i46182_1_, new EndermanModel<>(), 0.5F);
       this.addLayer(new EndermanEyesLayer<>(this));
       this.addLayer(new HeldBlockLayer(this));
    }
@@ -35,7 +35,7 @@ public class EndermanRenderer extends MobRenderer<EndermanEntity, EndermanModel<
    public Vector3d getRenderOffset(EndermanEntity p_225627_1_, float p_225627_2_) {
       if (p_225627_1_.isCreepy()) {
          double d0 = 0.02D;
-         return new Vector3d(this.random.nextGaussian() * 0.02D, 0.0D, this.random.nextGaussian() * 0.02D);
+         return new Vector3d(this.random.nextGaussian() * d0, 0.0D, this.random.nextGaussian() * d0);
       } else {
          return super.getRenderOffset(p_225627_1_, p_225627_2_);
       }

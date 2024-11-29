@@ -233,27 +233,27 @@ public class WallBlock extends Block implements IWaterLoggable {
       p_206840_1_.add(UP, NORTH_WALL, EAST_WALL, WEST_WALL, SOUTH_WALL, WATERLOGGED);
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      switch(p_185499_2_) {
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      switch(rotation) {
       case CLOCKWISE_180:
-         return p_185499_1_.setValue(NORTH_WALL, p_185499_1_.getValue(SOUTH_WALL)).setValue(EAST_WALL, p_185499_1_.getValue(WEST_WALL)).setValue(SOUTH_WALL, p_185499_1_.getValue(NORTH_WALL)).setValue(WEST_WALL, p_185499_1_.getValue(EAST_WALL));
+         return state.setValue(NORTH_WALL, state.getValue(SOUTH_WALL)).setValue(EAST_WALL, state.getValue(WEST_WALL)).setValue(SOUTH_WALL, state.getValue(NORTH_WALL)).setValue(WEST_WALL, state.getValue(EAST_WALL));
       case COUNTERCLOCKWISE_90:
-         return p_185499_1_.setValue(NORTH_WALL, p_185499_1_.getValue(EAST_WALL)).setValue(EAST_WALL, p_185499_1_.getValue(SOUTH_WALL)).setValue(SOUTH_WALL, p_185499_1_.getValue(WEST_WALL)).setValue(WEST_WALL, p_185499_1_.getValue(NORTH_WALL));
+         return state.setValue(NORTH_WALL, state.getValue(EAST_WALL)).setValue(EAST_WALL, state.getValue(SOUTH_WALL)).setValue(SOUTH_WALL, state.getValue(WEST_WALL)).setValue(WEST_WALL, state.getValue(NORTH_WALL));
       case CLOCKWISE_90:
-         return p_185499_1_.setValue(NORTH_WALL, p_185499_1_.getValue(WEST_WALL)).setValue(EAST_WALL, p_185499_1_.getValue(NORTH_WALL)).setValue(SOUTH_WALL, p_185499_1_.getValue(EAST_WALL)).setValue(WEST_WALL, p_185499_1_.getValue(SOUTH_WALL));
+         return state.setValue(NORTH_WALL, state.getValue(WEST_WALL)).setValue(EAST_WALL, state.getValue(NORTH_WALL)).setValue(SOUTH_WALL, state.getValue(EAST_WALL)).setValue(WEST_WALL, state.getValue(SOUTH_WALL));
       default:
-         return p_185499_1_;
+         return state;
       }
    }
 
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      switch(p_185471_2_) {
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      switch(mirroring) {
       case LEFT_RIGHT:
-         return p_185471_1_.setValue(NORTH_WALL, p_185471_1_.getValue(SOUTH_WALL)).setValue(SOUTH_WALL, p_185471_1_.getValue(NORTH_WALL));
+         return state.setValue(NORTH_WALL, state.getValue(SOUTH_WALL)).setValue(SOUTH_WALL, state.getValue(NORTH_WALL));
       case FRONT_BACK:
-         return p_185471_1_.setValue(EAST_WALL, p_185471_1_.getValue(WEST_WALL)).setValue(WEST_WALL, p_185471_1_.getValue(EAST_WALL));
+         return state.setValue(EAST_WALL, state.getValue(WEST_WALL)).setValue(WEST_WALL, state.getValue(EAST_WALL));
       default:
-         return super.mirror(p_185471_1_, p_185471_2_);
+         return super.mirror(state, mirroring);
       }
    }
 }

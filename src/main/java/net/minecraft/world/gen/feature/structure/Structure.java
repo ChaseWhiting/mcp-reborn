@@ -58,9 +58,11 @@ public abstract class Structure<C extends IFeatureConfig> {
    public static final Structure<NoFeatureConfig> END_CITY = register("EndCity", new EndCityStructure(NoFeatureConfig.CODEC), GenerationStage.Decoration.SURFACE_STRUCTURES);
    public static final Structure<ProbabilityConfig> BURIED_TREASURE = register("Buried_Treasure", new BuriedTreasureStructure(ProbabilityConfig.CODEC), GenerationStage.Decoration.UNDERGROUND_STRUCTURES);
    public static final Structure<VillageConfig> VILLAGE = register("Village", new VillageStructure(VillageConfig.CODEC), GenerationStage.Decoration.SURFACE_STRUCTURES);
+   public static final Structure<VillageConfig> PALE_VILLAGE = register("PaleVillage", new PaleVillageStructure(PaleVIllageConfig.CODEC), GenerationStage.Decoration.SURFACE_STRUCTURES);
+
    public static final Structure<NoFeatureConfig> NETHER_FOSSIL = register("Nether_Fossil", new NetherFossilStructure(NoFeatureConfig.CODEC), GenerationStage.Decoration.UNDERGROUND_DECORATION);
    public static final Structure<VillageConfig> BASTION_REMNANT = register("Bastion_Remnant", new BastionRemantsStructure(VillageConfig.CODEC), GenerationStage.Decoration.SURFACE_STRUCTURES);
-   public static final List<Structure<?>> NOISE_AFFECTING_FEATURES = ImmutableList.of(PILLAGER_OUTPOST, VILLAGE, NETHER_FOSSIL);
+   public static final List<Structure<?>> NOISE_AFFECTING_FEATURES = ImmutableList.of(PILLAGER_OUTPOST, VILLAGE, NETHER_FOSSIL, PALE_VILLAGE);
    private static final ResourceLocation JIGSAW_RENAME = new ResourceLocation("jigsaw");
    private static final Map<ResourceLocation, ResourceLocation> RENAMES = ImmutableMap.<ResourceLocation, ResourceLocation>builder().put(new ResourceLocation("nvi"), JIGSAW_RENAME).put(new ResourceLocation("pcp"), JIGSAW_RENAME).put(new ResourceLocation("bastionremnant"), JIGSAW_RENAME).put(new ResourceLocation("runtime"), JIGSAW_RENAME).build();
    private final Codec<StructureFeature<C, Structure<C>>> configuredStructureCodec;

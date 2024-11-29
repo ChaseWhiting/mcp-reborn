@@ -211,27 +211,27 @@ public class StairsBlock extends Block implements IWaterLoggable {
       return p_185709_0_.getBlock() instanceof StairsBlock;
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      return p_185499_1_.setValue(FACING, p_185499_2_.rotate(p_185499_1_.getValue(FACING)));
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
    }
 
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      Direction direction = p_185471_1_.getValue(FACING);
-      StairsShape stairsshape = p_185471_1_.getValue(SHAPE);
-      switch(p_185471_2_) {
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      Direction direction = state.getValue(FACING);
+      StairsShape stairsshape = state.getValue(SHAPE);
+      switch(mirroring) {
       case LEFT_RIGHT:
          if (direction.getAxis() == Direction.Axis.Z) {
             switch(stairsshape) {
             case INNER_LEFT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.INNER_RIGHT);
+               return state.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.INNER_RIGHT);
             case INNER_RIGHT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.INNER_LEFT);
+               return state.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.INNER_LEFT);
             case OUTER_LEFT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.OUTER_RIGHT);
+               return state.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.OUTER_RIGHT);
             case OUTER_RIGHT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.OUTER_LEFT);
+               return state.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.OUTER_LEFT);
             default:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180);
+               return state.rotate(Rotation.CLOCKWISE_180);
             }
          }
          break;
@@ -239,20 +239,20 @@ public class StairsBlock extends Block implements IWaterLoggable {
          if (direction.getAxis() == Direction.Axis.X) {
             switch(stairsshape) {
             case INNER_LEFT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.INNER_LEFT);
+               return state.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.INNER_LEFT);
             case INNER_RIGHT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.INNER_RIGHT);
+               return state.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.INNER_RIGHT);
             case OUTER_LEFT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.OUTER_RIGHT);
+               return state.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.OUTER_RIGHT);
             case OUTER_RIGHT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.OUTER_LEFT);
+               return state.rotate(Rotation.CLOCKWISE_180).setValue(SHAPE, StairsShape.OUTER_LEFT);
             case STRAIGHT:
-               return p_185471_1_.rotate(Rotation.CLOCKWISE_180);
+               return state.rotate(Rotation.CLOCKWISE_180);
             }
          }
       }
 
-      return super.mirror(p_185471_1_, p_185471_2_);
+      return super.mirror(state, mirroring);
    }
 
    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {

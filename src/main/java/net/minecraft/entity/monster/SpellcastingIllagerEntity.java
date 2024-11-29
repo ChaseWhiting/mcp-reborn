@@ -25,6 +25,16 @@ public abstract class SpellcastingIllagerEntity extends AbstractIllagerEntity {
       super(p_i48551_1_, p_i48551_2_);
    }
 
+   @Override
+   public float getCreakingRunDistance() {
+      return 3f;
+   }
+
+   @Override
+   public float[] getCreakingSpeedMods() {
+      return new float[]{0.9f, 1f};
+   }
+
    protected void defineSynchedData() {
       super.defineSynchedData();
       this.entityData.define(DATA_SPELL_CASTING_ID, (byte)0);

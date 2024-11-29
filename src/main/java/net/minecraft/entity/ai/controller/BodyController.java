@@ -5,8 +5,8 @@ import net.minecraft.util.math.MathHelper;
 
 public class BodyController {
    private final Mob mob;
-   private int headStableTime;
-   private float lastStableYHeadRot;
+   protected int headStableTime;
+   protected float lastStableYHeadRot;
 
    public BodyController(Mob p_i50334_1_) {
       this.mob = p_i50334_1_;
@@ -54,7 +54,7 @@ public class BodyController {
       return this.mob.getPassengers().isEmpty() || !(this.mob.getPassengers().get(0) instanceof Mob);
    }
 
-   private boolean isMoving() {
+   protected boolean isMoving() {
       double d0 = this.mob.getX() - this.mob.xo;
       double d1 = this.mob.getZ() - this.mob.zo;
       return d0 * d0 + d1 * d1 > (double)2.5000003E-7F;

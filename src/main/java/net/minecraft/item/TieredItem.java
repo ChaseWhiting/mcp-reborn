@@ -28,6 +28,9 @@ public class TieredItem extends Item {
             case GOLD -> 16;       // Gold: 15-20 units (balanced lower than Diamond)
             case DIAMOND -> 10;    // Diamond: 8-10 units
             case NETHERITE -> 32;  // Netherite: 20-32 units
+            case BEEKEEPER -> 12;
+            case STARFURY -> 12;
+            case MEOWMERE -> 12;
         };
     }
 

@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.scoreboard.Team;
@@ -139,8 +140,15 @@ public abstract class LivingRenderer<T extends LivingEntity, M extends EntityMod
       }
    }
 
-   public static int getOverlayCoords(LivingEntity p_229117_0_, float p_229117_1_) {
-      return OverlayTexture.pack(OverlayTexture.u(p_229117_1_), OverlayTexture.v(p_229117_0_.hurtTime > 0 || p_229117_0_.deathTime > 0));
+   public static int getOverlayCoords(LivingEntity entity, float whiteOverlayProgress) {
+      // Check if the entity is an instance of your custom entity
+      if (entity instanceof CreakingEntity) {
+         // Return a value that prevents the red flash from showing
+         return OverlayTexture.pack(OverlayTexture.u(whiteOverlayProgress), OverlayTexture.v(false));
+      }
+
+      // For all other entities, keep the default behavior
+      return OverlayTexture.pack(OverlayTexture.u(whiteOverlayProgress), OverlayTexture.v(entity.hurtTime > 0 || entity.deathTime > 0));
    }
 
    protected boolean isBodyVisible(T p_225622_1_) {

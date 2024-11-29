@@ -42,9 +42,13 @@ public class Effect {
    }
 
    public void applyEffectTick(LivingEntity p_76394_1_, int p_76394_2_) {
-      if (this == Effects.REGENERATION) {
+      if (this == Effects.REGENERATION ) {
          if (p_76394_1_.getHealth() < p_76394_1_.getMaxHealth()) {
             p_76394_1_.heal(1.0F);
+         }
+      } else if (this == Effects.HONEY) {
+         if (p_76394_1_.getHealth() < p_76394_1_.getMaxHealth()) {
+            p_76394_1_.heal(1.5F);
          }
       } else if (this == Effects.POISON) {
          if (p_76394_1_.getHealth() > 1.0F) {
@@ -87,25 +91,32 @@ public class Effect {
 
    }
 
-   public boolean isDurationEffectTick(int p_76397_1_, int p_76397_2_) {
+   public boolean isDurationEffectTick(int duration, int level) {
       if (this == Effects.REGENERATION) {
-         int k = 50 >> p_76397_2_;
+         int k = 50 >> level;
          if (k > 0) {
-            return p_76397_1_ % k == 0;
+            return duration % k == 0;
+         } else {
+            return true;
+         }
+      } else if (this == Effects.HONEY) {
+         int k = 60 >> level;
+         if (k > 0) {
+            return duration % k == 0;
          } else {
             return true;
          }
       } else if (this == Effects.POISON) {
-         int j = 25 >> p_76397_2_;
+         int j = 25 >> level;
          if (j > 0) {
-            return p_76397_1_ % j == 0;
+            return duration % j == 0;
          } else {
             return true;
          }
       } else if (this == Effects.WITHER) {
-         int i = 40 >> p_76397_2_;
+         int i = 40 >> level;
          if (i > 0) {
-            return p_76397_1_ % i == 0;
+            return duration % i == 0;
          } else {
             return true;
          }

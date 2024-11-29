@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.merchant.villager.VillagerData;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
@@ -23,7 +24,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 
 public class DataSerializers {
-   private static final IntIdentityHashBiMap<IDataSerializer<?>> SERIALIZERS = new IntIdentityHashBiMap<>(16);
+   private static final IntIdentityHashBiMap<IDataSerializer<?>> SERIALIZERS = new IntIdentityHashBiMap<>(17);
 
    public static final IDataSerializer<Byte> BYTE = new IDataSerializer<Byte>() {
       public void write(PacketBuffer buffer, Byte value) {
@@ -49,6 +50,20 @@ public class DataSerializers {
       }
 
       public Integer copy(Integer value) {
+         return value;
+      }
+   };
+
+   public static final IDataSerializer<EntityType<?>> ENTITY_TYPE = new IDataSerializer<EntityType<?>>() {
+      public void write(PacketBuffer buffer, EntityType<?> value) {
+         buffer.writeResourceLocation(Registry.ENTITY_TYPE.getKey(value));
+      }
+
+      public EntityType<?> read(PacketBuffer buffer) {
+         return Registry.ENTITY_TYPE.get(buffer.readResourceLocation());
+      }
+
+      public EntityType<?> copy(EntityType<?> value) {
          return value;
       }
    };
@@ -370,5 +385,6 @@ public class DataSerializers {
       registerSerializer(VILLAGER_DATA);
       registerSerializer(OPTIONAL_UNSIGNED_INT);
       registerSerializer(POSE);
+      registerSerializer(ENTITY_TYPE);
    }
 }

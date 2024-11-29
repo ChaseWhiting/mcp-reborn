@@ -4,11 +4,39 @@ import net.minecraft.util.registry.Registry;
 
 public class SoundEvents {
    public static final SoundEvent AMBIENT_CAVE = register("ambient.cave");
+   public static final SoundEvent MOSS_BREAK = SoundEvents.register("block.moss.break");
+   public static final SoundEvent MOSS_FALL = SoundEvents.register("block.moss.fall");
+   public static final SoundEvent MOSS_HIT = SoundEvents.register("block.moss.hit");
+   public static final SoundEvent MOSS_PLACE = SoundEvents.register("block.moss.place");
+   public static final SoundEvent MOSS_STEP = SoundEvents.register("block.moss.step");
+   public static final SoundEvent PALE_HANGING_MOSS_IDLE = SoundEvents.register("block.pale_hanging_moss.idle");
+   public static final SoundEvent STARFURY_STAR_IMPACT = SoundEvents.register("item.starfury.impact");
+   public static final SoundEvent STARFURY_SHOOT = SoundEvents.register("item.starfury.shoot");
+   public static final SoundEvent STAR_WRATH_USE = SoundEvents.register("item.star_wrath.use");
+   public static final SoundEvent ROAR = register("npc.roar");
+   public static final SoundEvent EXPERT_ROAR = register("npc.expert_roar");
+   public static final SoundEvent BOSS_1 = register("music.boss_1");
+
+   public static final SoundEvent EYEBLOSSOM_OPEN_LONG = SoundEvents.register("block.eyeblossom.open_long");
+
+   public static final SoundEvent EYEBLOSSOM_OPEN = SoundEvents.register("block.eyeblossom.open");
+   public static final SoundEvent EYEBLOSSOM_CLOSE_LONG = SoundEvents.register("block.eyeblossom.close_long");
+   public static final SoundEvent EYEBLOSSOM_CLOSE = SoundEvents.register("block.eyeblossom.close");
+   public static final SoundEvent EYEBLOSSOM_IDLE = SoundEvents.register("block.eyeblossom.idle");
+
+
+
+   public static final SoundEvent NPC_KILLED_1 = SoundEvents.register("npc.kill_1");
+   public static final SoundEvent NPC_HURT_1 = SoundEvents.register("npc.hurt_1");
+
+
 
 
    public static final SoundEvent CREAKING_AMBIENT = SoundEvents.register("entity.creaking.ambient");
    public static final SoundEvent CREAKING_ACTIVATE = SoundEvents.register("entity.creaking.activate");
    public static final SoundEvent CREAKING_DEACTIVATE = SoundEvents.register("entity.creaking.deactivate");
+   public static final SoundEvent CREAKING_TWITCH = SoundEvents.register("entity.creaking.twitch");
+
    public static final SoundEvent CREAKING_ATTACK = SoundEvents.register("entity.creaking.attack");
    public static final SoundEvent CREAKING_DEATH = SoundEvents.register("entity.creaking.death");
    public static final SoundEvent CREAKING_STEP = SoundEvents.register("entity.creaking.step");
@@ -307,17 +335,6 @@ public class SoundEvents {
    public static final SoundEvent FOX_SNIFF = register("entity.fox.sniff");
    public static final SoundEvent FOX_SPIT = register("entity.fox.spit");
    public static final SoundEvent FOX_TELEPORT = register("entity.fox.teleport");
-   public static final SoundEvent RACCOON_AGGRO = register("entity.raccoon.aggro");
-   public static final SoundEvent RACCOON_AMBIENT = register("entity.raccoon.ambient");
-   public static final SoundEvent RACCOON_BITE = register("entity.raccoon.bite");
-   public static final SoundEvent RACCOON_DEATH = register("entity.raccoon.death");
-   public static final SoundEvent RACCOON_EAT = register("entity.raccoon.eat");
-   public static final SoundEvent RACCOON_HURT = register("entity.raccoon.hurt");
-   public static final SoundEvent RACCOON_SCREECH = register("entity.raccoon.screech");
-   public static final SoundEvent RACCOON_SLEEP = register("entity.raccoon.sleep");
-   public static final SoundEvent RACCOON_SNIFF = register("entity.raccoon.sniff");
-   public static final SoundEvent RACCOON_SPIT = register("entity.raccoon.spit");
-   public static final SoundEvent RACCOON_TELEPORT = register("entity.raccoon.teleport");
    public static final SoundEvent ROOTS_BREAK = register("block.roots.break");
    public static final SoundEvent ROOTS_STEP = register("block.roots.step");
    public static final SoundEvent ROOTS_PLACE = register("block.roots.place");
@@ -335,8 +352,6 @@ public class SoundEvents {
    public static final SoundEvent GENERIC_SMALL_FALL = register("entity.generic.small_fall");
    public static final SoundEvent GENERIC_SPLASH = register("entity.generic.splash");
    public static final SoundEvent GENERIC_SWIM = register("entity.generic.swim");
-   public static final SoundEvent MACE_SMASH_GROUND = register("item.mace.smash_ground");
-   public static final SoundEvent MACE_SMASH_HEAVY = register("item.mace.smash_heavy");
    public static final SoundEvent GHAST_AMBIENT = register("entity.ghast.ambient");
    public static final SoundEvent GHAST_DEATH = register("entity.ghast.death");
    public static final SoundEvent GHAST_HURT = register("entity.ghast.hurt");
@@ -498,6 +513,8 @@ public class SoundEvents {
    public static final SoundEvent MULE_EAT = register("entity.mule.eat");
    public static final SoundEvent MULE_HURT = register("entity.mule.hurt");
    public static final SoundEvent MUSIC_CREATIVE = register("music.creative");
+   public static final SoundEvent MUSIC_PALE_GARDEN = register("music.garden");
+
    public static final SoundEvent MUSIC_CREDITS = register("music.credits");
    public static final SoundEvent MUSIC_DISC_11 = register("music_disc.11");
    public static final SoundEvent MUSIC_DISC_13 = register("music_disc.13");

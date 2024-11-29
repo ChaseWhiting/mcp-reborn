@@ -2,15 +2,14 @@ package net.minecraft.item;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.tool.SwordItem;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Predicate;
 
 public class MaceItem extends SwordItem {

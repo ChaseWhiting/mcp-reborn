@@ -3,6 +3,7 @@ package net.minecraft.enchantment;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
+import net.minecraft.item.tool.*;
 
 public enum EnchantmentType {
    ARMOR {

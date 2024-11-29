@@ -1,0 +1,42 @@
+{
+  "precipitation": "rain",
+  "category": "forest",
+  "temperature": 0.7,
+  "downfall": 0.8,
+  "effects": {
+    "sky_color": 12129280,
+    "water_color": "76889D",
+    "water_fog_color": 556980,
+    "fog_color": 817770,
+    "grass_color": 778272,
+    "foliage_color": "878D76",
+    "mood_sound": {
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 6000,
+      "block_search_extent": 8,
+      "offset": 2.0
+    }
+  },
+  "spawn_costs": {},
+  "spawners": {
+    "monster": [
+      {
+        "type": "minecraft:creaking",
+        "weight": 85,
+        "min_count": 1,
+        "max_count": 2
+      }
+    ]
+  },
+  "generation": {
+    "features": [
+      "minecraft:trees",
+      "minecraft:grass",
+      "minecraft:vegetation",
+      "minecraft:ores"
+    ],
+    "carvers": {
+      "air": "minecraft:cave"
+    }
+  }
+}

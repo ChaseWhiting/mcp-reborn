@@ -38,6 +38,8 @@ public final class VoxelShapes {
       return BLOCK;
    }
 
+
+
    public static VoxelShape box(double p_197873_0_, double p_197873_2_, double p_197873_4_, double p_197873_6_, double p_197873_8_, double p_197873_10_) {
       return create(new AxisAlignedBB(p_197873_0_, p_197873_2_, p_197873_4_, p_197873_6_, p_197873_8_, p_197873_10_));
    }

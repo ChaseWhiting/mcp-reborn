@@ -46,6 +46,7 @@ public class RegistryUtils {
             case "attribute" -> Registry.ATTRIBUTE;
             case "stat_type" -> Registry.STAT_TYPE;
             case "villager_type" -> Registry.VILLAGER_TYPE;
+            case "configured_feature" -> WorldGenRegistries.CONFIGURED_FEATURE;
             case "villager_profession" -> Registry.VILLAGER_PROFESSION;
             case "point_of_interest_type" -> Registry.POINT_OF_INTEREST_TYPE;
             case "memory_module_type" -> Registry.MEMORY_MODULE_TYPE;

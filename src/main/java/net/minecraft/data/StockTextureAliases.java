@@ -19,6 +19,8 @@ public final class StockTextureAliases {
    public static final StockTextureAliases UP = create("up");
    public static final StockTextureAliases DOWN = create("down");
    public static final StockTextureAliases CROSS = create("cross");
+   public static final StockTextureAliases FLOWERBED = StockTextureAliases.create("flowerbed");
+
    public static final StockTextureAliases PLANT = create("plant");
    public static final StockTextureAliases WALL = create("wall", ALL);
    public static final StockTextureAliases RAIL = create("rail");

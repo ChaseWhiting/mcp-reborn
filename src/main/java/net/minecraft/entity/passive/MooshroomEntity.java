@@ -109,7 +109,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
          }
 
          return ActionResultType.sidedSuccess(this.level.isClientSide);
-      } else if (this.getMushroomType() == MooshroomEntity.Type.BROWN && itemstack.getItem().is(ItemTags.SMALL_FLOWERS)) {
+      } else if (this.getMushroomType() == MooshroomEntity.Type.BROWN && (itemstack.getItem().is(ItemTags.SMALL_FLOWERS) || itemstack.getItem() == Items.OPEN_EYEBLOSSOM || itemstack.getItem() == Items.CLOSED_EYEBLOSSOM)) {
          if (this.effect != null) {
             for(int i = 0; i < 2; ++i) {
                this.level.addParticle(ParticleTypes.SMOKE, this.getX() + this.random.nextDouble() / 2.0D, this.getY(0.5D), this.getZ() + this.random.nextDouble() / 2.0D, 0.0D, this.random.nextDouble() / 5.0D, 0.0D);

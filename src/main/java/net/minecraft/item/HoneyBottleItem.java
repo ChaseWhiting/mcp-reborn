@@ -61,7 +61,7 @@ public class HoneyBottleItem extends Item {
       return SoundEvents.HONEY_DRINK;
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      return DrinkHelper.useDrink(p_77659_1_, p_77659_2_, p_77659_3_);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      return DrinkHelper.useDrink(world, player, hand);
    }
 }

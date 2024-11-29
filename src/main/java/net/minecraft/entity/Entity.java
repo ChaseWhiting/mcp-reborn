@@ -677,6 +677,10 @@ public abstract class Entity implements INameable, ICommandSource {
         return new BlockPos(this.position.x, this.getBoundingBox().minY - 0.5000001D, this.position.z);
     }
 
+    public BlockPos directlyBelow() {
+        return this.getBlockPosBelowThatAffectsMyMovement();
+    }
+
     protected Vector3d maybeBackOffFromEdge(Vector3d p_225514_1_, MoverType p_225514_2_) {
         return p_225514_1_;
     }
@@ -909,6 +913,10 @@ public abstract class Entity implements INameable, ICommandSource {
             this.level.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), sound, this.getSoundSource(), volume, pitch);
         }
 
+    }
+
+    public void makeSound(SoundEvent event) {
+        this.playSound(event, 1.0F, 1.0F);
     }
 
     public boolean isSilent() {
@@ -1493,39 +1501,15 @@ public abstract class Entity implements INameable, ICommandSource {
 
             if (Double.isFinite(this.getX()) && Double.isFinite(this.getY()) && Double.isFinite(this.getZ())) {
                 if (Double.isFinite((double) this.yRot) && Double.isFinite((double) this.xRot)) {
-                    this.reapplyPosition();
-                    this.setRot(this.yRot, this.xRot);
-                    if (p_70020_1_.contains("CustomName", 8)) {
-                        String s = p_70020_1_.getString("CustomName");
-
-                        try {
-                            this.setCustomName(ITextComponent.Serializer.fromJson(s));
-                        } catch (Exception exception) {
-                            LOGGER.warn("Failed to parse entity custom name {}", s, exception);
-                        }
-                    }
-
-                    this.setCustomNameVisible(p_70020_1_.getBoolean("CustomNameVisible"));
-                    this.setSilent(p_70020_1_.getBoolean("Silent"));
-                    this.setNoGravity(p_70020_1_.getBoolean("NoGravity"));
-                    this.setGlowing(p_70020_1_.getBoolean("Glowing"));
-                    if (p_70020_1_.contains("Tags", 9)) {
-                        this.tags.clear();
-                        ListNBT listnbt3 = p_70020_1_.getList("Tags", 8);
-                        int i = Math.min(listnbt3.size(), 1024);
-
-                        for (int j = 0; j < i; ++j) {
-                            this.tags.add(listnbt3.getString(j));
-                        }
-                    }
-
-                    this.readAdditionalSaveData(p_70020_1_);
-                    if (this.repositionEntityAfterLoad()) {
-                        this.reapplyPosition();
-                    }
-
+                    applyPosition(p_70020_1_);
                 } else {
-                    throw new IllegalStateException("Entity has invalid rotation");
+                    this.xRot = 0;
+                    this.yRot = 0;
+                    if (Double.isFinite((double) this.yRot) && Double.isFinite((double) this.xRot)) {
+                        applyPosition(p_70020_1_);
+                    } else {
+                        throw new IllegalStateException("Entity has invalid rotation");
+                    }
                 }
             } else {
                 throw new IllegalStateException("Entity has invalid position");
@@ -1535,6 +1519,39 @@ public abstract class Entity implements INameable, ICommandSource {
             CrashReportCategory crashreportcategory = crashreport.addCategory("Entity being loaded");
             this.fillCrashReportCategory(crashreportcategory);
             throw new ReportedException(crashreport);
+        }
+    }
+
+    public void applyPosition(CompoundNBT p_70020_1_) {
+        this.reapplyPosition();
+        this.setRot(this.yRot, this.xRot);
+        if (p_70020_1_.contains("CustomName", 8)) {
+            String s = p_70020_1_.getString("CustomName");
+
+            try {
+                this.setCustomName(ITextComponent.Serializer.fromJson(s));
+            } catch (Exception exception) {
+                LOGGER.warn("Failed to parse entity custom name {}", s, exception);
+            }
+        }
+
+        this.setCustomNameVisible(p_70020_1_.getBoolean("CustomNameVisible"));
+        this.setSilent(p_70020_1_.getBoolean("Silent"));
+        this.setNoGravity(p_70020_1_.getBoolean("NoGravity"));
+        this.setGlowing(p_70020_1_.getBoolean("Glowing"));
+        if (p_70020_1_.contains("Tags", 9)) {
+            this.tags.clear();
+            ListNBT listnbt3 = p_70020_1_.getList("Tags", 8);
+            int i = Math.min(listnbt3.size(), 1024);
+
+            for (int j = 0; j < i; ++j) {
+                this.tags.add(listnbt3.getString(j));
+            }
+        }
+
+        this.readAdditionalSaveData(p_70020_1_);
+        if (this.repositionEntityAfterLoad()) {
+            this.reapplyPosition();
         }
     }
 

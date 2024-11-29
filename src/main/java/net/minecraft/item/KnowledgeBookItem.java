@@ -24,18 +24,18 @@ public class KnowledgeBookItem extends Item {
       super(p_i48485_1_);
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
       CompoundNBT compoundnbt = itemstack.getTag();
-      if (!p_77659_2_.abilities.instabuild) {
-         p_77659_2_.setItemInHand(p_77659_3_, ItemStack.EMPTY);
+      if (!player.abilities.instabuild) {
+         player.setItemInHand(hand, ItemStack.EMPTY);
       }
 
       if (compoundnbt != null && compoundnbt.contains("Recipes", 9)) {
-         if (!p_77659_1_.isClientSide) {
+         if (!world.isClientSide) {
             ListNBT listnbt = compoundnbt.getList("Recipes", 8);
             List<IRecipe<?>> list = Lists.newArrayList();
-            RecipeManager recipemanager = p_77659_1_.getServer().getRecipeManager();
+            RecipeManager recipemanager = world.getServer().getRecipeManager();
 
             for(int i = 0; i < listnbt.size(); ++i) {
                String s = listnbt.getString(i);
@@ -48,11 +48,11 @@ public class KnowledgeBookItem extends Item {
                list.add(optional.get());
             }
 
-            p_77659_2_.awardRecipes(list);
-            p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
+            player.awardRecipes(list);
+            player.awardStat(Stats.ITEM_USED.get(this));
          }
 
-         return ActionResult.sidedSuccess(itemstack, p_77659_1_.isClientSide());
+         return ActionResult.sidedSuccess(itemstack, world.isClientSide());
       } else {
          LOGGER.error("Tag not valid: {}", (Object)compoundnbt);
          return ActionResult.fail(itemstack);

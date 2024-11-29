@@ -77,7 +77,7 @@ public abstract class AbstractSkeletonEntity extends Monster implements IRangedA
    public final RangedCrossbowAttackGoal<AbstractSkeletonEntity> rangedCrossbowAttackGoal = new RangedCrossbowAttackGoal<>(this, 1.17D, 16.0F);
    public final RangedBowAttackGoal<AbstractSkeletonEntity> bowGoal = new RangedBowAttackGoal<>(this, 1.0D, 20, 15.0F);
    final AdvancedBowAttackGoal<AbstractSkeletonEntity> bowGoalAdvanced = new AdvancedBowAttackGoal<>(this, 1.0D, 20, 15.0F);
-   public final MeleeAttackGoal meleeGoal = new MeleeAttackGoal(this, 1.2D, false) {
+   public final MeleeAttackGoal meleeGoal = new MeleeAttackGoal(this, 1.2D, this.veryHardmode()) {
       public void stop() {
          super.stop();
          AbstractSkeletonEntity.this.setAggressive(false);

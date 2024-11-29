@@ -14,6 +14,7 @@ import net.minecraft.world.gen.feature.structure.StructureFeatures;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilders;
 import net.minecraft.world.gen.surfacebuilders.SurfaceBuilderConfig;
+import org.bytedeco.opencv.presets.opencv_core;
 
 public class BiomeMaker {
    private static int calculateSkyColor(float p_244206_0_) {
@@ -670,6 +671,8 @@ public class BiomeMaker {
       DefaultBiomeFeatures.farmAnimals(mobspawninfo$builder);
       DefaultBiomeFeatures.commonSpawns(mobspawninfo$builder);
       mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 85, 3, 4));
+      mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.CREAKING, 25, 1, 2));
+
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.GRASS);
       biomegenerationsettings$builder.addStructureStart(StructureFeatures.WOODLAND_MANSION);
       DefaultBiomeFeatures.addDefaultOverworldLandStructures(biomegenerationsettings$builder);
@@ -689,6 +692,44 @@ public class BiomeMaker {
       DefaultBiomeFeatures.addDefaultSprings(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addSurfaceFreezing(biomegenerationsettings$builder);
       return (new Biome.Builder()).precipitation(Biome.RainType.RAIN).biomeCategory(Biome.Category.FOREST).depth(p_244233_0_).scale(p_244233_1_).temperature(0.7F).downfall(0.8F).specialEffects((new BiomeAmbience.Builder()).waterColor(4159204).waterFogColor(329011).fogColor(12638463).skyColor(calculateSkyColor(0.7F)).grassColorModifier(BiomeAmbience.GrassColorModifier.DARK_FOREST).ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS).build()).mobSpawnSettings(mobspawninfo$builder.build()).generationSettings(biomegenerationsettings$builder.build()).build();
+   }
+
+   public static Biome paleGardenBiome(float depth, float scale) {
+      MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
+      mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.CREAKING, 35, 1, 2));
+      BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.GRASS);
+      DefaultBiomeFeatures.addDefaultOverworldLandStructures(biomegenerationsettings$builder);
+      DefaultBiomeFeatures.addDefaultCarvers(biomegenerationsettings$builder);
+      biomegenerationsettings$builder.addStructureStart(StructureFeatures.VILLAGE_PALE);
+      biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PALE_GARDEN_VEGETATION);
+      biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_WHITE_PUMPKIN);
+      biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.EYEBLOSSOM_FEATURE);
+      DefaultBiomeFeatures.addDefaultMonsterRoom(biomegenerationsettings$builder);
+
+      DefaultBiomeFeatures.addDefaultUndergroundVariety(biomegenerationsettings$builder);
+      DefaultBiomeFeatures.addDefaultOres(biomegenerationsettings$builder);
+      DefaultBiomeFeatures.addSurfaceFreezing(biomegenerationsettings$builder);
+      return (new Biome.Builder())
+              .precipitation(Biome.RainType.RAIN)
+              .biomeCategory(Biome.Category.FOREST)
+              .depth(depth)
+              .scale(scale)
+              .temperature(0.7F)
+              .downfall(0.8F)
+              .specialEffects((new BiomeAmbience.Builder())
+                      .ambientParticle(new ParticleEffectAmbience(ParticleTypes.WHITE_ASH, 0.007F))
+                      .waterColor(0x76889D)
+                      .waterFogColor(0x556980)
+                      .fogColor(0x817770)
+                      .skyColor(0xB9B9B9)
+                      .grassColorOverride(0x778272)
+                      .foliageColorOverride(0x878D76)
+                      .ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS)
+                      .backgroundMusic(BackgroundMusicTracks.NULL)
+                      .build())
+              .mobSpawnSettings(mobspawninfo$builder.build())
+              .generationSettings(biomegenerationsettings$builder.build())
+              .build();
    }
 
    public static Biome swampBiome(float p_244236_0_, float p_244236_1_, boolean p_244236_2_) {

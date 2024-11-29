@@ -812,12 +812,12 @@ public class StrongholdPieces {
 
       public RoomCrossing(TemplateManager p_i50125_1_, CompoundNBT p_i50125_2_) {
          super(IStructurePieceType.STRONGHOLD_ROOM_CROSSING, p_i50125_2_);
-         this.type = p_i50125_2_.getInt("BoggedType");
+         this.type = p_i50125_2_.getInt("Type");
       }
 
       protected void addAdditionalSaveData(CompoundNBT p_143011_1_) {
          super.addAdditionalSaveData(p_143011_1_);
-         p_143011_1_.putInt("BoggedType", this.type);
+         p_143011_1_.putInt("Type", this.type);
       }
 
       public void addChildren(StructurePiece p_74861_1_, List<StructurePiece> p_74861_2_, Random p_74861_3_) {

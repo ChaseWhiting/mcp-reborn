@@ -62,32 +62,32 @@ public class EnderEyeItem extends Item {
       }
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-      RayTraceResult raytraceresult = getPlayerPOVHitResult(p_77659_1_, p_77659_2_, RayTraceContext.FluidMode.NONE);
-      if (raytraceresult.getType() == RayTraceResult.Type.BLOCK && p_77659_1_.getBlockState(((BlockRayTraceResult)raytraceresult).getBlockPos()).is(Blocks.END_PORTAL_FRAME)) {
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      RayTraceResult raytraceresult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.NONE);
+      if (raytraceresult.getType() == RayTraceResult.Type.BLOCK && world.getBlockState(((BlockRayTraceResult)raytraceresult).getBlockPos()).is(Blocks.END_PORTAL_FRAME)) {
          return ActionResult.pass(itemstack);
       } else {
-         p_77659_2_.startUsingItem(p_77659_3_);
-         if (p_77659_1_ instanceof ServerWorld) {
-            BlockPos blockpos = ((ServerWorld)p_77659_1_).getChunkSource().getGenerator().findNearestMapFeature((ServerWorld)p_77659_1_, Structure.STRONGHOLD, p_77659_2_.blockPosition(), 100, false);
+         player.startUsingItem(hand);
+         if (world instanceof ServerWorld) {
+            BlockPos blockpos = ((ServerWorld) world).getChunkSource().getGenerator().findNearestMapFeature((ServerWorld) world, Structure.STRONGHOLD, player.blockPosition(), 100, false);
             if (blockpos != null) {
-               EyeOfEnderEntity eyeofenderentity = new EyeOfEnderEntity(p_77659_1_, p_77659_2_.getX(), p_77659_2_.getY(0.5D), p_77659_2_.getZ());
+               EyeOfEnderEntity eyeofenderentity = new EyeOfEnderEntity(world, player.getX(), player.getY(0.5D), player.getZ());
                eyeofenderentity.setItem(itemstack);
                eyeofenderentity.signalTo(blockpos);
-               p_77659_1_.addFreshEntity(eyeofenderentity);
-               if (p_77659_2_ instanceof ServerPlayerEntity) {
-                  CriteriaTriggers.USED_ENDER_EYE.trigger((ServerPlayerEntity)p_77659_2_, blockpos);
+               world.addFreshEntity(eyeofenderentity);
+               if (player instanceof ServerPlayerEntity) {
+                  CriteriaTriggers.USED_ENDER_EYE.trigger((ServerPlayerEntity) player, blockpos);
                }
 
-               p_77659_1_.playSound((PlayerEntity)null, p_77659_2_.getX(), p_77659_2_.getY(), p_77659_2_.getZ(), SoundEvents.ENDER_EYE_LAUNCH, SoundCategory.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
-               p_77659_1_.levelEvent((PlayerEntity)null, 1003, p_77659_2_.blockPosition(), 0);
-               if (!p_77659_2_.abilities.instabuild) {
+               world.playSound((PlayerEntity)null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENDER_EYE_LAUNCH, SoundCategory.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+               world.levelEvent((PlayerEntity)null, 1003, player.blockPosition(), 0);
+               if (!player.abilities.instabuild) {
                   itemstack.shrink(1);
                }
 
-               p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
-               p_77659_2_.swing(p_77659_3_, true);
+               player.awardStat(Stats.ITEM_USED.get(this));
+               player.swing(hand, true);
                return ActionResult.success(itemstack);
             }
          }

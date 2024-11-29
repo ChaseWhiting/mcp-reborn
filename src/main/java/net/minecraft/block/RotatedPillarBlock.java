@@ -15,14 +15,14 @@ public class RotatedPillarBlock extends Block {
       this.registerDefaultState(this.defaultBlockState().setValue(AXIS, Direction.Axis.Y));
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-       return switch (p_185499_2_) {
-           case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch ((Direction.Axis) p_185499_1_.getValue(AXIS)) {
-               case X -> p_185499_1_.setValue(AXIS, Direction.Axis.Z);
-               case Z -> p_185499_1_.setValue(AXIS, Direction.Axis.X);
-               default -> p_185499_1_;
+   public BlockState rotate(BlockState state, Rotation rotation) {
+       return switch (rotation) {
+           case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch ((Direction.Axis) state.getValue(AXIS)) {
+               case X -> state.setValue(AXIS, Direction.Axis.Z);
+               case Z -> state.setValue(AXIS, Direction.Axis.X);
+               default -> state;
            };
-           default -> p_185499_1_;
+           default -> state;
        };
    }
 

@@ -1,19 +1,11 @@
 package net.minecraft.item;
 
 import net.minecraft.block.DispenserBlock;
-import net.minecraft.bundle.BundleItem;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.item.tool.ShieldItem;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 public class AbstractShieldItem extends ShieldItem {
    private final ShieldType shieldType;
@@ -28,6 +20,7 @@ public class AbstractShieldItem extends ShieldItem {
       return switch (shieldType) {
           case DIAMOND -> 30;
           case NETHERITE -> 40;
+          case CTHULHU -> 12;
       };
    }
 
@@ -64,7 +57,8 @@ public class AbstractShieldItem extends ShieldItem {
 
    public enum ShieldType {
       DIAMOND("diamond", 450),
-      NETHERITE("netherite", 503);
+      NETHERITE("netherite", 503),
+      CTHULHU("cthulhu", 2600);
 
       private final String name;
       private final int durability;

@@ -14,21 +14,21 @@ public class EggItem extends Item {
       super(p_i48508_1_);
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-      p_77659_1_.playSound((PlayerEntity)null, p_77659_2_.getX(), p_77659_2_.getY(), p_77659_2_.getZ(), SoundEvents.EGG_THROW, SoundCategory.PLAYERS, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
-      if (!p_77659_1_.isClientSide) {
-         EggEntity eggentity = new EggEntity(p_77659_1_, p_77659_2_);
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      world.playSound((PlayerEntity)null, player.getX(), player.getY(), player.getZ(), SoundEvents.EGG_THROW, SoundCategory.PLAYERS, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+      if (!world.isClientSide) {
+         EggEntity eggentity = new EggEntity(world, player);
          eggentity.setItem(itemstack);
-         eggentity.shootFromRotation(p_77659_2_, p_77659_2_.xRot, p_77659_2_.yRot, 0.0F, 1.5F, 1.0F);
-         p_77659_1_.addFreshEntity(eggentity);
+         eggentity.shootFromRotation(player, player.xRot, player.yRot, 0.0F, 1.5F, 1.0F);
+         world.addFreshEntity(eggentity);
       }
 
-      p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
-      if (!p_77659_2_.abilities.instabuild) {
+      player.awardStat(Stats.ITEM_USED.get(this));
+      if (!player.abilities.instabuild) {
          itemstack.shrink(1);
       }
 
-      return ActionResult.sidedSuccess(itemstack, p_77659_1_.isClientSide());
+      return ActionResult.sidedSuccess(itemstack, world.isClientSide());
    }
 }

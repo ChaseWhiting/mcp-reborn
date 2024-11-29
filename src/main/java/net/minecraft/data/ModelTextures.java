@@ -94,6 +94,10 @@ public class ModelTextures {
       return singleSlot(StockTextureAliases.WOOL, getBlockTexture(p_240368_0_));
    }
 
+   public static ModelTextures side(Block $$0) {
+      return singleSlot(StockTextureAliases.SIDE, getBlockTexture($$0));
+   }
+
    public static ModelTextures stem(Block p_240369_0_) {
       return singleSlot(StockTextureAliases.STEM, getBlockTexture(p_240369_0_));
    }
@@ -140,6 +144,10 @@ public class ModelTextures {
 
    public static ModelTextures cubeBottomTop(Block p_240379_0_) {
       return (new ModelTextures()).put(StockTextureAliases.SIDE, getBlockTexture(p_240379_0_, "_side")).put(StockTextureAliases.TOP, getBlockTexture(p_240379_0_, "_top")).put(StockTextureAliases.BOTTOM, getBlockTexture(p_240379_0_, "_bottom"));
+   }
+
+   public static ModelTextures flowerbed(Block $$0) {
+      return new ModelTextures().put(StockTextureAliases.FLOWERBED, ModelTextures.getBlockTexture($$0)).put(StockTextureAliases.STEM, ModelTextures.getBlockTexture($$0, "_stem"));
    }
 
    public static ModelTextures cubeBottomTopWithWall(Block p_240380_0_) {

@@ -63,8 +63,8 @@ public class Item implements IItemProvider {
    }
 
 
-   public void onScroll(PlayerEntity player, ItemStack scrollItem, int scrollDirection) {
-
+   public boolean onScroll(PlayerEntity player, ItemStack scrollItem, int scrollDirection) {
+         return false;
    }
 
    public static int getId(Item p_150891_0_) {
@@ -134,17 +134,17 @@ public class Item implements IItemProvider {
       return 1.0F;
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
       if (this.isEdible()) {
-         ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-         if (p_77659_2_.canEat(this.getFoodProperties().canAlwaysEat())) {
-            p_77659_2_.startUsingItem(p_77659_3_);
+         ItemStack itemstack = player.getItemInHand(hand);
+         if (player.canEat(this.getFoodProperties().canAlwaysEat())) {
+            player.startUsingItem(hand);
             return ActionResult.consume(itemstack);
          } else {
             return ActionResult.fail(itemstack);
          }
       } else {
-         return ActionResult.pass(p_77659_2_.getItemInHand(p_77659_3_));
+         return ActionResult.pass(player.getItemInHand(hand));
       }
    }
 

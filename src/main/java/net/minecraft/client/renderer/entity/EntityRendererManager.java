@@ -26,7 +26,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
+import net.minecraft.entity.monster.RayTracingRenderer;
 import net.minecraft.entity.monster.creaking.CreakingRenderer;
+import net.minecraft.entity.passive.allay.AllayRenderer;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowRenderer;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -76,11 +78,14 @@ public class EntityRendererManager {
       this.register(EntityType.ENDSTONE_BLOCK, new BlockEntityRenderer(this, new ResourceLocation("textures/entity/block/endstone.png")));
       this.register(EntityType.GREAT_HUNGER, new GreatHungerRenderer(this));
       this.register(EntityType.CREAKING, new CreakingRenderer(this));
+      this.register(EntityType.CREAKING_TRANSIENT, new CreakingRenderer(this));
+      this.register(EntityType.ALLAY, new AllayRenderer(this));
       this.register(EntityType.ARMOR_STAND, new ArmorStandRenderer(this));
       this.register(EntityType.ARROW, new TippedArrowRenderer(this));
       this.register(EntityType.BONE_ARROW, new BoneArrowRenderer(this));
       this.register(EntityType.CUSTOM_ARROW, new CustomArrowRenderer(this));
       this.register(EntityType.BAT, new BatRenderer(this));
+      this.register(EntityType.PALE_GARDEN_BAT, new PaleGardenBatRenderer(this));
       this.register(EntityType.BEE, new BeeRenderer(this));
       this.register(EntityType.QUEEN_BEE, new QueenBeeRenderer(this));
       this.register(EntityType.BLAZE, new BlazeRenderer(this));
@@ -98,6 +103,9 @@ public class EntityRendererManager {
       this.register(EntityType.DRAGON_FIREBALL, new DragonFireballRenderer(this));
       this.register(EntityType.DROWNED, new DrownedRenderer(this));
       this.register(EntityType.EGG, new SpriteRenderer<>(this, p_229097_1_));
+      this.register(EntityType.STARFURY_STAR, new SpriteRenderer<>(this, p_229097_1_, 1.4f, true));
+      this.register(EntityType.CAT_PROJECTILE, new SpriteRenderer<>(this, p_229097_1_, 1.4f, true));
+
       this.register(EntityType.ELDER_GUARDIAN, new ElderGuardianRenderer(this));
       this.register(EntityType.END_CRYSTAL, new EnderCrystalRenderer(this));
       this.register(EntityType.ENDER_DRAGON, new EnderDragonRenderer(this));
@@ -134,6 +142,7 @@ public class EntityRendererManager {
       this.register(EntityType.ITEM_FRAME, new ItemFrameRenderer(this, p_229097_1_));
       this.register(EntityType.LEASH_KNOT, new LeashKnotRenderer(this));
       this.register(EntityType.LIGHTNING_BOLT, new LightningBoltRenderer(this));
+      this.register(EntityType.RAY_TRACING, new RayTracingRenderer(this));
       this.register(EntityType.LLAMA, new LlamaRenderer(this));
       this.register(EntityType.LLAMA_SPIT, new LlamaSpitRenderer(this));
       this.register(EntityType.MAGMA_CUBE, new MagmaCubeRenderer(this));
@@ -195,6 +204,13 @@ public class EntityRendererManager {
       this.register(EntityType.ZOMBIFIED_PIGLIN, new PiglinRenderer(this, true));
       this.register(EntityType.ZOMBIE_VILLAGER, new ZombieVillagerRenderer(this, p_229097_2_));
       this.register(EntityType.STRIDER, new StriderRenderer(this));
+      this.register(EntityType.GIANT_WORM, new WormRenderer(this));
+
+      this.register(EntityType.DEMON_EYE, new DemonEyeRenderer(this));
+      this.register(EntityType.EYE_OF_CTHULHU, new CthulhuRenderer(this));
+      this.register(EntityType.RETINAZER, new RetinazerRenderer(this));
+      this.register(EntityType.EYE_OF_CTHULHU_SECOND_FORM, new CthulhuSecondRenderer(this));
+
 
    }
 

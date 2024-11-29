@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class WoodType {
    private static final Set<WoodType> VALUES = new ObjectArraySet<>();
    public static final WoodType OAK = register(new WoodType("oak"));
+   public static final WoodType PALE = register(new WoodType("pale"));
    public static final WoodType SPRUCE = register(new WoodType("spruce"));
    public static final WoodType BIRCH = register(new WoodType("birch"));
    public static final WoodType ACACIA = register(new WoodType("acacia"));

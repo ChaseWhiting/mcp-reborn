@@ -4,9 +4,15 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.PrintStream;
+import java.util.stream.Stream;
 
 public class TestClass {
-    public static A[] AA = new A[]{new B(), new C(), new F()};
+
+    public TestClass() {
+
+    }
+
+    public static A[] AA = new A[]{new C(), new F()};
 
     interface A {
 
@@ -32,17 +38,33 @@ public class TestClass {
         }
     }
 
-    public static class B implements A, D {
+    void st(String[] args) {
+        main(args);
+    }
+
+    public static abstract class B implements A, D {
 
         public B() {
 
         }
+
+        abstract A set(D a);
     }
 
     public static class C extends B implements E {
 
         public C() {
 
+        }
+
+        @Override
+        A set(D a) {
+            return new D() {
+                void d() {
+                    TestClass testClass = new TestClass();
+                    testClass.st(new String[]{"Hi..."});
+                }
+            };
         }
 
         @Override

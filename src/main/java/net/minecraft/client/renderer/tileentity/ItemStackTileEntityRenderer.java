@@ -16,6 +16,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.entity.model.CthulhuShieldModel;
 import net.minecraft.client.renderer.entity.model.ShieldModel;
 import net.minecraft.client.renderer.entity.model.TridentModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
@@ -26,7 +27,7 @@ import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.ShieldItem;
+import net.minecraft.item.tool.ShieldItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.BannerPattern;
@@ -40,7 +41,6 @@ import net.minecraft.tileentity.SkullTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TrappedChestTileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +59,8 @@ public class ItemStackTileEntityRenderer {
    private final BedTileEntity bed = new BedTileEntity();
    private final ConduitTileEntity conduit = new ConduitTileEntity();
    private final ShieldModel shieldModel = new ShieldModel();
+   private final CthulhuShieldModel cthulhuShieldModel = new CthulhuShieldModel();
+
    private final TridentModel tridentModel = new TridentModel();
 
    public void renderByItem(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStack, IRenderTypeBuffer buffer, int i, int i2) {

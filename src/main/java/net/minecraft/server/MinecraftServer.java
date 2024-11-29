@@ -50,6 +50,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
+
+import net.minecraft.WorldGenExtractor;
 import net.minecraft.advancements.AdvancementManager;
 import net.minecraft.advancements.FunctionManager;
 import net.minecraft.block.Block;
@@ -308,6 +310,7 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
       this.createLevels(ichunkstatuslistener);
       this.forceDifficulty();
       this.prepareLevels(ichunkstatuslistener);
+      //WorldGenExtractor.extractBiomeSource(this);
    }
 
    protected void forceDifficulty() {

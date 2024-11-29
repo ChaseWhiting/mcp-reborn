@@ -14,6 +14,7 @@ public class Potions {
    public static final Potion LONG_NIGHT_VISION = register("long_night_vision", new Potion("night_vision", new EffectInstance(Effects.NIGHT_VISION, 9600)));
    public static final Potion INVISIBILITY = register("invisibility", new Potion(new EffectInstance(Effects.INVISIBILITY, 3600)));
    public static final Potion LONG_INVISIBILITY = register("long_invisibility", new Potion("invisibility", new EffectInstance(Effects.INVISIBILITY, 9600)));
+   public static final Potion CONFUSED = register("confused", new Potion(new EffectInstance(Effects.CONFUSED, 3600)));
    public static final Potion LEAPING = register("leaping", new Potion(new EffectInstance(Effects.JUMP, 3600)));
    public static final Potion LONG_LEAPING = register("long_leaping", new Potion("leaping", new EffectInstance(Effects.JUMP, 9600)));
    public static final Potion STRONG_LEAPING = register("strong_leaping", new Potion("leaping", new EffectInstance(Effects.JUMP, 1800, 1)));

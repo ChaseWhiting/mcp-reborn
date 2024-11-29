@@ -6,13 +6,12 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Mob;
 import net.minecraft.item.*;
+import net.minecraft.item.tool.*;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.level.GameEvent;
 
 import java.util.function.Predicate;
-
-import static net.minecraft.item.ItemTier.*;
 
 public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
    private final Predicate<Difficulty> validDifficulties;
@@ -84,6 +83,7 @@ public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
                case GOLD -> 1.67F;
                case DIAMOND -> 1.2F;
                case NETHERITE -> 1.4F;
+               default -> 0.7f;
             };
          }
          calculatedTime /= (2 + modifier); // Apply the modifier after the raw time calculation

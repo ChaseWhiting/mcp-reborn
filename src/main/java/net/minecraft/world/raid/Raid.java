@@ -718,9 +718,9 @@ public class Raid {
          case GILDED_RAVAGER:
             potentialSpawns = !isEasyDifficulty && specialCondition ? 2 : 0;
             break;
-         case ILLUSIONER:
-            potentialSpawns = randomGenerator.nextInt(2);
-            break;
+//         case ILLUSIONER:
+//            potentialSpawns = randomGenerator.nextInt(2);
+//            break;
          case SHAMAN:
 
             default:
@@ -831,7 +831,7 @@ public class Raid {
       WITCH(EntityType.WITCH, new int[]{0, 0, 0, 0, 3, 0, 0, 1}),
       RAVAGER(EntityType.RAVAGER, new int[]{0, 0, 1, 0, 0, 2, 1, 1}),
       GILDED_RAVAGER(EntityType.GILDED_RAVAGER, new int[]{0, 0, 1, 2, 0, 0, 2, 3}),
-      ILLUSIONER(EntityType.ILLUSIONER, new int[]{0, 1, 0, 1, 0, 1, 2, 3}),
+      //ILLUSIONER(EntityType.ILLUSIONER, new int[]{0, 0, 0, 1, 0, 1, 2, 3}),
       SHAMAN(EntityType.SHAMAN, new int[]{0, 1, 0, 2, 0, 2, 0, 3}),
       MARAUDER(EntityType.MARAUDER, new int[]{0, 0, 2, 1, 0, 2, 1, 2}),
       CAPTAIN(EntityType.PILLAGER_CAPTAIN, new int[]{1, 0, 1, 0, 1, 3, 2, 4});

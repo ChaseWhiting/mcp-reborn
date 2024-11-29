@@ -151,21 +151,28 @@ public class KeyboardListener {
                     this.minecraft.reloadResourcePacks();
                     return true;
                 case 85:
-                    // Retrieve performance metrics
-                    PerformanceMetrics performanceMetrics = Minecraft.getInstance().getGame().getPerformanceMetrics();
-                    int minTime = performanceMetrics.getMinTime();
-                    int maxTime = performanceMetrics.getMaxTime();
-                    int averageTime = performanceMetrics.getAverageTime();
-                    int sampleCount = performanceMetrics.getSampleCount();
-
-                    // Create a message combining the metrics
-                    String message = String.format("Performance Metrics - Min Time: %d, Max Time: %d, Average Time: %d, Sample Count: %d",
-                            minTime, maxTime, averageTime, sampleCount);
-
-                    // Send the message to the player
-                    this.minecraft.player.sendMessage(new StringTextComponent(message), this.minecraft.player.getUUID());
+//                    // Retrieve performance metrics
+//                    PerformanceMetrics performanceMetrics = Minecraft.getInstance().getGame().getPerformanceMetrics();
+//                    int minTime = performanceMetrics.getMinTime();
+//                    int maxTime = performanceMetrics.getMaxTime();
+//                    int averageTime = performanceMetrics.getAverageTime();
+//                    int sampleCount = performanceMetrics.getSampleCount();
+//
+//                    // Create a message combining the metrics
+//                    String message = String.format("Performance Metrics - Min Time: %d, Max Time: %d, Average Time: %d, Sample Count: %d",
+//                            minTime, maxTime, averageTime, sampleCount);
+//
+//                    // Send the message to the player
+//                    this.minecraft.player.sendMessage(new StringTextComponent(message), this.minecraft.player.getUUID());
+//                    return true;
+                    this.minecraft.levelRenderer.captureFrustum = true;
+                    this.minecraft.player.sendMessage(new StringTextComponent("Captured frustum"), this.minecraft.player.getUUID());
                     return true;
+                case 86:
+                    this.minecraft.levelRenderer.frustumToView = null;
+                    this.minecraft.player.sendMessage(new StringTextComponent("Frustum removed"), this.minecraft.player.getUUID());
 
+                    return true;
                 case 293:
                     if (!this.minecraft.player.hasPermissions(2)) {
                         this.debugFeedbackTranslated("debug.gamemodes.error");

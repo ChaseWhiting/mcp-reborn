@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.types.Type;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.Hash.Strategy;
 import java.io.File;
@@ -31,19 +32,9 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -72,6 +63,21 @@ public class Util {
 
    public static <K, V> Collector<Entry<? extends K, ? extends V>, ?, Map<K, V>> toMap() {
       return Collectors.toMap(Entry::getKey, Entry::getValue);
+   }
+
+   public static <T, U, R> BiFunction<T, U, R> memoize(final BiFunction<T, U, R> $$0) {
+      return new BiFunction<T, U, R>(){
+         private final Map<Pair<T, U>, R> cache = new ConcurrentHashMap<>();
+
+         @Override
+         public R apply(T $$02, U $$12) {
+            return this.cache.computeIfAbsent(Pair.of($$02, $$12), $$1 -> $$0.apply($$1.getFirst(), $$1.getSecond()));
+         }
+
+         public String toString() {
+            return "memoize/2[function=" + String.valueOf($$0) + ", size=" + this.cache.size() + "]";
+         }
+      };
    }
 
    public static <T extends Comparable<T>> String getPropertyName(Property<T> p_200269_0_, Object p_200269_1_) {

@@ -41,7 +41,9 @@ public class BundleItem extends Item {
         super(new Item.Properties().tab(ItemGroup.TAB_COMBAT).stacksTo(1));
     }
 
-    public void onScroll(PlayerEntity player, ItemStack bundleStack, int direction) {
+    public boolean onScroll(PlayerEntity player, ItemStack bundleStack, int direction) {
+        if (!player.inventory.contains(bundleStack)) return false;
+
         CompoundNBT nbt = bundleStack.getOrCreateTag();
         ListNBT itemList = nbt.getList(TAG_ITEMS, 10);
 
@@ -60,6 +62,8 @@ public class BundleItem extends Item {
             nbt.put(TAG_ITEMS, itemList);
             bundleStack.setTag(nbt);
         }
+
+        return true;
     }
 
     @Override
@@ -98,7 +102,6 @@ public class BundleItem extends Item {
             }
         }
 
-        // Return an empty ItemStack if there are no items in the bundle
         return ItemStack.EMPTY;
     }
 
@@ -122,13 +125,10 @@ public class BundleItem extends Item {
                 int availableSpace = (getMaxWeight(bundleStack) - getContentWeight(bundleStack)) / getItemWeight(slotStack, bundleStack);
                 int itemsToAdd = Math.min(slotStack.getCount(), availableSpace);
 
-// Check if the total items to be added exceed the available space
                 if (itemsToAdd > 0) {
-                    // Ensure the number of items added doesn't exceed the maximum weight
                     ItemStack stackToInsert = slotStack.copy();
                     stackToInsert.setCount(itemsToAdd);
 
-                    // Insert items and reduce the stack count accordingly
                     int itemsInserted = add((BundleItem) bundleStack.getItem(), bundleStack, stackToInsert, clickAction);
                     if (itemsInserted > 0) {
                         this.playInsertSound(player);
@@ -168,9 +168,8 @@ public class BundleItem extends Item {
                         incomingStack.shrink(itemsInserted);
                     }
 
-                    // If there are leftover items that couldn't be added to the bundle, return them to the player's inventory
                     if (incomingStack.getCount() > 0) {
-                        slotAccess.set(incomingStack); // Return the remaining items back to the slot
+                        slotAccess.set(incomingStack);
                     }
                 }
             }
@@ -181,19 +180,19 @@ public class BundleItem extends Item {
         }
     }
 
-    public ActionResult<ItemStack> use(World p_150760_, PlayerEntity p_150761_, Hand p_150762_) {
-        ItemStack itemstack = p_150761_.getItemInHand(p_150762_);
-        if (p_150761_.isDiscrete()) {
-            if (dropItems(itemstack, p_150761_, 1, false)) {
-                this.playRemoveOneSound(p_150761_);
-                p_150761_.awardStat(Stats.ITEM_USED.get(this));
-                return ActionResult.sidedSuccess(itemstack, p_150760_.isClientSide);
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+        ItemStack itemstack = player.getItemInHand(hand);
+        if (player.isDiscrete()) {
+            if (dropItems(itemstack, player, 1, false)) {
+                this.playRemoveOneSound(player);
+                player.awardStat(Stats.ITEM_USED.get(this));
+                return ActionResult.sidedSuccess(itemstack, world.isClientSide);
             }
         }
-        if (dropContents(itemstack, p_150761_)) {
-            this.playDropContentsSound(p_150761_);
-            p_150761_.awardStat(Stats.ITEM_USED.get(this));
-            return ActionResult.sidedSuccess(itemstack, p_150760_.isClientSide());
+        if (dropContents(itemstack, player)) {
+            this.playDropContentsSound(player);
+            player.awardStat(Stats.ITEM_USED.get(this));
+            return ActionResult.sidedSuccess(itemstack, world.isClientSide());
         } else {
             return ActionResult.fail(itemstack);
         }
@@ -296,40 +295,36 @@ public class BundleItem extends Item {
             int insertCount = Math.min(itemStack.getCount(), availableSpace / itemWeight);
 
             if (insertCount <= 0) {
-                return 0; // No space for any items
+                return 0;
             }
 
             ListNBT itemList = tag.getList(TAG_ITEMS, 10);
             boolean itemAdded = false;
             int itemsInserted = 0;
 
-            // Iterate through the list to try to add items
             for (int i = 0; i < itemList.size(); i++) {
                 CompoundNBT existingTag = itemList.getCompound(i);
                 ItemStack existingStack = ItemStack.of(existingTag);
 
-                // If the item type and tag match, try to merge stacks
                 if (ItemStack.isSame(existingStack, itemStack) && ItemStack.tagMatches(existingStack, itemStack)) {
                     int newCount = Math.min(existingStack.getCount() + insertCount, existingStack.getMaxStackSize());
                     int itemsToAdd = newCount - existingStack.getCount();
 
                     existingStack.setCount(newCount);
-                    existingStack.save(existingTag); // Save updated count
+                    existingStack.save(existingTag);
                     itemList.set(i, existingTag);
 
-                    itemStack.shrink(itemsToAdd); // Reduce the incoming stack count
+                    itemStack.shrink(itemsToAdd);
                     insertCount -= itemsToAdd;
                     itemsInserted += itemsToAdd;
                     itemAdded = true;
 
-                    // If no more items are left to add, break early
                     if (insertCount <= 0) {
                         break;
                     }
                 }
             }
 
-            // If we still have items to add after attempting to merge stacks, create new entries
             while (insertCount > 0) {
                 ItemStack newStack = itemStack.copy();
                 int countToAdd = Math.min(insertCount, newStack.getMaxStackSize());
@@ -339,13 +334,13 @@ public class BundleItem extends Item {
                 newStack.save(newTag);
                 itemList.add(newTag);
 
-                itemStack.shrink(countToAdd); // Reduce the item held by the player
+                itemStack.shrink(countToAdd);
                 insertCount -= countToAdd;
                 itemsInserted += countToAdd;
             }
 
-            tag.put(TAG_ITEMS, itemList); // Update the NBT data
-            return itemsInserted; // Return the total number of items inserted
+            tag.put(TAG_ITEMS, itemList);
+            return itemsInserted;
         } else {
             return 0;
         }
@@ -390,25 +385,20 @@ public class BundleItem extends Item {
             if (itemList.isEmpty()) {
                 return Optional.empty();
             } else {
-                // Get the last item in the list (after scrolling)
                 int lastIndex = itemList.size() - 1;
                 CompoundNBT itemTag = itemList.getCompound(lastIndex);
                 ItemStack itemStack = ItemStack.of(itemTag);
 
-                // Remove the last item
                 itemList.remove(lastIndex);
 
-                // If no items are left, clear the items list but keep the bundle
                 if (itemList.isEmpty()) {
                     compoundNBT.remove(TAG_ITEMS);
                 } else {
                     compoundNBT.put(TAG_ITEMS, itemList);
                 }
 
-                // Update the NBT after removal
                 bundleStack.setTag(compoundNBT);
 
-                // Return the removed item
                 return Optional.of(itemStack);
             }
         }
@@ -441,16 +431,16 @@ public class BundleItem extends Item {
             return false;
         } else {
             if (player instanceof ServerPlayerEntity) {
-                ListNBT listtag = nbt.getList(TAG_ITEMS, 10); // Fetch the list of items stored in the bundle
-                if (listtag.isEmpty()) { // Check if the list is empty to prevent out-of-bounds access
+                ListNBT listtag = nbt.getList(TAG_ITEMS, 10);
+                if (listtag.isEmpty()) {
                     return false;
                 }
-                int lastIndex = listtag.size() - 1; // Calculate the index of the last item
-                CompoundNBT data = listtag.getCompound(lastIndex); // Get the NBT data of the last item
-                ItemStack stack = ItemStack.of(data); // Create an ItemStack from the NBT data
-                player.drop(stack, true); // Drop the item in the world
-                listtag.remove(lastIndex); // Remove the item from the list
-                nbt.put(TAG_ITEMS, listtag); // Update the NBT in the ItemStack to reflect the removal
+                int lastIndex = listtag.size() - 1;
+                CompoundNBT data = listtag.getCompound(lastIndex);
+                ItemStack stack = ItemStack.of(data);
+                player.drop(stack, true);
+                listtag.remove(lastIndex);
+                nbt.put(TAG_ITEMS, listtag);
             }
 
             return true;

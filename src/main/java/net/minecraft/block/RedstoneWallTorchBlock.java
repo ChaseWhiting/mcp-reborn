@@ -71,12 +71,12 @@ public class RedstoneWallTorchBlock extends RedstoneTorchBlock {
       return p_180656_1_.getValue(LIT) && p_180656_1_.getValue(FACING) != p_180656_4_ ? 15 : 0;
    }
 
-   public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-      return Blocks.WALL_TORCH.rotate(p_185499_1_, p_185499_2_);
+   public BlockState rotate(BlockState state, Rotation rotation) {
+      return Blocks.WALL_TORCH.rotate(state, rotation);
    }
 
-   public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-      return Blocks.WALL_TORCH.mirror(p_185471_1_, p_185471_2_);
+   public BlockState mirror(BlockState state, Mirror mirroring) {
+      return Blocks.WALL_TORCH.mirror(state, mirroring);
    }
 
    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {

@@ -23,13 +23,14 @@ public class MushroomBlock extends BushBlock implements IGrowable {
       return SHAPE;
    }
 
-   public void randomTick(BlockState p_225542_1_, ServerWorld p_225542_2_, BlockPos p_225542_3_, Random p_225542_4_) {
-      if (p_225542_4_.nextInt(25) == 0) {
+   public void randomTick(BlockState state, ServerWorld level, BlockPos position, Random random) {
+      if (random.nextInt(25) == 0) {
          int i = 5;
          int j = 4;
+         int f = 3;
 
-         for(BlockPos blockpos : BlockPos.betweenClosed(p_225542_3_.offset(-4, -1, -4), p_225542_3_.offset(4, 1, 4))) {
-            if (p_225542_2_.getBlockState(blockpos).is(this)) {
+         for(BlockPos blockpos : BlockPos.betweenClosed(position.offset(-j, -1, -j), position.offset(j, 1, j))) {
+            if (level.getBlockState(blockpos).is(this)) {
                --i;
                if (i <= 0) {
                   return;
@@ -37,18 +38,18 @@ public class MushroomBlock extends BushBlock implements IGrowable {
             }
          }
 
-         BlockPos blockpos1 = p_225542_3_.offset(p_225542_4_.nextInt(3) - 1, p_225542_4_.nextInt(2) - p_225542_4_.nextInt(2), p_225542_4_.nextInt(3) - 1);
+         BlockPos blockpos1 = position.offset(random.nextInt(f) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(f) - 1);
 
-         for(int k = 0; k < 4; ++k) {
-            if (p_225542_2_.isEmptyBlock(blockpos1) && p_225542_1_.canSurvive(p_225542_2_, blockpos1)) {
-               p_225542_3_ = blockpos1;
+         for(int k = 0; k < j; ++k) {
+            if (level.isEmptyBlock(blockpos1) && state.canSurvive(level, blockpos1)) {
+               position = blockpos1;
             }
 
-            blockpos1 = p_225542_3_.offset(p_225542_4_.nextInt(3) - 1, p_225542_4_.nextInt(2) - p_225542_4_.nextInt(2), p_225542_4_.nextInt(3) - 1);
+            blockpos1 = position.offset(random.nextInt(f) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(f) - 1);
          }
 
-         if (p_225542_2_.isEmptyBlock(blockpos1) && p_225542_1_.canSurvive(p_225542_2_, blockpos1)) {
-            p_225542_2_.setBlock(blockpos1, p_225542_1_, 2);
+         if (level.isEmptyBlock(blockpos1) && state.canSurvive(level, blockpos1)) {
+            level.setBlock(blockpos1, state, 2);
          }
       }
 

@@ -20,6 +20,7 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class Vector3d implements IPosition {
    public static final Vector3d ZERO = new Vector3d(0.0D, 0.0D, 0.0D);
+   public static final Vector3d UP = new Vector3d(0.0, 1.0, 0.0);
    public final double x;
    public final double y;
    public final double z;
@@ -387,10 +388,10 @@ public class Vector3d implements IPosition {
       return directionFromRotation(rotation.x, rotation.y);
    }
 
-   public static Vector3d randomPointBehindTarget(LivingEntity livingEntity, Random random) {
+   public static Vector3d randomPointBehindTarget(LivingEntity livingEntity, Random random, float minDistance, float maxDistance) {
       float yawBehindTarget = livingEntity.yHeadRot + 180.0F + (float)random.nextGaussian() * 45.0F;
 
-      float randomDistance = MathHelper.lerp(random.nextFloat(), 4.0F, 8.0F);
+      float randomDistance = MathHelper.lerp(random.nextFloat(), minDistance, maxDistance);
 
       Vector3d direction = directionFromRotation(0.0F, yawBehindTarget).scale((double)randomDistance);
 

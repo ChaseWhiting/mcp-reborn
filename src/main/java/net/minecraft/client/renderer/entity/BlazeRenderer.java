@@ -19,6 +19,10 @@ public class BlazeRenderer extends MobRenderer<BlazeEntity, BlazeModel<BlazeEnti
       return 15;
    }
 
+   public float getFlipDegrees(BlazeEntity blaze) {
+      return 0f;
+   }
+
    public ResourceLocation getTextureLocation(BlazeEntity p_110775_1_) {
       return BLAZE_LOCATION;
    }

@@ -86,7 +86,7 @@ public class ClientPlayerEntity extends AbstractClientPlayerEntity {
    public final ClientPlayNetHandler connection;
    private final StatisticsManager stats;
    private final ClientRecipeBook recipeBook;
-   private final List<IAmbientSoundHandler> ambientSoundHandlers = Lists.newArrayList();
+   public final List<IAmbientSoundHandler> ambientSoundHandlers = Lists.newArrayList();
    private int permissionLevel = 0;
    private double xLast;
    private double yLast1;
@@ -572,8 +572,9 @@ public class ClientPlayerEntity extends AbstractClientPlayerEntity {
    public void serverAiStep() {
       super.serverAiStep();
       if (this.isControlledCamera()) {
-         this.xxa = this.input.leftImpulse;
-         this.zza = this.input.forwardImpulse;
+         boolean flag = this.hasEffect(Effects.CONFUSED);
+         this.xxa = !flag ? this.input.leftImpulse : -this.input.leftImpulse;
+         this.zza = !flag ? this.input.forwardImpulse : -this.input.forwardImpulse;
          this.jumping = this.input.jumping;
          this.yBobO = this.yBob;
          this.xBobO = this.xBob;
@@ -633,7 +634,7 @@ public class ClientPlayerEntity extends AbstractClientPlayerEntity {
          }
       }
 
-      if (!this.isSprinting() && (!this.isInWater() || this.isUnderWater()) && this.hasEnoughImpulseToStartSprinting() && flag4 && !this.isUsingItem() && !this.hasEffect(Effects.BLINDNESS) && this.minecraft.options.keySprint.isDown()) {
+      if (!this.isSprinting() && (!this.isInWater() || this.isUnderWater()) && this.hasEnoughImpulseToStartSprinting() && flag4 && !this.isUsingItem() && !this.hasEffect(Effects.CONFUSED) && !this.hasEffect(Effects.BLINDNESS) && this.minecraft.options.keySprint.isDown()) {
          this.setSprinting(true);
       }
 

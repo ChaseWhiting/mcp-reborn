@@ -101,7 +101,7 @@ public class ZombieEntity extends Monster {
       this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0D, false));
       this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0D, true, 4, this::canBreakDoors));
       this.goalSelector.addGoal(7, new WaterAvoidingRandomWalkingGoal(this, 1.0D));
-      //this.goalSelector.addGoal(1, new AdvancedBreakBlockGoal(this, state -> state.getMaterial() == Material.WOOD || state.getBlock() instanceof TorchBlock, d -> this.veryHardmode()));
+     // this.goalSelector.addGoal(1, new AdvancedBreakBlockGoal(this, state -> state.getBlock() instanceof FenceBlock || state.getBlock() instanceof TorchBlock, d -> this.veryHardmode()));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglinEntity.class, AbstractSkeletonEntity.class));
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, false));

@@ -188,9 +188,11 @@ public class WorldRenderer implements IResourceManagerReloadListener, AutoClosea
    private int lastViewDistance = -1;
    private int renderedEntities;
    private int culledEntities;
-   private boolean captureFrustum;
+   public boolean captureFrustum;
    @Nullable
    private ClippingHelper capturedFrustum;
+   public ClippingHelper frustumToView;
+
    private final Vector4f[] frustumPoints = new Vector4f[8];
    private final Tuple3d frustumPos = new Tuple3d(0.0D, 0.0D, 0.0D);
    private double xTransparentOld;
@@ -860,7 +862,7 @@ public class WorldRenderer implements IResourceManagerReloadListener, AutoClosea
    }
 
    private void captureFrustum(Matrix4f p_228419_1_, Matrix4f p_228419_2_, double p_228419_3_, double p_228419_5_, double p_228419_7_, ClippingHelper p_228419_9_) {
-      this.capturedFrustum = p_228419_9_;
+      this.frustumToView = p_228419_9_;
       Matrix4f matrix4f = p_228419_2_.copy();
       matrix4f.multiply(p_228419_1_);
       matrix4f.invert();
@@ -897,6 +899,7 @@ public class WorldRenderer implements IResourceManagerReloadListener, AutoClosea
       iprofiler.popPush("culling");
       boolean flag = this.capturedFrustum != null;
       ClippingHelper clippinghelper;
+      ClippingHelper clip1;
       if (flag) {
          clippinghelper = this.capturedFrustum;
          clippinghelper.prepare(this.frustumPos.x, this.frustumPos.y, this.frustumPos.z);
@@ -1342,7 +1345,7 @@ public class WorldRenderer implements IResourceManagerReloadListener, AutoClosea
          RenderSystem.enableTexture();
       }
 
-      if (this.capturedFrustum != null) {
+      if (this.frustumToView != null) {
          RenderSystem.disableCull();
          RenderSystem.disableTexture();
          RenderSystem.enableBlend();
@@ -2504,7 +2507,7 @@ public class WorldRenderer implements IResourceManagerReloadListener, AutoClosea
             SoundEvent hitSound = level.getBlockState(pos).getSoundType().getHitSound();
             this.level.playLocalSound(pos, hitSound, SoundCategory.BLOCKS, 1.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F, false);
             break;
-
+            
       }
    }
 
@@ -2556,6 +2559,7 @@ public class WorldRenderer implements IResourceManagerReloadListener, AutoClosea
 
    public static int getLightColor(IBlockDisplayReader p_228420_0_, BlockState p_228420_1_, BlockPos p_228420_2_) {
       if (p_228420_1_.emissiveRendering(p_228420_0_, p_228420_2_)) {
+
          return 15728880;
       } else {
          int i = p_228420_0_.getBrightness(LightType.SKY, p_228420_2_);

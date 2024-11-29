@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Random;
 import net.minecraft.block.JigsawBlock;
 import net.minecraft.util.Direction;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -20,6 +21,8 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.feature.structure.AbstractVillagePiece;
@@ -110,6 +113,8 @@ public class JigsawManager {
          MutableBoundingBox mutableboundingbox = p_236831_1_.getBoundingBox();
          int i = mutableboundingbox.y0;
 
+
+
          label139:
          for(Template.BlockInfo template$blockinfo : jigsawpiece.getShuffledJigsawBlocks(this.structureManager, blockpos, rotation, this.random)) {
             Direction direction = JigsawBlock.getFrontFacing(template$blockinfo.state);
@@ -119,6 +124,7 @@ public class JigsawManager {
             int k = -1;
             ResourceLocation resourcelocation = new ResourceLocation(template$blockinfo.nbt.getString("pool"));
             Optional<JigsawPattern> optional = this.pools.getOptional(resourcelocation);
+
             if (optional.isPresent() && (optional.get().size() != 0 || Objects.equals(resourcelocation, JigsawPatternRegistry.EMPTY.location()))) {
                ResourceLocation resourcelocation1 = optional.get().getFallback();
                Optional<JigsawPattern> optional1 = this.pools.getOptional(resourcelocation1);
@@ -153,6 +159,15 @@ public class JigsawManager {
                         List<Template.BlockInfo> list1 = jigsawpiece1.getShuffledJigsawBlocks(this.structureManager, BlockPos.ZERO, rotation1, this.random);
                         MutableBoundingBox mutableboundingbox1 = jigsawpiece1.getBoundingBox(this.structureManager, BlockPos.ZERO, rotation1);
                         int i1;
+
+                        // **Start of "Pale" Village-specific biome check**
+//                        if (resourcelocation.getPath().contains("pale")) {
+//                           if (!isBoundingBoxInBiome(this.chunkGenerator, mutableboundingbox1)) {
+//                              JigsawManager.LOGGER.warn("Skipping piece outside biome: {}", resourcelocation.getPath());
+//                              continue; // Skip this piece if it's outside the intended biome
+//                           }
+//                        }
+                        // **End of "Pale" Village-specific biome check**
                         if (p_236831_5_ && mutableboundingbox1.getYSpan() <= 16) {
                            i1 = list1.stream().mapToInt((p_242841_2_) -> {
                               if (!mutableboundingbox1.isInside(p_242841_2_.pos.relative(JigsawBlock.getFrontFacing(p_242841_2_.state)))) {
@@ -249,6 +264,28 @@ public class JigsawManager {
             }
          }
 
+      }
+
+
+      private boolean isBoundingBoxInBiome(ChunkGenerator generator, MutableBoundingBox boundingBox) {
+         Registry<Biome> biomeRegistry = DynamicRegistries.builtin().registryOrThrow(Registry.BIOME_REGISTRY);
+
+         for (int x = boundingBox.x0; x <= boundingBox.x1; x += Math.max(16, boundingBox.getXSpan())) {
+            for (int z = boundingBox.z0; z <= boundingBox.z1; z += Math.max(16, boundingBox.getZSpan())) {
+
+               Biome biome = generator.getBiomeSource().getNoiseBiome(x >> 2, 0, z >> 2);
+
+               Optional<RegistryKey<Biome>> biomeKey = biomeRegistry.getResourceKey(biome);
+
+                biomeKey.ifPresent(biomeRegistryKey -> JigsawManager.LOGGER.debug("Checked biome: {}", biomeRegistryKey.location()));
+
+               if (biomeKey.isPresent() && biomeKey.get() != Biomes.PALE_GARDEN) {
+                  return false;
+               }
+            }
+         }
+
+         return true;
       }
    }
 

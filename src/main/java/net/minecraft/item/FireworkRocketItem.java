@@ -43,19 +43,19 @@ public class FireworkRocketItem extends Item {
       return ActionResultType.sidedSuccess(world.isClientSide);
    }
 
-   public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      if (p_77659_2_.isFallFlying()) {
-         ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-         if (!p_77659_1_.isClientSide) {
-            p_77659_1_.addFreshEntity(new FireworkRocketEntity(p_77659_1_, itemstack, p_77659_2_));
-            if (!p_77659_2_.abilities.instabuild) {
+   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      if (player.isFallFlying()) {
+         ItemStack itemstack = player.getItemInHand(hand);
+         if (!world.isClientSide) {
+            world.addFreshEntity(new FireworkRocketEntity(world, itemstack, player));
+            if (!player.abilities.instabuild) {
                itemstack.shrink(1);
             }
          }
 
-         return ActionResult.sidedSuccess(p_77659_2_.getItemInHand(p_77659_3_), p_77659_1_.isClientSide());
+         return ActionResult.sidedSuccess(player.getItemInHand(hand), world.isClientSide());
       } else {
-         return ActionResult.pass(p_77659_2_.getItemInHand(p_77659_3_));
+         return ActionResult.pass(player.getItemInHand(hand));
       }
    }
 

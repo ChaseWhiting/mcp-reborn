@@ -55,6 +55,8 @@ public class ComposterBlock extends Block implements ISidedInventoryProvider {
       float f2 = 0.65F;
       float f3 = 0.85F;
       float f4 = 1.0F;
+      add(0.4f, Items.PALE_LEAF_PILE);
+      add(f1, Items.PALE_MOSS_BLOCK);
       add(0.3F, Items.JUNGLE_LEAVES);
       add(0.3F, Items.OAK_LEAVES);
       add(0.3F, Items.SPRUCE_LEAVES);

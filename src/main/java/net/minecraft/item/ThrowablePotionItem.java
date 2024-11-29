@@ -12,20 +12,20 @@ public class ThrowablePotionItem extends PotionItem {
       super(p_i225739_1_);
    }
 
-    public ActionResult<ItemStack> use(World p_77659_1_, PlayerEntity p_77659_2_, Hand p_77659_3_) {
-      ItemStack itemstack = p_77659_2_.getItemInHand(p_77659_3_);
-      if (!p_77659_1_.isClientSide) {
-         PotionEntity potionentity = new PotionEntity(p_77659_1_, p_77659_2_);
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      if (!world.isClientSide) {
+         PotionEntity potionentity = new PotionEntity(world, player);
          potionentity.setItem(itemstack);
-         potionentity.shootFromRotation(p_77659_2_, p_77659_2_.xRot, p_77659_2_.yRot, -20.0F, 0.5F, 1.0F);
-         p_77659_1_.addFreshEntity(potionentity);
+         potionentity.shootFromRotation(player, player.xRot, player.yRot, -20.0F, 0.5F, 1.0F);
+         world.addFreshEntity(potionentity);
       }
 
-      p_77659_2_.awardStat(Stats.ITEM_USED.get(this));
-      if (!p_77659_2_.abilities.instabuild) {
+      player.awardStat(Stats.ITEM_USED.get(this));
+      if (!player.abilities.instabuild) {
          itemstack.shrink(1);
       }
 
-      return ActionResult.sidedSuccess(itemstack, p_77659_1_.isClientSide());
+      return ActionResult.sidedSuccess(itemstack, world.isClientSide());
    }
 }

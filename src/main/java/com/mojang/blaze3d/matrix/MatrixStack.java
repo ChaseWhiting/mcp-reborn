@@ -29,11 +29,6 @@ public class MatrixStack {
       this.scale(value,value,value);
    }
 
-   public void pushPop() {
-      this.pushPose();
-      this.popPose();
-   }
-
    public void scale(float x, float y, float z) {
       MatrixStack.Entry matrixstack$entry = this.poseStack.getLast();
       matrixstack$entry.pose.multiply(Matrix4f.createScaleMatrix(x, y, z));

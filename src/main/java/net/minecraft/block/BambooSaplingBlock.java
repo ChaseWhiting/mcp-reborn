@@ -4,7 +4,7 @@ import java.util.Random;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.SwordItem;
+import net.minecraft.item.tool.SwordItem;
 import net.minecraft.state.properties.BambooLeaves;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;

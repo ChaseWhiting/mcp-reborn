@@ -2,23 +2,32 @@ package net.minecraft.client.renderer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Items;
 import net.minecraft.potion.Effects;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.CubicSampler;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
+import net.minecraft.world.biome.Biomes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class FogRenderer {
@@ -104,17 +113,28 @@ public class FogRenderer {
 
          // Adjust fog color for sun angles
          if (renderDistance >= 4) {
-            float sunAngleSign = MathHelper.sin(world.getSunAngle(partialTicks)) > 0.0F ? -1.0F : 1.0F;
-            Vector3f sunDirection = new Vector3f(sunAngleSign, 0.0F, 0.0F);
-            float sunLookFactor = renderInfo.getLookVector().dot(sunDirection);
+            boolean flag = false;
+            if (renderInfo.getEntity() != null && renderInfo.getEntity() instanceof ClientPlayerEntity) {
+               ClientPlayerEntity player = (ClientPlayerEntity) renderInfo.getEntity();
+               Optional<RegistryKey<Biome>> key = player.level.getBiomeName(player.blockPosition());
 
-            if (sunLookFactor > 0.0F) {
-               float[] sunriseColors = world.effects().getSunriseColor(world.getTimeOfDay(partialTicks), partialTicks);
-               if (sunriseColors != null) {
-                  sunLookFactor = sunLookFactor * sunriseColors[3];
-                  fogRed = fogRed * (1.0F - sunLookFactor) + sunriseColors[0] * sunLookFactor;
-                  fogGreen = fogGreen * (1.0F - sunLookFactor) + sunriseColors[1] * sunLookFactor;
-                  fogBlue = fogBlue * (1.0F - sunLookFactor) + sunriseColors[2] * sunLookFactor;
+               if (key.isPresent() && key.get() == Biomes.PALE_GARDEN) {
+                  flag = true;
+               }
+            }
+            if (!flag) {
+               float sunAngleSign = MathHelper.sin(world.getSunAngle(partialTicks)) > 0.0F ? -1.0F : 1.0F;
+               Vector3f sunDirection = new Vector3f(sunAngleSign, 0.0F, 0.0F);
+               float sunLookFactor = renderInfo.getLookVector().dot(sunDirection);
+
+               if (sunLookFactor > 0.0F) {
+                  float[] sunriseColors = world.effects().getSunriseColor(world.getTimeOfDay(partialTicks), partialTicks);
+                  if (sunriseColors != null) {
+                     sunLookFactor = sunLookFactor * sunriseColors[3];
+                     fogRed = fogRed * (1.0F - sunLookFactor) + sunriseColors[0] * sunLookFactor;
+                     fogGreen = fogGreen * (1.0F - sunLookFactor) + sunriseColors[1] * sunLookFactor;
+                     fogBlue = fogBlue * (1.0F - sunLookFactor) + sunriseColors[2] * sunLookFactor;
+                  }
                }
             }
          }
@@ -201,6 +221,52 @@ public class FogRenderer {
    public static void setupFog(ActiveRenderInfo renderInfo, FogRenderer.FogType fogType, float baseFogDensity, boolean isFoggy) {
       FluidState fluidInView = renderInfo.getFluidInCamera();
       Entity entity = renderInfo.getEntity();
+
+      if (entity instanceof ClientPlayerEntity) {
+         ClientPlayerEntity player = (ClientPlayerEntity) entity;
+         Optional<RegistryKey<Biome>> key = player.level.getBiomeName(player.blockPosition());
+         if (key.isPresent() && key.get() == Biomes.PALE_GARDEN || key.isPresent() && key.get() == Biomes.PALE_GARDEN_CRATER) {
+            float fogStartDistance = 7.0F;
+            float fogEndDistance = 30.0F;
+            float fogDensity = 0.03F;
+
+            if (player.level.isThundering()) {
+               fogStartDistance = 4.0F;
+               fogEndDistance = 15.0F;
+               fogDensity = 0.09F;
+            }
+
+            if (player.level.isNight()) {
+               fogStartDistance -= 0.5f;
+               fogEndDistance -= 5;
+               fogDensity += 0.05f;
+            }
+
+            if (player.level.getDifficulty() == Difficulty.HARD || player.veryHardmode()) {
+               fogStartDistance -= 2.5F;
+               fogEndDistance -= 6;
+               fogDensity += 0.12F;
+            }
+
+            if (player.hasEffect(Effects.BLINDNESS)) {
+               fogStartDistance -= 0.5F;
+               fogEndDistance -= 2;
+               fogDensity += 0.12F;
+            }
+
+            if (player.getItemBySlot(EquipmentSlotType.HEAD).getItem() == Items.WHITE_CARVED_PUMPKIN && Minecraft.getInstance().options.getCameraType().isFirstPerson() && !Minecraft.getInstance().options.hideGui) {
+               return;
+            }
+            RenderSystem.fogDensity(fogDensity);
+            RenderSystem.fogMode(GlStateManager.FogMode.EXP);
+            RenderSystem.fogStart(fogStartDistance);
+            RenderSystem.fogEnd(fogEndDistance);
+
+            RenderSystem.setupNvFogDistance();
+            return;
+         }
+      }
+
 
       // Water fog handling
       if (fluidInView.is(FluidTags.WATER)) {

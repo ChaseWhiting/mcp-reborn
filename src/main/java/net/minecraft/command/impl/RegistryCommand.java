@@ -31,13 +31,15 @@ public class RegistryCommand {
                         .requires(source -> source.hasPermission(4))
                         .then(Commands.argument("registry", StringArgumentType.word())
                                 .suggests(RegistryCommand::suggestRegistries)
-                                .then(Commands.argument("entry", StringArgumentType.greedyString())
-                                        .suggests(RegistryCommand::suggestRegistryEntries)
-                                        .executes(context -> {
-                                            String registryName = StringArgumentType.getString(context, "registry");
-                                            String entryName = StringArgumentType.getString(context, "entry");
-                                            return getRegistryEntry(context, registryName, entryName);
-                                        })
+                                .then(Commands.literal("entry")
+                                        .then(Commands.argument("entry", StringArgumentType.greedyString())
+                                                .suggests(RegistryCommand::suggestRegistryEntries)
+                                                .executes(context -> {
+                                                    String registryName = StringArgumentType.getString(context, "registry");
+                                                    String entryName = StringArgumentType.getString(context, "entry");
+                                                    return getRegistryEntry(context, registryName, entryName);
+                                                })
+                                        )
                                 )
                                 .then(Commands.literal("methods")
                                         .then(Commands.argument("methodName", StringArgumentType.greedyString())
@@ -130,6 +132,7 @@ public class RegistryCommand {
                 "carver", "feature", "structure_feature", "structure_piece", "decorator",
                 "block_state_provider_type", "block_placer_type", "foliage_placer_type",
                 "trunk_placer_type", "tree_decorator_type", "feature_size_type",
+                "configured_feature",
                 "biome_source", "chunk_generator", "structure_processor", "structure_pool_element", "frisbee"
         );
         return ISuggestionProvider.suggest(registryNames.stream(), builder);

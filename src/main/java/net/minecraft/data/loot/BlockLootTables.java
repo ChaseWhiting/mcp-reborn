@@ -233,6 +233,8 @@ public class BlockLootTables implements Consumer<BiConsumer<ResourceLocation, Lo
       this.dropSelf(Blocks.ACACIA_PLANKS);
       this.dropSelf(Blocks.DARK_OAK_PLANKS);
       this.dropSelf(Blocks.OAK_SAPLING);
+      this.dropSelf(Blocks.PALE_OAK_SAPLING);
+      this.dropSelf(Blocks.PALE_OAK_PLANKS);
       this.dropSelf(Blocks.SPRUCE_SAPLING);
       this.dropSelf(Blocks.BIRCH_SAPLING);
       this.dropSelf(Blocks.JUNGLE_SAPLING);
@@ -248,6 +250,10 @@ public class BlockLootTables implements Consumer<BiConsumer<ResourceLocation, Lo
       this.dropSelf(Blocks.JUNGLE_LOG);
       this.dropSelf(Blocks.ACACIA_LOG);
       this.dropSelf(Blocks.DARK_OAK_LOG);
+      this.dropSelf(Blocks.PALE_OAK_LOG);
+      this.dropSelf(Blocks.PALE_OAK_WOOD);
+      this.dropSelf(Blocks.STRIPPED_PALE_LOG);
+      this.dropSelf(Blocks.STRIPPED_PALE_OAK_WOOD);
       this.dropSelf(Blocks.STRIPPED_SPRUCE_LOG);
       this.dropSelf(Blocks.STRIPPED_BIRCH_LOG);
       this.dropSelf(Blocks.STRIPPED_JUNGLE_LOG);
@@ -346,6 +352,7 @@ public class BlockLootTables implements Consumer<BiConsumer<ResourceLocation, Lo
       this.dropSelf(Blocks.SUGAR_CANE);
       this.dropSelf(Blocks.JUKEBOX);
       this.dropSelf(Blocks.OAK_FENCE);
+      this.dropSelf(Blocks.PALE_OAK_FENCE);
       this.dropSelf(Blocks.PUMPKIN);
       this.dropSelf(Blocks.NETHERRACK);
       this.dropSelf(Blocks.SOUL_SAND);
@@ -701,6 +708,7 @@ public class BlockLootTables implements Consumer<BiConsumer<ResourceLocation, Lo
       this.dropPottedContents(Blocks.POTTED_WARPED_ROOTS);
       this.add(Blocks.ACACIA_SLAB, BlockLootTables::createSlabItemTable);
       this.add(Blocks.BIRCH_SLAB, BlockLootTables::createSlabItemTable);
+      this.add(Blocks.PALE_OAK_SLAB, BlockLootTables::createSlabItemTable);
       this.add(Blocks.BRICK_SLAB, BlockLootTables::createSlabItemTable);
       this.add(Blocks.COBBLESTONE_SLAB, BlockLootTables::createSlabItemTable);
       this.add(Blocks.DARK_OAK_SLAB, BlockLootTables::createSlabItemTable);
@@ -745,6 +753,7 @@ public class BlockLootTables implements Consumer<BiConsumer<ResourceLocation, Lo
       this.add(Blocks.IRON_DOOR, BlockLootTables::createDoorTable);
       this.add(Blocks.JUNGLE_DOOR, BlockLootTables::createDoorTable);
       this.add(Blocks.OAK_DOOR, BlockLootTables::createDoorTable);
+      this.add(Blocks.PALE_OAK_DOOR, BlockLootTables::createDoorTable);
       this.add(Blocks.SPRUCE_DOOR, BlockLootTables::createDoorTable);
       this.add(Blocks.WARPED_DOOR, BlockLootTables::createDoorTable);
       this.add(Blocks.CRIMSON_DOOR, BlockLootTables::createDoorTable);
@@ -895,6 +904,9 @@ public class BlockLootTables implements Consumer<BiConsumer<ResourceLocation, Lo
       this.add(Blocks.DARK_OAK_LEAVES, (p_241172_0_) -> {
          return createOakLeavesDrops(p_241172_0_, Blocks.DARK_OAK_SAPLING, NORMAL_LEAVES_SAPLING_CHANCES);
       });
+      this.add(Blocks.PALE_OAK_LEAVES, (p_241172_0_) -> {
+         return createOakLeavesDrops(p_241172_0_, Blocks.PALE_OAK_SAPLING, NORMAL_LEAVES_SAPLING_CHANCES);
+      });
       ILootCondition.IBuilder ilootcondition$ibuilder = BlockStateProperty.hasBlockStateProperties(Blocks.BEETROOTS).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BeetrootBlock.AGE, 3));
       this.add(Blocks.BEETROOTS, createCropDrops(Blocks.BEETROOTS, Items.BEETROOT, Items.BEETROOT_SEEDS, ilootcondition$ibuilder));
       ILootCondition.IBuilder ilootcondition$ibuilder1 = BlockStateProperty.hasBlockStateProperties(Blocks.WHEAT).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropsBlock.AGE, 7));
@@ -955,6 +967,7 @@ public class BlockLootTables implements Consumer<BiConsumer<ResourceLocation, Lo
       this.add(Blocks.PUMPKIN_STEM, (p_218467_0_) -> {
          return createStemDrops(p_218467_0_, Items.PUMPKIN_SEEDS);
       });
+
       this.add(Blocks.ATTACHED_PUMPKIN_STEM, (p_218509_0_) -> {
          return createAttachedStemDrops(p_218509_0_, Items.PUMPKIN_SEEDS);
       });

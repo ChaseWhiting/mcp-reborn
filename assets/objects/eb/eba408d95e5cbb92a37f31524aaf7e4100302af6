@@ -12581,6 +12581,20 @@
             }
         ]
     },
+    "music.garden": {
+        "sounds": [
+            {
+               "name": "music/game/calmex",
+               "stream": true,
+               "volume": 0.13
+            },
+            {
+            "name": "music/game/mathex",
+                   "stream": true,
+             "volume": 0.18
+             }
+        ]
+    },
     "music.credits": {
         "sounds": [
             {
@@ -13108,9 +13122,6 @@
         ],
         "subtitle": "subtitles.item.bundle.insert"
     },
-
-
-
     "item.bundle.remove_one": {
         "sounds": [
             "item/bundle/remove_one1",
@@ -13143,121 +13154,311 @@
         ],
         "subtitle": "subtitles.item.bundle.remove_one"
     },
-        "entity.bogged.ambient": {
-            "sounds": [
-                "mob/bogged/ambient1",
-                "mob/bogged/ambient2",
-                "mob/bogged/ambient3",
-                "mob/bogged/ambient4"
-            ],
-            "subtitle": "subtitles.entity.bogged.ambient"
-        },
-        "entity.bogged.death": {
-            "sounds": [
-                "mob/bogged/death"
-            ],
-            "subtitle": "subtitles.entity.bogged.death"
-        },
-        "entity.bogged.hurt": {
-            "sounds": [
-                "mob/bogged/hurt1",
-                "mob/bogged/hurt2",
-                "mob/bogged/hurt3",
-                "mob/bogged/hurt4"
-            ],
-            "subtitle": "subtitles.entity.bogged.hurt"
-        },
-
-        "entity.bogged.step": {
-            "sounds": [
-                "mob/bogged/step1",
-                "mob/bogged/step2",
-                "mob/bogged/step3",
-                "mob/bogged/step4"
-            ],
-            "subtitle": "subtitles.block.generic.footsteps"
-        },
-            "entity.bogged.shoot": {
-                "sounds": [
-                    "random/bow"
-                ],
-                "subtitle": "subtitles.entity.bogged.shoot"
+    "entity.bogged.ambient": {
+        "sounds": [
+            "mob/bogged/ambient1",
+            "mob/bogged/ambient2",
+            "mob/bogged/ambient3",
+            "mob/bogged/ambient4"
+        ],
+        "subtitle": "subtitles.entity.bogged.ambient"
+    },
+    "entity.bogged.death": {
+        "sounds": [
+            "mob/bogged/death"
+        ],
+        "subtitle": "subtitles.entity.bogged.death"
+    },
+    "entity.bogged.hurt": {
+        "sounds": [
+            "mob/bogged/hurt1",
+            "mob/bogged/hurt2",
+            "mob/bogged/hurt3",
+            "mob/bogged/hurt4"
+        ],
+        "subtitle": "subtitles.entity.bogged.hurt"
+    },
+    "entity.bogged.step": {
+        "sounds": [
+            "mob/bogged/step1",
+            "mob/bogged/step2",
+            "mob/bogged/step3",
+            "mob/bogged/step4"
+        ],
+        "subtitle": "subtitles.block.generic.footsteps"
+    },
+    "entity.bogged.shoot": {
+        "sounds": [
+            "random/bow"
+        ],
+        "subtitle": "subtitles.entity.bogged.shoot"
+    },
+    "entity.creaking.activate": {
+        "sounds": [
+            "mob/creaking/creaking_activate"
+        ],
+        "subtitle": "subtitles.entity.creaking.activate"
+    },
+    "entity.creaking.twitch": {
+        "sounds": [
+            "mob/creaking/creaking_twitch"
+        ],
+        "subtitle": "subtitles.entity.creaking.twitch"
+    },
+    "entity.creaking.ambient": {
+        "sounds": [
+            "mob/creaking/creaking_idle1",
+            "mob/creaking/creaking_idle2",
+            "mob/creaking/creaking_idle3",
+            "mob/creaking/creaking_idle4",
+            "mob/creaking/creaking_idle5",
+            "mob/creaking/creaking_idle6"
+        ],
+        "subtitle": "subtitles.entity.creaking.ambient"
+    },
+    "entity.creaking.attack": {
+        "sounds": [
+            "mob/creaking/creaking_attack1",
+            "mob/creaking/creaking_attack2",
+            "mob/creaking/creaking_attack3",
+            "mob/creaking/creaking_attack4"
+        ],
+        "subtitle": "subtitles.entity.creaking.attack"
+    },
+    "entity.creaking.deactivate": {
+        "sounds": [
+            "mob/creaking/creaking_deactivate"
+        ],
+        "subtitle": "subtitles.entity.creaking.deactivate"
+    },
+    "entity.creaking.death": {
+        "sounds": [
+            "mob/creaking/creaking_death"
+        ],
+        "subtitle": "subtitles.entity.creaking.death"
+    },
+    "entity.creaking.freeze": {
+        "sounds": [
+            "mob/creaking/creaking_freeze1",
+            "mob/creaking/creaking_freeze2",
+            "mob/creaking/creaking_freeze3",
+            "mob/creaking/creaking_freeze4"
+        ],
+        "subtitle": "subtitles.entity.creaking.freeze"
+    },
+    "entity.creaking.spawn": {
+        "sounds": [
+            "mob/creaking/creaking_spawn"
+        ],
+        "subtitle": "subtitles.entity.creaking.spawn"
+    },
+    "entity.creaking.step": {
+        "sounds": [
+            "mob/creaking/creaking_step1",
+            "mob/creaking/creaking_step2",
+            "mob/creaking/creaking_step3",
+            "mob/creaking/creaking_step4",
+            "mob/creaking/creaking_step5"
+        ],
+        "subtitle": "subtitles.block.generic.footsteps"
+    },
+    "entity.creaking.sway": {
+        "sounds": [
+            "mob/creaking/creaking_sway"
+        ],
+        "subtitle": "subtitles.entity.creaking.sway"
+    },
+    "entity.creaking.unfreeze": {
+        "sounds": [
+            "mob/creaking/creaking_unfreeze1",
+            "mob/creaking/creaking_unfreeze2",
+            "mob/creaking/creaking_unfreeze3"
+        ],
+        "subtitle": "subtitles.entity.creaking.unfreeze"
+    },
+    "block.pale_hanging_moss.idle": {
+        "sounds": [
+            "block/pale_hanging_moss/pale_hanging_moss1",
+            "block/pale_hanging_moss/pale_hanging_moss2",
+            "block/pale_hanging_moss/pale_hanging_moss3",
+            "block/pale_hanging_moss/pale_hanging_moss4",
+            "block/pale_hanging_moss/pale_hanging_moss5",
+            "block/pale_hanging_moss/pale_hanging_moss6",
+            "block/pale_hanging_moss/pale_hanging_moss7",
+            "block/pale_hanging_moss/pale_hanging_moss8",
+            "block/pale_hanging_moss/pale_hanging_moss9",
+            "block/pale_hanging_moss/pale_hanging_moss10",
+            "block/pale_hanging_moss/pale_hanging_moss11",
+            "block/pale_hanging_moss/pale_hanging_moss12",
+            "block/pale_hanging_moss/pale_hanging_moss13",
+            "block/pale_hanging_moss/pale_hanging_moss14",
+            "block/pale_hanging_moss/pale_hanging_moss15"
+        ],
+        "subtitle": "subtitles.block.pale_hanging_moss.idle"
+    },
+    "block.moss.break": {
+        "sounds": [
+            {
+                "name": "block/moss/break1",
+                "volume": 0.95
             },
-            "entity.creaking.activate": {
-                "sounds": [
-                  "mob/creaking/creaking_activate"
-                ],
-                "subtitle": "subtitles.entity.creaking.activate"
-              },
-              "entity.creaking.ambient": {
-                "sounds": [
-                  "mob/creaking/creaking_idle1",
-                  "mob/creaking/creaking_idle2",
-                  "mob/creaking/creaking_idle3",
-                  "mob/creaking/creaking_idle4",
-                  "mob/creaking/creaking_idle5",
-                  "mob/creaking/creaking_idle6"
-                ],
-                "subtitle": "subtitles.entity.creaking.ambient"
-              },
-              "entity.creaking.attack": {
-                "sounds": [
-                  "mob/creaking/creaking_attack1",
-                  "mob/creaking/creaking_attack2",
-                  "mob/creaking/creaking_attack3",
-                  "mob/creaking/creaking_attack4"
-                ],
-                "subtitle": "subtitles.entity.creaking.attack"
-              },
-              "entity.creaking.deactivate": {
-                "sounds": [
-                  "mob/creaking/creaking_deactivate"
-                ],
-                "subtitle": "subtitles.entity.creaking.deactivate"
-              },
-              "entity.creaking.death": {
-                "sounds": [
-                  "mob/creaking/creaking_death"
-                ],
-                "subtitle": "subtitles.entity.creaking.death"
-              },
-              "entity.creaking.freeze": {
-                "sounds": [
-                  "mob/creaking/creaking_freeze1",
-                  "mob/creaking/creaking_freeze2",
-                  "mob/creaking/creaking_freeze3",
-                  "mob/creaking/creaking_freeze4"
-                ],
-                "subtitle": "subtitles.entity.creaking.freeze"
-              },
-              "entity.creaking.spawn": {
-                "sounds": [
-                  "mob/creaking/creaking_spawn"
-                ],
-                "subtitle": "subtitles.entity.creaking.spawn"
-              },
-              "entity.creaking.step": {
-                "sounds": [
-                  "mob/creaking/creaking_step1",
-                  "mob/creaking/creaking_step2",
-                  "mob/creaking/creaking_step3",
-                  "mob/creaking/creaking_step4",
-                  "mob/creaking/creaking_step5"
-                ],
-                "subtitle": "subtitles.block.generic.footsteps"
-              },
-              "entity.creaking.sway": {
-                "sounds": [
-                  "mob/creaking/creaking_sway"
-                ],
-                "subtitle": "subtitles.entity.creaking.sway"
-              },
-              "entity.creaking.unfreeze": {
-                "sounds": [
-                  "mob/creaking/creaking_unfreeze1",
-                  "mob/creaking/creaking_unfreeze2",
-                  "mob/creaking/creaking_unfreeze3"
-                ],
-                "subtitle": "subtitles.entity.creaking.unfreeze"
-              }
+            {
+                "name": "block/moss/break2",
+                "volume": 0.93
+            },
+            {
+                "name": "block/moss/break3",
+                "volume": 0.93
+            },
+            {
+                "name": "block/moss/break4",
+                "volume": 0.93
+            },
+            {
+                "name": "block/moss/break5",
+                "volume": 0.93
+            }
+        ],
+        "subtitle": "subtitles.block.generic.break"
+    },
+    "block.moss.fall": {
+        "sounds": [
+            "block/moss/step1",
+            "block/moss/step2",
+            "block/moss/step3",
+            "block/moss/step4",
+            "block/moss/step5",
+            "block/moss/step6"
+        ]
+    },
+    "block.moss.hit": {
+        "sounds": [
+            "block/moss/step1",
+            "block/moss/step2",
+            "block/moss/step3",
+            "block/moss/step4",
+            "block/moss/step5",
+            "block/moss/step6"
+        ],
+        "subtitle": "subtitles.block.generic.hit"
+    },
+    "block.moss.place": {
+        "sounds": [
+            {
+                "name": "block/moss/break1",
+                "volume": 0.93
+            },
+            {
+                "name": "block/moss/break2",
+                "volume": 0.93
+            },
+            {
+                "name": "block/moss/break3",
+                "volume": 0.93
+            },
+            {
+                "name": "block/moss/break4",
+                "volume": 0.93
+            },
+            {
+                "name": "block/moss/break5",
+                "volume": 0.93
+            }
+        ],
+        "subtitle": "subtitles.block.generic.place"
+    },
+    "block.moss.step": {
+        "sounds": [
+            "block/moss/step1",
+            "block/moss/step2",
+            "block/moss/step3",
+            "block/moss/step4",
+            "block/moss/step5",
+            "block/moss/step6"
+        ],
+        "subtitle": "subtitles.block.generic.footsteps"
+    },
+    "item.starfury.impact": {
+        "sounds": [
+            "item/starfury/impact"
+        ],
+        "subtitle": "subtitles.item.starfury.impact"
+    },
+    "item.starfury.shoot": {
+        "sounds": [
+            "item/starfury/shoot"
+        ],
+        "subtitle": "subtitles.item.starfury.shoot"
+    },
+    "item.star_wrath.use": {
+        "sounds": [
+            "item/star_wrath/use"
+        ],
+        "subtitle": "subtitles.item.star_wrath_swung"
+    },
+    "npc.hurt_1": {
+        "sounds": [
+            "npc/hurt_1"
+        ]
+    },
+    "npc.kill_1": {
+        "sounds": [
+            "npc/kill_1"
+        ]
+    },
+    "npc.roar": {
+        "sounds": [
+            "npc/roar"
+        ]
+    },
+    "npc.expert_roar": {
+        "sounds": [
+            "npc/expert_roar"
+        ]
+    },
+    "music.boss_1": {
+        "sounds": [
+            "music/boss_1"
+        ]
+    },
+    "block.eyeblossom.close": {
+        "sounds": [
+            "block/eyeblossom/eyeblossom_close1",
+            "block/eyeblossom/eyeblossom_close2",
+            "block/eyeblossom/eyeblossom_close3"
+        ],
+        "subtitle": "subtitles.block.eyeblossom.close"
+    },
+    "block.eyeblossom.close_long": {
+        "sounds": [
+            "block/eyeblossom/eyeblossom_close_long"
+        ],
+        "subtitle": "subtitles.block.eyeblossom.close"
+    },
+    "block.eyeblossom.idle": {
+        "sounds": [
+            "block/eyeblossom/eyeblossom_idle1",
+            "block/eyeblossom/eyeblossom_idle2",
+            "block/eyeblossom/eyeblossom_idle3",
+            "block/eyeblossom/eyeblossom_idle4",
+            "block/eyeblossom/eyeblossom_idle5",
+            "block/eyeblossom/eyeblossom_idle6"
+        ],
+        "subtitle": "subtitles.ambient.sound"
+    },
+    "block.eyeblossom.open": {
+        "sounds": [
+            "block/eyeblossom/eyeblossom_open1",
+            "block/eyeblossom/eyeblossom_open2",
+            "block/eyeblossom/eyeblossom_open3",
+            "block/eyeblossom/eyeblossom_open4"
+        ],
+        "subtitle": "subtitles.block.eyeblossom.open"
+    },
+    "block.eyeblossom.open_long": {
+        "sounds": [
+            "block/eyeblossom/eyeblossom_open_long"
+        ],
+        "subtitle": "subtitles.block.eyeblossom.open"
+    }
 }

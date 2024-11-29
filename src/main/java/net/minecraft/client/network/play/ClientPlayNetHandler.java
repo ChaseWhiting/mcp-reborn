@@ -102,6 +102,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.projectile.*;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowEntity;
+import net.minecraft.entity.terraria.creature.WormEntity;
+import net.minecraft.entity.terraria.creature.WormPartEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.HorseInventoryContainer;
@@ -376,7 +378,11 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
          entity = new ShulkerBulletEntity(this.level, d0, d1, d2, p_147235_1_.getXa(), p_147235_1_.getYa(), p_147235_1_.getZa());
       } else if (entitytype == EntityType.EGG) {
          entity = new EggEntity(this.level, d0, d1, d2);
-      } else if (entitytype == EntityType.EVOKER_FANGS) {
+      } else if (entitytype == EntityType.STARFURY_STAR) {
+         entity = new StarfuryStarEntity(this.level, d0, d1, d2);
+      } else if (entitytype == EntityType.CAT_PROJECTILE) {
+         entity = new MeowmereProjectileEntity(this.level, d0, d1, d2);
+      }else if (entitytype == EntityType.EVOKER_FANGS) {
          entity = new EvokerFangsEntity(this.level, d0, d1, d2, 0.0F, 0, (LivingEntity)null);
       } else if (entitytype == EntityType.POTION) {
          entity = new PotionEntity(this.level, d0, d1, d2);
@@ -772,6 +778,14 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
 
             for(int i = 0; i < aenderdragonpartentity.length; ++i) {
                aenderdragonpartentity[i].setId(i + p_147281_1_.getId());
+            }
+         }
+
+         if (livingentity instanceof WormEntity) {
+            WormPartEntity[] wormPart = ((WormEntity)livingentity).getParts();
+
+            for(int i = 0; i < wormPart.length; ++i) {
+               wormPart[i].setId(i + p_147281_1_.getId());
             }
          }
 

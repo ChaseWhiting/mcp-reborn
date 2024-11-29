@@ -6,8 +6,8 @@ import com.mojang.serialization.Dynamic;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.main.GroovyScriptLoader;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentData;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -49,7 +49,6 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
     private static final DataParameter<Boolean> DATA_IS_CHARGING_CROSSBOW = EntityDataManager.defineId(PiglinBruteEntity.class, DataSerializers.BOOLEAN);
     protected static final ImmutableList<SensorType<? extends Sensor<? super PiglinBruteEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_BRUTE_SPECIFIC_SENSOR);
     protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.DOORS_TO_CLOSE, MemoryModuleType.LIVING_ENTITIES, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, MemoryModuleType.NEARBY_ADULT_PIGLINS, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.PATH, MemoryModuleType.ANGRY_AT, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.HOME);
-    private static final Logger LOGGER = Logger.getLogger(PiglinBruteEntity.class.getName());
     public PiglinBruteEntity(EntityType<? extends PiglinBruteEntity> p_i241917_1_, World p_i241917_2_) {
         super(p_i241917_1_, p_i241917_2_);
         this.xpReward = 20;
@@ -94,15 +93,22 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
         PiglinBruteBrain.initMemories(this);
         this.populateDefaultEquipmentSlots(difficultyInstance);
         this.setImmuneToZombification(true);
-        List<Object> enchantmentData = GroovyScriptLoader.getList("enchantCrossbow.groovy");
-        if (enchantmentData != null && enchantmentData.size() == 2) {
-            Enchantment enchantment = (Enchantment) enchantmentData.get(0);
-            int enchantmentLevel = (Integer) enchantmentData.get(1);
+        EnchantmentData enchantmentData = this.getRandomCrossbowEnchant();
+        if (enchantmentData != null) {
+            Enchantment enchantment = enchantmentData.enchantment;
+            int enchantmentLevel = (Integer) enchantmentData.level;
 
             storedCrossbow.enchant(enchantment, enchantmentLevel);
         }
         this.setDropChance(EquipmentSlotType.MAINHAND, 0.02F);
         return super.finalizeSpawn(world, difficultyInstance, spawnReason, iLivingEntityData, compoundNBT);
+    }
+
+    public EnchantmentData getRandomCrossbowEnchant() {
+        List<Enchantment> enchantments = new ArrayList<>(RANDOM_CROSSBOW_ENCHANT.keySet());
+        Enchantment randomEnchantment = enchantments.get(random.nextInt(enchantments.size()));
+        int level = RANDOM_CROSSBOW_ENCHANT.get(randomEnchantment);
+        return new EnchantmentData(randomEnchantment, level);
     }
 
     protected void populateDefaultEquipmentSlots(DifficultyInstance p_180481_1_) {

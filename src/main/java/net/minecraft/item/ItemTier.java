@@ -23,6 +23,15 @@ public enum ItemTier implements IItemTier {
    }),
    NETHERITE(4, 2031, 9.0F, 4.0F, 15, () -> {
       return Ingredient.of(Items.NETHERITE_INGOT);
+   }),
+   BEEKEEPER(5, 1836, 6.0F, 0, 13, () -> {
+      return Ingredient.of(Items.BEE_POLLEN);
+   }),
+   STARFURY(4, 1455, 6.0F, 0, 8, () -> {
+      return Ingredient.of(Items.NETHER_STAR);
+   }),
+   MEOWMERE(6, 2644, 6.0f, 0, 22, () -> {
+      return Ingredient.EMPTY;
    });
 
    private final int level;

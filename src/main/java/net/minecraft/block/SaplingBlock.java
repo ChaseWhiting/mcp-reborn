@@ -2,15 +2,20 @@ package net.minecraft.block;
 
 import java.util.Random;
 import net.minecraft.block.trees.Tree;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+
+import javax.annotation.Nullable;
 
 public class SaplingBlock extends BushBlock implements IGrowable {
    public static final IntegerProperty STAGE = BlockStateProperties.STAGE;
@@ -57,5 +62,13 @@ public class SaplingBlock extends BushBlock implements IGrowable {
 
    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
       p_206840_1_.add(STAGE);
+   }
+
+   @Override
+   public void playerDestroy(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
+      super.playerDestroy(worldIn, player, pos, state, te, stack);
+      if (this == Blocks.PALE_OAK_SAPLING) {
+         popResource(worldIn, pos, new ItemStack(this));
+      }
    }
 }
