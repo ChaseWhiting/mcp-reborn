@@ -24,6 +24,8 @@ public interface IWorldWriter {
 
    boolean destroyBlock(BlockPos p_241212_1_, boolean p_241212_2_, @Nullable Entity p_241212_3_, int p_241212_4_);
 
+   boolean destroyBlock(BlockPos p_241212_1_, boolean p_241212_2_, @Nullable Entity p_241212_3_, int p_241212_4_, boolean event);
+
    default boolean addFreshEntity(Entity p_217376_1_) {
       return false;
    }

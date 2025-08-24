@@ -21,15 +21,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
-import net.minecraft.util.EnumTypeAdapterFactory;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+
+import net.minecraft.util.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+
 public interface ITextComponent extends Message, ITextProperties {
+
+
    Style getStyle();
 
    String getContents();

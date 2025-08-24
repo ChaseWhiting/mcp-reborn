@@ -9,9 +9,8 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.ByteProcessor;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -24,11 +23,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.nbt.NBTSizeTracker;
+import net.minecraft.nbt.*;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -41,6 +36,47 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PacketBuffer extends ByteBuf {
    private final ByteBuf source;
+
+   public static void writeNbt(ByteBuf byteBuf, @Nullable INBT tag) {
+      if (tag == null) {
+         tag = EndNBT.INSTANCE;
+      }
+      try {
+         NbtIo.writeAnyTag(tag, (DataOutput)new ByteBufOutputStream(byteBuf));
+      }
+      catch (IOException iOException) {
+         throw new EncoderException((Throwable)iOException);
+      }
+   }
+
+   @Nullable
+   public static CompoundNBT readNbt(ByteBuf byteBuf) {
+      INBT tag = readNbt(byteBuf, new NBTSizeTracker(0x200000L));
+      if (tag == null || tag instanceof CompoundNBT) {
+         return (CompoundNBT)tag;
+      }
+      throw new DecoderException("Not a compound tag: " + String.valueOf(tag));
+   }
+
+   @Nullable
+   public static INBT readNbt(ByteBuf byteBuf, NBTSizeTracker nbtAccounter) {
+      try {
+         INBT tag = CompressedStreamTools.read(new ByteBufInputStream(byteBuf), nbtAccounter);
+         if (tag.getId() == 0) {
+            return null;
+         }
+         return tag;
+      }
+      catch (IOException iOException) {
+         throw new EncoderException((Throwable)iOException);
+      }
+   }
+
+
+
+
+
+
 
    public PacketBuffer(ByteBuf p_i45154_1_) {
       this.source = p_i45154_1_;

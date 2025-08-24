@@ -2,6 +2,8 @@ package net.minecraft.world.chunk;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortList;
@@ -26,8 +28,14 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.allay.AllayEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
+import net.minecraft.entity.warden.WardenEntity;
+import net.minecraft.entity.warden.event.DynamicGameEventListener;
+import net.minecraft.entity.warden.event.EuclideanGameEventListenerRegistry;
+import net.minecraft.entity.warden.event.GameEventListener;
+import net.minecraft.entity.warden.event.GameEventListenerRegistry;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -35,10 +43,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ClassInheritanceMultiMap;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.util.palette.UpgradeData;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.EmptyTickList;
@@ -86,9 +91,64 @@ public class Chunk implements IChunk {
    private Consumer<Chunk> postLoad;
    private final ChunkPos chunkPos;
    private volatile boolean isLightCorrect;
+   private final Int2ObjectMap<GameEventListenerRegistry> gameEventListenerRegistrySections;
+
+   public Map<Heightmap.Type, Heightmap> getHeightmap() {
+      return heightmaps;
+   }
 
    public Chunk(World p_i225780_1_, ChunkPos p_i225780_2_, BiomeContainer p_i225780_3_) {
       this(p_i225780_1_, p_i225780_2_, p_i225780_3_, UpgradeData.EMPTY, EmptyTickList.empty(), EmptyTickList.empty(), 0L, (ChunkSection[])null, (Consumer<Chunk>)null);
+   }
+
+
+   @Override
+   public GameEventListenerRegistry getListenerRegistry(int n2) {
+      World level = this.level;
+      if (level instanceof ServerWorld) {
+
+         ServerWorld serverWorld = (ServerWorld)level;
+         return (GameEventListenerRegistry)this.gameEventListenerRegistrySections.computeIfAbsent(n2, n -> {
+            return new EuclideanGameEventListenerRegistry(serverWorld);
+         });
+      } else {
+      }
+      return IChunk.super.getListenerRegistry(n2);
+   }
+
+   private <T extends TileEntity> void addGameEventListener(T t, ServerWorld serverWorld) {
+
+      GameEventListener gameEventListener;
+      Block block = t.getBlockState().getBlock();
+
+      if (block instanceof ITileEntityProvider) {
+         gameEventListener = ((ITileEntityProvider) block).getListener(serverWorld, t);
+
+         if (gameEventListener != null) {
+            GameEventListenerRegistry registry = this.getListenerRegistry(SectionPos.blockToSectionCoord(t.getBlockPos().getY()));
+            assert registry != null && registry instanceof EuclideanGameEventListenerRegistry;
+            EuclideanGameEventListenerRegistry euclideanGameEventListenerRegistry = (EuclideanGameEventListenerRegistry) registry;
+            if (!euclideanGameEventListenerRegistry.has(gameEventListener)) {
+               euclideanGameEventListenerRegistry.register(gameEventListener);
+            }
+         } else {
+         }
+      } else {
+      }
+   }
+
+
+   private <T extends TileEntity> void removeGameEventListener(T t, ServerWorld serverWorld) {
+      GameEventListener gameEventListener;
+      Block block = t.getBlockState().getBlock();
+      if (block instanceof ITileEntityProvider && (gameEventListener = ((ITileEntityProvider)(block)).getListener(serverWorld, t)) != null) {
+         int n = SectionPos.blockToSectionCoord(t.getBlockPos().getY());
+         GameEventListenerRegistry gameEventListenerRegistry = this.getListenerRegistry(n);
+         gameEventListenerRegistry.unregister(gameEventListener);
+         if (gameEventListenerRegistry.isEmpty()) {
+            this.gameEventListenerRegistrySections.remove(n);
+         }
+      }
    }
 
    public Chunk(World p_i225781_1_, ChunkPos p_i225781_2_, BiomeContainer p_i225781_3_, UpgradeData p_i225781_4_, ITickList<Block> p_i225781_5_, ITickList<Fluid> p_i225781_6_, long p_i225781_7_, @Nullable ChunkSection[] p_i225781_9_, @Nullable Consumer<Chunk> p_i225781_10_) {
@@ -96,6 +156,7 @@ public class Chunk implements IChunk {
       this.level = p_i225781_1_;
       this.chunkPos = p_i225781_2_;
       this.upgradeData = p_i225781_4_;
+      this.gameEventListenerRegistrySections = new Int2ObjectOpenHashMap();
 
       for(Heightmap.Type heightmap$type : Heightmap.Type.values()) {
          if (ChunkStatus.FULL.heightmapsAfter().contains(heightmap$type)) {
@@ -237,11 +298,11 @@ public class Chunk implements IChunk {
       int j = p_177436_1_.getY();
       int k = p_177436_1_.getZ() & 15;
       ChunkSection chunksection = this.sections[j >> 4];
+
       if (chunksection == EMPTY_SECTION) {
          if (p_177436_2_.isAir()) {
             return null;
          }
-
          chunksection = new ChunkSection(j >> 4 << 4);
          this.sections[j >> 4] = chunksection;
       }
@@ -253,10 +314,12 @@ public class Chunk implements IChunk {
       } else {
          Block block = p_177436_2_.getBlock();
          Block block1 = blockstate.getBlock();
+
          this.heightmaps.get(Heightmap.Type.MOTION_BLOCKING).update(i, j, k, p_177436_2_);
          this.heightmaps.get(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES).update(i, j, k, p_177436_2_);
          this.heightmaps.get(Heightmap.Type.OCEAN_FLOOR).update(i, j, k, p_177436_2_);
          this.heightmaps.get(Heightmap.Type.WORLD_SURFACE).update(i, j, k, p_177436_2_);
+
          boolean flag1 = chunksection.isEmpty();
          if (flag != flag1) {
             this.level.getChunkSource().getLightEngine().updateSectionStatus(p_177436_1_, flag1);
@@ -285,10 +348,15 @@ public class Chunk implements IChunk {
             if (block instanceof ITileEntityProvider) {
                TileEntity tileentity1 = this.getBlockEntity(p_177436_1_, Chunk.CreateEntityType.CHECK);
                if (tileentity1 == null) {
-                  tileentity1 = ((ITileEntityProvider)block).newBlockEntity(this.level);
+                  tileentity1 = ((ITileEntityProvider) block).newBlockEntity(this.level);
                   this.level.setBlockEntity(p_177436_1_, tileentity1);
                } else {
                   tileentity1.clearCache();
+               }
+
+               // Ensure GameEventListener is added for tile entities when a block is placed
+               if (tileentity1 != null && this.level instanceof ServerWorld) {
+                  this.addGameEventListener(tileentity1, (ServerWorld) this.level);
                }
             }
 
@@ -298,6 +366,7 @@ public class Chunk implements IChunk {
       }
    }
 
+
    @Nullable
    public WorldLightManager getLightEngine() {
       return this.level.getChunkSource().getLightEngine();
@@ -305,7 +374,10 @@ public class Chunk implements IChunk {
 
    public void addEntity(Entity p_76612_1_) {
       this.lastSaveHadEntities = true;
-      int i = MathHelper.floor(p_76612_1_.getX() / 16.0D);
+       if (p_76612_1_ instanceof WardenEntity || p_76612_1_ instanceof AllayEntity) {
+           p_76612_1_.updateDynamicGameEventListener(DynamicGameEventListener::move);
+       }
+       int i = MathHelper.floor(p_76612_1_.getX() / 16.0D);
       int j = MathHelper.floor(p_76612_1_.getZ() / 16.0D);
       if (i != this.chunkPos.x || j != this.chunkPos.z) {
          LOGGER.warn("Wrong location! ({}, {}) should be ({}, {}), {}", i, j, this.chunkPos.x, this.chunkPos.z, p_76612_1_);
@@ -394,6 +466,11 @@ public class Chunk implements IChunk {
       this.setBlockEntity(p_150813_1_.getBlockPos(), p_150813_1_);
       if (this.loaded || this.level.isClientSide()) {
          this.level.setBlockEntity(p_150813_1_.getBlockPos(), p_150813_1_);
+
+         if (this.level instanceof ServerWorld) {
+            ServerWorld serverWorld = (ServerWorld) this.level;
+            this.addGameEventListener(p_150813_1_, serverWorld);
+         }
       }
 
    }
@@ -436,6 +513,9 @@ public class Chunk implements IChunk {
       if (this.loaded || this.level.isClientSide()) {
          TileEntity tileentity = this.blockEntities.remove(p_177425_1_);
          if (tileentity != null) {
+            if (level instanceof ServerWorld) {
+               this.removeGameEventListener(tileentity, (ServerWorld) level);
+            }
             tileentity.setRemoved();
          }
       }
@@ -692,7 +772,12 @@ public class Chunk implements IChunk {
       this.unpackTicks();
 
       for(BlockPos blockpos1 : Sets.newHashSet(this.pendingBlockEntities.keySet())) {
-         this.getBlockEntity(blockpos1);
+         TileEntity tileEntity = this.getBlockEntity(blockpos1);
+         if (tileEntity != null && this.level instanceof ServerWorld) {
+            ServerWorld serverWorld = (ServerWorld) this.level;
+            this.addGameEventListener(tileEntity, serverWorld);
+         }
+
       }
 
       this.pendingBlockEntities.clear();

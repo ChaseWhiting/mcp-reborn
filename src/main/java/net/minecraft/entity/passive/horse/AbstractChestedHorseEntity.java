@@ -4,7 +4,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.leashable.Leashable;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -15,10 +17,16 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 public abstract class AbstractChestedHorseEntity extends AbstractHorseEntity {
    private static final DataParameter<Boolean> DATA_ID_CHEST = EntityDataManager.defineId(AbstractChestedHorseEntity.class, DataSerializers.BOOLEAN);
+
+
+
+
+
 
    protected AbstractChestedHorseEntity(EntityType<? extends AbstractChestedHorseEntity> p_i48564_1_, World p_i48564_2_) {
       super(p_i48564_1_, p_i48564_2_);
@@ -32,6 +40,11 @@ public abstract class AbstractChestedHorseEntity extends AbstractHorseEntity {
    protected void defineSynchedData() {
       super.defineSynchedData();
       this.entityData.define(DATA_ID_CHEST, false);
+   }
+
+   @Override
+   public Vector3d[] getQuadLeashOffsets() {
+      return Leashable.createQuadLeashOffsets(this, 0.04, 0.41, 0.18, 0.73);
    }
 
    public static AttributeModifierMap.MutableAttribute createBaseChestedHorseAttributes() {

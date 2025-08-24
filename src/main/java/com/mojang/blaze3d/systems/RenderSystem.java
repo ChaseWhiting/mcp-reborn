@@ -13,6 +13,7 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ShaderLoader;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.settings.GraphicsFanciness;
 import net.minecraft.util.math.vector.Matrix4f;
@@ -23,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallbackI;
+import org.lwjgl.opengl.GL20;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderSystem {
@@ -36,7 +38,9 @@ public class RenderSystem {
    private static Thread gameThread;
    private static Thread renderThread;
    private static int MAX_SUPPORTED_TEXTURE_SIZE = -1;
-   private static boolean isInInit;
+    private static Vector3f[] shaderLightDirections = new Vector3f[2];
+
+    private static boolean isInInit;
    private static double lastDrawTime = Double.MIN_VALUE;
 
    public static void initRenderThread() {
@@ -47,7 +51,13 @@ public class RenderSystem {
       }
    }
 
-   public static boolean isOnRenderThread() {
+    public static void useShaderProgram(int shaderProgram) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread); // Make sure you're on render thread
+        GL20.glUseProgram(shaderProgram);
+    }
+
+
+    public static boolean isOnRenderThread() {
       return Thread.currentThread() == renderThread;
    }
 
@@ -590,6 +600,8 @@ public class RenderSystem {
    public static void initRenderer(int p_initRenderer_0_, boolean p_initRenderer_1_) {
       assertThread(RenderSystem::isInInitPhase);
       GLX._init(p_initRenderer_0_, p_initRenderer_1_);
+
+       ShaderLoader.initShaders(); // <<< ADD THIS
    }
 
    public static void setErrorCallback(GLFWErrorCallbackI p_setErrorCallback_0_) {
@@ -762,6 +774,19 @@ public class RenderSystem {
       assertThread(RenderSystem::isOnGameThread);
       GlStateManager.setupGui3DDiffuseLighting(p_setupGui3DDiffuseLighting_0_, p_setupGui3DDiffuseLighting_1_);
    }
+
+    public static void setShaderLights(Vector3f vector3f, Vector3f vector3f2) {
+        assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem._setShaderLights(vector3f, vector3f2);
+    }
+
+    public static void _setShaderLights(Vector3f vector3f, Vector3f vector3f2) {
+        RenderSystem.shaderLightDirections[0] = vector3f;
+        RenderSystem.shaderLightDirections[1] = vector3f2;
+    }
+
+
+
 
    public static void mulTextureByProjModelView() {
       assertThread(RenderSystem::isOnGameThread);

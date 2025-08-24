@@ -31,16 +31,20 @@ public interface IVertexBuilder {
 
    IVertexBuilder uv2(int p_225587_1_, int p_225587_2_);
 
+   default public IVertexBuilder setLight(int n) {
+      return this.uv2(n & 0xFFFF, n >> 16 & 0xFFFF);
+   }
+
    IVertexBuilder normal(float p_225584_1_, float p_225584_2_, float p_225584_3_);
 
    void endVertex();
 
-   default void vertex(float p_225588_1_, float p_225588_2_, float p_225588_3_, float p_225588_4_, float p_225588_5_, float p_225588_6_, float p_225588_7_, float p_225588_8_, float p_225588_9_, int p_225588_10_, int p_225588_11_, float p_225588_12_, float p_225588_13_, float p_225588_14_) {
+   default void vertex(float p_225588_1_, float p_225588_2_, float p_225588_3_, float p_225588_4_, float p_225588_5_, float p_225588_6_, float p_225588_7_, float p_225588_8_, float p_225588_9_, int p_225588_10_, int packedLight, float p_225588_12_, float p_225588_13_, float p_225588_14_) {
       this.vertex((double)p_225588_1_, (double)p_225588_2_, (double)p_225588_3_);
       this.color(p_225588_4_, p_225588_5_, p_225588_6_, p_225588_7_);
       this.uv(p_225588_8_, p_225588_9_);
       this.overlayCoords(p_225588_10_);
-      this.uv2(p_225588_11_);
+      this.uv2(packedLight);
       this.normal(p_225588_12_, p_225588_13_, p_225588_14_);
       this.endVertex();
    }

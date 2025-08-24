@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +13,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
-import javax.sound.sampled.AudioFormat;
 
 import net.minecraft.client.GameSettings;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fallout.Radiation;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -138,6 +133,12 @@ public class SoundEngine {
          }
       }
 
+   }
+
+   public void stopIfQueued(ISound sound) {
+      if (this.queuedSounds.containsKey(sound)) {
+         this.queuedSounds.remove(sound);
+      }
    }
 
    public void stopAll() {

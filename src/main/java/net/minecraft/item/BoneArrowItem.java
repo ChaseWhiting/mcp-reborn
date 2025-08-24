@@ -2,7 +2,6 @@ package net.minecraft.item;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.BoneArrowEntity;
 import net.minecraft.world.World;
 

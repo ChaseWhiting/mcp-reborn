@@ -8,7 +8,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class IntNBT extends NumberNBT {
    public static final INBTType<IntNBT> TYPE = new INBTType<IntNBT>() {
-      public IntNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) throws IOException {
+      public IntNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) throws IOException {
          p_225649_3_.accountBits(96L);
          return IntNBT.valueOf(p_225649_1_.readInt());
       }

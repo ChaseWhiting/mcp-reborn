@@ -3,8 +3,8 @@ package net.minecraft.block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.dyeable.IDyeSource;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.SignTileEntity;
@@ -40,7 +40,7 @@ public abstract class AbstractSignBlock extends ContainerBlock implements IWater
       return super.updateShape(p_196271_1_, p_196271_2_, p_196271_3_, p_196271_4_, p_196271_5_, p_196271_6_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 
@@ -54,7 +54,7 @@ public abstract class AbstractSignBlock extends ContainerBlock implements IWater
 
    public ActionResultType use(BlockState p_225533_1_, World p_225533_2_, BlockPos p_225533_3_, PlayerEntity p_225533_4_, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
       ItemStack itemstack = p_225533_4_.getItemInHand(p_225533_5_);
-      boolean flag = itemstack.getItem() instanceof DyeItem && p_225533_4_.abilities.mayBuild;
+      boolean flag = itemstack.getItem() instanceof IDyeSource && p_225533_4_.abilities.mayBuild;
       if (p_225533_2_.isClientSide) {
          return flag ? ActionResultType.SUCCESS : ActionResultType.CONSUME;
       } else {
@@ -62,9 +62,13 @@ public abstract class AbstractSignBlock extends ContainerBlock implements IWater
          if (tileentity instanceof SignTileEntity) {
             SignTileEntity signtileentity = (SignTileEntity)tileentity;
             if (flag) {
-               boolean flag1 = signtileentity.setColor(((DyeItem)itemstack.getItem()).getDyeColor());
+               boolean flag1 = signtileentity.setColor(((IDyeSource)itemstack.getItem()).getDyeColor());
                if (flag1 && !p_225533_4_.isCreative()) {
-                  itemstack.shrink(1);
+                   if (!((IDyeSource)itemstack.getItem()).consumesDurability()) {
+                       itemstack.shrink(1);
+                   } else {
+                      itemstack.hurt(1, p_225533_4_);
+                   }
                }
             }
 

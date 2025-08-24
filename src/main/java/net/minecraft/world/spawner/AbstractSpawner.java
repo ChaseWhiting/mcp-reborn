@@ -11,6 +11,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.particles.ParticleTypes;
@@ -156,6 +157,7 @@ public abstract class AbstractSpawner {
                      }
 
                      world.levelEvent(2004, blockpos, 0);
+                     world.gameEvent(entity, GameEvent.ENTITY_PLACE, blockpos);
                      if (entity instanceof Mob) {
                         ((Mob)entity).spawnAnim();
                      }
@@ -174,8 +176,8 @@ public abstract class AbstractSpawner {
    }
 
    private void delay() {
-      int maxSpawnDelay = this.getLevel().getGameRules().getInt(GameRules.SPAWNER_MAX_SPAWN_DELAY);
-      int minSpawnDelay = this.getLevel().getGameRules().getInt(GameRules.SPAWNER_MIN_SPAWN_DELAY);
+      int maxSpawnDelay = this.maxSpawnDelay;
+      int minSpawnDelay = this.minSpawnDelay;
 
       if (maxSpawnDelay <= minSpawnDelay) {
          this.spawnDelay = minSpawnDelay;

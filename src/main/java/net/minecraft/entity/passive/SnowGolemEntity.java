@@ -20,6 +20,7 @@ import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.SnowballEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -106,6 +107,7 @@ public class SnowGolemEntity extends GolemEntity implements IShearable, IRangedA
             BlockPos blockpos = new BlockPos(i, j, k);
             if (this.level.getBlockState(blockpos).isAir() && this.level.getBiome(blockpos).getTemperature(blockpos) < 0.8F && blockstate.canSurvive(this.level, blockpos)) {
                this.level.setBlockAndUpdate(blockpos, blockstate);
+               this.level.gameEvent(GameEvent.BLOCK_PLACE, blockpos, GameEvent.Context.of(this, blockstate));
             }
          }
       }
@@ -132,6 +134,7 @@ public class SnowGolemEntity extends GolemEntity implements IShearable, IRangedA
       ItemStack itemstack = p_230254_1_.getItemInHand(p_230254_2_);
       if (itemstack.getItem() == Items.SHEARS && this.readyForShearing()) {
          this.shear(SoundCategory.PLAYERS);
+         this.gameEvent(GameEvent.SHEAR, p_230254_1_);
          if (!this.level.isClientSide) {
             itemstack.hurtAndBreak(1, p_230254_1_, (p_213622_1_) -> {
                p_213622_1_.broadcastBreakEvent(p_230254_2_);

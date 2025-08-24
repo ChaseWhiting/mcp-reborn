@@ -64,40 +64,35 @@ public class GreatHungerModel<T extends GreatHungerEntity> extends EntityModel<T
 
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		// Default leg animations
 		this.right_back_leg.xRot = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
 		this.right_front_leg.xRot = MathHelper.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
 		this.left_back_leg.xRot = MathHelper.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
 		this.left_front_leg.xRot = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
 
-		// Check if the entity is jumping
 		if (entity.isJumping()) {
-			float jumpTiltAngle = (float) Math.toRadians(15.0F); // Tilt back by 15 degrees
-			float jumpTiltAngle2 = (float) Math.toRadians(35.0F); // Tilt back by 15 degrees
+			float jumpTiltAngle = (float) Math.toRadians(15.0F);
+			float jumpTiltAngle2 = (float) Math.toRadians(35.0F);
 
-			float legTiltBackAmount = (float) Math.toRadians(20.0F); // Legs tilt back by 20 degrees
+			float legTiltBackAmount = (float) Math.toRadians(20.0F);
 
-			// Make the whole body tilt back during jump
 			this.body.xRot -= jumpTiltAngle;
 			this.head.xRot -= jumpTiltAngle2;
-			// Tilt the legs backward during the jump
 			this.right_back_leg.xRot -= legTiltBackAmount;
 			this.right_front_leg.xRot -= legTiltBackAmount;
 			this.left_back_leg.xRot -= legTiltBackAmount;
 			this.left_front_leg.xRot -= legTiltBackAmount;
 		}
 
-		// Head and body sway and tilt logic
 		this.getMainParts().forEach(model -> {
 			float headTiltAmplitude = 0.09F;
-			float bodyTiltAmplitude = 0.02F;  // Body tilts less than the head
-			float swayAmplitude = 0.05F;  // Controls how much the model sways
+			float bodyTiltAmplitude = 0.02F;
+			float swayAmplitude = 0.05F;
 			float swayFrequency = 0.1F;
 
 			if (model == this.head) {
-				// Head tilts more aggressively, especially in the "swallow item" state
+
 				if (entity.getCurrentState() == GreatHungerEntity.State.SWALLOW_ITEM) {
-					headTiltAmplitude = 0.18F;  // Tilt the head forward more in "swallow item" state
+					headTiltAmplitude = 0.18F;
 				}
 				if (entity.getCurrentState() == GreatHungerEntity.State.FIGHT) {
 					headTiltAmplitude = 0.21F;
@@ -106,24 +101,20 @@ public class GreatHungerModel<T extends GreatHungerEntity> extends EntityModel<T
 				}
 				model.xRot = MathHelper.cos(ageInTicks * swayFrequency) * headTiltAmplitude;
 			} else if (model == this.body) {
-				// Body tilts less than the head
 				model.xRot = MathHelper.cos(ageInTicks * swayFrequency) * bodyTiltAmplitude;
 			}
 
 			model.yRot = MathHelper.sin(ageInTicks * swayFrequency) * swayAmplitude;
 		});
 
-		// Mouth animation logic
 		if (entity.getTarget() != null || entity.getCurrentState() == GreatHungerEntity.State.FIGHT) {
 			this.openMouth(entity, 25, -37, 0.02F);
 		} else if (entity.getCurrentState() == GreatHungerEntity.State.SWALLOW_ITEM || entity.getCurrentState() == GreatHungerEntity.State.SWALLOW_ITEM) {
 			this.openMouth(entity, 17, -40, 0.02F);
 		} else {
-			// Smoothly close the mouth if not swallowing
-			float targetProgress = 0.0F;  // Fully closed
-			entity.setClientSideSwallowTicks(MathHelper.lerp(0.05F, entity.getClientSideSwallowTicks(), targetProgress));  // Smooth transition back to closed state
+			float targetProgress = 0.0F;
+			entity.setClientSideSwallowTicks(MathHelper.lerp(0.05F, entity.getClientSideSwallowTicks(), targetProgress));
 
-			// Smoothly reset the mouth's rotations as the progress moves towards 0
 			this.mouth_bottom.xRot = MathHelper.lerp(entity.getClientSideSwallowTicks(), 0.0F, (float) Math.toRadians(17.0F));
 			this.mouth_top.xRot = MathHelper.lerp(entity.getClientSideSwallowTicks(), 0.0F, (float) Math.toRadians(-40.0F));
 		}
@@ -131,15 +122,12 @@ public class GreatHungerModel<T extends GreatHungerEntity> extends EntityModel<T
 
 	public void openMouth(T entity, float bottomDegrees, float topDegrees, float transition) {
 
-		// Smooth mouth opening/closing
-		float targetProgress = 1.0F;  // 1 = fully open, 0 = fully closed
+		float targetProgress = 1.0F;
 
-		// Lerp between current and target progress based on delta time (lerp factor should be low for smoothness)
-		entity.setClientSideSwallowTicks(MathHelper.lerp(transition, entity.getClientSideSwallowTicks(), targetProgress));  // Smooth transition based on target progress
+		entity.setClientSideSwallowTicks(MathHelper.lerp(transition, entity.getClientSideSwallowTicks(), targetProgress));
 
-		// Set the mouth's rotations smoothly with correct directions
-		this.mouth_bottom.xRot = MathHelper.lerp(entity.getClientSideSwallowTicks(), 0.0F, (float) Math.toRadians(bottomDegrees));  // Adjust for wider opening
-		this.mouth_top.xRot = MathHelper.lerp(entity.getClientSideSwallowTicks(), 0.0F, (float) Math.toRadians(topDegrees));    // Adjust for wider opening
+		this.mouth_bottom.xRot = MathHelper.lerp(entity.getClientSideSwallowTicks(), 0.0F, (float) Math.toRadians(bottomDegrees));
+		this.mouth_top.xRot = MathHelper.lerp(entity.getClientSideSwallowTicks(), 0.0F, (float) Math.toRadians(topDegrees));
 	}
 
 	public ImmutableList<ModelRenderer> getMainParts() {

@@ -18,6 +18,7 @@ import net.minecraft.entity.passive.QueenBeeEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.WitherSkullEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -115,12 +116,14 @@ public class BeehiveBlock extends ContainerBlock {
       boolean flag = false;
       if (i >= 5) {
          if (itemstack.getItem() == Items.SHEARS) {
+
             level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundCategory.NEUTRAL, 1.0F, 1.0F);
             dropHoneycomb(level, pos);
             itemstack.hurtAndBreak(1, player, (p_226874_1_) -> {
                p_226874_1_.broadcastBreakEvent(hand);
             });
             flag = true;
+            level.gameEvent((Entity)player, GameEvent.SHEAR, pos);
          } else if (itemstack.getItem() == Items.GLASS_BOTTLE) {
             level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
 
@@ -144,6 +147,7 @@ public class BeehiveBlock extends ContainerBlock {
             }
 
             flag = true;
+            level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
          }
       }
 
@@ -235,8 +239,8 @@ public class BeehiveBlock extends ContainerBlock {
       return this.defaultBlockState().setValue(FACING, p_196258_1_.getHorizontalDirection().getOpposite());
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(HONEY_LEVEL, FACING);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(HONEY_LEVEL, FACING);
    }
 
    public BlockRenderType getRenderShape(BlockState p_149645_1_) {
@@ -248,7 +252,7 @@ public class BeehiveBlock extends ContainerBlock {
       return new BeehiveTileEntity();
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       if (!p_176208_1_.isClientSide && p_176208_4_.isCreative() && p_176208_1_.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
          TileEntity tileentity = p_176208_1_.getBlockEntity(p_176208_2_);
          if (tileentity instanceof BeehiveTileEntity) {
@@ -257,7 +261,7 @@ public class BeehiveBlock extends ContainerBlock {
             int i = p_176208_3_.getValue(HONEY_LEVEL);
             boolean flag = !beehivetileentity.isEmpty();
             if (!flag && i == 0) {
-               return;
+               return super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
             }
 
             if (flag) {
@@ -275,7 +279,7 @@ public class BeehiveBlock extends ContainerBlock {
          }
       }
 
-      super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
+      return super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
    }
 
    public List<ItemStack> getDrops(BlockState p_220076_1_, LootContext.Builder p_220076_2_) {

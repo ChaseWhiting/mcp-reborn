@@ -10,18 +10,27 @@ import net.minecraft.util.math.vector.Vector3d;
 public class EntityPosWrapper implements IPosWrapper {
    private final Entity entity;
    private final boolean trackEyeHeight;
+   private boolean targetEyeHeight = false;
+
 
    public EntityPosWrapper(Entity p_i231516_1_, boolean p_i231516_2_) {
       this.entity = p_i231516_1_;
       this.trackEyeHeight = p_i231516_2_;
    }
 
+   public EntityPosWrapper(Entity p_i231516_1_, boolean p_i231516_2_, boolean b) {
+      this.entity = p_i231516_1_;
+      this.trackEyeHeight = p_i231516_2_;
+      this.targetEyeHeight = true;
+   }
+
    public Vector3d currentPosition() {
       return this.trackEyeHeight ? this.entity.position().add(0.0D, (double)this.entity.getEyeHeight(), 0.0D) : this.entity.position();
    }
 
+   @Override
    public BlockPos currentBlockPosition() {
-      return this.entity.blockPosition();
+      return this.targetEyeHeight ? BlockPos.containing(this.entity.getEyePosition(1.0F)) : this.entity.blockPosition();
    }
 
    public boolean isVisibleBy(LivingEntity p_220610_1_) {

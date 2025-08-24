@@ -55,12 +55,12 @@ public class GameConfiguration {
       public final boolean disableMultiplayer;
       public final boolean disableChat;
 
-      public GameInformation(boolean p_i232334_1_, String p_i232334_2_, String p_i232334_3_, boolean p_i232334_4_, boolean p_i232334_5_) {
-         this.demo = p_i232334_1_;
-         this.launchVersion = p_i232334_2_;
-         this.versionType = p_i232334_3_;
-         this.disableMultiplayer = p_i232334_4_;
-         this.disableChat = p_i232334_5_;
+      public GameInformation(boolean isDemo, String launchVersion, String version, boolean multiplayerDisabled, boolean chattingDisabled) {
+         this.demo = isDemo;
+         this.launchVersion = launchVersion;
+         this.versionType = version;
+         this.disableMultiplayer = multiplayerDisabled;
+         this.disableChat = chattingDisabled;
       }
    }
 
@@ -70,9 +70,9 @@ public class GameConfiguration {
       public final String hostname;
       public final int port;
 
-      public ServerInformation(@Nullable String p_i45487_1_, int p_i45487_2_) {
-         this.hostname = p_i45487_1_;
-         this.port = p_i45487_2_;
+      public ServerInformation(@Nullable String hostname, int port) {
+         this.hostname = hostname;
+         this.port = port;
       }
    }
 
@@ -83,11 +83,11 @@ public class GameConfiguration {
       public final PropertyMap profileProperties;
       public final Proxy proxy;
 
-      public UserInformation(Session p_i46375_1_, PropertyMap p_i46375_2_, PropertyMap p_i46375_3_, Proxy p_i46375_4_) {
-         this.user = p_i46375_1_;
-         this.userProperties = p_i46375_2_;
-         this.profileProperties = p_i46375_3_;
-         this.proxy = p_i46375_4_;
+      public UserInformation(Session sessions, PropertyMap userProperties, PropertyMap profileProperties, Proxy proxy) {
+         this.user = sessions;
+         this.userProperties = userProperties;
+         this.profileProperties = profileProperties;
+         this.proxy = proxy;
       }
    }
 }

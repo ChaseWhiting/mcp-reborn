@@ -8,16 +8,19 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
+import net.minecraft.bundle.ClientTextTooltip;
+import net.minecraft.bundle.ClientTooltipComponent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.TooltipComponent;
 import net.minecraft.client.gui.FocusableGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.IRenderable;
+import net.minecraft.client.gui.fonts.Font;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -42,6 +45,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Vector2ic;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class Screen extends FocusableGui implements IScreen, IRenderable {
@@ -112,7 +116,11 @@ public abstract class Screen extends FocusableGui implements IScreen, IRenderabl
       return p_230481_1_;
    }
 
-   protected void renderTooltip(MatrixStack p_230457_1_, ItemStack p_230457_2_, int p_230457_3_, int p_230457_4_) {
+   protected void renderTooltip(MatrixStack matrix, ItemStack item, int n, int n2) {
+      this.renderTooltip(matrix, item,Optional.empty(), n, n2);
+   }
+
+   protected void renderTooltip(MatrixStack p_230457_1_, ItemStack p_230457_2_, Optional<TooltipComponent> component, int p_230457_3_, int p_230457_4_) {
       this.renderComponentTooltip(p_230457_1_, this.getTooltipFromItem(p_230457_2_), p_230457_3_, p_230457_4_);
    }
 
@@ -126,6 +134,61 @@ public abstract class Screen extends FocusableGui implements IScreen, IRenderabl
 
    public void renderComponentTooltip(MatrixStack p_243308_1_, List<ITextComponent> p_243308_2_, int p_243308_3_, int p_243308_4_) {
       this.renderTooltip(p_243308_1_, Lists.transform(p_243308_2_, ITextComponent::getVisualOrderText), p_243308_3_, p_243308_4_);
+   }
+
+   public void renderComponentTooltip(MatrixStack p_243308_1_, List<ITextComponent> p_243308_2_, Optional<TooltipComponent> component, int p_243308_3_, int p_243308_4_) {
+      List<ClientTooltipComponent> list2 = p_243308_2_.stream().map(ITextComponent::getVisualOrderText).map(ClientTooltipComponent::create).toList();
+      component.ifPresent(tooltip -> list2.add(1, ClientTooltipComponent.create(tooltip)));
+
+      this.renderTooltip(p_243308_1_, Lists.transform(p_243308_2_, ITextComponent::getVisualOrderText), p_243308_3_, p_243308_4_);
+   }
+
+   public int guiWidth() {
+      return this.minecraft.getWindow().getGuiScaledWidth();
+   }
+
+   public int guiHeight() {
+      return this.minecraft.getWindow().getGuiScaledHeight();
+   }
+
+
+   private void renderTooltipInternal(MatrixStack matrix, List<ClientTooltipComponent> list, int n, int n2, ClientTooltipPositioner clientTooltipPositioner) {
+//      ClientTooltipComponent clientTooltipComponent;
+//      int n3;
+//      if (list.isEmpty()) {
+//         return;
+//      }
+//      int n4 = 0;
+//      int n5 = list.size() == 1 ? -2 : 0;
+//      for (ClientTooltipComponent clientTooltipComponent2 : list) {
+//         int n6 = clientTooltipComponent2.getWidth(this.font);
+//         if (n6 > n4) {
+//            n4 = n6;
+//         }
+//         n5 += clientTooltipComponent2.getHeight();
+//      }
+//      int n7 = n4;
+//      int n8 = n5;
+//      Vector2ic vector2ic = clientTooltipPositioner.positionTooltip(this.guiWidth(), this.guiHeight(), n, n2, n7, n8);
+//      int n9 = vector2ic.x();
+//      int n10 = vector2ic.y();
+//      matrix.pushPose();
+//      int n11 = 400;
+//      this.drawManaged(() -> TooltipRenderUtil.renderTooltipBackground(this, n9, n10, n7, n8, 400));
+//      matrix.translate(0.0f, 0.0f, 400.0f);
+//      int n12 = n10;
+//      for (n3 = 0; n3 < list.size(); ++n3) {
+//         clientTooltipComponent = list.get(n3);
+//         clientTooltipComponent.renderText(matrix, n9, n12, matrix.last().pose(), this.bufferSource);
+//         n12 += clientTooltipComponent.getHeight() + (n3 == 0 ? 2 : 0);
+//      }
+//      n12 = n10;
+//      for (n3 = 0; n3 < list.size(); ++n3) {
+//         clientTooltipComponent = list.get(n3);
+//         clientTooltipComponent.renderImage(this.font, n9, n12, this);
+//         n12 += clientTooltipComponent.getHeight() + (n3 == 0 ? 2 : 0);
+//      }
+//      matrix.popPose();
    }
 
    public void renderTooltip(MatrixStack p_238654_1_, List<? extends IReorderingProcessor> p_238654_2_, int p_238654_3_, int p_238654_4_) {

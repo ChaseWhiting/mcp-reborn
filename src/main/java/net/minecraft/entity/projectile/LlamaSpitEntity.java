@@ -4,7 +4,6 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
 import net.minecraft.particles.ParticleTypes;
@@ -23,7 +22,7 @@ public class LlamaSpitEntity extends ProjectileEntity {
       super(p_i50162_1_, p_i50162_2_);
    }
 
-   public LlamaSpitEntity(World p_i47273_1_, LlamaEntity p_i47273_2_) {
+   public LlamaSpitEntity(World p_i47273_1_, LivingEntity p_i47273_2_) {
       this(EntityType.LLAMA_SPIT, p_i47273_1_);
       super.setOwner(p_i47273_2_);
       this.setPos(p_i47273_2_.getX() - (double)(p_i47273_2_.getBbWidth() + 1.0F) * 0.5D * (double)MathHelper.sin(p_i47273_2_.yBodyRot * ((float)Math.PI / 180F)), p_i47273_2_.getEyeY() - (double)0.1F, p_i47273_2_.getZ() + (double)(p_i47273_2_.getBbWidth() + 1.0F) * 0.5D * (double)MathHelper.cos(p_i47273_2_.yBodyRot * ((float)Math.PI / 180F)));

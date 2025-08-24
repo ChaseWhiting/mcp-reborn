@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.command.impl.DebugCommand;
-import net.minecraft.command.impl.DebugPathCommand;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.util.DebugUtils;
@@ -119,6 +118,9 @@ public class DebugRenderer {
                if (DebugCommand.isDebugRaccoonEnabled() == false) {
                   this.raccoonDebugRenderer.render(matrixStack, buffer, cameraX, cameraY, cameraZ);
                }
+               if (DebugCommand.isDebugNeighbourUpdatesEnabled() == false) {
+                  this.neighborsUpdateRenderer.render(matrixStack, buffer, cameraX, cameraY, cameraZ);
+               }
                if (DebugCommand.isDebugGoalEnabled() == false) {
                   this.goalSelectorRenderer.render(matrixStack, buffer, cameraX, cameraY, cameraZ);
                }
@@ -140,6 +142,9 @@ public class DebugRenderer {
             if (flag && DebugCommand.isDebugRaccoonEnabled()) {
                this.raccoonDebugRenderer.render(matrixStack,buffer,cameraX,cameraY,cameraZ);
             }
+            if (flag && DebugCommand.isDebugNeighbourUpdatesEnabled()) {
+               this.neighborsUpdateRenderer.render(matrixStack, buffer, cameraX, cameraY, cameraZ);
+            }
          if (flag && DebugCommand.isDebugGoalEnabled()) {
             this.goalSelectorRenderer.render(matrixStack, buffer, cameraX, cameraY, cameraZ);
          }
@@ -154,9 +159,7 @@ public class DebugRenderer {
          }
       }
    }
-      // Render other debug renderers
       this.gameTestDebugRenderer.render(matrixStack, buffer, cameraX, cameraY, cameraZ);
-      // Add other renderers as needed...
    }
 
    public static Optional<Entity> getTargetedEntity(@Nullable Entity p_217728_0_, int p_217728_1_) {

@@ -10,16 +10,20 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IWorldPosCallable;
 
+import java.util.List;
+
 public abstract class AbstractRepairContainer extends Container {
    protected final CraftResultInventory resultSlots = new CraftResultInventory();
-   protected final IInventory inputSlots = new Inventory(2) {
-      public void setChanged() {
-         super.setChanged();
-         AbstractRepairContainer.this.slotsChanged(this);
-      }
-   };
+   protected final IInventory inputSlots;
    protected final IWorldPosCallable access;
    protected final PlayerEntity player;
+   private final int resultSlotIndex;
+   final List<Integer> inputSlotIndexes;
+
+
+   public int getResultSlot() {
+      return this.resultSlotIndex;
+   }
 
    protected abstract boolean mayPickup(PlayerEntity p_230303_1_, boolean p_230303_2_);
 
@@ -31,32 +35,70 @@ public abstract class AbstractRepairContainer extends Container {
       super(p_i231587_1_, p_i231587_2_);
       this.access = p_i231587_4_;
       this.player = p_i231587_3_.player;
-      this.addSlot(new Slot(this.inputSlots, 0, 27, 47));
-      this.addSlot(new Slot(this.inputSlots, 1, 76, 47));
-      this.addSlot(new Slot(this.resultSlots, 2, 134, 47) {
-         public boolean mayPlace(ItemStack p_75214_1_) {
+      ItemCombinerMenuSlotDefinition itemCombinerMenuSlotDefinition = this.createInputSlotDefinitions();
+      this.inputSlots = this.createContainer(itemCombinerMenuSlotDefinition.getNumOfInputSlots());
+      this.inputSlotIndexes = itemCombinerMenuSlotDefinition.getInputSlotIndexes();
+      this.resultSlotIndex = itemCombinerMenuSlotDefinition.getResultSlotIndex();
+      this.createInputSlots(itemCombinerMenuSlotDefinition);
+      this.createResultSlot(itemCombinerMenuSlotDefinition);
+      this.createInventorySlots(p_i231587_3_);
+   }
+
+   protected abstract ItemCombinerMenuSlotDefinition createInputSlotDefinitions();
+
+   private void createInputSlots(ItemCombinerMenuSlotDefinition itemCombinerMenuSlotDefinition) {
+      for (final ItemCombinerMenuSlotDefinition.SlotDefinition slotDefinition : itemCombinerMenuSlotDefinition.getSlots()) {
+         this.addSlot(new Slot(this.inputSlots, slotDefinition.slotIndex(), slotDefinition.x, slotDefinition.y){
+
+            @Override
+            public boolean mayPlace(ItemStack itemStack) {
+               return slotDefinition.mayPlace.test(itemStack);
+            }
+         });
+      }
+   }
+
+   private IInventory createContainer(int n) {
+      return new Inventory(n){
+
+         @Override
+         public void setChanged() {
+            super.setChanged();
+            AbstractRepairContainer.this.slotsChanged(this);
+         }
+      };
+   }
+
+   private void createResultSlot(ItemCombinerMenuSlotDefinition itemCombinerMenuSlotDefinition) {
+      this.addSlot(new Slot(this.resultSlots, itemCombinerMenuSlotDefinition.getResultSlot().slotIndex(), itemCombinerMenuSlotDefinition.getResultSlot().x, itemCombinerMenuSlotDefinition.getResultSlot().y){
+
+         @Override
+         public boolean mayPlace(ItemStack itemStack) {
             return false;
          }
 
-         public boolean mayPickup(PlayerEntity p_82869_1_) {
-            return AbstractRepairContainer.this.mayPickup(p_82869_1_, this.hasItem());
+         @Override
+         public boolean mayPickup(PlayerEntity player) {
+            return AbstractRepairContainer.this.mayPickup(player, this.hasItem());
          }
 
-         public ItemStack onTake(PlayerEntity p_190901_1_, ItemStack p_190901_2_) {
-            return AbstractRepairContainer.this.onTake(p_190901_1_, p_190901_2_);
+         @Override
+         public ItemStack onTake(PlayerEntity player, ItemStack itemStack) {
+            return AbstractRepairContainer.this.onTake(player, itemStack);
          }
       });
+   }
 
-      for(int i = 0; i < 3; ++i) {
-         for(int j = 0; j < 9; ++j) {
-            this.addSlot(new Slot(p_i231587_3_, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+   private void createInventorySlots(IInventory inventory) {
+      int n;
+      for (n = 0; n < 3; ++n) {
+         for (int i = 0; i < 9; ++i) {
+            this.addSlot(new Slot(inventory, i + n * 9 + 9, 8 + i * 18, 84 + n * 18));
          }
       }
-
-      for(int k = 0; k < 9; ++k) {
-         this.addSlot(new Slot(p_i231587_3_, k, 8 + k * 18, 142));
+      for (n = 0; n < 9; ++n) {
+         this.addSlot(new Slot(inventory, n, 8 + n * 18, 142));
       }
-
    }
 
    public abstract void createResult();
@@ -123,5 +165,31 @@ public abstract class AbstractRepairContainer extends Container {
       }
 
       return itemstack;
+   }
+
+
+
+   public int getSlotToQuickMoveTo(ItemStack itemStack) {
+      return this.inputSlots.isEmpty() ? 0 : this.inputSlotIndexes.get(0);
+   }
+
+   protected int getInventorySlotStart() {
+      return this.getResultSlot() + 1;
+   }
+
+   protected int getInventorySlotEnd() {
+      return this.getInventorySlotStart() + 27;
+   }
+
+   protected int getUseRowStart() {
+      return this.getInventorySlotEnd();
+   }
+
+   protected int getUseRowEnd() {
+      return this.getUseRowStart() + 9;
+   }
+
+   protected boolean canMoveIntoInputSlots(ItemStack itemStack) {
+      return true;
    }
 }

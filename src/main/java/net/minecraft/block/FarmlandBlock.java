@@ -1,9 +1,13 @@
 package net.minecraft.block;
 
 import java.util.Random;
+
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.IntegerProperty;
@@ -51,7 +55,7 @@ public class FarmlandBlock extends Block {
       return true;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 
@@ -78,7 +82,9 @@ public class FarmlandBlock extends Block {
 
    public void fallOn(World p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
       if (!p_180658_1_.isClientSide && p_180658_1_.random.nextFloat() < p_180658_4_ - 0.5F && p_180658_3_ instanceof LivingEntity && (p_180658_3_ instanceof PlayerEntity || p_180658_1_.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) && p_180658_3_.getBbWidth() * p_180658_3_.getBbWidth() * p_180658_3_.getBbHeight() > 0.512F) {
-         turnToDirt(p_180658_1_.getBlockState(p_180658_2_), p_180658_1_, p_180658_2_);
+          if (!EnchantmentHelper.has(((LivingEntity)p_180658_3_).getItemBySlot(EquipmentSlotType.FEET), Enchantments.FALL_PROTECTION)) {
+              turnToDirt(p_180658_1_.getBlockState(p_180658_2_), p_180658_1_, p_180658_2_);
+          }
       }
 
       super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_);
@@ -103,8 +109,8 @@ public class FarmlandBlock extends Block {
       return false;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(MOISTURE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(MOISTURE);
    }
 
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {

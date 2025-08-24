@@ -3,17 +3,15 @@ package net.minecraft.item;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+
+import java.util.*;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.bundle.BundleItem;
 import net.minecraft.bundle.SlotAccess;
+import net.minecraft.client.TooltipComponent;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -24,6 +22,8 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.container.ClickAction;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.food.FoodData;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.*;
@@ -43,6 +43,14 @@ public class Item implements IItemProvider {
    public static final Map<Block, Item> BY_BLOCK = Maps.newHashMap();
    protected static final UUID BASE_ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
    protected static final UUID BASE_ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
+   protected static final UUID BASE_REACH_UUID = UUID.fromString("C2BA3BF7-2F73-4B1A-A72F-8288E0C7FDFE");
+
+
+
+   public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
+      return Optional.empty();
+   }
+
    protected static final Random random = new Random();
    protected final ItemGroup category;
    private final Rarity rarity;
@@ -55,7 +63,11 @@ public class Item implements IItemProvider {
    public String descriptionId;
    @Nullable
    private final Food foodProperties;
+   public static final Ingredient EGGS = Ingredient.of(Items.EGG, Items.WARM_EGG, Items.COLD_EGG);
 
+   public boolean isEgg() {
+      return EGGS.test(new ItemStack(this));
+   }
 
 
    public boolean hasCustomScrollBehaviour() {
@@ -135,9 +147,9 @@ public class Item implements IItemProvider {
    }
 
    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-      if (this.isEdible()) {
+      if (player.getItemInHand(hand).isEdible() || this.isEdible()) {
          ItemStack itemstack = player.getItemInHand(hand);
-         if (player.canEat(this.getFoodProperties().canAlwaysEat())) {
+         if (player.canEat(itemstack.getFoodProperties().canAlwaysEat())) {
             player.startUsingItem(hand);
             return ActionResult.consume(itemstack);
          } else {
@@ -149,7 +161,7 @@ public class Item implements IItemProvider {
    }
 
    public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity entity) {
-      return this.isEdible() ? entity.eat(world, itemStack) : itemStack;
+      return itemStack.isEdible() ? entity.eat(world, itemStack) : itemStack;
    }
 
    public final int getMaxStackSize() {
@@ -229,11 +241,23 @@ public class Item implements IItemProvider {
    }
 
    public UseAction getUseAnimation(ItemStack p_77661_1_) {
-      return p_77661_1_.getItem().isEdible() ? UseAction.EAT : UseAction.NONE;
+      return p_77661_1_.isEdible() ? UseAction.EAT : UseAction.NONE;
    }
 
-   public int getUseDuration(ItemStack p_77626_1_) {
-      if (p_77626_1_.getItem().isEdible()) {
+   public int getUseDuration(ItemStack item) {
+      if (item.isEdible()) {
+         if (item.getOrCreateTag().contains("FoodData", 10)) {
+            FoodData foodData = FoodData.load(item.getTag());
+
+            if (foodData == null) return 0;
+
+            if (foodData.timeToEat() > 0) {
+               return foodData.timeToEat();
+            } else {
+               return foodData.isFast() ? 16 : 32;
+            }
+         }
+
          return this.getFoodProperties().isFastFood() ? 16 : 32;
       } else {
          return 0;
@@ -329,6 +353,10 @@ public class Item implements IItemProvider {
    }
 
    public boolean is(ITag<Item> p_206844_1_) {
+      return p_206844_1_.contains(this);
+   }
+
+   public boolean is(List<Item> p_206844_1_) {
       return p_206844_1_.contains(this);
    }
 

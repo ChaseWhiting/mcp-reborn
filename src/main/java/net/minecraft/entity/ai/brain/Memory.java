@@ -20,6 +20,10 @@ public class Memory<T> {
 
    }
 
+   public long getTimeToLive() {
+      return this.timeToLive;
+   }
+
    public static <T> Memory<T> of(T p_234068_0_) {
       return new Memory<>(p_234068_0_, Long.MAX_VALUE);
    }

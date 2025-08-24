@@ -9,6 +9,7 @@ import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.IntegerProperty;
@@ -69,6 +70,7 @@ public class TurtleEggBlock extends Block {
          p_203166_1_.destroyBlock(p_203166_2_, false);
       } else {
          p_203166_1_.setBlock(p_203166_2_, p_203166_3_.setValue(EGGS, Integer.valueOf(i - 1)), 2);
+         p_203166_1_.gameEvent(GameEvent.BLOCK_DESTROY, p_203166_2_, GameEvent.Context.of(p_203166_3_));
          p_203166_1_.levelEvent(2001, p_203166_2_, Block.getId(p_203166_3_));
       }
 
@@ -136,12 +138,12 @@ public class TurtleEggBlock extends Block {
       return blockstate.is(this) ? blockstate.setValue(EGGS, Integer.valueOf(Math.min(4, blockstate.getValue(EGGS) + 1))) : super.getStateForPlacement(p_196258_1_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return p_220053_1_.getValue(EGGS) > 1 ? MULTIPLE_EGGS_AABB : ONE_EGG_AABB;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return state.getValue(EGGS) > 1 ? MULTIPLE_EGGS_AABB : ONE_EGG_AABB;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(HATCH, EGGS);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(HATCH, EGGS);
    }
 
    private boolean canDestroyEgg(World p_212570_1_, Entity p_212570_2_) {

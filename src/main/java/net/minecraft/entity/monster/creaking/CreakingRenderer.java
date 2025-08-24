@@ -1,21 +1,23 @@
 package net.minecraft.entity.monster.creaking;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.CreakingEyesLayer;
-import net.minecraft.entity.monster.BlazeEntity;
-import net.minecraft.entity.monster.SilverfishEntity;
+import net.minecraft.entity.warden.LivingEntityEmissiveLayer;
 import net.minecraft.util.ResourceLocation;
 
 public class CreakingRenderer extends MobRenderer<CreakingEntity, CreakingModel<CreakingEntity>> {
     private static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/creaking.png");
-    private final CreakingEyesLayer<CreakingEntity, CreakingModel<CreakingEntity>> layer = new CreakingEyesLayer<>(this);
+    private static final ResourceLocation EYES = (new ResourceLocation("textures/entity/creaking/creaking_eyes.png"));
+
 
     public CreakingRenderer(EntityRendererManager manager) {
-        super(manager, new CreakingModel<>(), 0.7F);
-        this.addLayer(layer);
+        super(manager, new CreakingModel<>(manager.bakeLayer(ModelLayers.CREAKING)), 0.7F);
+        this.addLayer(new LivingEntityEmissiveLayer<CreakingEntity, CreakingModel<CreakingEntity>>(this, EYES, (creakingRenderState, f, f1) -> 1.0f, CreakingModel::getHeadModelParts, RenderType::eyes, true));
+
     }
 
     @Override

@@ -17,7 +17,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.Random;
 
 public class TreasureBagItem extends Item {
     private static final Map<EntityType<?>, TreasureBagItem> BY_ID = Maps.newIdentityHashMap();
@@ -45,13 +44,13 @@ public class TreasureBagItem extends Item {
     public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack incomingStack, Slot slot, ClickAction clickAction, PlayerEntity player, SlotAccess slotAccess, ClickType clickType) {
         if (!incomingStack.isEmpty() || clickAction == ClickAction.PRIMARY) return false;
 
-            List<ItemStack> drops = openBag(player);
-            stack.shrink(1);
-            player.awardStat(Stats.ITEM_USED.get(this), 1);
-            for (ItemStack stacks : drops) {
-                player.addOrDrop(stacks);
-            }
-            player.inventory.setChanged();
+        List<ItemStack> drops = openBag(player);
+        stack.shrink(1);
+        player.awardStat(Stats.ITEM_USED.get(this), 1);
+        for (ItemStack stacks : drops) {
+            player.addOrDrop(stacks);
+        }
+        player.inventory.setChanged();
         return true;
     }
 

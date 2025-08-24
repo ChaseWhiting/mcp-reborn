@@ -1,5 +1,6 @@
 package net.minecraft.entity.item;
 
+import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
@@ -7,7 +8,11 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.leashable.Leashable;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
@@ -21,123 +26,180 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class LeashKnotEntity extends HangingEntity {
-   public LeashKnotEntity(EntityType<? extends LeashKnotEntity> p_i50223_1_, World p_i50223_2_) {
-      super(p_i50223_1_, p_i50223_2_);
+public class LeashKnotEntity extends BlockAttachedEntity {
+
+   public static final double OFFSET_Y = 0.375;
+
+   public LeashKnotEntity(EntityType<? extends LeashKnotEntity> entityType, World level) {
+      super(entityType, level);
    }
 
-   public LeashKnotEntity(World p_i45851_1_, BlockPos p_i45851_2_) {
-      super(EntityType.LEASH_KNOT, p_i45851_1_, p_i45851_2_);
-      this.setPos((double)p_i45851_2_.getX() + 0.5D, (double)p_i45851_2_.getY() + 0.5D, (double)p_i45851_2_.getZ() + 0.5D);
-      float f = 0.125F;
-      float f1 = 0.1875F;
-      float f2 = 0.25F;
-      this.setBoundingBox(new AxisAlignedBB(this.getX() - 0.1875D, this.getY() - 0.25D + 0.125D, this.getZ() - 0.1875D, this.getX() + 0.1875D, this.getY() + 0.25D + 0.125D, this.getZ() + 0.1875D));
+   public LeashKnotEntity(World level, BlockPos blockPos) {
+      super(EntityType.LEASH_KNOT, level, blockPos);
+      this.setPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
       this.forcedLoading = true;
    }
 
-   public void setPos(double p_70107_1_, double p_70107_3_, double p_70107_5_) {
-      super.setPos((double)MathHelper.floor(p_70107_1_) + 0.5D, (double)MathHelper.floor(p_70107_3_) + 0.5D, (double)MathHelper.floor(p_70107_5_) + 0.5D);
+   @Override
+   protected void defineSynchedData() {
    }
 
-   protected void recalculateBoundingBox() {
-      this.setPosRaw((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D);
+
+
+   @Override
+   public boolean shouldRenderAtSqrDistance(double d) {
+      return d < 1024.0;
    }
 
-   public void setDirection(Direction p_174859_1_) {
+   @Override
+   public void dropItem(ServerWorld serverLevel, @Nullable Entity entity) {
+      this.playSound(SoundEvents.LEASH_KNOT_BREAK, 1.0f, 1.0f);
    }
 
-   public int getWidth() {
-      return 9;
+   @Override
+   public void addAdditionalSaveData(CompoundNBT valueOutput) {
    }
 
-   public int getHeight() {
-      return 9;
+   @Override
+   public void readAdditionalSaveData(CompoundNBT valueInput) {
    }
 
-   protected float getEyeHeight(Pose p_213316_1_, EntitySize p_213316_2_) {
-      return -0.0625F;
-   }
+   @Override
+   public ActionResultType interact(PlayerEntity player, Hand hand) {
+      ActionResultType resultType;
 
-   @OnlyIn(Dist.CLIENT)
-   public boolean shouldRenderAtSqrDistance(double p_70112_1_) {
-      return p_70112_1_ < 1024.0D;
-   }
-
-   public void dropItem(@Nullable Entity p_110128_1_) {
-      this.playSound(SoundEvents.LEASH_KNOT_BREAK, 1.0F, 1.0F);
-   }
-
-   public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
-   }
-
-   public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
-   }
-
-   public ActionResultType interact(PlayerEntity p_184230_1_, Hand p_184230_2_) {
-      if (this.level.isClientSide) {
+      if (level.isClientSide) {
          return ActionResultType.SUCCESS;
-      } else {
-         boolean flag = false;
-         double d0 = 7.0D;
-         List<Mob> list = this.level.getEntitiesOfClass(Mob.class, new AxisAlignedBB(this.getX() - 7.0D, this.getY() - 7.0D, this.getZ() - 7.0D, this.getX() + 7.0D, this.getY() + 7.0D, this.getZ() + 7.0D));
+      }
 
-         for(Mob mobentity : list) {
-            if (mobentity.getLeashHolder() == p_184230_1_) {
-               mobentity.setLeashedTo(this, true);
-               flag = true;
-            }
+      if (player.getItemInHand(hand).is(Items.SHEARS)) {
+         resultType = super.interact(player, hand);
+
+         return resultType;
+      }
+      boolean bl = false;
+
+      List<Leashable> leashedList = Leashable.leashableLeashedTo(player);
+
+      Iterator<Leashable> iterator = leashedList.iterator();
+
+      while (iterator.hasNext()) {
+         Leashable leashable = iterator.next();
+         if (!leashable.canHaveALeashAttachedTo(this)) continue;
+         leashable.setLeashedTo(this, true);
+         bl = true;
+      }
+      boolean bl2 = false;
+
+      if (!bl && !player.isSecondaryUseActive()) {
+         List<Leashable> leashedToPost = Leashable.leashableLeashedTo(this);
+         Iterator<Leashable> iterator2 = leashedToPost.iterator();
+
+         while (iterator2.hasNext()) {
+            Leashable leashable = iterator2.next();
+            if (!leashable.canHaveALeashAttachedTo(player)) continue;
+            leashable.setLeashedTo(player, true);
+            bl2 = true;
          }
+      }
 
-         if (!flag) {
-            this.remove();
-            if (p_184230_1_.abilities.instabuild) {
-               for(Mob mobentity1 : list) {
-                  if (mobentity1.isLeashed() && mobentity1.getLeashHolder() == this) {
-                     mobentity1.dropLeash(true, false);
-                  }
-               }
-            }
-         }
+      if (bl || bl2) {
+         this.gameEvent(GameEvent.BLOCK_ATTACH, player);
+         this.playPlacementSound();
+         return ActionResultType.SUCCESS;
+      }
 
-         return ActionResultType.CONSUME;
+      return super.interact(player, hand);
+   }
+
+
+   @Override
+   public void notifyLeasheeRemoved(Leashable leashable) {
+      if (Leashable.leashableLeashedTo(this).isEmpty()) {
+         this.discard();
       }
    }
 
+   @Override
    public boolean survives() {
-      return this.level.getBlockState(this.pos).getBlock().is(BlockTags.FENCES);
+      return this.level().getBlockState(this.pos).is(BlockTags.FENCES);
    }
 
-   public static LeashKnotEntity getOrCreateKnot(World p_213855_0_, BlockPos p_213855_1_) {
-      int i = p_213855_1_.getX();
-      int j = p_213855_1_.getY();
-      int k = p_213855_1_.getZ();
-
-      for(LeashKnotEntity leashknotentity : p_213855_0_.getEntitiesOfClass(LeashKnotEntity.class, new AxisAlignedBB((double)i - 1.0D, (double)j - 1.0D, (double)k - 1.0D, (double)i + 1.0D, (double)j + 1.0D, (double)k + 1.0D))) {
-         if (leashknotentity.getPos().equals(p_213855_1_)) {
-            return leashknotentity;
-         }
+   public static LeashKnotEntity getOrCreateKnot(World level, BlockPos blockPos) {
+      int n = blockPos.getX();
+      int n2 = blockPos.getY();
+      int n3 = blockPos.getZ();
+      List<LeashKnotEntity> list = level.getEntitiesOfClass(LeashKnotEntity.class, new AxisAlignedBB((double)n - 1.0, (double)n2 - 1.0, (double)n3 - 1.0, (double)n + 1.0, (double)n2 + 1.0, (double)n3 + 1.0));
+      for (LeashKnotEntity leashFenceKnotEntity : list) {
+         if (!leashFenceKnotEntity.getPos().equals(blockPos)) continue;
+         return leashFenceKnotEntity;
       }
-
-      LeashKnotEntity leashknotentity1 = new LeashKnotEntity(p_213855_0_, p_213855_1_);
-      p_213855_0_.addFreshEntity(leashknotentity1);
-      leashknotentity1.playPlacementSound();
-      return leashknotentity1;
+      LeashKnotEntity leashFenceKnotEntity = new LeashKnotEntity(level, blockPos);
+      level.addFreshEntity(leashFenceKnotEntity);
+      return leashFenceKnotEntity;
    }
 
    public void playPlacementSound() {
-      this.playSound(SoundEvents.LEASH_KNOT_PLACE, 1.0F, 1.0F);
+      this.playSound(SoundEvents.LEASH_KNOT_PLACE, 1.0f, 1.0f);
    }
 
    public IPacket<?> getAddEntityPacket() {
       return new SSpawnObjectPacket(this, this.getType(), 0, this.getPos());
    }
 
-   @OnlyIn(Dist.CLIENT)
-   public Vector3d getRopeHoldPosition(float p_241843_1_) {
-      return this.getPosition(p_241843_1_).add(0.0D, 0.2D, 0.0D);
+
+   @Override
+   public Vector3d getRopeHoldPosition(float f) {
+      return this.getPosition(f).add(0.0, 0.2, 0.0);
+   }
+
+   @Override
+   public ItemStack getPickResult() {
+      return new ItemStack(Items.LEAD);
+   }
+
+
+
+
+
+
+
+
+
+
+   @Override
+   protected void recalculateBoundingBox() {
+      this.setPosRaw((double)this.pos.getX() + 0.5, (double)this.pos.getY() + 0.375, (double)this.pos.getZ() + 0.5);
+      double d = (double)this.getType().getWidth() / 2.0;
+      double d2 = this.getType().getHeight();
+      double yOffset = 0.125; // 2 pixels in Minecraft units
+      this.setBoundingBox(new AxisAlignedBB(
+              this.getX() - d,
+              this.getY() - yOffset,                    // Lowered by 0.125
+              this.getZ() - d,
+              this.getX() + d,
+              this.getY() + d2 - yOffset,               // Same height, just offset down
+              this.getZ() + d
+      ));
+   }
+
+
+   @Override
+   public void push(double p_70024_1_, double p_70024_3_, double p_70024_5_) {
+
+   }
+
+   @Override
+   public void push(Vector3d vec) {
+
+   }
+
+   @Override
+   public void push(Entity p_70108_1_) {
+
    }
 }

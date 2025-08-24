@@ -123,7 +123,7 @@ public class BubbleColumnBlock extends Block implements IBucketPickupHandler {
       return blockstate.is(Blocks.BUBBLE_COLUMN) || blockstate.is(Blocks.MAGMA_BLOCK) || blockstate.is(Blocks.SOUL_SAND);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return VoxelShapes.empty();
    }
 
@@ -131,8 +131,8 @@ public class BubbleColumnBlock extends Block implements IBucketPickupHandler {
       return BlockRenderType.INVISIBLE;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(DRAG_DOWN);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(DRAG_DOWN);
    }
 
    public Fluid takeLiquid(IWorld p_204508_1_, BlockPos p_204508_2_, BlockState p_204508_3_) {

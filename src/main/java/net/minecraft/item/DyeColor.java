@@ -27,7 +27,7 @@ public enum DyeColor implements IStringSerializable {
    BROWN(12, "brown", 8606770, MaterialColor.COLOR_BROWN, 5320730, 9127187),
    GREEN(13, "green", 6192150, MaterialColor.COLOR_GREEN, 3887386, 65280),
    RED(14, "red", 11546150, MaterialColor.COLOR_RED, 11743532, 16711680),
-   BLACK(15, "black", 1908001, MaterialColor.COLOR_BLACK, 1973019, 0),
+   BLACK(15, "black", 1908001, MaterialColor.COLOR_BLACK, 1973019, 0);
 
 
 //   TURQUOISE(16, "turquoise", 4220606, MaterialColor.COLOR_CYAN, 4883792, 4780720),
@@ -39,7 +39,6 @@ public enum DyeColor implements IStringSerializable {
 //   OLIVE(22, "olive", 8421376, MaterialColor.COLOR_GREEN, 8421376, 8421376),
 //   BRONZE(23, "bronze", 13382451, MaterialColor.COLOR_ORANGE, 13382451, 13382451),
 //   NAVY(24, "navy", 128, MaterialColor.COLOR_BLUE, 128, 128),
-   CORAL(16, "coral", 16744272, MaterialColor.COLOR_PINK, 16744272, 16744272);
 
    private static final DyeColor[] BY_ID = Arrays.stream(values()).sorted(Comparator.comparingInt(DyeColor::getId)).toArray((p_199795_0_) -> {
       return new DyeColor[p_199795_0_];

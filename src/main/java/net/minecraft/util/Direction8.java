@@ -1,6 +1,8 @@
 package net.minecraft.util;
 
 import com.google.common.collect.Sets;
+import net.minecraft.util.math.vector.Vector3i;
+
 import java.util.Arrays;
 import java.util.Set;
 
@@ -23,12 +25,27 @@ public enum Direction8 {
    private static final int NORTH_EAST_MASK = 1 << NORTH_EAST.ordinal();
    private static final int NORTH_MASK = 1 << NORTH.ordinal();
    private final Set<Direction> directions;
+   private final Vector3i step;
 
    private Direction8(Direction... p_i47954_3_) {
       this.directions = Sets.immutableEnumSet(Arrays.asList(p_i47954_3_));
+
+      this.step = new Vector3i(0, 0, 0);
+      for (Direction direction : p_i47954_3_) {
+         this.step.setXPublic(this.step.getX() + direction.getStepX()).setYPublic(this.step.getY() + direction.getStepY()).setZPublic(this.step.getZ() + direction.getStepZ());
+      }
    }
 
    public Set<Direction> getDirections() {
       return this.directions;
+   }
+
+
+   public int getStepX() {
+      return this.step.getX();
+   }
+
+   public int getStepZ() {
+      return this.step.getZ();
    }
 }

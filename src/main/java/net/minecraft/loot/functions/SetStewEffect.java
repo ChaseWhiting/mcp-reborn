@@ -72,6 +72,11 @@ public class SetStewEffect extends LootFunction {
          return this;
       }
 
+      public SetStewEffect.Builder canHaveEffect(Effect p_216077_1_, RandomValueRange p_216077_2_) {
+         this.effectDurationMap.put(p_216077_1_, p_216077_2_);
+         return this;
+      }
+
       public ILootFunction build() {
          return new SetStewEffect(this.getConditions(), this.effectDurationMap);
       }

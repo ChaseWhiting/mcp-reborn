@@ -1,14 +1,11 @@
 package net.minecraft.command.impl;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.NumberArgumentType;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.StringTextComponent;
-import java.math.BigDecimal;
 
 public class PercentageCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {

@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -20,6 +21,7 @@ import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.util.math.SectionPos;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.ISeedReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.MobSpawnInfo;
@@ -62,7 +64,12 @@ public abstract class Structure<C extends IFeatureConfig> {
 
    public static final Structure<NoFeatureConfig> NETHER_FOSSIL = register("Nether_Fossil", new NetherFossilStructure(NoFeatureConfig.CODEC), GenerationStage.Decoration.UNDERGROUND_DECORATION);
    public static final Structure<VillageConfig> BASTION_REMNANT = register("Bastion_Remnant", new BastionRemantsStructure(VillageConfig.CODEC), GenerationStage.Decoration.SURFACE_STRUCTURES);
+   public static final Structure<VillageConfig> TRAIL_RUINS = register("Trail_Ruins", new TrailRuinsStructure(VillageConfig.CODEC), GenerationStage.Decoration.SURFACE_STRUCTURES);
+
    public static final List<Structure<?>> NOISE_AFFECTING_FEATURES = ImmutableList.of(PILLAGER_OUTPOST, VILLAGE, NETHER_FOSSIL, PALE_VILLAGE);
+
+
+
    private static final ResourceLocation JIGSAW_RENAME = new ResourceLocation("jigsaw");
    private static final Map<ResourceLocation, ResourceLocation> RENAMES = ImmutableMap.<ResourceLocation, ResourceLocation>builder().put(new ResourceLocation("nvi"), JIGSAW_RENAME).put(new ResourceLocation("pcp"), JIGSAW_RENAME).put(new ResourceLocation("bastionremnant"), JIGSAW_RENAME).put(new ResourceLocation("runtime"), JIGSAW_RENAME).build();
    private final Codec<StructureFeature<C, Structure<C>>> configuredStructureCodec;
@@ -187,6 +194,11 @@ public abstract class Structure<C extends IFeatureConfig> {
 
       return null;
    }
+
+
+   public void afterPlace(ISeedReader world, StructureManager structureManager, ChunkGenerator generator, Random random, MutableBoundingBox boundingBox, ChunkPos chunkPos, List<StructurePiece> pieces) {}
+
+
 
    protected boolean linearSeparation() {
       return true;

@@ -10,8 +10,6 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.enchantment.HomingModuleEnchantment;
 import net.minecraft.entity.*;
-import net.minecraft.entity.monster.Monster;
-import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -29,7 +27,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.ISeedReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -110,7 +107,7 @@ public class FrisbeeEntity extends ProjectileItemEntity {
     private boolean initialHit = false;
     private Vector3d playerInitialPosition = Vector3d.ZERO;
     private boolean bypassArmour;
-    private FrisbeeWindManager windManager;
+    private WindManager windManager;
 
     public FrisbeeEntity(EntityType<? extends FrisbeeEntity> type, World world) {
         super(type, world);
@@ -144,7 +141,7 @@ public class FrisbeeEntity extends ProjectileItemEntity {
         if (!this.level.isClientSide) {
             seed = ((ServerWorld) this.level).getSeed();
         }
-        this.windManager = new FrisbeeWindManager(this.level, seed);
+        this.windManager = new WindManager(this.level, seed);
         if (owner instanceof PlayerEntity && this.getOwner() != null) {
             this.playerInitialPosition = this.getOwner().position();
         }

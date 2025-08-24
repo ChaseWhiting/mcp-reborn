@@ -77,7 +77,7 @@ public class RepeaterBlock extends RedstoneDiodeBlock {
       }
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, DELAY, LOCKED, POWERED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, DELAY, LOCKED, POWERED);
    }
 }

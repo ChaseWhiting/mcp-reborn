@@ -4,9 +4,6 @@ import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.datafixers.types.templates.TypeTemplate;
-import com.mojang.serialization.Dynamic;
 import net.minecraft.util.datafix.TypeReferences;
 
 public class AddRaccoonDataFix extends DataFix {

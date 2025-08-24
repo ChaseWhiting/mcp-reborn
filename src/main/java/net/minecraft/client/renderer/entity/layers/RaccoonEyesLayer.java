@@ -3,8 +3,6 @@ package net.minecraft.client.renderer.entity.layers;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.model.RaccoonModel;
-import net.minecraft.client.renderer.entity.model.SpiderModel;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.RaccoonEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;

@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,7 +42,7 @@ public class TippedArrowRecipe extends SpecialRecipe {
       }
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       ItemStack itemstack = p_77572_1_.getItem(1 + p_77572_1_.getWidth());
       if (itemstack.getItem() != Items.LINGERING_POTION) {
          return ItemStack.EMPTY;

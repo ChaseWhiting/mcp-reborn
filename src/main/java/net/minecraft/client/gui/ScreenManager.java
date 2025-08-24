@@ -90,6 +90,8 @@ public class ScreenManager {
       register(ContainerType.SMOKER, SmokerScreen::new);
       register(ContainerType.CARTOGRAPHY_TABLE, CartographyTableScreen::new);
       register(ContainerType.STONECUTTER, StonecutterScreen::new);
+      register(ContainerType.WOODCUTTER, WoodcutterScreen::new);
+
    }
 
    @OnlyIn(Dist.CLIENT)

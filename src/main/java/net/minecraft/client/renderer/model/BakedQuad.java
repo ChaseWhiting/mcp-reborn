@@ -40,4 +40,9 @@ public class BakedQuad {
    public boolean isShade() {
       return this.shade;
    }
+
+   public TextureAtlasSprite getSprite() {
+      return this.sprite;
+   }
+
 }

@@ -2,6 +2,7 @@ package net.minecraft.block;
 
 import java.util.Random;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
@@ -38,10 +39,10 @@ public class LeverBlock extends HorizontalFaceBlock {
       this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(FACE, AttachFace.WALL));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      switch((AttachFace)p_220053_1_.getValue(FACE)) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      switch((AttachFace) state.getValue(FACE)) {
       case FLOOR:
-         switch(p_220053_1_.getValue(FACING).getAxis()) {
+         switch(state.getValue(FACING).getAxis()) {
          case X:
             return UP_AABB_X;
          case Z:
@@ -49,7 +50,7 @@ public class LeverBlock extends HorizontalFaceBlock {
             return UP_AABB_Z;
          }
       case WALL:
-         switch((Direction)p_220053_1_.getValue(FACING)) {
+         switch((Direction) state.getValue(FACING)) {
          case EAST:
             return EAST_AABB;
          case WEST:
@@ -62,7 +63,7 @@ public class LeverBlock extends HorizontalFaceBlock {
          }
       case CEILING:
       default:
-         switch(p_220053_1_.getValue(FACING).getAxis()) {
+         switch(state.getValue(FACING).getAxis()) {
          case X:
             return DOWN_AABB_X;
          case Z:
@@ -84,6 +85,8 @@ public class LeverBlock extends HorizontalFaceBlock {
          BlockState blockstate = this.pull(p_225533_1_, p_225533_2_, p_225533_3_);
          float f = blockstate.getValue(POWERED) ? 0.6F : 0.5F;
          p_225533_2_.playSound((PlayerEntity)null, p_225533_3_, SoundEvents.LEVER_CLICK, SoundCategory.BLOCKS, 0.3F, f);
+         p_225533_2_.gameEvent(p_225533_4_, blockstate.getValue(POWERED) != false ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, p_225533_3_);
+
          return ActionResultType.CONSUME;
       }
    }
@@ -139,7 +142,7 @@ public class LeverBlock extends HorizontalFaceBlock {
       p_196378_2_.updateNeighborsAt(p_196378_3_.relative(getConnectedDirection(p_196378_1_).getOpposite()), this);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACE, FACING, POWERED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACE, FACING, POWERED);
    }
 }

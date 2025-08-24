@@ -76,8 +76,8 @@ public class PressurePlateBlock extends AbstractPressurePlateBlock {
       return 0;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(POWERED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(POWERED);
    }
 
    public static enum Sensitivity {

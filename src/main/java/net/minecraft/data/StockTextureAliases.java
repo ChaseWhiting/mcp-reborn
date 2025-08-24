@@ -39,6 +39,8 @@ public final class StockTextureAliases {
    public static final StockTextureAliases UNSTICKY = create("unsticky");
    public static final StockTextureAliases TORCH = create("torch");
    public static final StockTextureAliases LAYER0 = create("layer0");
+   public static final StockTextureAliases LAYER1 = create("layer1");
+   public static final StockTextureAliases LAYER2 = create("layer2");
    public static final StockTextureAliases LIT_LOG = create("lit_log");
    private final String id;
    @Nullable

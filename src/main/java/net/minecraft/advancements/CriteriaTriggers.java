@@ -3,44 +3,8 @@ package net.minecraft.advancements;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.criterion.BeeNestDestroyedTrigger;
-import net.minecraft.advancements.criterion.BredAnimalsTrigger;
-import net.minecraft.advancements.criterion.BrewedPotionTrigger;
-import net.minecraft.advancements.criterion.ChangeDimensionTrigger;
-import net.minecraft.advancements.criterion.ChanneledLightningTrigger;
-import net.minecraft.advancements.criterion.ConstructBeaconTrigger;
-import net.minecraft.advancements.criterion.ConsumeItemTrigger;
-import net.minecraft.advancements.criterion.CuredZombieVillagerTrigger;
-import net.minecraft.advancements.criterion.EffectsChangedTrigger;
-import net.minecraft.advancements.criterion.EnchantedItemTrigger;
-import net.minecraft.advancements.criterion.EnterBlockTrigger;
-import net.minecraft.advancements.criterion.EntityHurtPlayerTrigger;
-import net.minecraft.advancements.criterion.FilledBucketTrigger;
-import net.minecraft.advancements.criterion.FishingRodHookedTrigger;
-import net.minecraft.advancements.criterion.ImpossibleTrigger;
-import net.minecraft.advancements.criterion.InventoryChangeTrigger;
-import net.minecraft.advancements.criterion.ItemDurabilityTrigger;
-import net.minecraft.advancements.criterion.KilledByCrossbowTrigger;
-import net.minecraft.advancements.criterion.KilledTrigger;
-import net.minecraft.advancements.criterion.LevitationTrigger;
-import net.minecraft.advancements.criterion.NetherTravelTrigger;
-import net.minecraft.advancements.criterion.PlacedBlockTrigger;
-import net.minecraft.advancements.criterion.PlayerEntityInteractionTrigger;
-import net.minecraft.advancements.criterion.PlayerGeneratesContainerLootTrigger;
-import net.minecraft.advancements.criterion.PlayerHurtEntityTrigger;
-import net.minecraft.advancements.criterion.PositionTrigger;
-import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
-import net.minecraft.advancements.criterion.RightClickBlockWithItemTrigger;
-import net.minecraft.advancements.criterion.ShotCrossbowTrigger;
-import net.minecraft.advancements.criterion.SlideDownBlockTrigger;
-import net.minecraft.advancements.criterion.SummonedEntityTrigger;
-import net.minecraft.advancements.criterion.TameAnimalTrigger;
-import net.minecraft.advancements.criterion.TargetHitTrigger;
-import net.minecraft.advancements.criterion.ThrownItemPickedUpByEntityTrigger;
-import net.minecraft.advancements.criterion.TickTrigger;
-import net.minecraft.advancements.criterion.UsedEnderEyeTrigger;
-import net.minecraft.advancements.criterion.UsedTotemTrigger;
-import net.minecraft.advancements.criterion.VillagerTradeTrigger;
+
+import net.minecraft.advancements.criterion.*;
 import net.minecraft.util.ResourceLocation;
 
 public class CriteriaTriggers {
@@ -60,6 +24,26 @@ public class CriteriaTriggers {
    public static final UsedEnderEyeTrigger USED_ENDER_EYE = register(new UsedEnderEyeTrigger());
    public static final SummonedEntityTrigger SUMMONED_ENTITY = register(new SummonedEntityTrigger());
    public static final BredAnimalsTrigger BRED_ANIMALS = register(new BredAnimalsTrigger());
+   public static final WatchEnderiophageBreedTrigger WATCH_ENDERIOPHAGE_BREED_TRIGGER = register(new WatchEnderiophageBreedTrigger());
+   public static final EnderiophagePickUpEye ENDERIOPHAGE_TAKE_EYE = register(new EnderiophagePickUpEye());
+   public static final EnderiophageInfectMobs ENDERIOPHAGE_INFECT_MOBS = register(new EnderiophageInfectMobs());
+   public static final EnderiophageKilledWhileInfecting ENDERIOPHAGE_KILLED_WHILE_INFECTING = register(new EnderiophageKilledWhileInfecting());
+   public static final EncounterEnderiophage ENCOUNTER_ENDERIOPHAGE = register(new EncounterEnderiophage());
+   public static final EnderiophageSpawnFromFlu ENDERIOPHAGE_SPAWN_FROM_FLU = register(new EnderiophageSpawnFromFlu());
+   public static final EnderiophageKilledWhileBreeding ENDERIOPHAGE_KILLED_WHILE_BREEDING = register(new EnderiophageKilledWhileBreeding());
+   public static final EnderiophageStealEye ENDERIOPHAGE_STEAL_EYE = register(new EnderiophageStealEye());
+   public static final DissectEnderiophage DISSECT_ENDERIOPHAGE = register(new DissectEnderiophage());
+   public static final BrokenCapsid BROKEN_CAPSID = register(new BrokenCapsid());
+   public static final DestroyCapsid DESTROY_CAPSID = register(new DestroyCapsid());
+   public static final EnderRelocation ENDER_RELOCATION = register(new EnderRelocation());
+   public static final EnderiophageAttackBlaze ENDERIOPHAGE_ATTACK_BLAZE = register(new EnderiophageAttackBlaze());
+
+   public static final EnderiophageFailedExperiment FAILED_EXPERIMENT = register(new EnderiophageFailedExperiment());
+   public static final EnderiophageRestoration RESTORATION = register(new EnderiophageRestoration());
+   public static final BlazePowderFromEnderiophage NATURAL_RESIDUE = register(new BlazePowderFromEnderiophage());
+
+
+   public static final ChangeCapsidColour CHANGE_CAPSID_COLOUR = register(new ChangeCapsidColour());
    public static final PositionTrigger LOCATION = register(new PositionTrigger(new ResourceLocation("location")));
    public static final PositionTrigger SLEPT_IN_BED = register(new PositionTrigger(new ResourceLocation("slept_in_bed")));
    public static final CuredZombieVillagerTrigger CURED_ZOMBIE_VILLAGER = register(new CuredZombieVillagerTrigger());

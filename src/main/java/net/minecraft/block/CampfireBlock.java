@@ -1,13 +1,19 @@
 package net.minecraft.block;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
+
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.InventoryHelper;
@@ -25,14 +31,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tileentity.CampfireTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.IBooleanFunction;
@@ -43,6 +42,7 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -58,7 +58,7 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
    private Effects effects = null;
 
    public CampfireBlock(boolean p_i241174_1_, int p_i241174_2_, AbstractBlock.Properties p_i241174_3_) {
-      super(p_i241174_3_);
+      super(p_i241174_3_.randomTicks());
       this.spawnParticles = p_i241174_1_;
       this.fireDamage = p_i241174_2_;
       this.registerDefaultState(this.stateDefinition.any().setValue(LIT, Boolean.valueOf(true)).setValue(SIGNAL_FIRE, Boolean.valueOf(false)).setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(FACING, Direction.NORTH));
@@ -79,7 +79,7 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
          ItemStack itemstack = p_225533_4_.getItemInHand(p_225533_5_);
          Optional<CampfireCookingRecipe> optional = campfiretileentity.getCookableRecipe(itemstack);
          if (optional.isPresent()) {
-            if (!p_225533_2_.isClientSide && campfiretileentity.placeFood(p_225533_4_.abilities.instabuild ? itemstack.copy() : itemstack, optional.get().getCookingTime())) {
+            if (!p_225533_2_.isClientSide && campfiretileentity.placeFood(p_225533_4_ ,p_225533_4_.abilities.instabuild ? itemstack.copy() : itemstack, optional.get().getCookingTime())) {
                p_225533_4_.awardStat(Stats.INTERACT_WITH_CAMPFIRE);
                return ActionResultType.SUCCESS;
             }
@@ -130,7 +130,7 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
       return p_220099_1_.is(Blocks.HAY_BLOCK);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 
@@ -157,9 +157,68 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
       }
    }
 
+   @Override
+   public void randomTick(BlockState p_225542_1_, ServerWorld world, BlockPos pos, Random p_225542_4_) {
+      super.randomTick(p_225542_1_, world, pos, p_225542_4_);
 
+//      if (world.getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
+//         AtomicReference<Float> flamability = new AtomicReference<>(0F);
+//         FireBlock fire = (FireBlock)Blocks.FIRE;
+//         Object2IntMap<Block> burnOdds = fire.getBurnOdds();
+//         List<BlockPos> positions = new ArrayList<>();
+//         Util.shuffledCopy(BlockPos.withinManhattanStream(pos, 3, 5, 3).toList(), p_225542_4_).forEach(blp -> {
+//            if (blp != pos) {
+//               BlockState s = world.getBlockState(blp);
+//
+//               if (burnOdds.containsKey(s.getBlock())) {
+//                  flamability.set(flamability.get() + 0.05F);
+//                  positions.add(blp);
+//               }
+//            }
+//
+//         });
+//
+//         for (BlockPos p : Util.shuffledCopy(positions, p_225542_4_)) {
+//            if (p_225542_4_.nextFloat() < flamability.get()) {
+//               Random random = new Random();
+//               BlockState above = world.getBlockState(p.above());
+//               if (above.isAir()) {
+//                  if (random.nextBoolean()) {
+//                     world.setBlock(p.above(), fire.getStateForPlacement(world, p.above()), 3);
+//                  }
+//               }
+//               BlockState west = world.getBlockState(p.west());
+//               if (west.isAir()) {
+//                  if (random.nextBoolean()) {
+//                     world.setBlock(p.west(), fire.getStateForPlacement(world, p.west()), 3);
+//                  }
+//               }
+//               BlockState east = world.getBlockState(p.east());
+//               if (east.isAir()) {
+//                  if (random.nextBoolean()) {
+//                     world.setBlock(p.east(), fire.getStateForPlacement(world, p.east()), 3);
+//                  }
+//               }
+//               BlockState south = world.getBlockState(p.south());
+//               if (south.isAir()) {
+//                  if (random.nextBoolean()) {
+//                     world.setBlock(p.south(), fire.getStateForPlacement(world, p.south()), 3);
+//                  }
+//               }
+//               BlockState north = world.getBlockState(p.north());
+//               if (north.isAir()) {
+//                  if (random.nextBoolean()) {
+//                     world.setBlock(p.north(), fire.getStateForPlacement(world, p.north()), 3);
+//                  }
+//               }
+//            }
+//         }
+//
+//      }
 
-   public static void dowse(IWorld p_235475_0_, BlockPos p_235475_1_, BlockState p_235475_2_) {
+   }
+
+   public static void dowse(@Nullable Entity entity, IWorld p_235475_0_, BlockPos p_235475_1_, BlockState p_235475_2_) {
       if (p_235475_0_.isClientSide()) {
          for(int i = 0; i < 20; ++i) {
             makeParticles((World)p_235475_0_, p_235475_1_, p_235475_2_.getValue(SIGNAL_FIRE), true);
@@ -170,6 +229,7 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
       if (tileentity instanceof CampfireTileEntity) {
          ((CampfireTileEntity)tileentity).dowse();
       }
+      p_235475_0_.gameEvent(entity, GameEvent.BLOCK_CHANGE, p_235475_1_);
 
    }
 
@@ -181,7 +241,7 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
                p_204509_1_.playSound((PlayerEntity)null, p_204509_2_, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
             }
 
-            dowse(p_204509_1_, p_204509_2_, p_204509_3_);
+            dowse(null, p_204509_1_, p_204509_2_, p_204509_3_);
          }
 
          p_204509_1_.setBlock(p_204509_2_, p_204509_3_.setValue(WATERLOGGED, Boolean.valueOf(true)).setValue(LIT, Boolean.valueOf(false)), 3);
@@ -248,8 +308,8 @@ public class CampfireBlock extends ContainerBlock implements IWaterLoggable {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(LIT, SIGNAL_FIRE, WATERLOGGED, FACING);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(LIT, SIGNAL_FIRE, WATERLOGGED, FACING);
    }
 
    public TileEntity newBlockEntity(IBlockReader p_196283_1_) {

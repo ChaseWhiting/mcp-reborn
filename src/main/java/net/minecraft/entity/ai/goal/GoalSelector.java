@@ -5,10 +5,10 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import net.minecraft.entity.passive.RaccoonEntity;
 import net.minecraft.profiler.IProfiler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +29,10 @@ public class GoalSelector {
    private final Supplier<IProfiler> profiler;
    private final EnumSet<Goal.Flag> disabledFlags = EnumSet.noneOf(Goal.Flag.class);
    private int newGoalRate = 3;
+
+   public void removeAllGoals(Predicate<Goal> predicate) {
+      this.availableGoals.removeIf(wrappedGoal -> predicate.test(wrappedGoal.getGoal()));
+   }
 
    public GoalSelector(Supplier<IProfiler> p_i231546_1_) {
       this.profiler = p_i231546_1_;

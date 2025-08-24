@@ -5,6 +5,7 @@ import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.BooleanProperty;
@@ -57,7 +58,7 @@ public class BellBlock extends ContainerBlock {
       boolean flag = p_220069_2_.hasNeighborSignal(p_220069_3_);
       if (flag != p_220069_1_.getValue(POWERED)) {
          if (flag) {
-            this.attemptToRing(p_220069_2_, p_220069_3_, (Direction)null);
+            this.attemptToRing(null, p_220069_2_, p_220069_3_, (Direction)null);
          }
 
          p_220069_2_.setBlock(p_220069_3_, p_220069_1_.setValue(POWERED, Boolean.valueOf(flag)), 3);
@@ -80,7 +81,7 @@ public class BellBlock extends ContainerBlock {
       BlockPos blockpos = p_226884_3_.getBlockPos();
       boolean flag = !p_226884_5_ || this.isProperHit(p_226884_2_, direction, p_226884_3_.getLocation().y - (double)blockpos.getY());
       if (flag) {
-         boolean flag1 = this.attemptToRing(p_226884_1_, blockpos, direction);
+         boolean flag1 = this.attemptToRing(p_226884_4_, p_226884_1_, blockpos, direction);
          if (flag1 && p_226884_4_ != null) {
             p_226884_4_.awardStat(Stats.BELL_RING);
          }
@@ -111,7 +112,7 @@ public class BellBlock extends ContainerBlock {
       }
    }
 
-   public boolean attemptToRing(World p_226885_1_, BlockPos p_226885_2_, @Nullable Direction p_226885_3_) {
+   public boolean attemptToRing(@Nullable Entity entity, World p_226885_1_, BlockPos p_226885_2_, @Nullable Direction p_226885_3_) {
       TileEntity tileentity = p_226885_1_.getBlockEntity(p_226885_2_);
       if (!p_226885_1_.isClientSide && tileentity instanceof BellTileEntity) {
          if (p_226885_3_ == null) {
@@ -120,6 +121,7 @@ public class BellBlock extends ContainerBlock {
 
          ((BellTileEntity)tileentity).onHit(p_226885_3_);
          p_226885_1_.playSound((PlayerEntity)null, p_226885_2_, SoundEvents.BELL_BLOCK, SoundCategory.BLOCKS, 2.0F, 1.0F);
+         p_226885_1_.gameEvent(entity, GameEvent.BLOCK_CHANGE, p_226885_2_);
          return true;
       } else {
          return false;
@@ -148,8 +150,8 @@ public class BellBlock extends ContainerBlock {
       return this.getVoxelShape(p_220071_1_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return this.getVoxelShape(p_220053_1_);
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return this.getVoxelShape(state);
    }
 
    public BlockRenderType getRenderShape(BlockState p_149645_1_) {
@@ -224,8 +226,8 @@ public class BellBlock extends ContainerBlock {
       return PushReaction.DESTROY;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, ATTACHMENT, POWERED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, ATTACHMENT, POWERED);
    }
 
    @Nullable

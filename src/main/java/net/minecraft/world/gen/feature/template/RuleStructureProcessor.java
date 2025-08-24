@@ -8,7 +8,9 @@ import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.random.RandomSource;
 import net.minecraft.world.IWorldReader;
+import net.minecraft.world.server.ServerWorld;
 
 public class RuleStructureProcessor extends StructureProcessor {
    public static final Codec<RuleStructureProcessor> CODEC = RuleEntry.CODEC.listOf().fieldOf("rules").xmap(RuleStructureProcessor::new, (p_237126_0_) -> {
@@ -27,7 +29,7 @@ public class RuleStructureProcessor extends StructureProcessor {
 
       for(RuleEntry ruleentry : this.rules) {
          if (ruleentry.test(p_230386_5_.state, blockstate, p_230386_4_.pos, p_230386_5_.pos, p_230386_3_, random)) {
-            return new Template.BlockInfo(p_230386_5_.pos, ruleentry.getOutputState(), ruleentry.getOutputTag());
+            return new Template.BlockInfo(p_230386_5_.pos, ruleentry.getOutputState(), ruleentry.getOutputTag(RandomSource.create(p_230386_1_ instanceof ServerWorld serverWorld ? serverWorld.getSeed() : random.nextLong()), p_230386_5_.nbt));
          }
       }
 

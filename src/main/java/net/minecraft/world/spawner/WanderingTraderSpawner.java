@@ -3,13 +3,18 @@ package net.minecraft.world.spawner;
 import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
+
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.camel.CamelEntity;
 import net.minecraft.entity.merchant.villager.WanderingTraderEntity;
 import net.minecraft.entity.passive.horse.TraderLlamaEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
@@ -18,6 +23,7 @@ import net.minecraft.village.PointOfInterestType;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
@@ -98,11 +104,24 @@ public class WanderingTraderSpawner implements ISpecialSpawner {
 
             WanderingTraderEntity wanderingtraderentity = EntityType.WANDERING_TRADER.spawn(p_234562_1_, (CompoundNBT)null, (ITextComponent)null, (PlayerEntity)null, blockpos2, SpawnReason.EVENT, false, false);
             if (wanderingtraderentity != null) {
-               for(int j = 0; j < 2; ++j) {
-                  this.tryToSpawnLlamaFor(p_234562_1_, wanderingtraderentity, 4);
+               Optional<RegistryKey<Biome>> biomeK = p_234562_1_.getBiomeName(blockpos2);
+               boolean spawnLlamas = true;
+
+               if (biomeK.isPresent()) {
+                  RegistryKey<Biome> biome = biomeK.get();
+
+                  if (biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS || biome == Biomes.DESERT_LAKES) spawnLlamas = false;
                }
 
-               this.serverLevelData.setWanderingTraderId(wanderingtraderentity.getUUID());
+                if (spawnLlamas) {
+                    for(int j = 0; j < 2; ++j) {
+                       this.tryToSpawnLlamaFor(p_234562_1_, wanderingtraderentity, 4);
+                    }
+                } else {
+                   spawnCamelsForTrader(p_234562_1_, wanderingtraderentity, 3);
+                }
+
+                this.serverLevelData.setWanderingTraderId(wanderingtraderentity.getUUID());
                wanderingtraderentity.setDespawnDelay(48000);
                wanderingtraderentity.setWanderTarget(blockpos1);
                wanderingtraderentity.restrictTo(blockpos1, 16);
@@ -122,6 +141,29 @@ public class WanderingTraderSpawner implements ISpecialSpawner {
             traderllamaentity.setLeashedTo(p_242373_2_, true);
          }
       }
+   }
+
+   private void spawnCamelsForTrader(ServerWorld serverWorld, WanderingTraderEntity trader, int blockDis) {
+      Entity lastLeashed = trader;
+      int c = MathHelper.randomBetweenInclusive(serverWorld.getRandom(), 1, 3);
+      DyeColor[] colors = new DyeColor[]{DyeColor.YELLOW, DyeColor.ORANGE, DyeColor.RED};
+      for (int i = 1; i < c; i++) {
+         BlockPos spawnPos = this.findSpawnPositionNear(serverWorld, lastLeashed.blockPosition(), blockDis);
+
+         if (spawnPos != null) {
+            CamelEntity camel = EntityType.CAMEL.spawn(serverWorld, null, null, null, spawnPos, SpawnReason.EVENT, false, false);
+
+             if (camel != null) {
+                 camel.getEntityData().set(CamelEntity.CARPET_COLOUR, Optional.of(colors[i - 1]));
+
+                  camel.standUpInstantly();
+
+                 camel.setLeashedTo(lastLeashed, true);
+                 lastLeashed = camel;
+             }
+         }
+      }
+
    }
 
    @Nullable

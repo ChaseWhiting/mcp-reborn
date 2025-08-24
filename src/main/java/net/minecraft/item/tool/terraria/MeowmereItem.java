@@ -1,20 +1,15 @@
 package net.minecraft.item.tool.terraria;
 
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.MeowmereProjectileEntity;
-import net.minecraft.entity.projectile.StarfuryStarEntity;
 import net.minecraft.item.*;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
-import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 
 import java.util.List;
-import java.util.Random;
 
 public class MeowmereItem extends TerrariaSwordItem {
 

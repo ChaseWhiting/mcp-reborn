@@ -2,6 +2,7 @@ package net.minecraft.tileentity;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
@@ -81,10 +82,12 @@ public class EnderChestTileEntity extends TileEntity implements IChestLid, ITick
    public void startOpen() {
       ++this.openCount;
       this.level.blockEvent(this.worldPosition, Blocks.ENDER_CHEST, 1, this.openCount);
+      this.level.gameEvent(null, GameEvent.CONTAINER_OPEN, worldPosition);
    }
 
    public void stopOpen() {
       --this.openCount;
+      this.level.gameEvent(null, GameEvent.CONTAINER_CLOSE, worldPosition);
       this.level.blockEvent(this.worldPosition, Blocks.ENDER_CHEST, 1, this.openCount);
    }
 
@@ -92,7 +95,14 @@ public class EnderChestTileEntity extends TileEntity implements IChestLid, ITick
       if (this.level.getBlockEntity(this.worldPosition) != this) {
          return false;
       } else {
-         return !(p_145971_1_.distanceToSqr((double)this.worldPosition.getX() + 0.5D, (double)this.worldPosition.getY() + 0.5D, (double)this.worldPosition.getZ() + 0.5D) > 64.0D);
+         double reach = p_145971_1_.getReachDistance() + 4;
+         double reachSq = reach * reach;
+
+         return p_145971_1_.distanceToSqr(
+                 (double)this.worldPosition.getX() + 0.5D,
+                 (double)this.worldPosition.getY() + 0.5D,
+                 (double)this.worldPosition.getZ() + 0.5D
+         ) <= reachSq;
       }
    }
 

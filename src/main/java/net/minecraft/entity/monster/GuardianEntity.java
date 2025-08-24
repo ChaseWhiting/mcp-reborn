@@ -60,6 +60,11 @@ public class GuardianEntity extends Monster {
    private boolean clientSideTouchedGround;
    protected RandomWalkingGoal randomStrollGoal;
 
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.EVENTS;
+   }
+
    public GuardianEntity(EntityType<? extends GuardianEntity> p_i48554_1_, World p_i48554_2_) {
       super(p_i48554_1_, p_i48554_2_);
       this.xpReward = 10;

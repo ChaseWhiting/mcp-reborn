@@ -30,6 +30,8 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.warden.WardenSpawnTracker;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.CraftingResultSlot;
@@ -115,7 +117,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.SectionPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -148,6 +149,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
    private int lastRecordedExperience = Integer.MIN_VALUE;
    private float lastSentHealth = -1.0E8F;
    private int lastSentFood = -99999999;
+   public int dashingTime = 0;
    private boolean lastFoodSaturationZero = true;
    private int lastSentExp = -99999999;
    private int spawnInvulnerableTime = 60;
@@ -175,6 +177,14 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
    public boolean ignoreSlotUpdateHack;
    public int latency;
    public boolean wonGame;
+
+   private WardenSpawnTracker wardenSpawnTracker = new WardenSpawnTracker(0, 0, 0);
+
+
+   @Override
+   public Optional<WardenSpawnTracker> getWardenSpawnTracker() {
+      return Optional.of(this.wardenSpawnTracker);
+   }
 
    public ServerPlayerEntity(MinecraftServer p_i45285_1_, ServerWorld p_i45285_2_, GameProfile p_i45285_3_, PlayerInteractionManager p_i45285_4_) {
       super(p_i45285_2_, p_i45285_2_.getSharedSpawnPos(), p_i45285_2_.getSharedSpawnAngle(), p_i45285_3_);
@@ -233,36 +243,42 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
       return p_205735_1_ <= 16 ? p_205735_1_ - 1 : 17;
    }
 
-   public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
-      super.readAdditionalSaveData(p_70037_1_);
-      if (p_70037_1_.contains("playerGameType", 99)) {
+   public void readAdditionalSaveData(CompoundNBT nbt) {
+      super.readAdditionalSaveData(nbt);
+      if (nbt.contains("warden_spawn_tracker", 10)) {
+         WardenSpawnTracker.CODEC.parse(NBTDynamicOps.INSTANCE, nbt.get("warden_spawn_tracker")).resultOrPartial(LOGGER::error).ifPresent(tracker -> {
+            this.wardenSpawnTracker = tracker;
+         });
+      }
+
+      if (nbt.contains("playerGameType", 99)) {
          if (this.getServer().getForceGameType()) {
             this.gameMode.setGameModeForPlayer(this.getServer().getDefaultGameType(), Gamemode.NOT_SET);
          } else {
-            this.gameMode.setGameModeForPlayer(Gamemode.byId(p_70037_1_.getInt("playerGameType")), p_70037_1_.contains("previousPlayerGameType", 3) ? Gamemode.byId(p_70037_1_.getInt("previousPlayerGameType")) : Gamemode.NOT_SET);
+            this.gameMode.setGameModeForPlayer(Gamemode.byId(nbt.getInt("playerGameType")), nbt.contains("previousPlayerGameType", 3) ? Gamemode.byId(nbt.getInt("previousPlayerGameType")) : Gamemode.NOT_SET);
          }
       }
 
-      if (p_70037_1_.contains("enteredNetherPosition", 10)) {
-         CompoundNBT compoundnbt = p_70037_1_.getCompound("enteredNetherPosition");
+      if (nbt.contains("enteredNetherPosition", 10)) {
+         CompoundNBT compoundnbt = nbt.getCompound("enteredNetherPosition");
          this.enteredNetherPosition = new Vector3d(compoundnbt.getDouble("x"), compoundnbt.getDouble("y"), compoundnbt.getDouble("z"));
       }
 
-      this.seenCredits = p_70037_1_.getBoolean("seenCredits");
-      if (p_70037_1_.contains("recipeBook", 10)) {
-         this.recipeBook.fromNbt(p_70037_1_.getCompound("recipeBook"), this.server.getRecipeManager());
+      this.seenCredits = nbt.getBoolean("seenCredits");
+      if (nbt.contains("recipeBook", 10)) {
+         this.recipeBook.fromNbt(nbt.getCompound("recipeBook"), this.server.getRecipeManager());
       }
 
       if (this.isSleeping()) {
          this.stopSleeping();
       }
 
-      if (p_70037_1_.contains("SpawnX", 99) && p_70037_1_.contains("SpawnY", 99) && p_70037_1_.contains("SpawnZ", 99)) {
-         this.respawnPosition = new BlockPos(p_70037_1_.getInt("SpawnX"), p_70037_1_.getInt("SpawnY"), p_70037_1_.getInt("SpawnZ"));
-         this.respawnForced = p_70037_1_.getBoolean("SpawnForced");
-         this.respawnAngle = p_70037_1_.getFloat("SpawnAngle");
-         if (p_70037_1_.contains("SpawnDimension")) {
-            this.respawnDimension = World.RESOURCE_KEY_CODEC.parse(NBTDynamicOps.INSTANCE, p_70037_1_.get("SpawnDimension")).resultOrPartial(LOGGER::error).orElse(World.OVERWORLD);
+      if (nbt.contains("SpawnX", 99) && nbt.contains("SpawnY", 99) && nbt.contains("SpawnZ", 99)) {
+         this.respawnPosition = new BlockPos(nbt.getInt("SpawnX"), nbt.getInt("SpawnY"), nbt.getInt("SpawnZ"));
+         this.respawnForced = nbt.getBoolean("SpawnForced");
+         this.respawnAngle = nbt.getFloat("SpawnAngle");
+         if (nbt.contains("SpawnDimension")) {
+            this.respawnDimension = World.RESOURCE_KEY_CODEC.parse(NBTDynamicOps.INSTANCE, nbt.get("SpawnDimension")).resultOrPartial(LOGGER::error).orElse(World.OVERWORLD);
          }
       }
 
@@ -270,6 +286,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
+      WardenSpawnTracker.CODEC.encodeStart(NBTDynamicOps.INSTANCE, this.wardenSpawnTracker).resultOrPartial(LOGGER::error).ifPresent(tag -> p_213281_1_.put("warden_spawn_tracker", tag));
       p_213281_1_.putInt("playerGameType", this.gameMode.getGameModeForPlayer().getId());
       p_213281_1_.putInt("previousPlayerGameType", this.gameMode.getPreviousGameModeForPlayer().getId());
       p_213281_1_.putBoolean("seenCredits", this.seenCredits);
@@ -353,6 +370,11 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
 
    public void tick() {
       this.gameMode.tick();
+      this.wardenSpawnTracker.tick();
+      if (this.dashingTime > 0) {
+         --dashingTime;
+      }
+
       --this.spawnInvulnerableTime;
       if (this.invulnerableTime > 0) {
          --this.invulnerableTime;
@@ -476,6 +498,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
    }
 
    public void die(DamageSource p_70645_1_) {
+      this.gameEvent(GameEvent.ENTITY_DIE);
       boolean flag = this.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES);
       if (flag) {
          ITextComponent itextcomponent = this.getCombatTracker().getDeathMessage();
@@ -1077,6 +1100,7 @@ public class ServerPlayerEntity extends PlayerEntity implements IContainerListen
       }
 
       this.enchantmentSeed = p_193104_1_.enchantmentSeed;
+      this.wardenSpawnTracker = p_193104_1_.wardenSpawnTracker;
       this.enderChestInventory = p_193104_1_.enderChestInventory;
       this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, p_193104_1_.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION));
       this.lastSentExp = -1;

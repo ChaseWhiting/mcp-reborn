@@ -29,6 +29,9 @@ public class LayerUtil {
 
       register(map, LayerUtil.Type.FOREST, 200);
       register(map, Type.FOREST, 201);
+      register(map, Type.DESERT, 203);
+      register(map, Type.DESERT, 204);
+
 
       register(map, LayerUtil.Type.FOREST, 157);
       register(map, LayerUtil.Type.FOREST, 132);
@@ -124,8 +127,16 @@ public class LayerUtil {
       IAreaFactory<T> lvt_7_1_ = (new BiomeLayer(p_237216_0_)).run(p_237216_3_.apply(200L), iareafactory);
       lvt_7_1_ = AddBambooForestLayer.INSTANCE.run(p_237216_3_.apply(1001L), lvt_7_1_);
       lvt_7_1_ = zoom(1000L, ZoomLayer.NORMAL, lvt_7_1_, 2, p_237216_3_);
+
+//      lvt_7_1_ = AddPaleGardenSmoothLayer.INSTANCE.run(p_237216_3_.apply(1252L), lvt_7_1_, lvt_6_1_);
+
+
       lvt_7_1_ = AddPaleGardenLayer.INSTANCE.run(p_237216_3_.apply(1252L), lvt_7_1_);
       lvt_7_1_ = new SelectiveZoomLayer(200).run(p_237216_3_.apply(1345L), lvt_7_1_);
+
+
+      //lvt_7_1_ = AddSandyDrylandsSmoothLayer.INSTANCE.run(p_237216_3_.apply(122L), lvt_7_1_, lvt_6_1_);
+
 
 
       lvt_7_1_ = EdgeBiomeLayer.INSTANCE.run(p_237216_3_.apply(1000L), lvt_7_1_);

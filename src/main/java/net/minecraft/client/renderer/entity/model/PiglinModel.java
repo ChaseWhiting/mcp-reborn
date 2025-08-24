@@ -1,5 +1,10 @@
 package net.minecraft.client.renderer.entity.model;
 
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.model.ModelHelper;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.EntityType;
@@ -98,6 +103,13 @@ public class PiglinModel<T extends Mob> extends PlayerModel<T> {
       this.rightSleeve.copyFrom(this.rightArm);
       this.jacket.copyFrom(this.body);
       this.hat.copyFrom(this.head);
+   }
+
+   public static void addHead(CubeDeformation cubeDeformation, MeshDefinition meshDefinition) {
+      PartDefinition partDefinition = meshDefinition.getRoot();
+      PartDefinition partDefinition2 = partDefinition.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-5.0f, -8.0f, -4.0f, 10.0f, 8.0f, 8.0f, cubeDeformation).texOffs(31, 1).addBox(-2.0f, -4.0f, -5.0f, 4.0f, 4.0f, 1.0f, cubeDeformation).texOffs(2, 4).addBox(2.0f, -2.0f, -5.0f, 1.0f, 2.0f, 1.0f, cubeDeformation).texOffs(2, 0).addBox(-3.0f, -2.0f, -5.0f, 1.0f, 2.0f, 1.0f, cubeDeformation), PartPose.ZERO);
+      partDefinition2.addOrReplaceChild("left_ear", CubeListBuilder.create().texOffs(51, 6).addBox(0.0f, 0.0f, -2.0f, 1.0f, 5.0f, 4.0f, cubeDeformation), PartPose.offsetAndRotation(4.5f, -6.0f, 0.0f, 0.0f, 0.0f, -0.5235988f));
+      partDefinition2.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(39, 6).addBox(-1.0f, 0.0f, -2.0f, 1.0f, 5.0f, 4.0f, cubeDeformation), PartPose.offsetAndRotation(-4.5f, -6.0f, 0.0f, 0.0f, 0.0f, 0.5235988f));
    }
 
    protected void setupAttackAnimation(T p_230486_1_, float p_230486_2_) {

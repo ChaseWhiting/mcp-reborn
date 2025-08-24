@@ -4,6 +4,7 @@ import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -23,12 +24,14 @@ public class FireChargeItem extends Item {
       if (CampfireBlock.canLight(blockstate)) {
          this.playSound(world, blockpos);
          world.setBlockAndUpdate(blockpos, blockstate.setValue(CampfireBlock.LIT, Boolean.valueOf(true)));
+         world.gameEvent(p_195939_1_.getPlayer(), GameEvent.BLOCK_CHANGE, blockpos);
          flag = true;
       } else {
          blockpos = blockpos.relative(p_195939_1_.getClickedFace());
          if (AbstractFireBlock.canBePlacedAt(world, blockpos, p_195939_1_.getHorizontalDirection())) {
             this.playSound(world, blockpos);
             world.setBlockAndUpdate(blockpos, AbstractFireBlock.getState(world, blockpos));
+            world.gameEvent(p_195939_1_.getPlayer(), GameEvent.BLOCK_PLACE, blockpos);
             flag = true;
          }
       }

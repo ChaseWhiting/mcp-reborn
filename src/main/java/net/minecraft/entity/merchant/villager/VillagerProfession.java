@@ -24,6 +24,8 @@ public class VillagerProfession {
    public static final VillagerProfession LEATHERWORKER = register("leatherworker", PointOfInterestType.LEATHERWORKER, SoundEvents.VILLAGER_WORK_LEATHERWORKER);
    public static final VillagerProfession LIBRARIAN = register("librarian", PointOfInterestType.LIBRARIAN, SoundEvents.VILLAGER_WORK_LIBRARIAN);
    public static final VillagerProfession MASON = register("mason", PointOfInterestType.MASON, SoundEvents.VILLAGER_WORK_MASON);
+   public static final VillagerProfession CARPENTER = register("carpenter", PointOfInterestType.CARPENTER, SoundEvents.VILLAGER_WORK_FLETCHER);
+
    public static final VillagerProfession NITWIT = register("nitwit", PointOfInterestType.NITWIT, (SoundEvent)null);
    public static final VillagerProfession SHEPHERD = register("shepherd", PointOfInterestType.SHEPHERD, SoundEvents.VILLAGER_WORK_SHEPHERD);
    public static final VillagerProfession TOOLSMITH = register("toolsmith", PointOfInterestType.TOOLSMITH, SoundEvents.VILLAGER_WORK_TOOLSMITH);

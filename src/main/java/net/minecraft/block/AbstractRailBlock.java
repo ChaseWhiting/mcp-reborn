@@ -35,8 +35,8 @@ public abstract class AbstractRailBlock extends Block {
       return this.isStraight;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      RailShape railshape = p_220053_1_.is(this) ? p_220053_1_.getValue(this.getShapeProperty()) : null;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      RailShape railshape = state.is(this) ? state.getValue(this.getShapeProperty()) : null;
       return railshape != null && railshape.isAscending() ? HALF_BLOCK_AABB : FLAT_AABB;
    }
 

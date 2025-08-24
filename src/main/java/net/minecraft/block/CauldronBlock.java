@@ -3,12 +3,9 @@ package net.minecraft.block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BannerItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.IDyeableArmorItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.entity.warden.event.GameEvent;
+import net.minecraft.item.*;
+import net.minecraft.item.dyeable.IDyeableBlock;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.potion.Potions;
@@ -41,7 +38,7 @@ public class CauldronBlock extends Block {
       this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, Integer.valueOf(0)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 
@@ -92,6 +89,7 @@ public class CauldronBlock extends Block {
                p_225533_4_.awardStat(Stats.USE_CAULDRON);
                this.setWaterLevel(p_225533_2_, p_225533_3_, p_225533_1_, 0);
                p_225533_2_.playSound((PlayerEntity)null, p_225533_3_, SoundEvents.BUCKET_FILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+               p_225533_2_.gameEvent(p_225533_4_, GameEvent.FLUID_PICKUP, p_225533_3_);
             }
 
             return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);
@@ -111,6 +109,7 @@ public class CauldronBlock extends Block {
                }
 
                p_225533_2_.playSound((PlayerEntity)null, p_225533_3_, SoundEvents.BOTTLE_FILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+               p_225533_2_.gameEvent(p_225533_4_, GameEvent.FLUID_PICKUP, p_225533_3_);
                this.setWaterLevel(p_225533_2_, p_225533_3_, p_225533_1_, i - 1);
             }
 
@@ -127,6 +126,7 @@ public class CauldronBlock extends Block {
                }
 
                p_225533_2_.playSound((PlayerEntity)null, p_225533_3_, SoundEvents.BOTTLE_EMPTY, SoundCategory.BLOCKS, 1.0F, 1.0F);
+               p_225533_2_.gameEvent(p_225533_4_, GameEvent.FLUID_PLACE, p_225533_3_);
                this.setWaterLevel(p_225533_2_, p_225533_3_, p_225533_1_, i + 1);
             }
 
@@ -139,6 +139,20 @@ public class CauldronBlock extends Block {
                   this.setWaterLevel(p_225533_2_, p_225533_3_, p_225533_1_, i - 1);
                   p_225533_4_.awardStat(Stats.CLEAN_ARMOR);
                   return ActionResultType.SUCCESS;
+               }
+            }
+
+            if (i > 0 && itemstack.getItem() instanceof BlockItem) {
+               if (((BlockItem)itemstack.getItem()).getBlock() instanceof IDyeableBlock) {
+                  IDyeableBlock dyeableBlock = (IDyeableBlock) ((BlockItem) itemstack.getItem()).getBlock();
+
+                  if (dyeableBlock.getWashedItem().getItem() != item) {
+                     p_225533_4_.setItemInHand(p_225533_5_, IDyeableBlock.turnWashed(itemstack.getCount(), dyeableBlock));
+
+                     p_225533_4_.level.playSound(null, p_225533_3_, SoundEvents.VILLAGER_WORK_LEATHERWORKER, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                     this.setWaterLevel(p_225533_2_, p_225533_3_, p_225533_1_, i - 1);
+                     return ActionResultType.sidedSuccess(p_225533_4_.level.isClientSide);
+                  }
                }
             }
 
@@ -198,6 +212,7 @@ public class CauldronBlock extends Block {
             if (blockstate.getValue(LEVEL) < 3) {
                p_176224_1_.setBlock(p_176224_2_, blockstate.cycle(LEVEL), 2);
             }
+            p_176224_1_.gameEvent(null, GameEvent.BLOCK_CHANGE, p_176224_2_);
 
          }
       }
@@ -211,8 +226,8 @@ public class CauldronBlock extends Block {
       return p_180641_1_.getValue(LEVEL);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(LEVEL);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(LEVEL);
    }
 
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {

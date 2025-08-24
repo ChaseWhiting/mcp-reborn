@@ -36,6 +36,8 @@ public class Stats {
    public static final ResourceLocation AVIATE_ONE_CM = makeCustomStat("aviate_one_cm", IStatFormatter.DISTANCE);
    public static final ResourceLocation SWIM_ONE_CM = makeCustomStat("swim_one_cm", IStatFormatter.DISTANCE);
    public static final ResourceLocation STRIDER_ONE_CM = makeCustomStat("strider_one_cm", IStatFormatter.DISTANCE);
+   public static final ResourceLocation HAPPY_GHAST_ONE_CM = makeCustomStat("happy_ghast_one_cm", IStatFormatter.DISTANCE);
+
    public static final ResourceLocation JUMP = makeCustomStat("jump", IStatFormatter.DEFAULT);
    public static final ResourceLocation DROP = makeCustomStat("drop", IStatFormatter.DEFAULT);
    public static final ResourceLocation DAMAGE_DEALT = makeCustomStat("damage_dealt", IStatFormatter.DIVIDE_BY_TEN);
@@ -83,6 +85,7 @@ public class Stats {
    public static final ResourceLocation INTERACT_WITH_CARTOGRAPHY_TABLE = makeCustomStat("interact_with_cartography_table", IStatFormatter.DEFAULT);
    public static final ResourceLocation INTERACT_WITH_LOOM = makeCustomStat("interact_with_loom", IStatFormatter.DEFAULT);
    public static final ResourceLocation INTERACT_WITH_STONECUTTER = makeCustomStat("interact_with_stonecutter", IStatFormatter.DEFAULT);
+   public static final ResourceLocation INTERACT_WITH_WOODCUTTER = makeCustomStat("interact_with_woodcutter", IStatFormatter.DEFAULT);
    public static final ResourceLocation BELL_RING = makeCustomStat("bell_ring", IStatFormatter.DEFAULT);
    public static final ResourceLocation RAID_TRIGGER = makeCustomStat("raid_trigger", IStatFormatter.DEFAULT);
    public static final ResourceLocation RAID_WIN = makeCustomStat("raid_win", IStatFormatter.DEFAULT);

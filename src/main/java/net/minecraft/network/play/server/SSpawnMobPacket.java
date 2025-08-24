@@ -29,6 +29,7 @@ public class SSpawnMobPacket implements IPacket<IClientPlayNetHandler> {
    public SSpawnMobPacket() {
    }
 
+
    public SSpawnMobPacket(LivingEntity p_i46973_1_) {
       this.id = p_i46973_1_.getId();
       this.uuid = p_i46973_1_.getUUID();

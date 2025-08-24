@@ -1,0 +1,6 @@
+{
+  "parent": "item/aerial_bane",
+  "textures": {
+    "layer0": "item/aerial_bane_item_1"
+  }
+}

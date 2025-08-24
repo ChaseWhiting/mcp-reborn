@@ -8,7 +8,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryUtils;
@@ -133,7 +132,7 @@ public class RegistryCommand {
                 "block_state_provider_type", "block_placer_type", "foliage_placer_type",
                 "trunk_placer_type", "tree_decorator_type", "feature_size_type",
                 "configured_feature",
-                "biome_source", "chunk_generator", "structure_processor", "structure_pool_element", "frisbee"
+                "biome_source", "chunk_generator", "structure_processor", "structure_pool_element", "frisbee", "trim_material", "trim_pattern"
         );
         return ISuggestionProvider.suggest(registryNames.stream(), builder);
     }

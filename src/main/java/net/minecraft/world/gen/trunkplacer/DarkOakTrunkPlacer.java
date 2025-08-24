@@ -27,24 +27,24 @@ public class DarkOakTrunkPlacer extends AbstractTrunkPlacer {
       return TrunkPlacerType.DARK_OAK_TRUNK_PLACER;
    }
 
-   public List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader p_230382_1_, Random p_230382_2_, int p_230382_3_, BlockPos p_230382_4_, Set<BlockPos> p_230382_5_, MutableBoundingBox p_230382_6_, BaseTreeFeatureConfig p_230382_7_) {
+   public List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader worldReader, Random random, int number, BlockPos position, Set<BlockPos> blockSet, MutableBoundingBox boundingBox, BaseTreeFeatureConfig configuration) {
       List<FoliagePlacer.Foliage> list = Lists.newArrayList();
-      BlockPos blockpos = p_230382_4_.below();
-      setDirtAt(p_230382_1_, blockpos);
-      setDirtAt(p_230382_1_, blockpos.east());
-      setDirtAt(p_230382_1_, blockpos.south());
-      setDirtAt(p_230382_1_, blockpos.south().east());
-      Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(p_230382_2_);
-      int i = p_230382_3_ - p_230382_2_.nextInt(4);
-      int j = 2 - p_230382_2_.nextInt(3);
-      int k = p_230382_4_.getX();
-      int l = p_230382_4_.getY();
-      int i1 = p_230382_4_.getZ();
+      BlockPos blockpos = position.below();
+      setDirtAt(worldReader, blockpos);
+      setDirtAt(worldReader, blockpos.east());
+      setDirtAt(worldReader, blockpos.south());
+      setDirtAt(worldReader, blockpos.south().east());
+      Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(random);
+      int i = number - random.nextInt(4);
+      int j = 2 - random.nextInt(3);
+      int k = position.getX();
+      int l = position.getY();
+      int i1 = position.getZ();
       int j1 = k;
       int k1 = i1;
-      int l1 = l + p_230382_3_ - 1;
+      int l1 = l + number - 1;
 
-      for(int i2 = 0; i2 < p_230382_3_; ++i2) {
+      for(int i2 = 0; i2 < number; ++i2) {
          if (i2 >= i && j > 0) {
             j1 += direction.getStepX();
             k1 += direction.getStepZ();
@@ -53,11 +53,11 @@ public class DarkOakTrunkPlacer extends AbstractTrunkPlacer {
 
          int j2 = l + i2;
          BlockPos blockpos1 = new BlockPos(j1, j2, k1);
-         if (TreeFeature.isAirOrLeaves(p_230382_1_, blockpos1)) {
-            placeLog(p_230382_1_, p_230382_2_, blockpos1, p_230382_5_, p_230382_6_, p_230382_7_);
-            placeLog(p_230382_1_, p_230382_2_, blockpos1.east(), p_230382_5_, p_230382_6_, p_230382_7_);
-            placeLog(p_230382_1_, p_230382_2_, blockpos1.south(), p_230382_5_, p_230382_6_, p_230382_7_);
-            placeLog(p_230382_1_, p_230382_2_, blockpos1.east().south(), p_230382_5_, p_230382_6_, p_230382_7_);
+         if (TreeFeature.isAirOrLeaves(worldReader, blockpos1)) {
+            placeLog(worldReader, random, blockpos1, blockSet, boundingBox, configuration);
+            placeLog(worldReader, random, blockpos1.east(), blockSet, boundingBox, configuration);
+            placeLog(worldReader, random, blockpos1.south(), blockSet, boundingBox, configuration);
+            placeLog(worldReader, random, blockpos1.east().south(), blockSet, boundingBox, configuration);
          }
       }
 
@@ -65,11 +65,11 @@ public class DarkOakTrunkPlacer extends AbstractTrunkPlacer {
 
       for(int l2 = -1; l2 <= 2; ++l2) {
          for(int i3 = -1; i3 <= 2; ++i3) {
-            if ((l2 < 0 || l2 > 1 || i3 < 0 || i3 > 1) && p_230382_2_.nextInt(3) <= 0) {
-               int j3 = p_230382_2_.nextInt(3) + 2;
+            if ((l2 < 0 || l2 > 1 || i3 < 0 || i3 > 1) && random.nextInt(3) <= 0) {
+               int j3 = random.nextInt(3) + 2;
 
                for(int k2 = 0; k2 < j3; ++k2) {
-                  placeLog(p_230382_1_, p_230382_2_, new BlockPos(k + l2, l1 - k2 - 1, i1 + i3), p_230382_5_, p_230382_6_, p_230382_7_);
+                  placeLog(worldReader, random, new BlockPos(k + l2, l1 - k2 - 1, i1 + i3), blockSet, boundingBox, configuration);
                }
 
                list.add(new FoliagePlacer.Foliage(new BlockPos(j1 + l2, l1, k1 + i3), 0, false));

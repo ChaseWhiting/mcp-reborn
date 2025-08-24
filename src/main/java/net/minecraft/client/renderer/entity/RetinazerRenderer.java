@@ -2,11 +2,8 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
 import net.minecraft.entity.terraria.boss.twins.RetinazerEntity;
-import net.minecraft.entity.terraria.boss.twins.RetinazerLaserModel;
 import net.minecraft.entity.terraria.boss.twins.RetinazerModel;
-import net.minecraft.entity.terraria.monster.demoneye.EyeOfCthulhuModel;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

@@ -24,6 +24,7 @@ import net.minecraft.entity.monster.piglin.PiglinEntity;
 import net.minecraft.entity.monster.piglin.PiglinTasks;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.potion.Effects;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.BlockPos;
@@ -88,7 +89,12 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
             PlayerEntity playerentity = (PlayerEntity)livingentity;
             if (!optional5.isPresent() && EntityPredicates.ATTACK_ALLOWED.test(livingentity) && !PiglinTasks.isWearingGold(playerentity) || p_212872_1_.getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
 
-               optional5 = Optional.of(playerentity);
+
+
+
+
+                    optional5 = Optional.of(playerentity);
+
             }
 
             if (!optional6.isPresent() && !playerentity.isSpectator() && PiglinTasks.isPlayerHoldingLovedItem(playerentity)) {
@@ -124,6 +130,19 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
       brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, optional2);
       brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED, optional4);
       brain.setMemory(MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD, optional5);
+
+//       if (optional5.isPresent()) {
+//           addIfCanSee(p_212872_2_, optional5.get(), MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD, optional5);
+//       }
+//
+//      if (optional.isPresent()) {
+//         addIfCanSee(p_212872_2_, optional.get(), MemoryModuleType.NEAREST_VISIBLE_NEMESIS, optional);
+//      }
+//
+//      if (optional6.isPresent()) {
+//         addIfCanSee(p_212872_2_, optional6.get(), MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM, optional6);
+//      }
+
       brain.setMemory(MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM, optional6);
       brain.setMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS, list1);
       brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, list);
@@ -132,6 +151,15 @@ public class PiglinMobsSensor extends Sensor<LivingEntity> {
       brain.setMemory(MemoryModuleType.ATTACKABLE_VILLAGER, optionalVillager);
       brain.setMemory(MemoryModuleType.ATTACKABLE_GOLEM, optionalGolem);
    }
+
+
+   public <T extends LivingEntity> void addIfCanSee(LivingEntity piglin, LivingEntity mob, MemoryModuleType<T> module, Optional<T> op) {
+      if (PiglinTasks.isWithinLineOfSight(piglin, mob)) {
+         piglin.getBrain().setMemory(module, op);
+      }
+   }
+
+
 
    private static Optional<BlockPos> findNearestRepellent(ServerWorld p_234126_0_, LivingEntity p_234126_1_) {
       return BlockPos.findClosestMatch(p_234126_1_.blockPosition(), 8, 4, (p_234125_1_) -> {

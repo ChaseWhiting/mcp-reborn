@@ -123,7 +123,7 @@ public class Scoreboard {
          Map<ScoreObjective, Score> map2 = this.playerScores.get(p_178822_1_);
          if (map2 != null) {
             Score score = map2.remove(p_178822_2_);
-            if (map2.size() < 1) {
+            if (map2.isEmpty()) {
                Map<ScoreObjective, Score> map1 = this.playerScores.remove(p_178822_1_);
                if (map1 != null) {
                   this.onPlayerRemoved(p_178822_1_);

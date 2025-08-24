@@ -59,7 +59,7 @@ public enum BoggedType {
 
 
         map.put(Biomes.MUSHROOM_FIELDS, FESTERED);
-        map.put(Biomes.MUSHROOM_FIELD_SHORE, FESTERED);
+        map.put(Biomes.MUSHROOM_FIELD_SHORE, FESTERED_BROWN);
 
 
         // Parched biomes
@@ -111,10 +111,10 @@ public enum BoggedType {
     final boolean hasMushrooms;
 
 
-    private BoggedType(int p_i241911_3_, String p_i241911_4_, int arrowShooCooldown, boolean hasMushrooms) {
+    private BoggedType(int p_i241911_3_, String p_i241911_4_, int arrowShootCooldown, boolean hasMushrooms) {
         this.id = p_i241911_3_;
         this.name = p_i241911_4_;
-        this.arrowCooldown = arrowShooCooldown;
+        this.arrowCooldown = arrowShootCooldown;
         this.hasMushrooms = hasMushrooms;
     }
 

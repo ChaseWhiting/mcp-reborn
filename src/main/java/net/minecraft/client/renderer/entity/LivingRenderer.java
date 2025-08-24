@@ -17,9 +17,13 @@ import net.minecraft.entity.Pose;
 import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerModelPart;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Items;
+import net.minecraft.potion.Effects;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.TextFormatting;
@@ -38,6 +42,16 @@ public abstract class LivingRenderer<T extends LivingEntity, M extends EntityMod
       super(p_i50965_1_);
       this.model = p_i50965_2_;
       this.shadowRadius = p_i50965_3_;
+   }
+
+   @Override
+   protected AxisAlignedBB getBoundingBoxForCulling(T t) {
+      AxisAlignedBB aABB = super.getBoundingBoxForCulling(t);
+      if (((LivingEntity)t).getItemBySlot(EquipmentSlotType.HEAD).is(Items.DRAGON_HEAD)) {
+         float f = 0.5f;
+         return aABB.inflate(0.5, 0.5, 0.5);
+      }
+      return aABB;
    }
 
    protected final boolean addLayer(LayerRenderer<T, M> p_177094_1_) {
@@ -181,6 +195,13 @@ public abstract class LivingRenderer<T extends LivingEntity, M extends EntityMod
    protected void setupRotations(T p_225621_1_, MatrixStack matrix, float p_225621_3_, float p_225621_4_, float p_225621_5_) {
       if (this.isShaking(p_225621_1_)) {
          p_225621_4_ += (float)(Math.cos((double)p_225621_1_.tickCount * 3.25D) * Math.PI * (double)getShakeAmount());
+      }
+
+
+      if (p_225621_1_.hasEffect(Effects.ENDER_FLU.get())) {
+         matrix.mulPose(Vector3f.YP.rotationDegrees((float) (Math.cos((double) p_225621_1_.tickCount * 7F) * Math.PI * (double) 1.2F)));
+         float vibrate = 0.05F;
+         matrix.translate((p_225621_1_.getRandom().nextFloat() - 0.5F) * vibrate, (p_225621_1_.getRandom().nextFloat() - 0.5F) * vibrate, (p_225621_1_.getRandom().nextFloat() - 0.5F) * vibrate);
       }
 
       Pose pose = p_225621_1_.getPose();

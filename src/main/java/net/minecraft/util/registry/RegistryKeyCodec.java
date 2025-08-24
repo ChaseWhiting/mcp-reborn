@@ -32,7 +32,7 @@ public final class RegistryKeyCodec<E> implements Codec<Supplier<E>> {
       }, Either::left);
    }
 
-   private static <E> RegistryKeyCodec<E> create(RegistryKey<? extends Registry<E>> p_244325_0_, Codec<E> p_244325_1_, boolean p_244325_2_) {
+   public static <E> RegistryKeyCodec<E> create(RegistryKey<? extends Registry<E>> p_244325_0_, Codec<E> p_244325_1_, boolean p_244325_2_) {
       return new RegistryKeyCodec<>(p_244325_0_, p_244325_1_, p_244325_2_);
    }
 

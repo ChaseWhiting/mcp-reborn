@@ -31,8 +31,8 @@ public class BambooSaplingBlock extends Block implements IGrowable {
       return AbstractBlock.OffsetType.XZ;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      Vector3d vector3d = p_220053_1_.getOffset(p_220053_2_, p_220053_3_);
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      Vector3d vector3d = state.getOffset(world, pos);
       return SAPLING_SHAPE.move(vector3d.x, vector3d.y, vector3d.z);
    }
 

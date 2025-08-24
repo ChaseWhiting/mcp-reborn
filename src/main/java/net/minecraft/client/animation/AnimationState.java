@@ -19,6 +19,11 @@ public class AnimationState {
         }
     }
 
+    public long getTimeInMillis(float f) {
+        float f2 = f - (float)this.lastTime;
+        return (long)(f2 * 50.0f);
+    }
+
     public void animateWhen(boolean condition, int ticks) {
         if (condition) {
             this.startIfStopped(ticks);

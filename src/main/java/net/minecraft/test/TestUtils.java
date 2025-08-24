@@ -117,7 +117,7 @@ public class TestUtils {
       serverworld.setBlockAndUpdate(blockpos2, Blocks.LECTERN.defaultBlockState().rotate(p_229560_0_.getRotation()));
       BlockState blockstate = serverworld.getBlockState(blockpos2);
       ItemStack itemstack = createBook(p_229560_0_.getTestName(), p_229560_0_.isRequired(), p_229560_1_);
-      LecternBlock.tryPlaceBook(serverworld, blockpos2, blockstate, itemstack);
+      LecternBlock.tryPlaceBook(null, serverworld, blockpos2, blockstate, itemstack);
    }
 
    private static ItemStack createBook(String p_229546_0_, boolean p_229546_1_, String p_229546_2_) {

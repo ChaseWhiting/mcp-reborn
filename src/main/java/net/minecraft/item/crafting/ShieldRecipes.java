@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -49,7 +50,7 @@ public class ShieldRecipes extends SpecialRecipe {
       return !itemstack.isEmpty() && !itemstack1.isEmpty();
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       ItemStack itemstack = ItemStack.EMPTY;
       ItemStack itemstack1 = ItemStack.EMPTY;
 

@@ -1,6 +1,5 @@
 package net.minecraft.enchantment;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 

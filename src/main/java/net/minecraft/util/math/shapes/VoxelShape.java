@@ -64,6 +64,10 @@ public abstract class VoxelShape {
       return (VoxelShape)(this.isEmpty() ? VoxelShapes.empty() : new VoxelShapeArray(this.shape, (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.X), p_197751_1_)), (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.Y), p_197751_3_)), (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.Z), p_197751_5_))));
    }
 
+   public VoxelShape move(Vector3d vec3) {
+      return this.move(vec3.x, vec3.y, vec3.z);
+   }
+
    public VoxelShape optimize() {
       VoxelShape[] avoxelshape = new VoxelShape[]{VoxelShapes.empty()};
       this.forAllBoxes((p_197763_1_, p_197763_3_, p_197763_5_, p_197763_7_, p_197763_9_, p_197763_11_) -> {

@@ -49,9 +49,9 @@ public class CocoaBlock extends HorizontalBlock implements IGrowable {
       return block.is(BlockTags.JUNGLE_LOGS);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      int i = p_220053_1_.getValue(AGE);
-      switch((Direction)p_220053_1_.getValue(FACING)) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      int i = state.getValue(AGE);
+      switch((Direction) state.getValue(FACING)) {
       case SOUTH:
          return SOUTH_AABB[i];
       case NORTH:
@@ -98,8 +98,8 @@ public class CocoaBlock extends HorizontalBlock implements IGrowable {
       p_225535_1_.setBlock(p_225535_3_, p_225535_4_.setValue(AGE, Integer.valueOf(p_225535_4_.getValue(AGE) + 1)), 2);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, AGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, AGE);
    }
 
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {

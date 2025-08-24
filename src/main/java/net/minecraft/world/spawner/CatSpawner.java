@@ -72,7 +72,7 @@ public class CatSpawner implements ISpecialSpawner {
    private int spawnInHut(ServerWorld p_221123_1_, BlockPos p_221123_2_) {
       int i = 16;
       List<CatEntity> list = p_221123_1_.getEntitiesOfClass(CatEntity.class, (new AxisAlignedBB(p_221123_2_)).inflate(16.0D, 8.0D, 16.0D));
-      return list.size() < 1 ? this.spawnCat(p_221123_2_, p_221123_1_) : 0;
+      return list.isEmpty() ? this.spawnCat(p_221123_2_, p_221123_1_) : 0;
    }
 
    private int spawnCat(BlockPos p_221122_1_, ServerWorld p_221122_2_) {

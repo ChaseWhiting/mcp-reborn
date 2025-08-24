@@ -7,6 +7,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.gen.feature.structure.BastionRemnantsPieces;
 import net.minecraft.world.gen.feature.structure.PillagerOutpostPools;
+import net.minecraft.world.gen.feature.structure.TrailRuinsRegistry;
 import net.minecraft.world.gen.feature.structure.VillagesPools;
 
 public class JigsawPatternRegistry {
@@ -21,6 +22,7 @@ public class JigsawPatternRegistry {
       BastionRemnantsPieces.bootstrap();
       PillagerOutpostPools.bootstrap();
       VillagesPools.bootstrap();
+      TrailRuinsRegistry.bootstrap();
       return BUILTIN_EMPTY;
    }
 

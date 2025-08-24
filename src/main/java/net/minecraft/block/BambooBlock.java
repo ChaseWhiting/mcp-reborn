@@ -37,8 +37,8 @@ public class BambooBlock extends Block implements IGrowable {
       this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(LEAVES, BambooLeaves.NONE).setValue(STAGE, Integer.valueOf(0)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AGE, LEAVES, STAGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AGE, LEAVES, STAGE);
    }
 
    public AbstractBlock.OffsetType getOffsetType() {
@@ -49,9 +49,9 @@ public class BambooBlock extends Block implements IGrowable {
       return true;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      VoxelShape voxelshape = p_220053_1_.getValue(LEAVES) == BambooLeaves.LARGE ? LARGE_SHAPE : SMALL_SHAPE;
-      Vector3d vector3d = p_220053_1_.getOffset(p_220053_2_, p_220053_3_);
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      VoxelShape voxelshape = state.getValue(LEAVES) == BambooLeaves.LARGE ? LARGE_SHAPE : SMALL_SHAPE;
+      Vector3d vector3d = state.getOffset(world, pos);
       return voxelshape.move(vector3d.x, vector3d.y, vector3d.z);
    }
 

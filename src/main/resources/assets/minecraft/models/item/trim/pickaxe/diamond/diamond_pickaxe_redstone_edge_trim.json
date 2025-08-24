@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "minecraft:item/trim/pickaxe/diamond_pickaxe_edge",
+    "layer1": "minecraft:trims/items/pickaxe_trim_edge_redstone"
+  }
+}

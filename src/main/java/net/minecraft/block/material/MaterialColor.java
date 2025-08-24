@@ -20,6 +20,8 @@ public class MaterialColor {
    public static final MaterialColor WATER = new MaterialColor(12, 4210943);
    public static final MaterialColor WOOD = new MaterialColor(13, 9402184);
    public static final MaterialColor QUARTZ = new MaterialColor(14, 16776437);
+   public static final MaterialColor DEEPSLATE = new MaterialColor(59, 0x646464);
+
    public static final MaterialColor COLOR_ORANGE = new MaterialColor(15, 14188339);
    public static final MaterialColor COLOR_MAGENTA = new MaterialColor(16, 11685080);
    public static final MaterialColor COLOR_LIGHT_BLUE = new MaterialColor(17, 6724056);

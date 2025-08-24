@@ -15,8 +15,7 @@ import net.minecraft.world.gen.settings.StructureSeparationSettings;
 public class PillagerOutpostStructure extends JigsawStructure {
    private static final List<MobSpawnInfo.Spawners> OUTPOST_ENEMIES = ImmutableList.of(
            new MobSpawnInfo.Spawners(EntityType.PILLAGER, 27, 1, 1),
-           new MobSpawnInfo.Spawners(EntityType.PILLAGER_CAPTAIN, 9, 1, 1),
-           new MobSpawnInfo.Spawners(EntityType.ILLUSIONER, 1, 1, 1)
+           new MobSpawnInfo.Spawners(EntityType.PILLAGER_CAPTAIN, 5, 1, 1)
    );
 
    public PillagerOutpostStructure(Codec<VillageConfig> p_i231977_1_) {

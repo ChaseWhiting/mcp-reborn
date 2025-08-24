@@ -1,6 +1,5 @@
 package net.minecraft.entity.item;
 
-import java.util.List;
 import java.util.Map.Entry;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -13,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SSpawnExperienceOrbPacket;
+import net.minecraft.potion.Effects;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvents;
@@ -37,6 +37,11 @@ public class ExperienceOrbEntity extends Entity {
       this.yRot = (float)(this.random.nextDouble() * 360.0D);
       this.setDeltaMovement((this.random.nextDouble() * (double)0.2F - (double)0.1F) * 2.0D, this.random.nextDouble() * 0.2D * 2.0D, (this.random.nextDouble() * (double)0.2F - (double)0.1F) * 2.0D);
       this.value = p_i1585_8_;
+   }
+
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.NONE;
    }
 
    public ExperienceOrbEntity(EntityType<? extends ExperienceOrbEntity> p_i50382_1_, World p_i50382_2_) {
@@ -148,23 +153,33 @@ public class ExperienceOrbEntity extends Entity {
       this.value = p_70037_1_.getShort("Value");
    }
 
-   public void playerTouch(PlayerEntity p_70100_1_) {
+   public void playerTouch(PlayerEntity player) {
       if (!this.level.isClientSide) {
-         if (this.throwTime == 0 && p_70100_1_.takeXpDelay == 0) {
-            p_70100_1_.takeXpDelay = 2;
-            p_70100_1_.take(this, 1);
-            Entry<EquipmentSlotType, ItemStack> entry = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, p_70100_1_, ItemStack::isDamaged);
+         if (this.throwTime == 0 && player.takeXpDelay == 0) {
+            player.takeXpDelay = 2;
+            player.take(this, 1);
+            Entry<EquipmentSlotType, ItemStack> entry = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, player, ItemStack::isDamaged);
             if (entry != null) {
                ItemStack itemstack = entry.getValue();
                if (!itemstack.isEmpty() && itemstack.isDamaged()) {
                   int i = Math.min(this.xpToDurability(this.value), itemstack.getDamageValue());
                   this.value -= this.durabilityToXp(i);
+
+
                   itemstack.setDamageValue(itemstack.getDamageValue() - i);
                }
             }
 
             if (this.value > 0) {
-               p_70100_1_.giveExperiencePoints(this.value);
+               int val = value;
+
+               if (player.hasEffect(Effects.INSIGHT)) {
+                  int level = player.getEffect(Effects.INSIGHT).getAmplifier() + 1;
+                  double gain = level == 1 ? 0.15D : 0.5D;
+                  val *= (1.0D + (gain * (level))) - (0.001D * player.experienceLevel);
+               }
+
+               player.giveExperiencePoints(val);
             }
 
             this.remove();
@@ -232,6 +247,10 @@ public class ExperienceOrbEntity extends Entity {
       } else {
          return p_70527_0_ >= 3 ? 3 : 1;
       }
+   }
+
+   public static double getExperienceEffectMultiplier(int level) {
+      return 1.0D + (0.5D * (level + 1));
    }
 
    public boolean isAttackable() {

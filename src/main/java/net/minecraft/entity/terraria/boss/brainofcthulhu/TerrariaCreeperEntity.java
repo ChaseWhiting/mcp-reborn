@@ -7,7 +7,6 @@ import net.minecraft.entity.ai.controller.FlyingMovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
 import net.minecraft.pathfinding.FlyingPathNavigator;
 import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.util.DamageSource;

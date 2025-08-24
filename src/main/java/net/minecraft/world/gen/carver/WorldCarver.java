@@ -28,6 +28,10 @@ public abstract class WorldCarver<C extends ICarverConfig> {
 
    public static final WorldCarver<ProbabilityConfig> NETHER_CAVE = register("nether_cave", new NetherCaveCarver(ProbabilityConfig.CODEC));
    public static final WorldCarver<ProbabilityConfig> CANYON = register("canyon", new CanyonWorldCarver(ProbabilityConfig.CODEC));
+   public static final WorldCarver<ProbabilityConfig> HUGE_CANYON = register("huge_canyon", new HugeCanyonWorldCarver(ProbabilityConfig.CODEC));
+
+   public static final WorldCarver<ProbabilityConfig> SMALL_CANYON_CARVER = register("small_canyon", new SmallCanyonCarver(ProbabilityConfig.CODEC));
+
    public static final WorldCarver<ProbabilityConfig> UNDERWATER_CANYON = register("underwater_canyon", new UnderwaterCanyonWorldCarver(ProbabilityConfig.CODEC));
    public static final WorldCarver<ProbabilityConfig> UNDERWATER_CAVE = register("underwater_cave", new UnderwaterCaveWorldCarver(ProbabilityConfig.CODEC));
    protected static final BlockState AIR = Blocks.AIR.defaultBlockState();

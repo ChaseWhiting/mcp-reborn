@@ -1,8 +1,13 @@
 package net.minecraft.world.gen.feature.structure;
 
 import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ChestBlock;
@@ -15,28 +20,26 @@ import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tileentity.BrushableBlockEntity;
 import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.MutableBoundingBox;
+import net.minecraft.util.random.RandomSource;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.feature.template.BlockIgnoreStructureProcessor;
-import net.minecraft.world.gen.feature.template.IntegrityProcessor;
-import net.minecraft.world.gen.feature.template.PlacementSettings;
-import net.minecraft.world.gen.feature.template.Template;
-import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.gen.feature.template.*;
 
 public class OceanRuinPieces {
+   public static final StructureProcessor WARM_SUSPICIOUS_BLOCK_PROCESSOR = archyRuleProcessor(Blocks.SAND, Blocks.SUSPICIOUS_SAND, LootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY);
+   public static final StructureProcessor COLD_SUSPICIOUS_BLOCK_PROCESSOR = archyRuleProcessor(Blocks.GRAVEL, Blocks.SUSPICIOUS_GRAVEL, LootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY);
+
    private static final ResourceLocation[] WARM_RUINS = new ResourceLocation[]{new ResourceLocation("underwater_ruin/warm_1"), new ResourceLocation("underwater_ruin/warm_2"), new ResourceLocation("underwater_ruin/warm_3"), new ResourceLocation("underwater_ruin/warm_4"), new ResourceLocation("underwater_ruin/warm_5"), new ResourceLocation("underwater_ruin/warm_6"), new ResourceLocation("underwater_ruin/warm_7"), new ResourceLocation("underwater_ruin/warm_8")};
    private static final ResourceLocation[] RUINS_BRICK = new ResourceLocation[]{new ResourceLocation("underwater_ruin/brick_1"), new ResourceLocation("underwater_ruin/brick_2"), new ResourceLocation("underwater_ruin/brick_3"), new ResourceLocation("underwater_ruin/brick_4"), new ResourceLocation("underwater_ruin/brick_5"), new ResourceLocation("underwater_ruin/brick_6"), new ResourceLocation("underwater_ruin/brick_7"), new ResourceLocation("underwater_ruin/brick_8")};
    private static final ResourceLocation[] RUINS_CRACKED = new ResourceLocation[]{new ResourceLocation("underwater_ruin/cracked_1"), new ResourceLocation("underwater_ruin/cracked_2"), new ResourceLocation("underwater_ruin/cracked_3"), new ResourceLocation("underwater_ruin/cracked_4"), new ResourceLocation("underwater_ruin/cracked_5"), new ResourceLocation("underwater_ruin/cracked_6"), new ResourceLocation("underwater_ruin/cracked_7"), new ResourceLocation("underwater_ruin/cracked_8")};
@@ -45,6 +48,11 @@ public class OceanRuinPieces {
    private static final ResourceLocation[] BIG_RUINS_MOSSY = new ResourceLocation[]{new ResourceLocation("underwater_ruin/big_mossy_1"), new ResourceLocation("underwater_ruin/big_mossy_2"), new ResourceLocation("underwater_ruin/big_mossy_3"), new ResourceLocation("underwater_ruin/big_mossy_8")};
    private static final ResourceLocation[] BIG_RUINS_CRACKED = new ResourceLocation[]{new ResourceLocation("underwater_ruin/big_cracked_1"), new ResourceLocation("underwater_ruin/big_cracked_2"), new ResourceLocation("underwater_ruin/big_cracked_3"), new ResourceLocation("underwater_ruin/big_cracked_8")};
    private static final ResourceLocation[] BIG_WARM_RUINS = new ResourceLocation[]{new ResourceLocation("underwater_ruin/big_warm_4"), new ResourceLocation("underwater_ruin/big_warm_5"), new ResourceLocation("underwater_ruin/big_warm_6"), new ResourceLocation("underwater_ruin/big_warm_7")};
+
+   private static StructureProcessor archyRuleProcessor(Block block, Block block2, ResourceLocation resourceLocation) {
+      return new CappedProcessor(new RuleStructureProcessor(List.of(new RuleEntry(AlwaysTrueRuleTest.INSTANCE, AlwaysTrueRuleTest.INSTANCE, AlwaysTrueTest.INSTANCE, block2.defaultBlockState()))), UniformInt.of(4, 5));
+   }
+
 
    private static ResourceLocation getSmallWarmRuin(Random p_204042_0_) {
       return Util.getRandom(WARM_RUINS, p_204042_0_);
@@ -190,6 +198,38 @@ public class OceanRuinPieces {
          this.templatePosition = new BlockPos(this.templatePosition.getX(), i, this.templatePosition.getZ());
          BlockPos blockpos = Template.transform(new BlockPos(this.template.getSize().getX() - 1, 0, this.template.getSize().getZ() - 1), Mirror.NONE, this.rotation, BlockPos.ZERO).offset(this.templatePosition);
          this.templatePosition = new BlockPos(this.templatePosition.getX(), this.getHeight(this.templatePosition, p_230383_1_, blockpos), this.templatePosition.getZ());
+
+         List<BlockPos> candidates = new ArrayList<>();
+
+         BlockPos size = this.template.getSize();
+         BlockPos transformedEnd = Template.transform(size.offset(-1, 0, -1), Mirror.NONE, this.placeSettings.getRotation(), BlockPos.ZERO)
+                 .offset(this.templatePosition);
+
+         for (BlockPos pos : BlockPos.betweenClosed(this.templatePosition, transformedEnd)) {
+            BlockState state = p_230383_1_.getBlockState(pos);
+            if (state.is(biomeType == OceanRuinStructure.Type.WARM ? Blocks.SAND : Blocks.GRAVEL)) {
+               candidates.add(pos.immutable());
+            }
+         }
+
+         Collections.shuffle(candidates, new Random(this.templatePosition.asLong()));
+
+         int limit = 5;
+         for (int x = 0; x < Math.min(limit, candidates.size()); x++) {
+            BlockPos pos = candidates.get(x);
+            if (p_230383_1_.getBlockState(pos.below()).isAir()) {
+               BlockState cs = biomeType == OceanRuinStructure.Type.WARM ? Blocks.SAND.defaultBlockState() : Blocks.GRAVEL.defaultBlockState();
+               p_230383_1_.setBlock(pos.below(), cs, 2);
+            }
+            p_230383_1_.setBlock(pos, biomeType == OceanRuinStructure.Type.WARM ? Blocks.SUSPICIOUS_SAND.defaultBlockState() : Blocks.SUSPICIOUS_GRAVEL.defaultBlockState(), 2);
+
+            // Optional: set loot table
+            TileEntity be = p_230383_1_.getBlockEntity(pos);
+            if (be instanceof BrushableBlockEntity lbe) {
+               lbe.setLootTable(biomeType == OceanRuinStructure.Type.WARM ? LootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY : LootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY, RandomSource.create(p_230383_1_.getSeed()).forkPositional().at(pos).nextLong());
+            }
+         }
+
          return super.postProcess(p_230383_1_, p_230383_2_, p_230383_3_, p_230383_4_, p_230383_5_, p_230383_6_, p_230383_7_);
       }
 

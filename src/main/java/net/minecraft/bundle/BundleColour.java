@@ -57,7 +57,7 @@ public enum BundleColour {
             case LIGHT_BLUE -> LIGHT_BLUE;
             case YELLOW -> YELLOW;
             case LIME -> LIME;
-            case PINK, CORAL -> PINK;
+            case PINK -> PINK;
             case GRAY -> GRAY;
             case LIGHT_GRAY -> LIGHT_GRAY;
             case CYAN -> CYAN;

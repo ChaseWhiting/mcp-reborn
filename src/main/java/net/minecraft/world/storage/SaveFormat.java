@@ -329,9 +329,9 @@ public class SaveFormat {
          this.saveDataTag(p_237287_1_, p_237287_2_, (CompoundNBT)null);
       }
 
-      public void saveDataTag(DynamicRegistries p_237288_1_, IServerConfiguration p_237288_2_, @Nullable CompoundNBT p_237288_3_) {
+      public void saveDataTag(DynamicRegistries registry, IServerConfiguration config, @Nullable CompoundNBT nbt) {
          File file1 = this.levelPath.toFile();
-         CompoundNBT compoundnbt = p_237288_2_.createTag(p_237288_1_, p_237288_3_);
+         CompoundNBT compoundnbt = config.createTag(registry, nbt);
          CompoundNBT compoundnbt1 = new CompoundNBT();
          compoundnbt1.put("Data", compoundnbt);
 

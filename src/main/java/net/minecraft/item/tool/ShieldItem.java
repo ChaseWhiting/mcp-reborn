@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ActionResult;
@@ -14,10 +15,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ShieldItem extends Item {
+public class ShieldItem extends Item implements Equipable {
    public ShieldItem(Item.Properties p_i48470_1_) {
       super(p_i48470_1_);
       DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
+   }
+
+   @Override
+   public EquipmentSlotType getEquipmentSlot() {
+      return EquipmentSlotType.OFFHAND;
    }
 
    public String getDescriptionId(ItemStack p_77667_1_) {

@@ -342,7 +342,7 @@ public class RealmsClient {
                String s1 = p_224938_1_.getHeader("WWW-Authenticate");
                LOGGER.info("Could not authorize you against Realms server: " + s1);
                throw new RealmsServiceException(i, s1, -1, s1);
-            } else if (s != null && s.length() != 0) {
+            } else if (s != null && !s.isEmpty()) {
                RealmsError realmserror = RealmsError.create(s);
                LOGGER.error("Realms http code: " + i + " -  error code: " + realmserror.getErrorCode() + " -  message: " + realmserror.getErrorMessage() + " - raw body: " + s);
                throw new RealmsServiceException(i, s, realmserror);

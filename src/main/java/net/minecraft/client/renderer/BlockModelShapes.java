@@ -64,7 +64,7 @@ public class BlockModelShapes {
       StringBuilder stringbuilder = new StringBuilder();
 
       for(Entry<Property<?>, Comparable<?>> entry : p_209552_0_.entrySet()) {
-         if (stringbuilder.length() != 0) {
+         if (!stringbuilder.isEmpty()) {
             stringbuilder.append(',');
          }
 

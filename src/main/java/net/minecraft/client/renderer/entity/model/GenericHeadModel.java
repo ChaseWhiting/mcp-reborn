@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class GenericHeadModel extends Model {
+public class GenericHeadModel extends Model implements IHeadModel {
    protected final ModelRenderer head;
 
    public GenericHeadModel() {

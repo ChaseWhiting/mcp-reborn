@@ -26,7 +26,9 @@ public class WoodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
       BlockState blockstate2 = isurfacebuilderconfig.getTopMaterial();
       BlockState blockstate3 = blockstate1;
       int k = (int)(p_205610_7_ / 3.0D + 3.0D + p_205610_1_.nextDouble() * 0.25D);
-      boolean flag = Math.cos(p_205610_7_ / 3.0D * Math.PI) > 0.0D;
+      boolean flag = p_205610_7_ > -0.0D; // Adjust threshold for more or less grass
+      boolean flag3 = Math.cos(p_205610_7_ / 4.0D * Math.PI * p_205610_7_) > 0.0D;
+
       int l = -1;
       boolean flag1 = false;
       int i1 = 0;
@@ -64,7 +66,7 @@ public class WoodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
                      } else if (j1 > p_205610_11_ + 3 + k) {
                         BlockState blockstate5;
                         if (j1 >= 64 && j1 <= 127) {
-                           if (flag) {
+                           if (flag3) {
                               blockstate5 = TERRACOTTA;
                            } else {
                               blockstate5 = this.getBand(p_205610_4_, j1, p_205610_5_);

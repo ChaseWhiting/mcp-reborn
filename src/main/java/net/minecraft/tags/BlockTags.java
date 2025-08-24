@@ -93,6 +93,22 @@ public final class BlockTags {
    public static final ITag.INamedTag<Block> BASE_STONE_OVERWORLD = bind("base_stone_overworld");
    public static final ITag.INamedTag<Block> BASE_STONE_NETHER = bind("base_stone_nether");
 
+   public static final ITag.INamedTag<Block> NEEDS_STONE_TOOL = bind("needs_stone_tool");
+   public static final ITag.INamedTag<Block> NEEDS_IRON_TOOL = bind("needs_iron_tool");
+   public static final ITag.INamedTag<Block> NEEDS_DIAMOND_TOOL = bind("needs_diamond_tool");
+
+   public static final ITag.INamedTag<Block> MINEABLE_WITH_PICKAXE = bind("mineable/pickaxe");
+   public static final ITag.INamedTag<Block> MINEABLE_WITH_AXE = bind("mineable/axe");
+   public static final ITag.INamedTag<Block> MINEABLE_WITH_SHOVEL = bind("mineable/shovel");
+   public static final ITag.INamedTag<Block> MINEABLE_WITH_HOE = bind("mineable/hoe");
+   public static final ITag.INamedTag<Block> COPPER_BUTTONS = bind("copper_buttons");
+
+   public static final ITag.INamedTag<Block> STONE_BUTTONS = bind("stone_buttons");
+   public static final ITag.INamedTag<Block> CONCRETE_POWDER = bind("concrete_powder");
+
+   public static final ITag.INamedTag<Block> TRAIL_RUINS_REPLACEABLE = bind("trail_ruins_replaceable");
+
+
    private static ITag.INamedTag<Block> bind(String p_199894_0_) {
       return HELPER.bind(p_199894_0_);
    }

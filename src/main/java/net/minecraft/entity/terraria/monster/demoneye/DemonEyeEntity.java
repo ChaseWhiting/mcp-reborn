@@ -12,6 +12,7 @@ import net.minecraft.entity.ai.controller.FlyingMovementController;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.terraria.ITerrariaMob;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.pathfinding.FlyingPathNavigator;
 import net.minecraft.pathfinding.PathNavigator;
@@ -23,7 +24,7 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class DemonEyeEntity extends Monster {
+public class DemonEyeEntity extends Monster implements ITerrariaMob {
     public AnimationState tails = new AnimationState();
 
     private int swoopCooldown = 0;

@@ -45,7 +45,7 @@ public abstract class AbstractTrunkPlacer {
 
    protected abstract TrunkPlacerType<?> type();
 
-   public abstract List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader p_230382_1_, Random p_230382_2_, int p_230382_3_, BlockPos p_230382_4_, Set<BlockPos> p_230382_5_, MutableBoundingBox p_230382_6_, BaseTreeFeatureConfig p_230382_7_);
+   public abstract List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader worldReader, Random random, int number, BlockPos position, Set<BlockPos> blockSet, MutableBoundingBox boundingBox, BaseTreeFeatureConfig configuration);
 
    public int getTreeHeight(Random p_236917_1_) {
       return this.baseHeight + p_236917_1_.nextInt(this.heightRandA + 1) + p_236917_1_.nextInt(this.heightRandB + 1);

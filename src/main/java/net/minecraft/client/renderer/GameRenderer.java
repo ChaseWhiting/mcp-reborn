@@ -6,11 +6,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.AbstractOption;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
@@ -48,8 +46,6 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.Gamemode;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -240,7 +236,7 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
             boolean flag = false;
             int i = 3;
             double d1 = d0;
-            if (this.minecraft.gameMode.hasFarPickRange()) {
+            if (this.minecraft.gameMode.hasFarPickRange() ) {
                d1 = 6.0D;
                d0 = d1;
             } else {
@@ -302,6 +298,7 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
    }
 
    private double getFov(ActiveRenderInfo p_215311_1_, float p_215311_2_, boolean p_215311_3_) {
+
       if (this.panoramicMode) {
          return 90.0D;
       } else {
@@ -323,6 +320,15 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
 
          return d0;
       }
+   }
+
+   private double getCullFov(ActiveRenderInfo p_215311_1_, float p_215311_2_, boolean p_215311_3_) {
+
+      if(minecraft.options.getCameraType().isFirstPerson() && minecraft.player.isScoping()) {
+         return minecraft.options.fov;
+      }
+
+      return getFov(p_215311_1_, p_215311_2_, p_215311_3_);
    }
 
    private void bobHurt(MatrixStack p_228380_1_, float p_228380_2_) {
@@ -408,6 +414,18 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
       }
 
       matrixstack.last().pose().multiply(Matrix4f.perspective(this.getFov(p_228382_1_, p_228382_2_, p_228382_3_), (float)this.minecraft.getWindow().getWidth() / (float)this.minecraft.getWindow().getHeight(), 0.05F, this.renderDistance * 4.0F));
+      return matrixstack.last().pose();
+   }
+
+   public Matrix4f getCullingProjectionMatrix(ActiveRenderInfo p_228382_1_, float p_228382_2_, boolean p_228382_3_) {
+      MatrixStack matrixstack = new MatrixStack();
+      matrixstack.last().pose().setIdentity();
+      if (this.zoom != 1.0F) {
+         matrixstack.translate((double)this.zoomX, (double)(-this.zoomY), 0.0D);
+         matrixstack.scale(this.zoom, this.zoom, 1.0F);
+      }
+
+      matrixstack.last().pose().multiply(Matrix4f.perspective(this.getCullFov(p_228382_1_, p_228382_2_, p_228382_3_), (float)this.minecraft.getWindow().getWidth() / (float)this.minecraft.getWindow().getHeight(), 0.05F, this.renderDistance * 4.0F));
       return matrixstack.last().pose();
    }
 
@@ -572,7 +590,14 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
       }
    }
 
+   private boolean isRenderingWorld = false;
+
+   public boolean isRenderingWorld() {
+      return this.isRenderingWorld;
+   }
+
    public void renderLevel(float p_228378_1_, long p_228378_2_, MatrixStack p_228378_4_) {
+      this.isRenderingWorld = true;
       this.lightTexture.updateLightTexture(p_228378_1_);
       if (this.minecraft.getCameraEntity() == null) {
          this.minecraft.setCameraEntity(this.minecraft.player);
@@ -586,6 +611,8 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
       this.renderDistance = (float)(this.minecraft.options.renderDistance * 16);
       MatrixStack matrixstack = new MatrixStack();
       matrixstack.last().pose().multiply(this.getProjectionMatrix(activerenderinfo, p_228378_1_, true));
+      MatrixStack matrixForCull = new MatrixStack();
+      matrixForCull.last().pose().multiply(this.getCullingProjectionMatrix(activerenderinfo, p_228378_1_, true));
       this.bobHurt(matrixstack, p_228378_1_);
       if (this.minecraft.options.bobView) {
          this.bobView(matrixstack, p_228378_1_);
@@ -608,7 +635,7 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
       activerenderinfo.setup(this.minecraft.level, (Entity)(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity()), !this.minecraft.options.getCameraType().isFirstPerson(), this.minecraft.options.getCameraType().isMirrored(), p_228378_1_);
       p_228378_4_.mulPose(Vector3f.XP.rotationDegrees(activerenderinfo.getXRot()));
       p_228378_4_.mulPose(Vector3f.YP.rotationDegrees(activerenderinfo.getYRot() + 180.0F));
-      this.minecraft.levelRenderer.renderLevel(p_228378_4_, p_228378_1_, p_228378_2_, flag, activerenderinfo, this, this.lightTexture, matrix4f);
+      this.minecraft.levelRenderer.renderLevel(p_228378_4_, p_228378_1_, p_228378_2_, flag, activerenderinfo, this, this.lightTexture, matrixForCull.last().pose());
       this.minecraft.getProfiler().popPush("hand");
       if (this.renderHand) {
          RenderSystem.clear(256, Minecraft.ON_OSX);
@@ -616,6 +643,7 @@ public class GameRenderer implements IResourceManagerReloadListener, AutoCloseab
       }
 
       this.minecraft.getProfiler().pop();
+      this.isRenderingWorld = false;
    }
 
    public void resetData() {

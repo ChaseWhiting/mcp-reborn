@@ -158,11 +158,15 @@ public class EvokerEntity extends SpellcastingIllagerEntity {
                this.createSpellEntity(EvokerEntity.this.getX() + (double)MathHelper.cos(f2) * 2.5D, EvokerEntity.this.getZ() + (double)MathHelper.sin(f2) * 2.5D, d0, d1, f2, 3);
             }
          } else {
-            for(int l = 0; l < 16; ++l) {
-               double d2 = 1.25D * (double)(l + 1);
-               int j = 1 * l;
-               this.createSpellEntity(EvokerEntity.this.getX() + (double)MathHelper.cos(f) * d2, EvokerEntity.this.getZ() + (double)MathHelper.sin(f) * d2, d0, d1, f, j);
-            }
+             if (!EvokerEntity.this.veryHardmode()) {
+                 for(int l = 0; l < 16; ++l) {
+                    double d2 = 1.25D * (double)(l + 1);
+                    int j = 1 * l;
+                    this.createSpellEntity(EvokerEntity.this.getX() + (double)MathHelper.cos(f) * d2, EvokerEntity.this.getZ() + (double)MathHelper.sin(f) * d2, d0, d1, f, j);
+                 }
+             } else {
+
+             }
          }
 
       }

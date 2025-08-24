@@ -220,42 +220,93 @@ public class MouseHelper {
       }
    }
 
+//   public void turnPlayer() {
+//      double d0 = NativeUtil.getTime();
+//      double d1 = d0 - this.lastMouseEventTime;
+//      this.lastMouseEventTime = d0;
+//      if (this.isMouseGrabbed() && this.minecraft.isWindowActive()) {
+//         double d4 = this.minecraft.options.sensitivity * (double)0.6F + (double)0.2F;
+//         double d5 = d4 * d4 * d4 * 8.0D;
+//         double d2;
+//         double d3;
+//
+//         double d8 = d5 * d5 * d5;
+//         double d9 = d8 * 8.0;
+//
+//         if (this.minecraft.options.smoothCamera) {
+//            double d6 = this.smoothTurnX.getNewDeltaValue(this.accumulatedDX * d5, d1 * d5);
+//            double d7 = this.smoothTurnY.getNewDeltaValue(this.accumulatedDY * d5, d1 * d5);
+//            d2 = d6;
+//            d3 = d7;
+//         } else if (this.minecraft.options.getCameraType().isFirstPerson() && this.minecraft.player.isScoping()) {
+//            this.smoothTurnX.reset();
+//            this.smoothTurnY.reset();
+//            d2 = this.accumulatedDX * d8;
+//            d3 = this.accumulatedDY * d8;
+//         } else {
+//            this.smoothTurnX.reset();
+//            this.smoothTurnY.reset();
+//            d2 = this.accumulatedDX * d5;
+//            d3 = this.accumulatedDY * d5;
+//         }
+//
+//         this.accumulatedDX = 0.0D;
+//         this.accumulatedDY = 0.0D;
+//         int i = 1;
+//         if (this.minecraft.options.invertYMouse) {
+//            i = -1;
+//         }
+//
+//         this.minecraft.getTutorial().onMouse(d2, d3);
+//         if (this.minecraft.player != null) {
+//            this.minecraft.player.turn(d2, d3 * (double)i);
+//         }
+//
+//      } else {
+//         this.accumulatedDX = 0.0D;
+//         this.accumulatedDY = 0.0D;
+//      }
+//   }
+
    public void turnPlayer() {
-      double d0 = NativeUtil.getTime();
-      double d1 = d0 - this.lastMouseEventTime;
-      this.lastMouseEventTime = d0;
-      if (this.isMouseGrabbed() && this.minecraft.isWindowActive()) {
-         double d4 = this.minecraft.options.sensitivity * (double)0.6F + (double)0.2F;
-         double d5 = d4 * d4 * d4 * 8.0D;
-         double d2;
-         double d3;
-         if (this.minecraft.options.smoothCamera) {
-            double d6 = this.smoothTurnX.getNewDeltaValue(this.accumulatedDX * d5, d1 * d5);
-            double d7 = this.smoothTurnY.getNewDeltaValue(this.accumulatedDY * d5, d1 * d5);
-            d2 = d6;
-            d3 = d7;
-         } else {
-            this.smoothTurnX.reset();
-            this.smoothTurnY.reset();
-            d2 = this.accumulatedDX * d5;
-            d3 = this.accumulatedDY * d5;
-         }
-
-         this.accumulatedDX = 0.0D;
-         this.accumulatedDY = 0.0D;
-         int i = 1;
-         if (this.minecraft.options.invertYMouse) {
-            i = -1;
-         }
-
-         this.minecraft.getTutorial().onMouse(d2, d3);
-         if (this.minecraft.player != null) {
-            this.minecraft.player.turn(d2, d3 * (double)i);
-         }
-
+      double d;
+      double d2;
+      double d3 = NativeUtil.getTime();
+      double d4 = d3 - this.lastMouseEventTime;
+      this.lastMouseEventTime = d3;
+      if (!this.isMouseGrabbed() || !this.minecraft.isWindowActive()) {
+         this.accumulatedDX = 0.0;
+         this.accumulatedDY = 0.0;
+         return;
+      }
+      double d5 = this.minecraft.options.sensitivity * (double)0.6f + (double)0.2f;
+      double d6 = d5 * d5 * d5;
+      double d7 = d6 * 8.0;
+      if (this.minecraft.options.smoothCamera) {
+         double d8 = this.smoothTurnX.getNewDeltaValue(this.accumulatedDX * d7, d4 * d7);
+         double d9 = this.smoothTurnY.getNewDeltaValue(this.accumulatedDY * d7, d4 * d7);
+         d2 = d8;
+         d = d9;
+      } else if (this.minecraft.options.getCameraType().isFirstPerson() && this.minecraft.player.isScoping()) {
+         this.smoothTurnX.reset();
+         this.smoothTurnY.reset();
+         d2 = this.accumulatedDX * d6;
+         d = this.accumulatedDY * d6;
       } else {
-         this.accumulatedDX = 0.0D;
-         this.accumulatedDY = 0.0D;
+         this.smoothTurnX.reset();
+         this.smoothTurnY.reset();
+         d2 = this.accumulatedDX * d7;
+         d = this.accumulatedDY * d7;
+      }
+      this.accumulatedDX = 0.0;
+      this.accumulatedDY = 0.0;
+      int n = 1;
+      if (this.minecraft.options.invertYMouse) {
+         n = -1;
+      }
+      this.minecraft.getTutorial().onMouse(d2, d);
+      if (this.minecraft.player != null) {
+         this.minecraft.player.turn(d2, d * (double)n);
       }
    }
 

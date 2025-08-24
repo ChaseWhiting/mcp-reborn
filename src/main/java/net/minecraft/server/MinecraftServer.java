@@ -51,10 +51,10 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
-import net.minecraft.WorldGenExtractor;
 import net.minecraft.advancements.AdvancementManager;
 import net.minecraft.advancements.FunctionManager;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.ICommandSource;
@@ -625,13 +625,13 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
             while(this.running) {
                long i = Util.getMillis() - this.nextTickTime;
                if (i > 2000L && this.nextTickTime - this.lastOverloadWarning >= 15000L) {
-                  long j = i / 50L;
+                  long j = i / Minecraft.tickTimer;
                   LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", i, j);
-                  this.nextTickTime += j * 50L;
+                  this.nextTickTime += j * Minecraft.tickTimer;
                   this.lastOverloadWarning = this.nextTickTime;
                }
 
-               this.nextTickTime += 50L;
+               this.nextTickTime += Minecraft.tickTimer;
                LongTickDetector longtickdetector = LongTickDetector.createTickProfiler("Server");
                this.startProfilerTick(longtickdetector);
                this.profiler.startTick();
@@ -639,7 +639,7 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
                this.tickServer(this::haveTime);
                this.profiler.popPush("nextTickWait");
                this.mayHaveDelayedTasks = true;
-               this.delayedTasksMaxNextTickTime = Math.max(Util.getMillis() + 50L, this.nextTickTime);
+               this.delayedTasksMaxNextTickTime = Math.max(Util.getMillis() + Minecraft.tickTimer, this.nextTickTime);
                this.waitUntilNextTick();
                this.profiler.pop();
                this.profiler.endTick();
@@ -932,7 +932,7 @@ public abstract class MinecraftServer extends RecursiveEventLoop<TickDelayedTask
          StringBuilder stringbuilder = new StringBuilder();
 
          for(ResourcePackInfo resourcepackinfo : this.packRepository.getSelectedPacks()) {
-            if (stringbuilder.length() > 0) {
+            if (!stringbuilder.isEmpty()) {
                stringbuilder.append(", ");
             }
 

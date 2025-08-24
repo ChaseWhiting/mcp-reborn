@@ -5,8 +5,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,6 +39,14 @@ public class LightTexture implements AutoCloseable {
       }
 
       this.lightTexture.upload();
+   }
+
+   private float getDarknessGamma(float f) {
+      EffectInstance mobEffectInstance;
+      if (this.minecraft.player.hasEffect(Effects.DARKNESS) && (mobEffectInstance = this.minecraft.player.getEffect(Effects.DARKNESS)) != null && mobEffectInstance.getFactorData().isPresent()) {
+         return mobEffectInstance.getFactorData().get().getFactor(this.minecraft.player, f);
+      }
+      return 0.0f;
    }
 
    public void close() {
@@ -72,6 +83,11 @@ public class LightTexture implements AutoCloseable {
       RenderSystem.activeTexture(33984);
    }
 
+   private float calculateDarknessScale(LivingEntity livingEntity, float f, float f2) {
+      float f3 = 0.45f * f;
+      return Math.max(0.0f, MathHelper.cos(((float)livingEntity.tickCount - f2) * (float)Math.PI * 0.025f) * f3);
+   }
+
    public void updateLightTexture(float p_205106_1_) {
       if (this.updateLightTexture) {
          this.updateLightTexture = false;
@@ -95,7 +111,7 @@ public class LightTexture implements AutoCloseable {
             } else {
                f2 = 0.0F;
             }
-
+            float f15 = this.calculateDarknessScale(this.minecraft.player, this.getDarknessGamma(p_205106_1_), p_205106_1_);
             Vector3f vector3f = new Vector3f(f, f, 1.0F);
             vector3f.lerp(new Vector3f(1.0F, 1.0F, 1.0F), 0.35F);
             float f4 = this.blockLightRedFlicker + 1.5F;
@@ -108,7 +124,8 @@ public class LightTexture implements AutoCloseable {
                   float f7 = f6 * ((f6 * 0.6F + 0.4F) * 0.6F + 0.4F);
                   float f8 = f6 * (f6 * f6 * 0.6F + 0.4F);
                   vector3f1.set(f6, f7, f8);
-                  if (clientworld.effects().forceBrightLightmap()) {
+                  boolean bl = clientworld.effects().forceBrightLightmap();
+                  if (bl) {
                      vector3f1.lerp(new Vector3f(0.99F, 1.12F, 1.0F), 0.25F);
                   } else {
                      Vector3f vector3f2 = vector3f.copy();
@@ -133,6 +150,13 @@ public class LightTexture implements AutoCloseable {
                         vector3f1.lerp(vector3f5, f2);
                      }
                   }
+                  if (!bl) {
+                     if (f15 > 0.0f && this.renderer.isRenderingWorld()) {
+                        vector3f1.add(-f15, -f15, -f15);
+                     }
+
+                     clampColor(vector3f1);
+                  }
 
                   float f11 = (float)this.minecraft.options.gamma;
                   Vector3f vector3f4 = vector3f1.copy();
@@ -155,6 +179,10 @@ public class LightTexture implements AutoCloseable {
       }
    }
 
+   private static void clampColor(Vector3f vector3f) {
+      vector3f.set(MathHelper.clamp(vector3f.x(), 0.0f, 1.0f), MathHelper.clamp(vector3f.y(), 0.0f, 1.0f), MathHelper.clamp(vector3f.z(), 0.0f, 1.0f));
+   }
+
    private float notGamma(float p_228453_1_) {
       float f = 1.0F - p_228453_1_;
       return 1.0F - f * f * f * f;
@@ -174,5 +202,14 @@ public class LightTexture implements AutoCloseable {
 
    public static int sky(int p_228454_0_) {
       return p_228454_0_ >> 20 & '\uffff';
+   }
+
+   public static int lightCoordsWithEmission(int n, int n2) {
+      if (n2 == 0) {
+         return n;
+      }
+      int n3 = Math.max(LightTexture.sky(n), n2);
+      int n4 = Math.max(LightTexture.block(n), n2);
+      return LightTexture.pack(n4, n3);
    }
 }

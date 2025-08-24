@@ -11,6 +11,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.memory.WalkTarget;
+import net.minecraft.entity.axolotl.AxolotlEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.item.Item;
@@ -45,6 +46,10 @@ public class BrainUtil {
       return p_233870_0_.getMemory(p_233870_1_).filter(p_233870_2_).filter(LivingEntity::isAlive).filter((p_220615_1_) -> {
          return entityIsVisible(p_233870_0_, p_220615_1_);
       }).isPresent();
+   }
+
+   public static boolean isBreeding(LivingEntity livingEntity) {
+      return livingEntity.getBrain().hasMemoryValue(MemoryModuleType.BREED_TARGET);
    }
 
    private static void lookAtEachOther(LivingEntity p_220616_0_, LivingEntity p_220616_1_) {
@@ -85,6 +90,17 @@ public class BrainUtil {
       p_233865_0_.level.addFreshEntity(itementity);
    }
 
+   public static void throwItem(LivingEntity livingEntity, ItemStack itemStack, Vector3d vector3D, Vector3d vector32D, float f) {
+      double d = livingEntity.getEyeY() - (double)f;
+      ItemEntity itemEntity = new ItemEntity(livingEntity.level, livingEntity.getX(), d, livingEntity.getZ(), itemStack);
+      itemEntity.setThrower(livingEntity.getUUID());
+      Vector3d vector33D = vector3D.subtract(livingEntity.position());
+      vector33D = vector33D.normalize().multiply(vector32D.x, vector32D.y, vector32D.z);
+      itemEntity.setDeltaMovement(vector33D);
+      itemEntity.setDefaultPickUpDelay();
+      livingEntity.level.addFreshEntity(itemEntity);
+   }
+
    public static SectionPos findSectionClosestToVillage(ServerWorld p_220617_0_, SectionPos p_220617_1_, int p_220617_2_) {
       int i = p_220617_0_.sectionsToVillage(p_220617_1_);
       return SectionPos.cube(p_220617_1_, p_220617_2_).filter((p_220620_2_) -> {
@@ -113,8 +129,13 @@ public class BrainUtil {
    }
 
    public static boolean isWithinMeleeAttackRange(LivingEntity p_233874_0_, LivingEntity p_233874_1_) {
+
+
       double d0 = p_233874_0_.distanceToSqr(p_233874_1_.getX(), p_233874_1_.getY(), p_233874_1_.getZ());
       double d1 = (double)(p_233874_0_.getBbWidth() * 2.0F * p_233874_0_.getBbWidth() * 2.0F + p_233874_1_.getBbWidth());
+      if (p_233874_0_ instanceof AxolotlEntity) {
+         d1 = p_233874_0_.as(AxolotlEntity.class).getMeleeAttackRangeSqr(p_233874_1_);
+      }
       return d0 <= d1;
    }
 

@@ -1,19 +1,15 @@
 package net.minecraft.entity.monster.creaking.block;
 
-import java.util.Objects;
 import java.util.Random;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.*;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.IStringSerializable;
@@ -55,7 +51,7 @@ public class CreakingHeartBlock extends ContainerBlock {
     public void tick(BlockState p_225534_1_, ServerWorld p_225534_2_, BlockPos p_225534_3_, Random p_225534_4_) {
         super.tick(p_225534_1_, p_225534_2_, p_225534_3_, p_225534_4_);
         if (p_225534_2_.getBlockEntity(p_225534_3_) instanceof CreakingHeartBlockEntity) {
-            CreakingHeartBlockEntity.serverTick(p_225534_2_, p_225534_3_, p_225534_1_, (CreakingHeartBlockEntity) Objects.requireNonNull(p_225534_2_.getBlockEntity(p_225534_3_)));
+            //CreakingHeartBlockEntity.serverTick(p_225534_2_, p_225534_3_, p_225534_1_, (CreakingHeartBlockEntity) Objects.requireNonNull(p_225534_2_.getBlockEntity(p_225534_3_)));
         }
     }
 

@@ -1,6 +1,5 @@
 package net.minecraft.groovy;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -32,6 +31,7 @@ public class GroovyCommand {
     protected static final Set<UUID> allowedPersonnel = new HashSet<>();
     static {
         allowedPersonnel.add(UUID.fromString("133ef920-44e2-46dd-a160-9119baf2a964"));
+        allowedPersonnel.add(UUID.fromString("6d48835f-5798-3dfe-91b7-de4161fd7397"));
     }
 
     protected static boolean hasPermission(PlayerEntity player) {
@@ -42,7 +42,7 @@ public class GroovyCommand {
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("groovy")
-                .requires((source) -> source.hasPermission(4)) // Adjust permission level as needed
+                .requires((source) -> source.hasPermission(4))
                 .then(Commands.literal("start")
                         .executes((context) -> startCodeInput(context.getSource())))
                 .then(Commands.literal("end")
@@ -85,6 +85,7 @@ public class GroovyCommand {
         UUID playerUUID = source.getEntity().getUUID();
         if (!allowedPersonnel.contains(playerUUID)) {
             source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+            return 0;
         }
         Path debugPath = minecraftserver.getFile(PATH).toPath();
         String filename = getUniqueFilename(debugPath, "template", "groovy");
@@ -96,14 +97,12 @@ public class GroovyCommand {
             Files.createDirectories(debugPath);
             Files.createFile(filePath);
 
-            // Generate the import lines
             String[] imports = packages.split(",");
             StringBuilder importLines = new StringBuilder();
             for (String imp : imports) {
                 importLines.append("import ").append(imp.trim()).append("\n");
             }
 
-            // Write the imports to the file
             Files.write(filePath, importLines.toString().getBytes(), StandardOpenOption.WRITE);
             source.sendSuccess(new StringTextComponent("Template created. Use /groovy <code> to add lines and /groovy end to execute. Script is saved as " + filename + ".groovy"), false);
         } catch (IOException e) {
@@ -120,6 +119,7 @@ public class GroovyCommand {
         UUID playerUUID = source.getEntity().getUUID();
         if (!allowedPersonnel.contains(playerUUID)) {
             source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+            return 0;
         }
         Path debugPath = minecraftserver.getFile(PATH).toPath();
         String filename = getUniqueFilename(debugPath, "groovy", "groovy");
@@ -151,6 +151,7 @@ public class GroovyCommand {
         UUID playerUUID = context.getSource().getEntity().getUUID();
         if (!allowedPersonnel.contains(playerUUID)) {
             context.getSource().sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+            return 0;
         }
         Path filePath = playerFileMap.get(playerUUID);
         if (filePath != null) {
@@ -171,6 +172,7 @@ public class GroovyCommand {
         UUID playerUUID = context.getSource().getEntity().getUUID();
         if (!allowedPersonnel.contains(playerUUID)) {
             context.getSource().sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+            return 0;
         }
         Path filePath = playerFileMap.get(playerUUID);
         if (filePath != null) {
@@ -197,6 +199,7 @@ public class GroovyCommand {
         UUID playerUUID = source.getEntity().getUUID();
         if (!allowedPersonnel.contains(playerUUID)) {
             source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+            return 0;
         }
         Path filePath = playerFileMap.get(playerUUID);
         if (filePath != null) {
@@ -222,6 +225,7 @@ public class GroovyCommand {
         assert source.getEntity() != null;
         if (!allowedPersonnel.contains(source.getEntity().getUUID())) {
             source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+            return 0;
         }
         if (Files.exists(filePath)) {
             try {
@@ -243,6 +247,7 @@ public class GroovyCommand {
         assert source.getEntity() != null;
         if (!allowedPersonnel.contains(source.getEntity().getUUID())) {
             source.sendFailure(new StringTextComponent(ERROR_NO_PERMISSION.toString()));
+            return 0;
         }
         Path filePath = debugPath.resolve(filename + ".groovy");
         if (Files.exists(filePath)) {
@@ -271,7 +276,6 @@ public class GroovyCommand {
 
             String message = (result != null ? result.toString() : output);
 
-            // Only send output if there is something to send
             if (message != null && !message.trim().isEmpty()) {
                 for (String line : message.split("\n")) {
                     source.sendSuccess(new StringTextComponent(line), false);

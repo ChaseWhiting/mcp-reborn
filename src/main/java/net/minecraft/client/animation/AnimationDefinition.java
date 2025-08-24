@@ -6,6 +6,8 @@ import com.google.common.collect.Lists; // Use Guava Lists instead of Apache Com
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -19,6 +21,10 @@ public class AnimationDefinition {
         this.lengthInSeconds = lengthInSeconds;
         this.looping = looping;
         this.boneAnimations = boneAnimations;
+    }
+
+    public KeyframeAnimation bake(ModelPart modelPart) {
+        return KeyframeAnimation.bake(modelPart, this);
     }
 
     public float getLengthInSeconds() {

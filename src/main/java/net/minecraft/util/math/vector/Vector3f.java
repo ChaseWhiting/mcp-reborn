@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
 
 public final class Vector3f {
    public static Vector3f XN = new Vector3f(-1.0F, 0.0F, 0.0F);
@@ -26,6 +27,10 @@ public final class Vector3f {
    }
 
    public Vector3f(Vector3d p_i51412_1_) {
+      this((float)p_i51412_1_.x, (float)p_i51412_1_.y, (float)p_i51412_1_.z);
+   }
+
+   public Vector3f(Vector3f p_i51412_1_) {
       this((float)p_i51412_1_.x, (float)p_i51412_1_.y, (float)p_i51412_1_.z);
    }
 
@@ -96,6 +101,13 @@ public final class Vector3f {
       this.x = p_195905_1_;
       this.y = p_195905_2_;
       this.z = p_195905_3_;
+   }
+
+
+   public void set(Vector3f vector3f) {
+      this.x = vector3f.x;
+      this.y = vector3f.y;
+      this.z = vector3f.z;
    }
 
    @OnlyIn(Dist.CLIENT)
@@ -188,6 +200,20 @@ public final class Vector3f {
    @OnlyIn(Dist.CLIENT)
    public Quaternion rotation(float p_229193_1_) {
       return new Quaternion(this, p_229193_1_, false);
+   }
+
+   public Quaternionf rotation(float angle, boolean degrees) {
+      if (degrees) {
+         angle *= ((float)Math.PI / 180F);
+      }
+
+      float sinHalfAngle = Quaternion.sin(angle / 2.0F);
+
+      float i = x() * sinHalfAngle;
+      float j = y() * sinHalfAngle;
+      float k = z() * sinHalfAngle;
+      float r = Quaternion.cos(angle / 2.0F);
+      return new Quaternionf(i, j, k, r);
    }
 
    @OnlyIn(Dist.CLIENT)

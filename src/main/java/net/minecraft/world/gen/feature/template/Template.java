@@ -359,23 +359,36 @@ public class Template {
       });
    }
 
-   public static List<Template.BlockInfo> processBlockInfos(IWorld p_237145_0_, BlockPos p_237145_1_, BlockPos p_237145_2_, PlacementSettings p_237145_3_, List<Template.BlockInfo> p_237145_4_) {
-      List<Template.BlockInfo> list = Lists.newArrayList();
+   public static List<Template.BlockInfo> processBlockInfos(IWorld world, BlockPos pos, BlockPos relativePos, PlacementSettings settings, List<Template.BlockInfo> originalList) {
+      List<Template.BlockInfo> processedList = Lists.newArrayList();
 
-      for(Template.BlockInfo template$blockinfo : p_237145_4_) {
-         BlockPos blockpos = calculateRelativePosition(p_237145_3_, template$blockinfo.pos).offset(p_237145_1_);
-         Template.BlockInfo template$blockinfo1 = new Template.BlockInfo(blockpos, template$blockinfo.state, template$blockinfo.nbt != null ? template$blockinfo.nbt.copy() : null);
+      for (Template.BlockInfo originalBlock : originalList) {
+         BlockPos transformedPos = calculateRelativePosition(settings, originalBlock.pos).offset(pos);
+         Template.BlockInfo currentBlock = new Template.BlockInfo(transformedPos, originalBlock.state, originalBlock.nbt != null ? originalBlock.nbt.copy() : null);
 
-         for(Iterator<StructureProcessor> iterator = p_237145_3_.getProcessors().iterator(); template$blockinfo1 != null && iterator.hasNext(); template$blockinfo1 = iterator.next().processBlock(p_237145_0_, p_237145_1_, p_237145_2_, template$blockinfo, template$blockinfo1, p_237145_3_)) {
+         Iterator<StructureProcessor> iterator = settings.getProcessors().iterator();
+         while (currentBlock != null && iterator.hasNext()) {
+            StructureProcessor processor = iterator.next();
+            if (!(processor instanceof CappedProcessor)) {
+               currentBlock = processor.processBlock(world, pos, relativePos, originalBlock, currentBlock, settings);
+            }
          }
 
-         if (template$blockinfo1 != null) {
-            list.add(template$blockinfo1);
+         if (currentBlock != null) {
+            processedList.add(currentBlock);
          }
       }
 
-      return list;
+      // Only call capped processors after the whole processed list is done
+      for (StructureProcessor processor : settings.getProcessors()) {
+         if (processor instanceof CappedProcessor capped) {
+            processedList = capped.finalizeProcessing(world, pos, relativePos, originalList, processedList, settings);
+         }
+      }
+
+      return processedList;
    }
+
 
    private void placeEntities(IServerWorld p_237143_1_, BlockPos p_237143_2_, Mirror p_237143_3_, Rotation p_237143_4_, BlockPos p_237143_5_, @Nullable MutableBoundingBox p_237143_6_, boolean p_237143_7_) {
       for(Template.EntityInfo template$entityinfo : this.entityInfoList) {

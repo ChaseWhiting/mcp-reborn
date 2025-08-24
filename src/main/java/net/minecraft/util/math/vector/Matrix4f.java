@@ -3,6 +3,7 @@ package net.minecraft.util.math.vector;
 import java.nio.FloatBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
 
 public final class Matrix4f {
    protected float m00;
@@ -24,6 +25,223 @@ public final class Matrix4f {
 
    public Matrix4f() {
    }
+
+   public void rotateAroundFull(Quaternion quat, float ox, float oy, float oz) {
+      Matrix4f mat = this;
+      float w = quat.getW();
+      float x = quat.getX();
+      float y = quat.getY();
+      float z = quat.getZ();
+
+      float w2 = w * w;
+      float x2 = x * x;
+      float y2 = y * y;
+      float z2 = z * z;
+      float zw = z * w;
+      float dzw = zw + zw;
+      float xy = x * y;
+      float dxy = xy + xy;
+      float xz = x * z;
+      float dxz = xz + xz;
+      float yw = y * w;
+      float dyw = yw + yw;
+      float yz = y * z;
+      float dyz = yz + yz;
+      float xw = x * w;
+      float dxw = xw + xw;
+
+      float rm00 = w2 + x2 - z2 - y2;
+      float rm01 = dxy + dzw;
+      float rm02 = dxz - dyw;
+      float rm10 = dxy - dzw;
+      float rm11 = y2 - z2 + w2 - x2;
+      float rm12 = dyz + dxw;
+      float rm20 = dyw + dxz;
+      float rm21 = dyz - dxw;
+      float rm22 = z2 - y2 - x2 + w2;
+
+      float tm30 = mat.m00 * ox + mat.m10 * oy + mat.m20 * oz + mat.m30;
+      float tm31 = mat.m01 * ox + mat.m11 * oy + mat.m21 * oz + mat.m31;
+      float tm32 = mat.m02 * ox + mat.m12 * oy + mat.m22 * oz + mat.m32;
+
+      float nm00 = mat.m00 * rm00 + mat.m10 * rm01 + mat.m20 * rm02;
+      float nm01 = mat.m01 * rm00 + mat.m11 * rm01 + mat.m21 * rm02;
+      float nm02 = mat.m02 * rm00 + mat.m12 * rm01 + mat.m22 * rm02;
+      float nm03 = mat.m03 * rm00 + mat.m13 * rm01 + mat.m23 * rm02;
+      float nm10 = mat.m00 * rm10 + mat.m10 * rm11 + mat.m20 * rm12;
+      float nm11 = mat.m01 * rm10 + mat.m11 * rm11 + mat.m21 * rm12;
+      float nm12 = mat.m02 * rm10 + mat.m12 * rm11 + mat.m22 * rm12;
+      float nm13 = mat.m03 * rm10 + mat.m13 * rm11 + mat.m23 * rm12;
+      float nm20 = mat.m00 * rm20 + mat.m10 * rm21 + mat.m20 * rm22;
+      float nm21 = mat.m01 * rm20 + mat.m11 * rm21 + mat.m21 * rm22;
+      float nm22 = mat.m02 * rm20 + mat.m12 * rm21 + mat.m22 * rm22;
+      float nm23 = mat.m03 * rm20 + mat.m13 * rm21 + mat.m23 * rm22;
+
+      mat.m00 = nm00;
+      mat.m01 = nm01;
+      mat.m02 = nm02;
+      mat.m03 = nm03;
+      mat.m10 = nm10;
+      mat.m11 = nm11;
+      mat.m12 = nm12;
+      mat.m13 = nm13;
+      mat.m20 = nm20;
+      mat.m21 = nm21;
+      mat.m22 = nm22;
+      mat.m23 = nm23;
+
+      mat.m30 = -nm00 * ox - nm10 * oy - mat.m20 * oz + tm30;
+      mat.m31 = -nm01 * ox - nm11 * oy - mat.m21 * oz + tm31;
+      mat.m32 = -nm02 * ox - nm12 * oy - mat.m22 * oz + tm32;
+      // mat.m33 stays the same
+   }
+
+   public static void rotateAround(Matrix4f mat, Quaternion q, float ox, float oy, float oz) {
+      mat.multiply(createTranslateMatrix(ox, oy, oz));
+      mat.multiply(q);
+      mat.multiply(createTranslateMatrix(-ox, -oy, -oz));
+   }
+
+
+
+
+   public static Matrix4f quaternionToMatrix(Quaternion q) {
+      float x = q.i();
+      float y = q.j();
+      float z = q.k();
+      float w = q.r();
+
+      float x2 = x + x;
+      float y2 = y + y;
+      float z2 = z + z;
+
+      float xx = x * x2;
+      float yy = y * y2;
+      float zz = z * z2;
+      float xy = x * y2;
+      float xz = x * z2;
+      float yz = y * z2;
+      float wx = w * x2;
+      float wy = w * y2;
+      float wz = w * z2;
+
+      Matrix4f m = new Matrix4f();
+      m.setIdentity();
+      m.set(0, 0, 1.0f - (yy + zz));
+      m.set(0, 1, xy + wz);
+      m.set(0, 2, xz - wy);
+
+      m.set(1, 0, xy - wz);
+      m.set(1, 1, 1.0f - (xx + zz));
+      m.set(1, 2, yz + wx);
+
+      m.set(2, 0, xz + wy);
+      m.set(2, 1, yz - wx);
+      m.set(2, 2, 1.0f - (xx + yy));
+
+      return m;
+   }
+
+   public void set(int row, int col, float value) {
+      switch (row) {
+         case 0:
+            switch (col) {
+               case 0 -> this.m00 = value;
+               case 1 -> this.m01 = value;
+               case 2 -> this.m02 = value;
+               case 3 -> this.m03 = value;
+               default -> throw new IndexOutOfBoundsException("Invalid column: " + col);
+            }
+            break;
+         case 1:
+            switch (col) {
+               case 0 -> this.m10 = value;
+               case 1 -> this.m11 = value;
+               case 2 -> this.m12 = value;
+               case 3 -> this.m13 = value;
+               default -> throw new IndexOutOfBoundsException("Invalid column: " + col);
+            }
+            break;
+         case 2:
+            switch (col) {
+               case 0 -> this.m20 = value;
+               case 1 -> this.m21 = value;
+               case 2 -> this.m22 = value;
+               case 3 -> this.m23 = value;
+               default -> throw new IndexOutOfBoundsException("Invalid column: " + col);
+            }
+            break;
+         case 3:
+            switch (col) {
+               case 0 -> this.m30 = value;
+               case 1 -> this.m31 = value;
+               case 2 -> this.m32 = value;
+               case 3 -> this.m33 = value;
+               default -> throw new IndexOutOfBoundsException("Invalid column: " + col);
+            }
+            break;
+         default:
+            throw new IndexOutOfBoundsException("Invalid row: " + row);
+      }
+   }
+
+   public float get(int col, int row) {
+      switch (col) {
+         case 0: switch (row) {
+            case 0: return this.m00;
+            case 1: return this.m01;
+            case 2: return this.m02;
+            case 3: return this.m03;
+         } break;
+         case 1: switch (row) {
+            case 0: return this.m10;
+            case 1: return this.m11;
+            case 2: return this.m12;
+            case 3: return this.m13;
+         } break;
+         case 2: switch (row) {
+            case 0: return this.m20;
+            case 1: return this.m21;
+            case 2: return this.m22;
+            case 3: return this.m23;
+         } break;
+         case 3: switch (row) {
+            case 0: return this.m30;
+            case 1: return this.m31;
+            case 2: return this.m32;
+            case 3: return this.m33;
+         } break;
+      }
+      throw new IndexOutOfBoundsException();
+   }
+
+   public static org.joml.Matrix4f toJoml(Matrix4f mcMatrix) {
+      org.joml.Matrix4f joml = new org.joml.Matrix4f();
+      for (int col = 0; col < 4; col++) {
+         for (int row = 0; row < 4; row++) {
+            joml.set(col, row, mcMatrix.get(col, row)); // Minecraft Matrix4f has get(col, row)
+         }
+      }
+      return joml;
+   }
+
+   public static Matrix4f fromJoml(org.joml.Matrix4f jomlMatrix) {
+      Matrix4f mcMatrix = new Matrix4f();
+      for (int col = 0; col < 4; col++) {
+         for (int row = 0; row < 4; row++) {
+            mcMatrix.set(col, row, jomlMatrix.get(col, row)); // JOML has get(col, row)
+         }
+      }
+      return mcMatrix;
+   }
+
+   public void rotate(Quaternion q) {
+      this.multiply(new Matrix4f(q));
+   }
+
+
+
+
 
    public Matrix4f(Matrix4f p_i48105_1_) {
       this.m00 = p_i48105_1_.m00;
@@ -49,6 +267,46 @@ public final class Matrix4f {
       float f1 = p_i48104_1_.j();
       float f2 = p_i48104_1_.k();
       float f3 = p_i48104_1_.r();
+      float f4 = 2.0F * f * f;
+      float f5 = 2.0F * f1 * f1;
+      float f6 = 2.0F * f2 * f2;
+      this.m00 = 1.0F - f5 - f6;
+      this.m11 = 1.0F - f6 - f4;
+      this.m22 = 1.0F - f4 - f5;
+      this.m33 = 1.0F;
+      float f7 = f * f1;
+      float f8 = f1 * f2;
+      float f9 = f2 * f;
+      float f10 = f * f3;
+      float f11 = f1 * f3;
+      float f12 = f2 * f3;
+      this.m10 = 2.0F * (f7 + f12);
+      this.m01 = 2.0F * (f7 - f12);
+      this.m20 = 2.0F * (f9 - f11);
+      this.m02 = 2.0F * (f9 + f11);
+      this.m21 = 2.0F * (f8 + f10);
+      this.m12 = 2.0F * (f8 - f10);
+   }
+
+   public static Vector4f transform(Matrix4f matrix, Vector4f vec) {
+      float x = vec.x();
+      float y = vec.y();
+      float z = vec.z();
+      float w = vec.w();
+
+      float newX = matrix.m00 * x + matrix.m01 * y + matrix.m02 * z + matrix.m03 * w;
+      float newY = matrix.m10 * x + matrix.m11 * y + matrix.m12 * z + matrix.m13 * w;
+      float newZ = matrix.m20 * x + matrix.m21 * y + matrix.m22 * z + matrix.m23 * w;
+      float newW = matrix.m30 * x + matrix.m31 * y + matrix.m32 * z + matrix.m33 * w;
+
+      return new Vector4f(newX, newY, newZ, newW);
+   }
+
+   public Matrix4f(Quaternionf p_i48104_1_) {
+      float f = p_i48104_1_.x();
+      float f1 = p_i48104_1_.y();
+      float f2 = p_i48104_1_.z();
+      float f3 = p_i48104_1_.w();
       float f4 = 2.0F * f * f;
       float f5 = 2.0F * f1 * f1;
       float f6 = 2.0F * f2 * f2;
@@ -303,6 +561,11 @@ public final class Matrix4f {
 
    @OnlyIn(Dist.CLIENT)
    public void multiply(Quaternion p_226596_1_) {
+      this.multiply(new Matrix4f(p_226596_1_));
+   }
+
+   @OnlyIn(Dist.CLIENT)
+   public void multiply(Quaternionf p_226596_1_) {
       this.multiply(new Matrix4f(p_226596_1_));
    }
 

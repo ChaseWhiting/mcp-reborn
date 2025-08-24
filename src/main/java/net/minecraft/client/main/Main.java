@@ -27,8 +27,6 @@ import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.client.util.UndeclaredException;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.groovy.GroovyCommand;
-import net.minecraft.server.Scripts;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.DefaultUncaughtExceptionHandler;
 import net.minecraft.util.JSONUtils;

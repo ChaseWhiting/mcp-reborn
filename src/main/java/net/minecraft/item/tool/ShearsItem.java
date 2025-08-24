@@ -36,4 +36,8 @@ public class ShearsItem extends Item {
          return 15.0F;
       }
    }
+
+   public int getWeight(ItemStack bundle) {
+      return 14;
+   }
 }

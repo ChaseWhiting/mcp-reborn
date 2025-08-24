@@ -10,7 +10,7 @@ import net.minecraft.util.text.StringTextComponent;
 public class FloatNBT extends NumberNBT {
    public static final FloatNBT ZERO = new FloatNBT(0.0F);
    public static final INBTType<FloatNBT> TYPE = new INBTType<FloatNBT>() {
-      public FloatNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) throws IOException {
+      public FloatNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) throws IOException {
          p_225649_3_.accountBits(96L);
          return FloatNBT.valueOf(p_225649_1_.readFloat());
       }

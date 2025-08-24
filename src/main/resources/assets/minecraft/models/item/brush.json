@@ -1,0 +1,85 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "item/brush"
+    },
+    "display": {
+        "firstperson_lefthand": {
+          "rotation": [ 55, -85, 0 ],
+          "translation": [ 8.0, 0.5, -5.5 ],
+          "scale": [ 1.0, 1.0, 1.0 ]
+        },
+        "thirdperson_righthand": {
+          "rotation": [ 0, 0, 45 ],
+          "translation": [ 0, 4, 0 ],
+          "scale": [ 0.9, 0.9, 0.9 ]
+        },
+        "thirdperson_lefthand": {
+          "rotation": [ 0, 0, -45 ],
+          "translation": [ 0, 4, 0 ],
+          "scale": [ 0.9, 0.9, 0.9 ]
+        }
+    },
+    "overrides": [
+      {
+        "predicate": {
+          "brushing": 0.0
+        },
+        "model": "item/brush_brushing_0"
+      },
+      {
+        "predicate": {
+          "brushing": 0.11111
+        },
+        "model": "item/brush_brushing_1"
+      },
+      {
+        "predicate": {
+          "brushing": 0.22222
+        },
+        "model": "item/brush_brushing_2"
+      },
+      {
+        "predicate": {
+          "brushing": 0.33333
+        },
+        "model": "item/brush_brushing_3"
+      },
+      {
+        "predicate": {
+          "brushing": 0.44444
+        },
+        "model": "item/brush_brushing_4"
+      },
+      {
+        "predicate": {
+          "brushing": 0.55556
+        },
+        "model": "item/brush_brushing_5"
+      },
+      {
+        "predicate": {
+          "brushing": 0.66667
+        },
+        "model": "item/brush_brushing_6"
+      },
+      {
+        "predicate": {
+          "brushing": 0.77778
+        },
+        "model": "item/brush_brushing_7"
+      },
+      {
+        "predicate": {
+          "brushing": 0.88889
+        },
+        "model": "item/brush_brushing_8"
+      },
+      {
+        "predicate": {
+          "brushing": 1.0
+        },
+        "model": "item/brush_brushing_9"
+      }
+    ]
+}

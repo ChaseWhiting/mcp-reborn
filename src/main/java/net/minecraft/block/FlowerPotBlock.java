@@ -3,6 +3,7 @@ package net.minecraft.block;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -32,7 +33,7 @@ public class FlowerPotBlock extends Block {
       POTTED_BY_CONTENT.put(p_i48395_1_, this);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 
@@ -63,6 +64,7 @@ public class FlowerPotBlock extends Block {
 
             p_225533_2_.setBlock(p_225533_3_, Blocks.FLOWER_POT.defaultBlockState(), 3);
          }
+         p_225533_2_.gameEvent(p_225533_4_, GameEvent.BLOCK_CHANGE, p_225533_3_);
 
          return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);
       } else {

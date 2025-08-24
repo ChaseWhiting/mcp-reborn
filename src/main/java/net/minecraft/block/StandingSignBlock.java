@@ -43,7 +43,7 @@ public class StandingSignBlock extends AbstractSignBlock {
       return state.setValue(ROTATION, Integer.valueOf(mirroring.mirror(state.getValue(ROTATION), 16)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(ROTATION, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(ROTATION, WATERLOGGED);
    }
 }

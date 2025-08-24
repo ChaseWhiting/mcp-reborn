@@ -1,19 +1,18 @@
 package net.minecraft.item;
 
 import net.minecraft.block.DispenserBlock;
-import net.minecraft.enchantment.IArmorVanishable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
-public class ElytraItem extends Item implements IArmorVanishable {
+public class ElytraItem extends Item implements Equipable {
    public ElytraItem(Item.Properties p_i48507_1_) {
       super(p_i48507_1_);
       DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
@@ -27,17 +26,9 @@ public class ElytraItem extends Item implements IArmorVanishable {
       return p_82789_2_.getItem() == Items.PHANTOM_MEMBRANE;
    }
 
-   public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-      ItemStack itemstack = player.getItemInHand(hand);
-      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
-      ItemStack itemstack1 = player.getItemBySlot(equipmentslottype);
-      if (itemstack1.isEmpty()) {
-         player.setItemSlot(equipmentslottype, itemstack.copy());
-         itemstack.setCount(0);
-         return ActionResult.sidedSuccess(itemstack, world.isClientSide());
-      } else {
-         return ActionResult.fail(itemstack);
-      }
+   @Override
+   public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand interactionHand) {
+      return this.swapWithEquipmentSlot(this, level, player, interactionHand);
    }
 
    public static double getHorizontalDistanceSqr(Vector3d position) {
@@ -62,6 +53,8 @@ public class ElytraItem extends Item implements IArmorVanishable {
 
       // Modify the vertical speed based on the adjusted cosine value
       vector3d = entity.getDeltaMovement().add(0.0D, d0 * (-1.0D + (double)f1 * 0.75D), 0.0D);
+
+      vector3d = addBanking(entity, vector3d);
 
       // Adjust movement if the player is moving downward and has horizontal speed
       if (vector3d.y < 0.0D && d1 > 0.0D) {
@@ -105,7 +98,83 @@ public class ElytraItem extends Item implements IArmorVanishable {
 
    }
 
+   public static Vector3d addBanking(LivingEntity entity, Vector3d vector3d) {
+      Minecraft mc = Minecraft.getInstance();
+      boolean left = mc.options.keyLeft.isDown();
+      boolean right = mc.options.keyRight.isDown();
+      boolean up = mc.options.keyUp.isDown();     // Forward key
+      boolean down = mc.options.keyDown.isDown(); // Backward key
+      boolean confused = entity.hasEffect(Effects.CONFUSION);
+
+// Reverse controls if confused
+      if (!confused) {
+         boolean tmpL = left;
+         left = right;
+         right = tmpL;
+
+         boolean tmpU = up;
+         up = down;
+         down = tmpU;
+      }
+
+// Get look direction and normalize XZ for horizontal control
+      Vector3d look = entity.getLookAngle();
+      double lookLength = Math.sqrt(look.x * look.x + look.z * look.z);
+      double bankX = 0.0D;
+      double bankZ = 0.0D;
+
+      double bankStrength = 0.05D;       // Much smoother
+      double verticalBankStrengthUp = 0.002D;
+      double verticalBankStrengthDown = 0.01D;
+
+      if (lookLength > 0.0D) {
+         double normX = look.x / lookLength;
+         double normZ = look.z / lookLength;
+
+         // Perpendicular to look vector for left/right banking
+         double perpX = -normZ;
+         double perpZ = normX;
+
+         if (left) {
+            bankX += perpX * bankStrength;
+            bankZ += perpZ * bankStrength;
+         } else if (right) {
+            bankX -= perpX * bankStrength;
+            bankZ -= perpZ * bankStrength;
+         }
+
+         // Forward/backward banking
+         if (up) {
+            // Limited climb
+            vector3d = vector3d.add(0.0D, verticalBankStrengthUp, 0.0D);
+         }
+         if (down) {
+            // Stronger dive
+            vector3d = vector3d.add(0.0D, -verticalBankStrengthDown, 0.0D);
+         }
+
+         // Add horizontal banking
+         vector3d = vector3d.add(bankX, 0.0D, bankZ);
+      }
+
+
+
+
+
+      return vector3d;
+   }
+
    protected static SoundEvent getFallDamageSound(int damage) {
       return damage > 4 ? SoundEvents.GENERIC_BIG_FALL : SoundEvents.GENERIC_SMALL_FALL;
+   }
+
+   @Override
+   public EquipmentSlotType getEquipmentSlot() {
+      return EquipmentSlotType.CHEST;
+   }
+
+   @Override
+   public SoundEvent getEquipSound() {
+      return SoundEvents.ARMOR_EQUIP_ELYTRA;
    }
 }

@@ -42,26 +42,21 @@ public class Radiation {
         }
 
         public void tick() {
-            // Ensure the current resistance doesn't exceed the maximum allowed resistance
             if (this.currentResistance > maxResistance) {
                 this.currentResistance = maxResistance;
             }
         }
 
         public void setResistance(float resistance) {
-            // Clamp the resistance value to the allowed maximum
             this.maxResistance = Math.min(resistance, MAX_ALLOWED_RESISTANCE);
             this.currentResistance = this.maxResistance;
         }
 
         public static int calculateRadiation(int originalRadiation, LivingEntity entity) {
-            // Clamp entity's radiation resistance to the maximum allowed value
             float effectiveResistance = Math.min(entity.radResistance, MAX_ALLOWED_RESISTANCE);
 
-            // Adjust the calculation to prevent over-reduction of radiation
             int reducedRadiation = Math.round(originalRadiation * (1 - effectiveResistance));
 
-            // Ensure a minimum amount of radiation is always applied
             int minRadiation = Math.max(1, originalRadiation / 10);
 
             return Math.max(reducedRadiation, minRadiation);
@@ -76,12 +71,10 @@ public class Radiation {
         }
 
         public void increaseResistance(float amount) {
-            // Increase resistance by the given amount, without exceeding the max allowed resistance
             this.setResistance(this.currentResistance + amount);
         }
 
         public void decreaseResistance(float amount) {
-            // Decrease resistance, ensuring it doesn't fall below zero
             this.currentResistance = Math.max(0, this.currentResistance - amount);
         }
     }

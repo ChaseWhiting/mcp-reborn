@@ -77,7 +77,7 @@ public class PathFinder {
 
             for(int l = 0; l < k; ++l) {
                PathPoint pathpoint1 = this.neighbors[l];
-               float f = pathpoint.distanceTo(pathpoint1);
+               float f = distance(pathpoint, pathpoint1);
                pathpoint1.walkedDistance = pathpoint.walkedDistance + f;
                float f1 = pathpoint.g + f + pathpoint1.costMalus;
                if (pathpoint1.walkedDistance < p_227479_3_ && (!pathpoint1.inOpenSet() || f1 < pathpoint1.g)) {
@@ -113,6 +113,10 @@ public class PathFinder {
       }
 
       return f;
+   }
+
+   protected float distance(PathPoint node, PathPoint node2) {
+      return node.distanceTo(node2);
    }
 
    private Path reconstructPath(PathPoint p_224780_1_, BlockPos p_224780_2_, boolean p_224780_3_) {

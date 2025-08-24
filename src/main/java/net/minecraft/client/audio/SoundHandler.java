@@ -176,6 +176,10 @@ public class SoundHandler extends ReloadListener<SoundHandler.Loader> {
       this.soundEngine.stop(p_147683_1_);
    }
 
+   public void stopIfQueued(ISound sound) {
+      this.soundEngine.stopIfQueued(sound);
+   }
+
    public boolean isActive(ISound p_215294_1_) {
       return this.soundEngine.isActive(p_215294_1_);
    }

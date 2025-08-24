@@ -43,6 +43,7 @@ public class PlainsVillagePools {
               Pair.of(JigsawPiece.legacy("village/plains/houses/plains_library_1", ProcessorLists.MOSSIFY_10_PERCENT), 5),
               Pair.of(JigsawPiece.legacy("village/plains/houses/plains_library_2", ProcessorLists.MOSSIFY_10_PERCENT), 1),
               Pair.of(JigsawPiece.legacy("village/plains/houses/plains_masons_house_1", ProcessorLists.MOSSIFY_10_PERCENT), 2),
+              Pair.of(JigsawPiece.legacy("village/plains/houses/plains_carpenters_house_1", ProcessorLists.MOSSIFY_10_PERCENT), 2),
               Pair.of(JigsawPiece.legacy("village/plains/houses/plains_weaponsmith_1", ProcessorLists.MOSSIFY_10_PERCENT), 2),
               Pair.of(JigsawPiece.legacy("village/plains/houses/plains_temple_3", ProcessorLists.MOSSIFY_10_PERCENT), 2),
               Pair.of(JigsawPiece.legacy("village/plains/houses/plains_temple_4", ProcessorLists.MOSSIFY_10_PERCENT), 2),

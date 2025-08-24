@@ -7,11 +7,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
+import java.util.Optional;
+
 public class LookController {
    protected final Mob mob;
    protected float yMaxRotSpeed;
    protected float xMaxRotAngle;
    protected boolean hasWanted;
+   protected int lookAtCooldown;
    protected double wantedX;
    protected double wantedY;
    protected double wantedZ;
@@ -44,25 +47,30 @@ public class LookController {
       this.yMaxRotSpeed = p_75650_7_;
       this.xMaxRotAngle = p_75650_8_;
       this.hasWanted = true;
+      this.lookAtCooldown = 2;
+
    }
 
    public void tick() {
       if (this.resetXRotOnTick()) {
-         this.mob.xRot = 0.0F;
+         this.mob.xRot = (0.0f);
       }
-
-      if (this.hasWanted) {
-         this.hasWanted = false;
-         this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, this.getYRotD(), this.yMaxRotSpeed);
-         this.mob.xRot = this.rotateTowards(this.mob.xRot, this.getXRotD(), this.xMaxRotAngle);
+      if (this.lookAtCooldown > 0) {
+         --this.lookAtCooldown;
+         this.getYRotDOptional().ifPresent(f -> {
+            this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, f.floatValue(), this.yMaxRotSpeed);
+         });
+         this.getXRotDOptional().ifPresent(f -> this.mob.xRot = (this.rotateTowards(this.mob.xRot, f.floatValue(), this.xMaxRotAngle)));
       } else {
-         this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, this.mob.yBodyRot, 10.0F);
+         this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, this.mob.yBodyRot, 10.0f);
       }
+      this.clampHeadRotationToBody();
+   }
 
+   protected void clampHeadRotationToBody() {
       if (!this.mob.getNavigation().isDone()) {
-         this.mob.yHeadRot = MathHelper.rotateIfNecessary(this.mob.yHeadRot, this.mob.yBodyRot, (float)this.mob.getMaxHeadYRot());
+         this.mob.yHeadRot = MathHelper.rotateIfNecessary(this.mob.yHeadRot, this.mob.yBodyRot, this.mob.getMaxHeadYRot());
       }
-
    }
 
    protected boolean resetXRotOnTick() {
@@ -71,6 +79,10 @@ public class LookController {
 
    public boolean isHasWanted() {
       return this.hasWanted;
+   }
+
+   public boolean isLookingAtTarget() {
+      return this.lookAtCooldown > 0;
    }
 
    public double getWantedX() {
@@ -107,5 +119,19 @@ public class LookController {
 
    private static double getWantedY(Entity p_220676_0_) {
       return p_220676_0_ instanceof LivingEntity ? p_220676_0_.getEyeY() : (p_220676_0_.getBoundingBox().minY + p_220676_0_.getBoundingBox().maxY) / 2.0D;
+   }
+
+   protected Optional<Float> getXRotDOptional() {
+      double d = this.wantedX - this.mob.getX();
+      double d2 = this.wantedY - this.mob.getEyeY();
+      double d3 = this.wantedZ - this.mob.getZ();
+      double d4 = Math.sqrt(d * d + d3 * d3);
+      return Math.abs(d2) > (double)1.0E-5f || Math.abs(d4) > (double)1.0E-5f ? Optional.of(Float.valueOf((float)(-(MathHelper.atan2(d2, d4) * 57.2957763671875)))) : Optional.empty();
+   }
+
+   protected Optional<Float> getYRotDOptional() {
+      double d = this.wantedX - this.mob.getX();
+      double d2 = this.wantedZ - this.mob.getZ();
+      return Math.abs(d2) > (double)1.0E-5f || Math.abs(d) > (double)1.0E-5f ? Optional.of(Float.valueOf((float)(MathHelper.atan2(d2, d) * 57.2957763671875) - 90.0f)) : Optional.empty();
    }
 }

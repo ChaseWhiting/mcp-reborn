@@ -390,6 +390,8 @@ public class LegacyResourcePackWrapper implements IResourcePack {
       biconsumer.accept("textures/block/activator_rail_on.png", "textures/blocks/rail_activator_powered.png");
       biconsumer.accept("textures/block/detector_rail.png", "textures/blocks/rail_detector.png");
       biconsumer.accept("textures/block/detector_rail_on.png", "textures/blocks/rail_detector_powered.png");
+      biconsumer.accept("textures/block/golden_powered_rail.png", "textures/blocks/rail_golden.png");
+      biconsumer.accept("textures/block/golden_powered_rail_on.png", "textures/blocks/rail_golden_powered.png");
       biconsumer.accept("textures/block/powered_rail.png", "textures/blocks/rail_golden.png");
       biconsumer.accept("textures/block/powered_rail_on.png", "textures/blocks/rail_golden_powered.png");
       biconsumer.accept("textures/block/rail.png", "textures/blocks/rail_normal.png");

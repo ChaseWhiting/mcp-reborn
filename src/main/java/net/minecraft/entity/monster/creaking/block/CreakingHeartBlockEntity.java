@@ -11,7 +11,7 @@ import net.minecraft.entity.monster.creaking.CreakingTransient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.particles.ParticleTypes;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.DamageSource;
@@ -26,12 +26,11 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Optional;
 import java.util.Random;
 
-public class CreakingHeartBlockEntity extends TileEntity {
+public class CreakingHeartBlockEntity extends TileEntity implements ITickableTileEntity {
     private static final int PLAYER_DETECTION_RADIUS = 32;
     private static final int MAX_CREATURE_ROAM_DISTANCE = 34;
     private static final int CREATURE_SPAWN_RANGE_XZ = 16;
@@ -55,6 +54,12 @@ public class CreakingHeartBlockEntity extends TileEntity {
 
     public CreakingHeartBlockEntity() {
         super(TileEntityType.CREAKING_HEART);
+    }
+
+    public void tick() {
+        if (this.hasLevel() && this.level instanceof ServerWorld) {
+            serverTick(level, this.getBlockPos(), getBlockState(), (CreakingHeartBlockEntity) this.level.getBlockEntity(getBlockPos()));
+        }
     }
 
     public static void serverTick(World level, BlockPos pos, BlockState state, CreakingHeartBlockEntity entity) {

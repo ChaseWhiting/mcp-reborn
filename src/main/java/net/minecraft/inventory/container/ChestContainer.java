@@ -48,6 +48,12 @@ public class ChestContainer extends Container {
       return new ChestContainer(ContainerType.GENERIC_9x6, p_216984_0_, p_216984_1_, p_216984_2_, 6);
    }
 
+   public static ChestContainer camelContainer(int p_216984_0_, PlayerInventory p_216984_1_, IInventory p_216984_2_) {
+      return new ChestContainer(ContainerType.GENERIC_9x6, p_216984_0_, p_216984_1_, p_216984_2_, 6) {
+
+      };
+   }
+
    public ChestContainer(ContainerType<?> p_i50092_1_, int p_i50092_2_, PlayerInventory p_i50092_3_, IInventory p_i50092_4_, int p_i50092_5_) {
       super(p_i50092_1_, p_i50092_2_);
       checkContainerSize(p_i50092_4_, p_i50092_5_ * 9);

@@ -21,6 +21,7 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
@@ -35,20 +36,14 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -213,6 +208,7 @@ public class SheepEntity extends Animal implements IShearable {
       if (itemstack.getItem() == Items.SHEARS) {
          if (!this.level.isClientSide && this.readyForShearing()) {
             this.shear(SoundCategory.PLAYERS);
+            this.gameEvent(GameEvent.SHEAR, p_230254_1_);
             itemstack.hurtAndBreak(1, p_230254_1_, (p_213613_1_) -> {
                p_213613_1_.broadcastBreakEvent(p_230254_2_);
             });
@@ -309,6 +305,12 @@ public class SheepEntity extends Animal implements IShearable {
       }
    }
 
+   public static DyeColor getRandomSheepColor(World serverLevelAccessor, BlockPos blockPos) {
+      if (serverLevelAccessor.getBiomeName(blockPos).isEmpty()) return SheepColorSpawnRules.getSheepColor(Biomes.PLAINS, serverLevelAccessor.random);
+      RegistryKey<Biome> holder = serverLevelAccessor.getBiomeName(blockPos).get();
+      return SheepColorSpawnRules.getSheepColor(holder, serverLevelAccessor.getRandom());
+   }
+
    public SheepEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
       SheepEntity sheepentity = (SheepEntity)p_241840_2_;
       SheepEntity sheepentity1 = EntityType.SHEEP.create(p_241840_1_);
@@ -317,6 +319,7 @@ public class SheepEntity extends Animal implements IShearable {
    }
 
    public void ate() {
+      super.ate();
       this.setSheared(false);
       if (this.isBaby()) {
          this.ageUp(60);
@@ -326,7 +329,7 @@ public class SheepEntity extends Animal implements IShearable {
 
    @Nullable
    public ILivingEntityData finalizeSpawn(IServerWorld p_213386_1_, DifficultyInstance p_213386_2_, SpawnReason p_213386_3_, @Nullable ILivingEntityData p_213386_4_, @Nullable CompoundNBT p_213386_5_) {
-      this.setColor(getRandomSheepColor(p_213386_1_.getRandom()));
+      this.setColor(getRandomSheepColor(this.level, blockPosition()));
       return super.finalizeSpawn(p_213386_1_, p_213386_2_, p_213386_3_, p_213386_4_, p_213386_5_);
    }
 
@@ -335,7 +338,7 @@ public class SheepEntity extends Animal implements IShearable {
       DyeColor dyecolor1 = ((SheepEntity)p_175511_2_).getColor();
       CraftingInventory craftinginventory = makeContainer(dyecolor, dyecolor1);
       return this.level.getRecipeManager().getRecipeFor(IRecipeType.CRAFTING, craftinginventory, this.level).map((p_213614_1_) -> {
-         return p_213614_1_.assemble(craftinginventory);
+         return p_213614_1_.assemble(craftinginventory, level.registryAccess());
       }).map(ItemStack::getItem).filter(DyeItem.class::isInstance).map(DyeItem.class::cast).map(DyeItem::getDyeColor).orElseGet(() -> {
          return this.level.random.nextBoolean() ? dyecolor : dyecolor1;
       });

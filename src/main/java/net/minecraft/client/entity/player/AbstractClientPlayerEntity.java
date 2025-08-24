@@ -135,6 +135,8 @@ public abstract class AbstractClientPlayerEntity extends PlayerEntity {
          }
 
          f *= 1.0F - f1 * 0.15F;
+      } else if (Minecraft.getInstance().options.getCameraType().isFirstPerson() && this.isScoping()) {
+         return 0.1F;
       }
 
       return MathHelper.lerp(Minecraft.getInstance().options.fovEffectScale, 1.0F, f);

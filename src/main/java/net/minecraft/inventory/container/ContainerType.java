@@ -35,6 +35,8 @@ public class ContainerType<T extends Container> {
    public static final ContainerType<SmokerContainer> SMOKER = register("smoker", SmokerContainer::new);
    public static final ContainerType<CartographyContainer> CARTOGRAPHY_TABLE = register("cartography_table", CartographyContainer::new);
    public static final ContainerType<StonecutterContainer> STONECUTTER = register("stonecutter", StonecutterContainer::new);
+   public static final ContainerType<WoodcutterContainer> WOODCUTTER = register("woodcutter", WoodcutterContainer::new);
+
 
    private final ContainerType.IFactory<T> constructor;
 

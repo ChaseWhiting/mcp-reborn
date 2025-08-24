@@ -31,7 +31,10 @@ public class OreFeatureConfig implements IFeatureConfig {
 
    public static final class FillerBlockType {
       public static final RuleTest NATURAL_STONE = new TagMatchRuleTest(BlockTags.BASE_STONE_OVERWORLD);
+      public static final RuleTest GRAVEL = new BlockMatchRuleTest(Blocks.GRAVEL);
       public static final RuleTest NETHERRACK = new BlockMatchRuleTest(Blocks.NETHERRACK);
+      public static final RuleTest SOUL_SOIL = new BlockMatchRuleTest(Blocks.SOUL_SOIL);
+
       public static final RuleTest NETHER_ORE_REPLACEABLES = new TagMatchRuleTest(BlockTags.BASE_STONE_NETHER);
    }
 }

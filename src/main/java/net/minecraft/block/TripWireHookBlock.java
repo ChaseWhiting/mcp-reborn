@@ -5,6 +5,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
@@ -39,8 +40,8 @@ public class TripWireHookBlock extends Block {
       this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(ATTACHED, Boolean.valueOf(false)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      switch((Direction)p_220053_1_.getValue(FACING)) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      switch((Direction) state.getValue(FACING)) {
       case EAST:
       default:
          return EAST_AABB;
@@ -163,15 +164,23 @@ public class TripWireHookBlock extends Block {
       this.calculateState(p_225534_2_, p_225534_3_, p_225534_1_, false, true, -1, (BlockState)null);
    }
 
-   private void playSound(World p_180694_1_, BlockPos p_180694_2_, boolean p_180694_3_, boolean p_180694_4_, boolean p_180694_5_, boolean p_180694_6_) {
+   private void playSound(World level, BlockPos blockPos, boolean p_180694_3_, boolean p_180694_4_, boolean p_180694_5_, boolean p_180694_6_) {
       if (p_180694_4_ && !p_180694_6_) {
-         p_180694_1_.playSound((PlayerEntity)null, p_180694_2_, SoundEvents.TRIPWIRE_CLICK_ON, SoundCategory.BLOCKS, 0.4F, 0.6F);
+         level.playSound((PlayerEntity)null, blockPos, SoundEvents.TRIPWIRE_CLICK_ON, SoundCategory.BLOCKS, 0.4F, 0.6F);
+         level.gameEvent(null, GameEvent.BLOCK_ACTIVATE, blockPos);
+
       } else if (!p_180694_4_ && p_180694_6_) {
-         p_180694_1_.playSound((PlayerEntity)null, p_180694_2_, SoundEvents.TRIPWIRE_CLICK_OFF, SoundCategory.BLOCKS, 0.4F, 0.5F);
+         level.playSound((PlayerEntity)null, blockPos, SoundEvents.TRIPWIRE_CLICK_OFF, SoundCategory.BLOCKS, 0.4F, 0.5F);
+         level.gameEvent(null, GameEvent.BLOCK_DEACTIVATE, blockPos);
+
       } else if (p_180694_3_ && !p_180694_5_) {
-         p_180694_1_.playSound((PlayerEntity)null, p_180694_2_, SoundEvents.TRIPWIRE_ATTACH, SoundCategory.BLOCKS, 0.4F, 0.7F);
+         level.playSound((PlayerEntity)null, blockPos, SoundEvents.TRIPWIRE_ATTACH, SoundCategory.BLOCKS, 0.4F, 0.7F);
+         level.gameEvent(null, GameEvent.BLOCK_ATTACH, blockPos);
+
       } else if (!p_180694_3_ && p_180694_5_) {
-         p_180694_1_.playSound((PlayerEntity)null, p_180694_2_, SoundEvents.TRIPWIRE_DETACH, SoundCategory.BLOCKS, 0.4F, 1.2F / (p_180694_1_.random.nextFloat() * 0.2F + 0.9F));
+         level.gameEvent(null, GameEvent.BLOCK_DETACH, blockPos);
+
+         level.playSound((PlayerEntity)null, blockPos, SoundEvents.TRIPWIRE_DETACH, SoundCategory.BLOCKS, 0.4F, 1.2F / (level.random.nextFloat() * 0.2F + 0.9F));
       }
 
    }
@@ -222,7 +231,7 @@ public class TripWireHookBlock extends Block {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, POWERED, ATTACHED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, POWERED, ATTACHED);
    }
 }

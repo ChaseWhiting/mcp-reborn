@@ -16,7 +16,7 @@ public class EntityCatSplitFix extends EntityRenameHelper {
          if (i == 0) {
             String s = p_209758_2_.get("Owner").asString("");
             String s1 = p_209758_2_.get("OwnerUUID").asString("");
-            if (s.length() > 0 || s1.length() > 0) {
+            if (!s.isEmpty() || !s1.isEmpty()) {
                p_209758_2_.set("Trusting", p_209758_2_.createBoolean(true));
             }
          } else if (i > 0 && i < 4) {

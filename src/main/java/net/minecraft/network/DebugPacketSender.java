@@ -22,6 +22,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraft.pathfinding.FlaggedPathPoint;
 import net.minecraft.pathfinding.Path;
+import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.tileentity.BeehiveTileEntity;
 import net.minecraft.util.PathCalculation;
@@ -29,6 +30,7 @@ import net.minecraft.util.RandomObjectDescriptor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.village.GossipManager;
 import net.minecraft.village.PointOfInterestManager;
 import net.minecraft.world.ISeedReader;
@@ -80,7 +82,96 @@ public class DebugPacketSender {
    public static void sendPathFindingPacket(World p_218803_0_, Mob p_218803_1_, @Nullable Path p_218803_2_, float p_218803_3_) {
    }
 
+
+    /**
+     * Path info debug packet structure<br>
+     * |- Reaches target flag (bool)<br>
+     * |- Current path index (int)<br>
+     * |- Length of the list of FlaggedPathPoint (appears that the recieved data is not used)<br>
+     * |- A list of the FlaggedPathPoint s<br>
+     * |- X,Y,Z of the target (ints)<br>
+     * |- Amount of points in path (int)<br>
+     * |- The list of all points in the path. (Structure for points in {@link #writePointToBuf(PacketBuffer, PathPoint)})<br>
+     * |- Amount of open points in the following array (int)<br>
+     * |- The array of open points (Again, see {@link #writePointToBuf(PacketBuffer, PathPoint)} for the structure of points)<br>
+     * |- Amount of closed points (int)<br>
+     * |- Array of closed points (you know what to do, look at {@link #writePointToBuf(PacketBuffer, PathPoint)})<br>
+     *
+     * @param buf Buffer to write to.
+     * @param path The path to write there.
+     */
+    public static void writePathToBuffer(PacketBuffer buf, Path path) {
+        buf.writeBoolean(path.canReach());
+        buf.writeInt(path.getNextNodeIndex());
+
+        // Certain stuff has been stripped, lets hope its not neccessary
+        // We just skip this step as it seems that the code that reads this bit
+        // back does not do anything with the recieved data.
+        buf.writeInt(0);
+
+        BlockPos target = path.getTarget();
+        buf.writeInt(target.getX()).writeInt(target.getY()).writeInt(target.getZ());
+        List<PathPoint> points = path.getNodes();
+        buf.writeInt(points.size());
+        for (PathPoint point : points)
+            writePointToBuf(buf, point);
+        PathPoint[] openSet = path.getOpenSet();
+        buf.writeInt(openSet.length);
+        for (PathPoint point : openSet)
+            writePointToBuf(buf, point);
+        PathPoint[] closedSet = path.getClosedSet();
+        buf.writeInt(closedSet.length);
+        for (PathPoint point : closedSet)
+            writePointToBuf(buf, point);
+    }
+
+    /**
+     * Structure of a point in a packet<br>
+     * |- X,Y,Z of the point (int)<br>
+     * |- Some value (field_222861_j) (float)<br>
+     * |- costMalus (float)<br>
+     * |- Whether the point has been visited (bool)<br>
+     * |- The index of the PathNodeType#values() array for the type of point (int)<br>
+     * |- The distance to the target from this point (float)<br>
+     *
+     * @param buf Buffer to write to
+     * @param point The point to write to it
+     */
+    private static void writePointToBuf(PacketBuffer buf, PathPoint point) {
+        buf.writeInt(point.x).writeInt(point.y).writeInt(point.z);
+        buf.writeFloat(point.walkedDistance);
+        buf.writeFloat(point.costMalus);
+        buf.writeBoolean(point.closed);
+        int idx = -1;
+        PathNodeType[] types = PathNodeType.values();
+        for (int i = 0; i < types.length; i++) {
+            if (types[i].equals(point.type)) {
+                idx = i;
+                break;
+            }
+        }
+        assert idx != -1;
+        buf.writeInt(idx);
+        buf.writeFloat(point.walkedDistance);
+    }
+
    public static void sendNeighborsUpdatePacket(World p_218806_0_, BlockPos p_218806_1_) {
+        PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
+
+        packetBuffer.writeVarLong(p_218806_0_.getGameTime());
+        packetBuffer.writeBlockPos(p_218806_1_);
+
+        packetBuffer.writeInt(p_218806_1_.getX());
+        packetBuffer.writeInt(p_218806_1_.getY());
+        packetBuffer.writeInt(p_218806_1_.getZ());
+
+//        System.out.println("- Sending Neighbour Update Packet -");
+//        System.out.println("Gametime: " + p_218806_0_.getGameTime());
+//        System.out.println("Block position: " + p_218806_1_);
+//
+//       System.out.println("-                                 -");
+
+        sendPacketToAllPlayers((ServerWorld) p_218806_0_, packetBuffer, SCustomPayloadPlayPacket.DEBUG_NEIGHBORSUPDATE_PACKET);
    }
 
    public static void sendStructurePacket(ISeedReader p_218804_0_, StructureStart<?> p_218804_1_) {
@@ -481,7 +572,6 @@ public class DebugPacketSender {
         List<String> behaviors = new ArrayList<>();
         if (!(living instanceof PlayerEntity)) {
             Brain<?> brain = living.getBrain();
-
             brain.getRunningBehaviors().forEach(behavior -> {
                 behaviors.add(behavior.toString()); // Using toString() for simplicity; adjust based on available methods
             });
@@ -516,7 +606,7 @@ public class DebugPacketSender {
                     // Add other memory types here as needed
             );
 
-            for (MemoryModuleType<?> memoryType : memoryTypes) {
+            for (MemoryModuleType<?> memoryType : Registry.MEMORY_MODULE_TYPE) {
                 if (brain.hasMemoryValue(memoryType)) {
                     Optional<?> memoryOptional = brain.getMemory(memoryType);
                     memoryOptional.ifPresent(memory -> {

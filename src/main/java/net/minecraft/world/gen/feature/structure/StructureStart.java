@@ -67,7 +67,11 @@ public abstract class StructureStart<C extends IFeatureConfig> {
                }
             }
 
+
             this.calculateBoundingBox();
+
+            this.feature.afterPlace(p_230366_1_, p_230366_2_, p_230366_3_, p_230366_4_, p_230366_5_, p_230366_6_, this.pieces);
+
          }
       }
    }

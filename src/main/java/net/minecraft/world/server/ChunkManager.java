@@ -1067,6 +1067,8 @@ public class ChunkManager extends ChunkLoader implements ChunkHolder.IPlayerProv
 
    }
 
+
+
    protected PointOfInterestManager getPoiManager() {
       return this.poiManager;
    }

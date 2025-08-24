@@ -13,6 +13,8 @@ public class RenderHelper {
    private static final Vector3f DIFFUSE_LIGHT_1 = Util.make(new Vector3f(-0.2F, 1.0F, 0.7F), Vector3f::normalize);
    private static final Vector3f NETHER_DIFFUSE_LIGHT_0 = Util.make(new Vector3f(0.2F, 1.0F, -0.7F), Vector3f::normalize);
    private static final Vector3f NETHER_DIFFUSE_LIGHT_1 = Util.make(new Vector3f(-0.2F, -1.0F, 0.7F), Vector3f::normalize);
+   private static final Vector3f INVENTORY_DIFFUSE_LIGHT_0 = Util.make(new Vector3f(0.2f, -1.0f, -1.0f), Vector3f::normalize);
+   private static final Vector3f INVENTORY_DIFFUSE_LIGHT_1 = Util.make(new Vector3f(-0.2f, -1.0f, 0.0f), Vector3f::normalize);
 
    public static void turnBackOn() {
       RenderSystem.enableLighting();
@@ -39,5 +41,9 @@ public class RenderHelper {
 
    public static void setupFor3DItems() {
       RenderSystem.setupGui3DDiffuseLighting(DIFFUSE_LIGHT_0, DIFFUSE_LIGHT_1);
+   }
+
+   public static void setupForEntityInInventory() {
+      RenderSystem.setShaderLights(INVENTORY_DIFFUSE_LIGHT_0, INVENTORY_DIFFUSE_LIGHT_1);
    }
 }

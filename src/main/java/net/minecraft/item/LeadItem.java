@@ -1,55 +1,57 @@
 package net.minecraft.item;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.item.LeashKnotEntity;
+import net.minecraft.entity.leashable.Leashable;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public class LeadItem extends Item {
    public LeadItem(Item.Properties p_i48484_1_) {
       super(p_i48484_1_);
    }
 
-   public ActionResultType useOn(ItemUseContext p_195939_1_) {
-      World world = p_195939_1_.getLevel();
-      BlockPos blockpos = p_195939_1_.getClickedPos();
-      Block block = world.getBlockState(blockpos).getBlock();
-      if (block.is(BlockTags.FENCES)) {
-         PlayerEntity playerentity = p_195939_1_.getPlayer();
-         if (!world.isClientSide && playerentity != null) {
-            bindPlayerMobs(playerentity, world, blockpos);
+   @Override
+   public ActionResultType useOn(ItemUseContext useOnContext) {
+      BlockPos blockPos;
+      World level = useOnContext.getLevel();
+      BlockState blockState = level.getBlockState(blockPos = useOnContext.getClickedPos());
+      if (blockState.is(BlockTags.FENCES)) {
+         PlayerEntity player = useOnContext.getPlayer();
+         if (!level.isClientSide && player != null) {
+            return LeadItem.bindPlayerMobs(player, level, blockPos);
          }
-
-         return ActionResultType.sidedSuccess(world.isClientSide);
-      } else {
-         return ActionResultType.PASS;
       }
+      return ActionResultType.PASS;
    }
 
-   public static ActionResultType bindPlayerMobs(PlayerEntity p_226641_0_, World p_226641_1_, BlockPos p_226641_2_) {
-      LeashKnotEntity leashknotentity = null;
-      boolean flag = false;
-      double d0 = 7.0D;
-      int i = p_226641_2_.getX();
-      int j = p_226641_2_.getY();
-      int k = p_226641_2_.getZ();
-
-      for(Mob mobentity : p_226641_1_.getEntitiesOfClass(Mob.class, new AxisAlignedBB((double)i - 7.0D, (double)j - 7.0D, (double)k - 7.0D, (double)i + 7.0D, (double)j + 7.0D, (double)k + 7.0D))) {
-         if (mobentity.getLeashHolder() == p_226641_0_) {
-            if (leashknotentity == null) {
-               leashknotentity = LeashKnotEntity.getOrCreateKnot(p_226641_1_, p_226641_2_);
-            }
-
-            mobentity.setLeashedTo(leashknotentity, true);
-            flag = true;
+   public static ActionResultType bindPlayerMobs(PlayerEntity player, World level, BlockPos blockPos) {
+      LeashKnotEntity leashFenceKnotEntity = null;
+      List<Leashable> list = Leashable.leashableInArea(level, Vector3d.atCenterOf(blockPos), leashable -> leashable.getLeashHolder() == player);
+      boolean bl = false;
+      for (Leashable leashable2 : list) {
+         if (leashFenceKnotEntity == null) {
+            leashFenceKnotEntity = LeashKnotEntity.getOrCreateKnot(level, blockPos);
+            leashFenceKnotEntity.playPlacementSound();
          }
+         if (!leashable2.canHaveALeashAttachedTo(leashFenceKnotEntity)) continue;
+         leashable2.setLeashedTo(leashFenceKnotEntity, true);
+         bl = true;
       }
-
-      return flag ? ActionResultType.SUCCESS : ActionResultType.PASS;
+      if (bl) {
+         level.gameEvent(GameEvent.BLOCK_ATTACH, blockPos, GameEvent.Context.of(player));
+         return ActionResultType.SUCCESS;
+      }
+      return ActionResultType.PASS;
    }
 }

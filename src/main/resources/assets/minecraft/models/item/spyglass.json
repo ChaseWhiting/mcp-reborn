@@ -1,0 +1,85 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/spyglass"
+  },
+
+
+
+
+  "overrides": [
+    {
+      "model": "item/trim/spyglass/spyglass_quartz",
+      "predicate": {
+        "tool_trim_material": 0.1
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_iron",
+      "predicate": {
+        "tool_trim_material": 0.2
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_netherite",
+      "predicate": {
+        "tool_trim_material": 0.3
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_redstone",
+      "predicate": {
+        "tool_trim_material": 0.4
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_copper",
+      "predicate": {
+        "tool_trim_material": 0.5
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_gold",
+      "predicate": {
+        "tool_trim_material": 0.6
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_emerald",
+      "predicate": {
+        "tool_trim_material": 0.7
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_diamond",
+      "predicate": {
+        "tool_trim_material": 0.8
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_lapis",
+      "predicate": {
+        "tool_trim_material": 0.9
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_amethyst",
+      "predicate": {
+        "tool_trim_material": 1.0
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_resin",
+      "predicate": {
+        "tool_trim_material": 1.1
+      }
+    },
+    {
+      "model": "item/trim/spyglass/spyglass_sculk",
+      "predicate": {
+        "tool_trim_material": 1.2
+      }
+    }
+  ]
+
+}

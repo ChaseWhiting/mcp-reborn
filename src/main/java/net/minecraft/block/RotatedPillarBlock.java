@@ -26,8 +26,8 @@ public class RotatedPillarBlock extends Block {
        };
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AXIS);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AXIS);
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {

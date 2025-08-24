@@ -73,7 +73,7 @@ public abstract class UserList<K, V extends UserListEntry<K>> {
    }
 
    public boolean isEmpty() {
-      return this.map.size() < 1;
+      return this.map.isEmpty();
    }
 
    protected String getKeyForUser(K p_152681_1_) {

@@ -3,8 +3,6 @@ package net.minecraft.pathfinding;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PathPoint {
    public final int x;
@@ -26,6 +24,12 @@ public class PathPoint {
       this.y = p_i2135_2_;
       this.z = p_i2135_3_;
       this.hash = createHash(p_i2135_1_, p_i2135_2_, p_i2135_3_);
+   }
+
+   public float distanceToXZ(PathPoint node) {
+      float f = node.x - this.x;
+      float f2 = node.z - this.z;
+      return MathHelper.sqrt(f * f + f2 * f2);
    }
 
    public PathPoint cloneAndMove(int p_186283_1_, int p_186283_2_, int p_186283_3_) {

@@ -15,6 +15,9 @@ public class LootFunctionManager {
    };
    public static final LootFunctionType SET_COUNT = register("set_count", new SetCount.Serializer());
    public static final LootFunctionType ENCHANT_WITH_LEVELS = register("enchant_with_levels", new EnchantWithLevels.Serializer());
+   public static final LootFunctionType DYE_RANDOMLY = register("dye_randomly", new DyeRandomly.Serializer());
+   public static final LootFunctionType CONDITIONAL = register("conditional", new ConditionalLootFunction.Serializer());
+
    public static final LootFunctionType ENCHANT_RANDOMLY = register("enchant_randomly", new EnchantRandomly.Serializer());
    public static final LootFunctionType SET_NBT = register("set_nbt", new SetNBT.Serializer());
    public static final LootFunctionType FURNACE_SMELT = register("furnace_smelt", new Smelt.Serializer());

@@ -81,11 +81,30 @@ public class LootTables {
    public static final ResourceLocation LEATHERWORKER_GIFT = register("gameplay/hero_of_the_village/leatherworker_gift");
    public static final ResourceLocation LIBRARIAN_GIFT = register("gameplay/hero_of_the_village/librarian_gift");
    public static final ResourceLocation MASON_GIFT = register("gameplay/hero_of_the_village/mason_gift");
+   public static final ResourceLocation CARPENTER_GIFT = register("gameplay/hero_of_the_village/carpenter_gift");
+
    public static final ResourceLocation SHEPHERD_GIFT = register("gameplay/hero_of_the_village/shepherd_gift");
    public static final ResourceLocation TOOLSMITH_GIFT = register("gameplay/hero_of_the_village/toolsmith_gift");
    public static final ResourceLocation WEAPONSMITH_GIFT = register("gameplay/hero_of_the_village/weaponsmith_gift");
    public static final ResourceLocation BEEKEEPER_GIFT = register("gameplay/hero_of_the_village/beekeeper_gift");
    public static final ResourceLocation PIGLIN_BARTERING = register("gameplay/piglin_bartering");
+
+
+   public static final ResourceLocation DESERT_WELL_ARCHAEOLOGY = register("archaeology/desert_well");
+   public static final ResourceLocation DESERT_PYRAMID_ARCHAEOLOGY = LootTables.register("archaeology/desert_pyramid");
+   public static final ResourceLocation TRAIL_RUINS_ARCHAEOLOGY_COMMON = LootTables.register("archaeology/trail_ruins_common");
+   public static final ResourceLocation TRAIL_RUINS_ARCHAEOLOGY_RARE = LootTables.register("archaeology/trail_ruins_rare");
+   public static final ResourceLocation OCEAN_RUIN_WARM_ARCHAEOLOGY = LootTables.register("archaeology/ocean_ruin_warm");
+   public static final ResourceLocation OCEAN_RUIN_COLD_ARCHAEOLOGY = LootTables.register("archaeology/ocean_ruin_cold");
+
+   public static final ResourceLocation RIVER_SWAMP_CLAY_ARCHAEOLOGY = LootTables.register("archaeology/swamp_clay");
+   public static final ResourceLocation RIVER_CLAY_ARCHAEOLOGY = LootTables.register("archaeology/river_clay");
+   public static final ResourceLocation SOUL_SOIL_ARCHAEOLOGY = LootTables.register("archaeology/soul_soil");
+   public static final ResourceLocation FORTRESS_BRICKS_ARCHAEOLOGY = LootTables.register("archaeology/fortress_cracked_bricks");
+   public static final ResourceLocation FORTRESS_BRICKS_NON_SUSPICIOUS_ARCHAEOLOGY = LootTables.register("archaeology/fortress_cracked_bricks_non_suspicious");
+   public static final ResourceLocation GRAVEL_ORE_COMMON_ARCHAEOLOGY = LootTables.register("archaeology/gravel_common");
+   public static final ResourceLocation GRAVEL_ORE_RARE_ARCHAEOLOGY = LootTables.register("archaeology/gravel_rare");
+
 
    private static ResourceLocation register(String p_186373_0_) {
       return register(new ResourceLocation(p_186373_0_));

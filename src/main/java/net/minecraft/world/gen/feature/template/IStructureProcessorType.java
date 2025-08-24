@@ -16,6 +16,8 @@ public interface IStructureProcessorType<P extends StructureProcessor> {
    IStructureProcessorType<BlockMosinessProcessor> BLOCK_AGE = register("block_age", BlockMosinessProcessor.CODEC);
    IStructureProcessorType<BlackStoneReplacementProcessor> BLACKSTONE_REPLACE = register("blackstone_replace", BlackStoneReplacementProcessor.CODEC);
    IStructureProcessorType<LavaSubmergingProcessor> LAVA_SUBMERGED_BLOCK = register("lava_submerged_block", LavaSubmergingProcessor.CODEC);
+   IStructureProcessorType<CappedProcessor> CAPPED = register("capped", CappedProcessor.CODEC);
+
    Codec<StructureProcessor> SINGLE_CODEC = Registry.STRUCTURE_PROCESSOR.dispatch("processor_type", StructureProcessor::getType, IStructureProcessorType::codec);
    Codec<StructureProcessorList> LIST_OBJECT_CODEC = SINGLE_CODEC.listOf().xmap(StructureProcessorList::new, StructureProcessorList::list);
    Codec<StructureProcessorList> DIRECT_CODEC = Codec.either(LIST_OBJECT_CODEC.fieldOf("processors").codec(), LIST_OBJECT_CODEC).xmap((p_242923_0_) -> {

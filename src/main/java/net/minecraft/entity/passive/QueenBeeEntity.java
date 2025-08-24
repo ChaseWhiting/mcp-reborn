@@ -1,25 +1,9 @@
 package net.minecraft.entity.passive;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.DoublePlantBlock;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.controller.FlyingMovementController;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.pathfinding.PathNodeType;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.Random;
-import java.util.function.Predicate;
 
 public class QueenBeeEntity extends BeeEntity implements IAngerable, IFlyingAnimal, IBee {
 

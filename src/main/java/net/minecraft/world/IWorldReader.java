@@ -71,6 +71,17 @@ public interface IWorldReader extends IBlockDisplayReader, ICollisionReader, Bio
       return this.getBlockState(p_175623_1_).isAir();
    }
 
+
+
+
+
+
+
+
+
+
+
+
    default boolean canSeeSkyFromBelowWater(BlockPos p_175710_1_) {
       if (p_175710_1_.getY() >= this.getSeaLevel()) {
          return this.canSeeSky(p_175710_1_);

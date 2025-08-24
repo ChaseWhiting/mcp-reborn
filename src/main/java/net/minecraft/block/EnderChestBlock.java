@@ -56,7 +56,7 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestTileEntity> im
       return TileEntityMerger.ICallback::acceptNone;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 
@@ -121,8 +121,8 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestTileEntity> im
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, WATERLOGGED);
    }
 
    public FluidState getFluidState(BlockState p_204507_1_) {

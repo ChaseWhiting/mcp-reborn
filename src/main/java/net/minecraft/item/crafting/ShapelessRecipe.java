@@ -10,6 +10,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -63,7 +64,7 @@ public class ShapelessRecipe implements ICraftingRecipe {
       return i == this.ingredients.size() && recipeitemhelper.canCraft(this, (IntList)null);
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       return this.result.copy();
    }
 

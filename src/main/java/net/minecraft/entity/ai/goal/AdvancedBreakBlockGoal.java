@@ -61,17 +61,14 @@ public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
       float destroySpeed = blockState.getDestroySpeed(this.mob.level, this.blockPos);
       ItemStack handItem = this.mob.getMainHandItem();
 
-      // Define tool compatibility based on block material
       boolean flag = (blockState.getMaterial() == Material.STONE || blockState.getMaterial() == Material.METAL || blockState.getMaterial() == Material.HEAVY_METAL || blockState.getMaterial() == Material.PISTON) && handItem.getItem() instanceof PickaxeItem ||
               (blockState.getMaterial() == Material.DIRT || blockState.getMaterial() == Material.GRASS || blockState.getMaterial() == Material.SAND || blockState.getMaterial() == Material.CLAY || blockState.getMaterial() == Material.SNOW || blockState.getMaterial() == Material.TOP_SNOW) && handItem.getItem() instanceof ShovelItem ||
               (blockState.getMaterial() == Material.WOOD || blockState.getMaterial() == Material.NETHER_WOOD || blockState.getMaterial() == Material.BAMBOO || blockState.getMaterial() == Material.BAMBOO_SAPLING) && handItem.getItem() instanceof AxeItem ||
               (blockState.getMaterial() == Material.CLOTH_DECORATION || blockState.getMaterial() == Material.WOOL || blockState.getMaterial() == Material.LEAVES || blockState.getMaterial() == Material.WEB) && handItem.getItem() instanceof ShearsItem ||
               (blockState.getMaterial() == Material.PLANT || blockState.getMaterial() == Material.REPLACEABLE_PLANT || blockState.getMaterial() == Material.REPLACEABLE_FIREPROOF_PLANT || blockState.getMaterial() == Material.REPLACEABLE_WATER_PLANT || blockState.getMaterial() == Material.VEGETABLE || blockState.getMaterial() == Material.CACTUS || blockState.getMaterial() == Material.CORAL || blockState.getMaterial() == Material.EGG) && handItem.getItem() instanceof HoeItem;
 
-      // Calculate the raw block break time
       float calculatedTime = destroySpeed * 90;
 
-      // Apply tool modifier after calculatedTime
       if (handItem.isCorrectToolForDrops(blockState) || flag) {
          float modifier = 0;
          if (handItem.getItem() instanceof ToolItem) {
@@ -86,15 +83,13 @@ public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
                default -> 0.7f;
             };
          }
-         calculatedTime /= (2 + modifier); // Apply the modifier after the raw time calculation
+         calculatedTime /= (2 + modifier);
       }
 
-      // Get the level of Efficiency enchantment and reduce block break time
       int efficiencyLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_EFFICIENCY, handItem);
       if (efficiencyLevel > 0 && flag) {
-         // Reduce block break time by 10% per Efficiency level
          float efficiencyMultiplier = 1 - (efficiencyLevel * 0.1F);
-         calculatedTime *= efficiencyMultiplier; // Apply the efficiency modifier after time is calculated
+         calculatedTime *= efficiencyMultiplier;
       }
 
       return (int) calculatedTime;
@@ -107,7 +102,7 @@ public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
          return false;
       } else {
          if (this.mob.getTarget() != null) {
-            return (this.mob.getTarget().distanceTo(this.mob) > 13 || !this.mob.getSensing().canSee(this.mob.getTarget())) && this.isValidDifficulty(this.mob.level.getDifficulty());
+            return (this.mob.getTarget().distanceTo(this.mob) > 13 || !this.mob.getSensing().canSee(this.mob.getTarget()) && mob.getNavigation().createPath(mob.getTarget(), 0) == null) && this.isValidDifficulty(this.mob.level.getDifficulty());
          }
 
 
@@ -124,7 +119,7 @@ public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
 
    public boolean canContinueToUse() {
       boolean flag = this.breakTime <= this.getBlockBreakTime()
-              && this.blockPos.closerThan(this.mob.position(), 4.3D)
+              && this.blockPos.closerThan(this.mob.position(), 5D)
               && this.isValidDifficulty(this.mob.level.getDifficulty());
 
       if (this.mob.getTarget() != null) {

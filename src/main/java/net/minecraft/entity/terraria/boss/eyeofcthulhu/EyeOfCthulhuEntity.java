@@ -1,7 +1,6 @@
 package net.minecraft.entity.terraria.boss.eyeofcthulhu;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.animation.AnimationState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -37,7 +36,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class EyeOfCthulhuEntity extends BossEntity {
-    public AnimationState tails = new AnimationState();
     public static final DataParameter<Boolean> PHASE_2 = EntityDataManager.defineId(EyeOfCthulhuEntity.class, DataSerializers.BOOLEAN);
     private int swoopCooldown = 0;
     private int hoverTime = 60;
@@ -221,18 +219,16 @@ public class EyeOfCthulhuEntity extends BossEntity {
         }
     }
 
-    int hoverDistance; // Preferred distance to start hovering
-    int hoverHeight; // Preferred height above player
-    // Add new fields
-    public int servantSpawnCooldown = 0; // Controls spawning of servants
-    public int dashCooldown = 0; // Controls timing of dashes
-    public int chainDashCounter = 0; // Used in Expert chain dashes
+    int hoverDistance;
+    int hoverHeight;
+    public int servantSpawnCooldown = 0;
+    public int dashCooldown = 0;
+    public int chainDashCounter = 0;
     public int timeSincePlayerTakenDamage = 0;
 
 
-    // Define variables for cooldown and duration
-    public int circleCooldown = 0;   // Cooldown between circling phases
-    public int circleDuration = 160; // Duration of the circling phase (e.g., 8 seconds)
+    public int circleCooldown = 0;
+    public int circleDuration = 160;
     public boolean isCircling = false;
     public double time = 0;
 
@@ -244,21 +240,19 @@ public class EyeOfCthulhuEntity extends BossEntity {
     @Override
     public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.putInt("DamageTimer", this.timeSincePlayerTakenDamage); // Save hover distance
+        nbt.putInt("DamageTimer", this.timeSincePlayerTakenDamage);
         if (this instanceof EyeOfCthulhuSecondFormEntity) return;
 
-        nbt.putInt("HoverDistance", this.hoverDistance); // Save hover distance
-        nbt.putInt("HoverHeight", this.hoverHeight); // Save hover height
+        nbt.putInt("HoverDistance", this.hoverDistance);
+        nbt.putInt("HoverHeight", this.hoverHeight);
         nbt.putDouble("Armor", this.getAttribute(Attributes.ARMOR).getBaseValue());
         nbt.putDouble("ArmorToughness", this.getAttribute(Attributes.ARMOR_TOUGHNESS).getBaseValue());
         nbt.putString("OldPhase", this.oldPhase.name);
         nbt.putString("CurrentPhase", this.currentPhase.name);
         nbt.putBoolean("Phase2", this.isInPhase2());
-
-        // Save circling variables
-        nbt.putInt("CircleCooldown", this.circleCooldown); // Save circle cooldown
-        nbt.putInt("CircleDuration", this.circleDuration); // Save circle duration
-        nbt.putBoolean("IsCircling", this.isCircling); // Save circling state
+        nbt.putInt("CircleCooldown", this.circleCooldown);
+        nbt.putInt("CircleDuration", this.circleDuration);
+        nbt.putBoolean("IsCircling", this.isCircling);
     }
 
     @Override
@@ -269,8 +263,8 @@ public class EyeOfCthulhuEntity extends BossEntity {
         }
         this.timeSincePlayerTakenDamage = nbt.getInt("DamageTimer");
         if (this instanceof EyeOfCthulhuSecondFormEntity) return;
-        this.hoverDistance = nbt.getInt("HoverDistance"); // Load hover distance
-        this.hoverHeight = nbt.getInt("HoverHeight"); // Load hover height
+        this.hoverDistance = nbt.getInt("HoverDistance");
+        this.hoverHeight = nbt.getInt("HoverHeight");
         this.oldPhase = BossPhase.fromName(nbt.getString("OldPhase"));
         this.currentPhase = BossPhase.fromName(nbt.getString("CurrentPhase"));
         setInPhase2(nbt.getBoolean("Phase2"));
@@ -278,11 +272,9 @@ public class EyeOfCthulhuEntity extends BossEntity {
         if (!isNoGravity()) this.setNoGravity(true);
         this.getAttribute(Attributes.ARMOR).setBaseValue(nbt.getDouble("Armor"));
         this.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(nbt.getDouble("ArmorToughness"));
-
-        // Load circling variables
-        this.circleCooldown = nbt.getInt("CircleCooldown"); // Load circle cooldown
-        this.circleDuration = nbt.getInt("CircleDuration"); // Load circle duration
-        this.isCircling = nbt.getBoolean("IsCircling"); // Load circling state
+        this.circleCooldown = nbt.getInt("CircleCooldown");
+        this.circleDuration = nbt.getInt("CircleDuration");
+        this.isCircling = nbt.getBoolean("IsCircling");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -295,7 +287,6 @@ public class EyeOfCthulhuEntity extends BossEntity {
         this.entityData.clearDirty();
     }
 
-    private boolean animationStarted = false;  // New flag for animation start
 
     public boolean isInWall() {
         return false;
@@ -340,7 +331,6 @@ public class EyeOfCthulhuEntity extends BossEntity {
         }
         this.oldPhase = this.currentPhase;
 
-        // Manage fleeing
         if (this.shouldFlee()) {
             this.setDeltaMovement(this.getDeltaMovement().add(0, 0.02, 0));
             if (this.getY() > 120) {
@@ -349,66 +339,53 @@ public class EyeOfCthulhuEntity extends BossEntity {
             return;
         }
 
-        // Manage servant spawn timer
         if (servantSpawnCooldown > 0) {
             servantSpawnCooldown--;
         }
 
 
 
-        // Dash mechanics based on phase
         PlayerEntity target = (PlayerEntity) this.getTarget();
         if (target != null) {
-            // Spawn servants in first phase
             if (this.currentPhase == BossPhase.MAX_HEALTH && servantSpawnCooldown <= 0) {
-                spawnServants(2 + this.random.nextInt(3)); // Spawn 3-4 servants
-                servantSpawnCooldown = 200; // Reset spawn cooldown
+                spawnServants(2 + this.random.nextInt(3));
+                servantSpawnCooldown = veryHardmode() ? 60 : 200;
             }
 
-            // Dash logic: dash when cooldown is zero and start circling cooldown
             if (dashCooldown <= 0 && circleCooldown <= 0) {
-                performDash(target.position(), 1.5);
+                performDash(target.position(), veryHardmode() ? 2.3 : 1.5);
                 this.playSound(SoundEvents.ROAR, 2f, 1.0f);
-                dashCooldown = 55;           // Reset dash cooldown
-                circleCooldown = 12;         // Set circling cooldown to 2 seconds (adjust as needed)
-                isCircling = false;          // Stop circling after dash
+                dashCooldown = veryHardmode() ? 30 : 55;
+                circleCooldown = 12;
+                isCircling = false;
             } else if (dashCooldown > 0) {
-                dashCooldown--;              // Count down dash cooldown
+                dashCooldown--;
             }
 
-            // Circling logic: circle only if dash cooldown is active and circle cooldown is complete
             if (dashCooldown > 0 && circleCooldown <= 0) {
-                // Start circling
                 isCircling = true;
 
-                // Set oscillation ranges for circling
                 double minRadius = 4.0;
                 double maxRadius = 6.6;
                 double minSpeed = 0.17;
                 double maxSpeed = 0.28;
 
-                // Calculate radius and speed for circling using sine wave oscillation
                 double circleRadius = minRadius + (maxRadius - minRadius) * 0.5 * (1 + Math.sin(time));
                 double circleSpeed = minSpeed + (maxSpeed - minSpeed) * 0.5 * (1 + Math.sin(time));
 
-                // Circle around the player
                 circleAroundPlayer(target, circleRadius, circleSpeed);
 
-                // Increment time for continuous oscillation
                 time += 0.05;
 
-                // Decrease circling duration
                 circleDuration--;
 
-                // Stop circling if duration is reached
                 if (circleDuration <= 0) {
                     isCircling = false;
-                    circleCooldown = 40;      // Set cooldown before it can circle again after 8 seconds
-                    circleDuration = 160;     // Reset circle duration
+                    circleCooldown = 40;
+                    circleDuration = veryHardmode() ? 60 : 160;
                 }
             }
 
-            // Countdown for circleCooldown to enable circling after dashing
             if (circleCooldown > 0) {
                 circleCooldown--;
             }
@@ -420,22 +397,17 @@ public class EyeOfCthulhuEntity extends BossEntity {
         double angleIncrement = speed / radius;
         double currentAngle = (this.tickCount * angleIncrement) % (2 * Math.PI);
 
-        // Base target X and Z for circular movement
         double targetX = playerPos.x + radius * Math.cos(currentAngle);
         double targetZ = playerPos.z + radius * Math.sin(currentAngle);
 
-        // Start with the Y level at a desired hover height above the player
-        double targetY = playerPos.y + 5; // Hover 5 blocks above player
+        double targetY = playerPos.y + 5;
 
-        // Adjust for obstacles
         targetY = adjustHeightForObstacles(new BlockPos(targetX, targetY, targetZ), targetY);
 
-        // Calculate the final direction vector for movement
         Vector3d targetPos = new Vector3d(targetX, targetY, targetZ);
         Vector3d currentPos = this.position();
         Vector3d direction = targetPos.subtract(currentPos).normalize().scale(speed);
 
-        // Explicitly set the Y-component to help ensure elevation
         direction = new Vector3d(direction.x, (targetY - currentPos.y) * 0.1, direction.z);
         this.setDeltaMovement(direction);
     }
@@ -443,29 +415,27 @@ public class EyeOfCthulhuEntity extends BossEntity {
 
     public double adjustHeightForObstacles(BlockPos targetPos, double baseY) {
         World world = this.level;
-        int maxHeightOffset = 6; // Max blocks above/below to check for obstacles
-        int hoverHeight = 5; // Desired hover height above ground/player
+        int maxHeightOffset = 6;
+        int hoverHeight = 5;
 
-        // Check upwards for obstacles and adjust Y if necessary
         for (int i = 0; i <= maxHeightOffset; i++) {
             BlockPos checkPosUp = targetPos.above(i);
             BlockPos checkPosDown = targetPos.below(i);
 
             if (!world.getBlockState(checkPosUp).isAir()) {
-                return checkPosUp.getY() + hoverHeight; // Move up if obstacle detected above
+                return checkPosUp.getY() + hoverHeight;
             } else if (!world.getBlockState(checkPosDown).isAir()) {
-                return checkPosDown.getY() + hoverHeight; // Move up if obstacle detected below
+                return checkPosDown.getY() + hoverHeight;
             }
         }
-        return baseY; // No obstacles detected; return default hover height
+        return baseY;
     }
 
 
 
-    // Spawn Servants
     public void spawnServants(int count) {
         List<DemonEyeEntity> demonEyeEntityList = level.getEntitiesOfClass(DemonEyeEntity.class, this.getBoundingBox().inflate(30));
-        if (demonEyeEntityList.size() >= 7) return;
+        if (demonEyeEntityList.size() >= (veryHardmode() ? 16 : 7)) return;
         for (int i = 0; i < count; i++) {
             DemonEyeEntity servant = new DemonEyeEntity(EntityType.DEMON_EYE, this.level);
             servant.finalizeSpawn((IServerWorld) level, new DifficultyInstance(this.level.getDifficulty(), 0, 0, 0, this.veryHardmode()), SpawnReason.MOB_SUMMONED, null, null);
@@ -474,12 +444,11 @@ public class EyeOfCthulhuEntity extends BossEntity {
         }
     }
 
-    // Dash helper method
     public void performDash(Vector3d targetPos, double speed) {
         Vector3d currentPos = this.position();
         Vector3d direction = targetPos.subtract(currentPos).normalize().scale(speed);
         this.setDeltaMovement(direction);
-        this.turning = true; // Update turning state for visual effect
+        this.turning = true;
     }
 
     public boolean advancedMode() {
@@ -487,26 +456,25 @@ public class EyeOfCthulhuEntity extends BossEntity {
     }
 
 
-    // Helper method for swooping towards player
     private void swoopTowardsPlayer(double dx, double dy, double dz) {
-        Vector3d velocity = new Vector3d(dx, dy, dz).normalize().scale(1); // Swoop speed
+        Vector3d velocity = new Vector3d(dx, dy, dz).normalize().scale(1);
         this.setDeltaMovement(velocity);
         this.turning = true;
     }
 
     @Override
     public int getMaxHeadXRot() {
-        return 180; // Full vertical rotation
+        return 180;
     }
 
     @Override
     public int getMaxHeadYRot() {
-        return 360; // Full horizontal rotation
+        return 360;
     }
 
     @Override
     public int getHeadRotSpeed() {
-        return 20; // Fast rotation speed
+        return 20;
     }
 
     protected void registerGoals() {
@@ -518,7 +486,7 @@ public class EyeOfCthulhuEntity extends BossEntity {
     public static class AttackPlayerGoal extends Goal {
         private final EyeOfCthulhuEntity mob;
         private final World world;
-        private int attackCooldown = 20; // Initial cooldown, matching MeleeAttackGoal's attack interval
+        private int attackCooldown = 20;
 
         public AttackPlayerGoal(EyeOfCthulhuEntity eye, World world) {
             this.mob = eye;
@@ -552,21 +520,20 @@ public class EyeOfCthulhuEntity extends BossEntity {
                 Vector3d currentPos = mob.position();
                 double distanceToPlayer = currentPos.distanceTo(targetPos);
 
-                mob.setNoGravity(true); // Enable floating behavior
+                mob.setNoGravity(true);
                 mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
 
-                // Hover or swoop towards the player
+
                 if (distanceToPlayer <= 10.0 && mob.swoopCooldown <= 0) {
                     mob.swoopTowardsPlayer(targetPos.x - currentPos.x, targetPos.y - currentPos.y, targetPos.z - currentPos.z);
-                    mob.swoopCooldown = 100; // Reset swoop cooldown
+                    mob.swoopCooldown = 100;
                 }
 
-                // Check if in range to attack
                 if (distanceToPlayer <= this.getAttackReachSqr(target) && this.attackCooldown <= 0) {
                     this.performAttack(target);
                     this.resetAttackCooldown();
                 } else {
-                    this.attackCooldown--; // Decrement attack cooldown each tick
+                    this.attackCooldown--;
                 }
             }
         }
@@ -578,7 +545,6 @@ public class EyeOfCthulhuEntity extends BossEntity {
         }
 
         protected double getAttackReachSqr(LivingEntity p_179512_1_) {
-            // Reduce the reach factor multiplier for closer range, 1.2 is a close range example
             if (this.mob instanceof EyeOfCthulhuSecondFormEntity) {
                 return (double)(this.mob.getBbWidth() * 0.7F * this.mob.getBbWidth() * 0.7F + p_179512_1_.getBbWidth());
             }
@@ -586,13 +552,13 @@ public class EyeOfCthulhuEntity extends BossEntity {
         }
 
         private void performAttack(LivingEntity target) {
-            this.mob.swing(Hand.MAIN_HAND); // Simulate swing animation
+            this.mob.swing(Hand.MAIN_HAND);
             target.hurt(DamageSource.mobAttack(this.mob), (float) this.mob.getAttributeValue(Attributes.ATTACK_DAMAGE));
             mob.timeSincePlayerTakenDamage = 0;
         }
 
         private void resetAttackCooldown() {
-            this.attackCooldown = 15; // Reset cooldown to 20 ticks (matching MeleeAttackGoal)
+            this.attackCooldown = 15;
         }
     }
 

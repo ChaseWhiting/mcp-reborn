@@ -1,6 +1,5 @@
 package net.minecraft.entity.ai.goal;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Mob;
 import net.minecraft.pathfinding.GroundPathNavigator;
@@ -8,9 +7,6 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.GroundPathHelper;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.level.GameEvent;
 
 import java.util.function.Predicate;
 

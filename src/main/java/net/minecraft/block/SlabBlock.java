@@ -36,12 +36,12 @@ public class SlabBlock extends Block implements IWaterLoggable {
       return p_220074_1_.getValue(TYPE) != SlabType.DOUBLE;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(TYPE, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(TYPE, WATERLOGGED);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      SlabType slabtype = p_220053_1_.getValue(TYPE);
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      SlabType slabtype = state.getValue(TYPE);
       switch(slabtype) {
       case DOUBLE:
          return VoxelShapes.block();
@@ -112,6 +112,8 @@ public class SlabBlock extends Block implements IWaterLoggable {
          return false;
       case WATER:
          return p_196266_2_.getFluidState(p_196266_3_).is(FluidTags.WATER);
+         case LAVA:
+            return p_196266_2_.getFluidState(p_196266_3_).is(FluidTags.LAVA);
       case AIR:
          return false;
       default:

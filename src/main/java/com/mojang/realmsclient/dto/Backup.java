@@ -51,7 +51,7 @@ public class Backup extends ValueObject {
       StringBuilder stringbuilder = new StringBuilder();
 
       for(String s : astring) {
-         if (s != null && s.length() >= 1) {
+         if (s != null && !s.isEmpty()) {
             if ("of".equals(s)) {
                stringbuilder.append(s).append(" ");
             } else {

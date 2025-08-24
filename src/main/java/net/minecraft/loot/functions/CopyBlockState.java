@@ -41,7 +41,7 @@ public class CopyBlockState extends LootFunction {
       return ImmutableSet.of(LootParameters.BLOCK_STATE);
    }
 
-   protected ItemStack run(ItemStack p_215859_1_, LootContext p_215859_2_) {
+   public ItemStack run(ItemStack p_215859_1_, LootContext p_215859_2_) {
       BlockState blockstate = p_215859_2_.getParamOrNull(LootParameters.BLOCK_STATE);
       if (blockstate != null) {
          CompoundNBT compoundnbt = p_215859_1_.getOrCreateTag();

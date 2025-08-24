@@ -1,8 +1,5 @@
 package net.minecraft.world.gen.feature.structure;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.gen.feature.IFeatureConfig;
 import net.minecraft.world.gen.feature.jigsaw.JigsawPattern;
 
 import java.util.function.Supplier;

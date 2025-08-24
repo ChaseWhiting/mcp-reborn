@@ -7,11 +7,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
-import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.monster.WitherSkeletonEntity;
 import net.minecraft.entity.monster.bogged.BoggedEntity;
-import net.minecraft.entity.monster.piglin.AbstractPiglinEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.world.server.ServerWorld;
 

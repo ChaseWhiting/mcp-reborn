@@ -1,7 +1,6 @@
 package net.minecraft.item.crafting;
 
 import com.google.gson.JsonObject;
-import net.minecraft.bundle.BundleColour;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -11,6 +10,7 @@ public interface IRecipeSerializer<T extends IRecipe<?>> {
    IRecipeSerializer<ShapelessRecipe> SHAPELESS_RECIPE = register("crafting_shapeless", new ShapelessRecipe.Serializer());
    SpecialRecipeSerializer<ArmorDyeRecipe> ARMOR_DYE = register("crafting_special_armordye", new SpecialRecipeSerializer<>(ArmorDyeRecipe::new));
    SpecialRecipeSerializer<BundleColourChangeRecipe> BUNDLE_DYE = register("crafting_bundle_dye", new SpecialRecipeSerializer<>(BundleColourChangeRecipe::new));
+   SpecialRecipeSerializer<ArmorTrimCraftingRecipe> ARMOR_TRIM = register("crafting_armor_trim", new SpecialRecipeSerializer<>(ArmorTrimCraftingRecipe::new));
 
    SpecialRecipeSerializer<BookCloningRecipe> BOOK_CLONING = register("crafting_special_bookcloning", new SpecialRecipeSerializer<>(BookCloningRecipe::new));
    SpecialRecipeSerializer<MapCloningRecipe> MAP_CLONING = register("crafting_special_mapcloning", new SpecialRecipeSerializer<>(MapCloningRecipe::new));
@@ -29,8 +29,17 @@ public interface IRecipeSerializer<T extends IRecipe<?>> {
    CookingRecipeSerializer<SmokingRecipe> SMOKING_RECIPE = register("smoking", new CookingRecipeSerializer<>(SmokingRecipe::new, 100));
    CookingRecipeSerializer<CampfireCookingRecipe> CAMPFIRE_COOKING_RECIPE = register("campfire_cooking", new CookingRecipeSerializer<>(CampfireCookingRecipe::new, 100));
    IRecipeSerializer<StonecuttingRecipe> STONECUTTER = register("stonecutting", new SingleItemRecipe.Serializer<>(StonecuttingRecipe::new));
+   IRecipeSerializer<WoodcuttingRecipe> WOODCUTTER = register("woodcutting", new SingleItemRecipe.Serializer<>(WoodcuttingRecipe::new));
+
 
    IRecipeSerializer<SmithingRecipe> SMITHING = register("smithing", new SmithingRecipe.Serializer());
+   IRecipeSerializer<SmithingTransformRecipe> SMITHING_TRANSFORM = register("smithing_transform", new SmithingTransformRecipe.Serializer());
+   IRecipeSerializer<SmithingDiamondTransformRecipe> SMITHING_DIAMOND_TRANSFORM = register("smithing_diamond_transform", new SmithingDiamondTransformRecipe.Serializer());
+
+   IRecipeSerializer<SmithingTrimRecipe> SMITHING_TRIM = register("smithing_trim", new SmithingTrimRecipe.Serializer());
+   IRecipeSerializer<SmithingGlowTrimRecipe> SMITHING_GLOW_TRIM = register("smithing_glow_trim", new SmithingGlowTrimRecipe.Serializer());
+   IRecipeSerializer<DecoratedPotRecipe> DECORATED_POT_RECIPE = register("crafting_decorated_pot", new SpecialRecipeSerializer<>(DecoratedPotRecipe::new));
+
 
    T fromJson(ResourceLocation p_199425_1_, JsonObject p_199425_2_);
 

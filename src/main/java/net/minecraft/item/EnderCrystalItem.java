@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EnderCrystalEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -39,6 +40,7 @@ public class EnderCrystalItem extends Item {
                   EnderCrystalEntity endercrystalentity = new EnderCrystalEntity(world, d0 + 0.5D, d1, d2 + 0.5D);
                   endercrystalentity.setShowBottom(false);
                   world.addFreshEntity(endercrystalentity);
+                  world.gameEvent(p_195939_1_.getPlayer(), GameEvent.ENTITY_PLACE, blockpos1);
                   DragonFightManager dragonfightmanager = ((ServerWorld)world).dragonFight();
                   if (dragonfightmanager != null) {
                      dragonfightmanager.tryRespawn();

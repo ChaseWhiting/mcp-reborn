@@ -5,6 +5,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -54,6 +57,8 @@ public class TileEntityRendererDispatcher {
       this.register(TileEntityType.CONDUIT, new ConduitTileEntityRenderer(this));
       this.register(TileEntityType.BELL, new BellTileEntityRenderer(this));
       this.register(TileEntityType.CAMPFIRE, new CampfireTileEntityRenderer(this));
+      this.register(TileEntityType.BRUSHABLE_BLOCK, new BrushableBlockRenderer(this));
+      this.register(TileEntityType.DECORATED_POT, new DecoratedPotRenderer(this));
    }
 
    private <E extends TileEntity> void register(TileEntityType<E> p_228854_1_, TileEntityRenderer<E> p_228854_2_) {
@@ -130,6 +135,13 @@ public class TileEntityRendererDispatcher {
          this.camera = null;
       }
 
+   }
+
+   public final EntityModelSet entityModels = new EntityModelSet();
+
+
+   public ModelPart bakeLayer(ModelLayerLocation modelLayerLocation) {
+      return this.entityModels.bakeLayer(modelLayerLocation);
    }
 
    public FontRenderer getFont() {

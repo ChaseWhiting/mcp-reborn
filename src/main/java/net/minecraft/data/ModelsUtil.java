@@ -25,6 +25,8 @@ public class ModelsUtil {
       this.requiredSlots = ImmutableSet.copyOf(p_i232546_3_);
    }
 
+
+
    public ResourceLocation create(Block p_240228_1_, ModelTextures p_240228_2_, BiConsumer<ResourceLocation, Supplier<JsonElement>> p_240228_3_) {
       return this.create(ModelsResourceUtil.getModelLocation(p_240228_1_, this.suffix.orElse("")), p_240228_2_, p_240228_3_);
    }
@@ -35,6 +37,27 @@ public class ModelsUtil {
 
    public ResourceLocation createWithOverride(Block p_240235_1_, String p_240235_2_, ModelTextures p_240235_3_, BiConsumer<ResourceLocation, Supplier<JsonElement>> p_240235_4_) {
       return this.create(ModelsResourceUtil.getModelLocation(p_240235_1_, p_240235_2_), p_240235_3_, p_240235_4_);
+   }
+
+   public JsonObject createBaseTemplate(ResourceLocation resourceLocation2, Map<StockTextureAliases, ResourceLocation> map) {
+      JsonObject jsonObject = new JsonObject();
+      this.model.ifPresent(resourceLocation -> jsonObject.addProperty("parent", resourceLocation.toString()));
+      if (!map.isEmpty()) {
+         JsonObject jsonObject2 = new JsonObject();
+         map.forEach((textureSlot, resourceLocation) -> jsonObject2.addProperty(textureSlot.getId(), resourceLocation.toString()));
+         jsonObject.add("textures", (JsonElement)jsonObject2);
+      }
+      return jsonObject;
+   }
+
+   public ResourceLocation create(ResourceLocation resourceLocation, ModelTextures textureMapping, BiConsumer<ResourceLocation, Supplier<JsonElement>> biConsumer, JsonFactory jsonFactory) {
+      Map<StockTextureAliases, ResourceLocation> map = this.createMap(textureMapping);
+      biConsumer.accept(resourceLocation, () -> jsonFactory.create(resourceLocation, map));
+      return resourceLocation;
+   }
+
+   public static interface JsonFactory {
+      public JsonObject create(ResourceLocation var1, Map<StockTextureAliases, ResourceLocation> var2);
    }
 
    public ResourceLocation create(ResourceLocation p_240234_1_, ModelTextures p_240234_2_, BiConsumer<ResourceLocation, Supplier<JsonElement>> p_240234_3_) {

@@ -27,8 +27,8 @@ public class WallSkullBlock extends AbstractSkullBlock {
       return this.asItem().getDescriptionId();
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return AABBS.get(p_220053_1_.getValue(FACING));
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return AABBS.get(state.getValue(FACING));
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {
@@ -58,7 +58,7 @@ public class WallSkullBlock extends AbstractSkullBlock {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING);
    }
 }

@@ -1,0 +1,72 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "item/axolotl_bucket"
+    },
+    "overrides": [
+        {
+            "predicate": {
+                "variant": 1,
+                "baby": 0
+            },
+            "model": "item/axolotl_wild_bucket"
+        },
+        {
+            "predicate": {
+                "variant": 2,
+                "baby": 0
+            },
+            "model": "item/axolotl_gold_bucket"
+        },
+        {
+            "predicate": {
+                "variant": 3,
+                "baby": 0
+            },
+            "model": "item/axolotl_cyan_bucket"
+        },
+        {
+            "predicate": {
+                "variant": 4,
+                "baby": 0
+            },
+            "model": "item/axolotl_blue_bucket"
+        },
+
+        {
+            "predicate": {
+                "variant": 0,
+                "baby": 1
+            },
+            "model": "item/axolotl_baby_bucket"
+        },
+        {
+            "predicate": {
+                "variant": 1,
+                "baby": 1
+            },
+            "model": "item/axolotl_baby_wild_bucket"
+        },
+        {
+            "predicate": {
+                "variant": 2,
+                "baby": 1
+            },
+            "model": "item/axolotl_baby_gold_bucket"
+        },
+        {
+            "predicate": {
+                "variant": 3,
+                "baby": 1
+            },
+            "model": "item/axolotl_baby_cyan_bucket"
+        },
+        {
+            "predicate": {
+                "variant": 4,
+                "baby": 1
+            },
+            "model": "item/axolotl_baby_blue_bucket"
+        }
+    ]
+}

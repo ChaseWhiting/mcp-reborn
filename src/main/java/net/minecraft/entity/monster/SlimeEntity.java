@@ -311,7 +311,7 @@ public class SlimeEntity extends Mob implements IMob {
       return super.finalizeSpawn(p_213386_1_, p_213386_2_, p_213386_3_, p_213386_4_, p_213386_5_);
    }
 
-   private float getSoundPitch() {
+   public float getSoundPitch() {
       float f = this.isTiny() ? 1.4F : 0.8F;
       return ((this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F) * f;
    }

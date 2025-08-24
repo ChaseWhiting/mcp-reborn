@@ -38,8 +38,8 @@ public class WallBannerBlock extends AbstractBannerBlock {
       return p_196271_2_ == p_196271_1_.getValue(FACING).getOpposite() && !p_196271_1_.canSurvive(p_196271_4_, p_196271_5_) ? Blocks.AIR.defaultBlockState() : super.updateShape(p_196271_1_, p_196271_2_, p_196271_3_, p_196271_4_, p_196271_5_, p_196271_6_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return SHAPES.get(p_220053_1_.getValue(FACING));
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return SHAPES.get(state.getValue(FACING));
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {
@@ -69,7 +69,7 @@ public class WallBannerBlock extends AbstractBannerBlock {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING);
    }
 }

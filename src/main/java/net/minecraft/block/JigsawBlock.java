@@ -28,8 +28,8 @@ public class JigsawBlock extends Block implements ITileEntityProvider {
       this.registerDefaultState(this.stateDefinition.any().setValue(ORIENTATION, JigsawOrientation.NORTH_UP));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(ORIENTATION);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(ORIENTATION);
    }
 
    public BlockState rotate(BlockState state, Rotation rotation) {

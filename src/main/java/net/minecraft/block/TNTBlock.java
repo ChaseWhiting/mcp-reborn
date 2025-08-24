@@ -6,6 +6,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.TNTEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -48,12 +49,12 @@ public class TNTBlock extends Block {
 
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       if (!p_176208_1_.isClientSide() && !p_176208_4_.isCreative() && p_176208_3_.getValue(UNSTABLE)) {
          explode(p_176208_1_, p_176208_2_);
       }
 
-      super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
+      return super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
    }
 
    public void wasExploded(World p_180652_1_, BlockPos p_180652_2_, Explosion p_180652_3_) {
@@ -81,6 +82,7 @@ public class TNTBlock extends Block {
          TNTEntity tntentity = new TNTEntity(p_196535_0_, (double)p_196535_1_.getX() + 0.5D, (double)p_196535_1_.getY(), (double)p_196535_1_.getZ() + 0.5D, p_196535_2_);
          p_196535_0_.addFreshEntity(tntentity);
          p_196535_0_.playSound((PlayerEntity)null, tntentity.getX(), tntentity.getY(), tntentity.getZ(), SoundEvents.TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
+         p_196535_0_.gameEvent(p_196535_2_, GameEvent.PRIME_FUSE, p_196535_1_);
       }
    }
 
@@ -122,7 +124,7 @@ public class TNTBlock extends Block {
       return false;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(UNSTABLE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(UNSTABLE);
    }
 }

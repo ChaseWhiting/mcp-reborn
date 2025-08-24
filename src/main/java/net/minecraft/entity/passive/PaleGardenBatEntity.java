@@ -14,7 +14,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IServerWorld;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -24,9 +23,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.Optional;
 import java.util.Random;
-
-import static net.minecraft.entity.monster.Monster.checkNearbyBlocks;
-import static net.minecraft.entity.monster.creaking.CreakingEntity.checkNearbyBlocks;
 
 public class PaleGardenBatEntity extends BatEntity {
    private static final DataParameter<Boolean> DATA_RESTING = EntityDataManager.defineId(PaleGardenBatEntity.class, DataSerializers.BOOLEAN);

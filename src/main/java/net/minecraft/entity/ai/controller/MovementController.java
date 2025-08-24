@@ -24,6 +24,14 @@ public class MovementController {
    protected float strafeRight;
    protected MovementController.Action operation = MovementController.Action.WAIT;
 
+   public Action getOperation() {
+      return operation;
+   }
+
+   public boolean isUpdating() {
+      return this.operation != Action.WAIT;
+   }
+
    public MovementController(Mob p_i1614_1_) {
       this.mob = p_i1614_1_;
    }
@@ -45,6 +53,10 @@ public class MovementController {
          this.operation = MovementController.Action.MOVE_TO;
       }
 
+   }
+
+   public void setWait() {
+      this.operation = Action.WAIT;
    }
 
    public void peek() {

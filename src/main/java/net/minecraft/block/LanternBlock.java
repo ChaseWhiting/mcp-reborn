@@ -45,12 +45,12 @@ public class LanternBlock extends Block implements IWaterLoggable {
       return null;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return p_220053_1_.getValue(HANGING) ? HANGING_AABB : AABB;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return state.getValue(HANGING) ? HANGING_AABB : AABB;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(HANGING, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(HANGING, WATERLOGGED);
    }
 
    public boolean canSurvive(BlockState p_196260_1_, IWorldReader p_196260_2_, BlockPos p_196260_3_) {

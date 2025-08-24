@@ -37,6 +37,8 @@ public abstract class Biomes {
    public static final RegistryKey<Biome> DARK_FOREST = register("dark_forest");
    public static final RegistryKey<Biome> PALE_GARDEN = register("pale_garden");
    public static final RegistryKey<Biome> PALE_GARDEN_CRATER = register("pale_garden_crater");
+   public static final RegistryKey<Biome> DEEP_DARK = register("deep_dark");
+   public static final RegistryKey<Biome> SANDY_DRYLANDS = register("sandy_drylands");
 
 
    public static final RegistryKey<Biome> SNOWY_TAIGA = register("snowy_taiga");

@@ -55,7 +55,7 @@ public class InteractWithDoorTask extends Task<LivingEntity> {
       if (blockstate.is(BlockTags.WOODEN_DOORS)) {
          DoorBlock doorblock = (DoorBlock)blockstate.getBlock();
          if (!doorblock.isOpen(blockstate)) {
-            doorblock.setOpen(p_212831_1_, blockstate, blockpos, true);
+            doorblock.setOpen(p_212831_2_ ,p_212831_1_, blockstate, blockpos, true);
          }
 
          this.rememberDoorToClose(p_212831_1_, p_212831_2_, blockpos);
@@ -66,7 +66,7 @@ public class InteractWithDoorTask extends Task<LivingEntity> {
       if (blockstate1.is(BlockTags.WOODEN_DOORS)) {
          DoorBlock doorblock1 = (DoorBlock)blockstate1.getBlock();
          if (!doorblock1.isOpen(blockstate1)) {
-            doorblock1.setOpen(p_212831_1_, blockstate1, blockpos1, true);
+            doorblock1.setOpen( p_212831_2_,p_212831_1_, blockstate1, blockpos1, true);
             this.rememberDoorToClose(p_212831_1_, p_212831_2_, blockpos1);
          }
       }
@@ -96,7 +96,7 @@ public class InteractWithDoorTask extends Task<LivingEntity> {
                      } else if (areOtherMobsComingThroughDoor(p_242294_0_, p_242294_1_, blockpos)) {
                         iterator.remove();
                      } else {
-                        doorblock.setOpen(p_242294_0_, blockstate, blockpos, false);
+                        doorblock.setOpen(p_242294_1_ ,p_242294_0_, blockstate, blockpos, false);
                         iterator.remove();
                      }
                   }

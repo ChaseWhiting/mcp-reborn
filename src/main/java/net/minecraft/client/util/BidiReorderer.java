@@ -13,9 +13,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BidiReorderer {
-   public static IReorderingProcessor reorder(ITextProperties p_243508_0_, boolean p_243508_1_) {
-      BidiReorder bidireorder = BidiReorder.create(p_243508_0_, UCharacter::getMirror, BidiReorderer::shape);
-      Bidi bidi = new Bidi(bidireorder.getPlainText(), p_243508_1_ ? 127 : 126);
+   public static IReorderingProcessor reorder(ITextProperties properties, boolean b) {
+      BidiReorder bidireorder = BidiReorder.create(properties, UCharacter::getMirror, BidiReorderer::shape);
+      Bidi bidi = new Bidi(bidireorder.getPlainText(), b ? 127 : 126);
       bidi.setReorderingMode(0);
       List<IReorderingProcessor> list = Lists.newArrayList();
       int i = bidi.countRuns();

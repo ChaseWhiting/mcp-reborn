@@ -52,7 +52,7 @@ public class AbstractCoralPlantBlock extends Block implements IWaterLoggable {
       return this.defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return AABB;
    }
 
@@ -69,8 +69,8 @@ public class AbstractCoralPlantBlock extends Block implements IWaterLoggable {
       return p_196260_2_.getBlockState(blockpos).isFaceSturdy(p_196260_2_, blockpos, Direction.UP);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(WATERLOGGED);
    }
 
    public FluidState getFluidState(BlockState p_204507_1_) {

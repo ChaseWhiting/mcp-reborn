@@ -4,10 +4,14 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.block.PaneBlock;
+import net.minecraft.loot.LootTables;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.WorldGenRegistries;
+import net.minecraft.util.valueproviders.ConstantInt;
+
+import java.util.List;
 
 public class ProcessorLists {
    private static final RuleEntry ADD_GILDED_BLACKSTONE = new RuleEntry(new RandomBlockMatchRuleTest(Blocks.BLACKSTONE, 0.01F), AlwaysTrueRuleTest.INSTANCE, Blocks.GILDED_BLACKSTONE.defaultBlockState());
@@ -67,4 +71,30 @@ public class ProcessorLists {
       StructureProcessorList structureprocessorlist = new StructureProcessorList(p_244127_1_);
       return WorldGenRegistries.register(WorldGenRegistries.PROCESSOR_LIST, resourcelocation, structureprocessorlist);
    }
+
+
+   public static final StructureProcessorList TRAIL_RUINS_HOUSES_ARCHAEOLOGY = register("trail_ruins_houses_archaeology", ImmutableList.of(
+           new RuleStructureProcessor(List.of(
+                   new RuleEntry(new RandomBlockMatchRuleTest(Blocks.GRAVEL, 0.2F), AlwaysTrueRuleTest.INSTANCE, Blocks.DIRT.defaultBlockState()),
+                   new RuleEntry(new RandomBlockMatchRuleTest(Blocks.GRAVEL, 0.1F), AlwaysTrueRuleTest.INSTANCE, Blocks.COARSE_DIRT.defaultBlockState()),
+                   new RuleEntry(new RandomBlockMatchRuleTest(Blocks.MUD_BRICKS, 0.1F), AlwaysTrueRuleTest.INSTANCE, Blocks.PACKED_MUD.defaultBlockState()))),
+           trailsArchyLootProcessor(LootTables.TRAIL_RUINS_ARCHAEOLOGY_COMMON, 6),
+           trailsArchyLootProcessor(LootTables.TRAIL_RUINS_ARCHAEOLOGY_RARE, 3)
+   ));
+   public static final StructureProcessorList TRAIL_RUINS_ROADS_ARCHAEOLOGY = register("trail_ruins_roads_archaeology", ImmutableList.of(
+      new RuleStructureProcessor(List.of(
+              new RuleEntry(new RandomBlockMatchRuleTest(Blocks.GRAVEL, 0.2F), AlwaysTrueRuleTest.INSTANCE, Blocks.DIRT.defaultBlockState()),
+              new RuleEntry(new RandomBlockMatchRuleTest(Blocks.GRAVEL, 0.1F), AlwaysTrueRuleTest.INSTANCE, Blocks.COARSE_DIRT.defaultBlockState()),
+              new RuleEntry(new RandomBlockMatchRuleTest(Blocks.MUD_BRICKS, 0.1F), AlwaysTrueRuleTest.INSTANCE, Blocks.PACKED_MUD.defaultBlockState()))),
+           trailsArchyLootProcessor(LootTables.TRAIL_RUINS_ARCHAEOLOGY_COMMON, 2)
+   ));
+   public static final StructureProcessorList TRAIL_RUINS_TOWER_TOP_ARCHAEOLOGY = register("trail_ruins_tower_top_archaeology", ImmutableList.of(
+           trailsArchyLootProcessor(LootTables.TRAIL_RUINS_ARCHAEOLOGY_COMMON, 2)
+   ));
+
+
+   private static CappedProcessor trailsArchyLootProcessor(ResourceLocation resourceLocation, int n) {
+      return new CappedProcessor(new RuleStructureProcessor(List.of(new RuleEntry(new BlockMatchRuleTest(Blocks.GRAVEL), AlwaysTrueRuleTest.INSTANCE, AlwaysTrueTest.INSTANCE, Blocks.SUSPICIOUS_GRAVEL.defaultBlockState(), new AppendLoot(resourceLocation)))), ConstantInt.of(n));
+   }
+
 }

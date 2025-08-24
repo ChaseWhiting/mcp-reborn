@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.state.IntegerProperty;
@@ -41,11 +42,11 @@ public class SweetBerryBushBlock extends BushBlock implements IGrowable {
       return new ItemStack(Items.SWEET_BERRIES);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      if (p_220053_1_.getValue(AGE) == 0) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      if (state.getValue(AGE) == 0) {
          return SAPLING_SHAPE;
       } else {
-         return p_220053_1_.getValue(AGE) < 3 ? MID_GROWTH_SHAPE : super.getShape(p_220053_1_, p_220053_2_, p_220053_3_, p_220053_4_);
+         return state.getValue(AGE) < 3 ? MID_GROWTH_SHAPE : super.getShape(state, world, pos, context);
       }
    }
 
@@ -57,6 +58,7 @@ public class SweetBerryBushBlock extends BushBlock implements IGrowable {
       int i = p_225542_1_.getValue(AGE);
       if (i < 3 && p_225542_4_.nextInt(5) == 0 && p_225542_2_.getRawBrightness(p_225542_3_.above(), 0) >= 9) {
          p_225542_2_.setBlock(p_225542_3_, p_225542_1_.setValue(AGE, Integer.valueOf(i + 1)), 2);
+         p_225542_2_.gameEvent(GameEvent.BLOCK_CHANGE, p_225542_3_, GameEvent.Context.of(p_225542_1_));
       }
 
    }
@@ -85,14 +87,15 @@ public class SweetBerryBushBlock extends BushBlock implements IGrowable {
          popResource(p_225533_2_, p_225533_3_, new ItemStack(Items.SWEET_BERRIES, j + (flag ? 1 : 0)));
          p_225533_2_.playSound((PlayerEntity)null, p_225533_3_, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundCategory.BLOCKS, 1.0F, 0.8F + p_225533_2_.random.nextFloat() * 0.4F);
          p_225533_2_.setBlock(p_225533_3_, p_225533_1_.setValue(AGE, Integer.valueOf(1)), 2);
+         p_225533_2_.gameEvent(GameEvent.BLOCK_CHANGE, p_225533_3_, GameEvent.Context.of(p_225533_4_, p_225533_1_));
          return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);
       } else {
          return super.use(p_225533_1_, p_225533_2_, p_225533_3_, p_225533_4_, p_225533_5_, p_225533_6_);
       }
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AGE);
    }
 
    public boolean isValidBonemealTarget(IBlockReader p_176473_1_, BlockPos p_176473_2_, BlockState p_176473_3_, boolean p_176473_4_) {

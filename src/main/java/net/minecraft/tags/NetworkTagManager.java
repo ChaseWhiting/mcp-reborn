@@ -2,13 +2,18 @@ package net.minecraft.tags;
 
 import com.google.common.collect.Multimap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
-import net.minecraft.block.Block;
+
+import net.minecraft.block.*;
+import net.minecraft.block.family.WoodFamilies;
 import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.item.HarnessItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.resources.IResourceManager;
@@ -31,11 +36,26 @@ public class NetworkTagManager implements IFutureReloadListener {
       CompletableFuture<Map<ResourceLocation, ITag.Builder>> completablefuture1 = this.items.prepare(p_215226_2_, p_215226_5_);
       CompletableFuture<Map<ResourceLocation, ITag.Builder>> completablefuture2 = this.fluids.prepare(p_215226_2_, p_215226_5_);
       CompletableFuture<Map<ResourceLocation, ITag.Builder>> completablefuture3 = this.entityTypes.prepare(p_215226_2_, p_215226_5_);
+
+
+
       return CompletableFuture.allOf(completablefuture, completablefuture1, completablefuture2, completablefuture3).thenCompose(p_215226_1_::wait).thenAcceptAsync((p_232979_5_) -> {
-         ITagCollection<Block> itagcollection = this.blocks.load(completablefuture.join());
-         ITagCollection<Item> itagcollection1 = this.items.load(completablefuture1.join());
+         Map<ResourceLocation, ITag.Builder> itemTagBuilders = completablefuture1.join();
+         Map<ResourceLocation, ITag.Builder> blockTagBuilders = completablefuture.join();
+         Map<ResourceLocation, ITag.Builder> entityTagBuilders = completablefuture3.join();
+
+// Inject your hardcoded tags
+         addHardcodedItemTags(itemTagBuilders);
+         addHardcodedBlockTags(blockTagBuilders);
+         addHardcodedEntityTags(entityTagBuilders);
+// Now load the tag collection from builders
+         ITagCollection<Item> itagcollection1 = this.items.load(itemTagBuilders);
+         ITagCollection<Block> itagcollection = this.blocks.load(blockTagBuilders);
          ITagCollection<Fluid> itagcollection2 = this.fluids.load(completablefuture2.join());
-         ITagCollection<EntityType<?>> itagcollection3 = this.entityTypes.load(completablefuture3.join());
+
+
+         ITagCollection<EntityType<?>> itagcollection3 = this.entityTypes.load(entityTagBuilders);
+
          ITagCollectionSupplier itagcollectionsupplier = ITagCollectionSupplier.of(itagcollection, itagcollection1, itagcollection2, itagcollection3);
          Multimap<ResourceLocation, ResourceLocation> multimap = TagRegistryManager.getAllMissingTags(itagcollectionsupplier);
          if (!multimap.isEmpty()) {
@@ -48,4 +68,17 @@ public class NetworkTagManager implements IFutureReloadListener {
          }
       }, p_215226_6_);
    }
+
+   private void addHardcodedItemTags(Map<ResourceLocation, ITag.Builder> itemTagBuilders) {
+      AddItemTags.addItemTags(itemTagBuilders);
+   }
+
+   private void addHardcodedBlockTags(Map<ResourceLocation, ITag.Builder> blockTagBuilders) {
+      AddBlockTags.addBlockTags(blockTagBuilders);
+   }
+
+   private void addHardcodedEntityTags(Map<ResourceLocation, ITag.Builder> entityTagBuilders) {
+      AddEntityTags.addEntityTags(entityTagBuilders);
+   }
+
 }

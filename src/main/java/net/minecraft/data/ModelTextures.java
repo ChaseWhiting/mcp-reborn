@@ -240,6 +240,19 @@ public class ModelTextures {
       return (new ModelTextures()).put(StockTextureAliases.LAYER0, p_240376_0_);
    }
 
+   public static ModelTextures layered(ResourceLocation layer0, ResourceLocation layer1) {
+      return new ModelTextures()
+              .put(StockTextureAliases.LAYER0, layer0)
+              .put(StockTextureAliases.LAYER1, layer1);
+   }
+
+   public static ModelTextures layered(ResourceLocation layer0, ResourceLocation layer1, ResourceLocation layer2) {
+      return new ModelTextures()
+              .put(StockTextureAliases.LAYER0, layer0)
+              .put(StockTextureAliases.LAYER1, layer1)
+              .put(StockTextureAliases.LAYER2, layer2);
+   }
+
    public static ResourceLocation getBlockTexture(Block p_240341_0_) {
       ResourceLocation resourcelocation = Registry.BLOCK.getKey(p_240341_0_);
       return new ResourceLocation(resourcelocation.getNamespace(), "block/" + resourcelocation.getPath());

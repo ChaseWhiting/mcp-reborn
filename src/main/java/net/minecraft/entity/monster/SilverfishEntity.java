@@ -5,11 +5,7 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SilverfishBlock;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.Goal;
@@ -57,6 +53,11 @@ public class SilverfishEntity extends Monster {
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
       return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
+   }
+
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.EVENTS;
    }
 
    protected boolean isMovementNoisy() {

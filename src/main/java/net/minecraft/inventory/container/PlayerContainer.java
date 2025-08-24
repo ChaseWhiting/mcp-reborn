@@ -9,6 +9,7 @@ import net.minecraft.inventory.CraftResultInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Equipable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.RecipeBookCategory;
@@ -52,6 +53,12 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
                return 1;
             }
 
+            @Override
+            public void set(ItemStack p_75215_1_) {
+               onEquipItem(inventory.player, equipmentslottype, p_75215_1_, this.getItem());
+               super.set(p_75215_1_);
+            }
+
             public boolean mayPlace(ItemStack p_75214_1_) {
                return equipmentslottype == Mob.getEquipmentSlotForItem(p_75214_1_);
             }
@@ -83,11 +90,24 @@ public class PlayerContainer extends RecipeBookContainer<CraftingInventory> {
          public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
             return Pair.of(PlayerContainer.BLOCK_ATLAS, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);
          }
+
+         @Override
+         public void set(ItemStack p_75215_1_) {
+            onEquipItem(inventory.player, EquipmentSlotType.OFFHAND, p_75215_1_, this.getItem());
+            super.set(p_75215_1_);
+         }
       });
    }
 
    public void fillCraftSlotsStackedContents(RecipeItemHelper p_201771_1_) {
       this.craftSlots.fillStackedContents(p_201771_1_);
+   }
+
+   static void onEquipItem(PlayerEntity player, EquipmentSlotType equipmentSlot, ItemStack itemStack, ItemStack itemStack2) {
+      Equipable equipable = Equipable.get(itemStack);
+      if (equipable != null) {
+         player.onEquipItem(equipmentSlot, itemStack2, itemStack);
+      }
    }
 
    public void clearCraftingContent() {

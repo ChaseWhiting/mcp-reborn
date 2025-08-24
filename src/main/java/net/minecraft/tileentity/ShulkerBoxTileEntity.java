@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.Container;
@@ -194,6 +195,7 @@ public class ShulkerBoxTileEntity extends LockableLootTileEntity implements ISid
          ++this.openCount;
          this.level.blockEvent(this.worldPosition, this.getBlockState().getBlock(), 1, this.openCount);
          if (this.openCount == 1) {
+            this.level.gameEvent(p_174889_1_, GameEvent.CONTAINER_OPEN, this.worldPosition);
             this.level.playSound((PlayerEntity)null, this.worldPosition, SoundEvents.SHULKER_BOX_OPEN, SoundCategory.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
          }
       }
@@ -205,6 +207,7 @@ public class ShulkerBoxTileEntity extends LockableLootTileEntity implements ISid
          --this.openCount;
          this.level.blockEvent(this.worldPosition, this.getBlockState().getBlock(), 1, this.openCount);
          if (this.openCount <= 0) {
+            this.level.gameEvent(p_174886_1_, GameEvent.CONTAINER_CLOSE, this.worldPosition);
             this.level.playSound((PlayerEntity)null, this.worldPosition, SoundEvents.SHULKER_BOX_CLOSE, SoundCategory.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
          }
       }

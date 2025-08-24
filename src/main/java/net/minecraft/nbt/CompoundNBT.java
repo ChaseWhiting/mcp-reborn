@@ -22,7 +22,6 @@ import javax.annotation.Nullable;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -39,9 +38,9 @@ public class CompoundNBT implements INBT {
    private static final Logger LOGGER = LogManager.getLogger();
    private static final Pattern SIMPLE_VALUE = Pattern.compile("[A-Za-z0-9._+-]+");
    public static final INBTType<CompoundNBT> TYPE = new INBTType<CompoundNBT>() {
-      public CompoundNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) throws IOException {
+      public CompoundNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) throws IOException {
          p_225649_3_.accountBits(384L);
-         if (p_225649_2_ > 512) {
+         if (depth > 512) {
             throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
          } else {
             Map<String, INBT> map = Maps.newHashMap();
@@ -50,7 +49,7 @@ public class CompoundNBT implements INBT {
             while((b0 = CompoundNBT.readNamedTagType(p_225649_1_, p_225649_3_)) != 0) {
                String s = CompoundNBT.readNamedTagName(p_225649_1_, p_225649_3_);
                p_225649_3_.accountBits((long)(224 + 16 * s.length()));
-               INBT inbt = CompoundNBT.readNamedTagData(NBTTypes.getType(b0), s, p_225649_1_, p_225649_2_ + 1, p_225649_3_);
+               INBT inbt = CompoundNBT.readNamedTagData(NBTTypes.getType(b0), s, p_225649_1_, depth + 1, p_225649_3_);
                if (map.put(s, inbt) != null) {
                   p_225649_3_.accountBits(288L);
                }

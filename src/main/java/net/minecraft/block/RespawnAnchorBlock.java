@@ -143,8 +143,8 @@ public class RespawnAnchorBlock extends Block {
       }
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(CHARGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(CHARGE);
    }
 
    public boolean hasAnalogOutputSignal(BlockState p_149740_1_) {

@@ -45,8 +45,8 @@ public abstract class ThreadTaskExecutor<R extends Runnable> implements ITaskExe
    }
 
    @OnlyIn(Dist.CLIENT)
-   public <V> CompletableFuture<V> submit(Supplier<V> p_213169_1_) {
-      return this.scheduleExecutables() ? CompletableFuture.supplyAsync(p_213169_1_, this) : CompletableFuture.completedFuture(p_213169_1_.get());
+   public <V> CompletableFuture<V> submit(Supplier<V> supplier) {
+      return this.scheduleExecutables() ? CompletableFuture.supplyAsync(supplier, this) : CompletableFuture.completedFuture(supplier.get());
    }
 
    private CompletableFuture<Void> submitAsync(Runnable p_213165_1_) {
@@ -74,8 +74,8 @@ public abstract class ThreadTaskExecutor<R extends Runnable> implements ITaskExe
 
    }
 
-   public void tell(R p_212871_1_) {
-      this.pendingRunnables.add(p_212871_1_);
+   public void tell(R runnable) {
+      this.pendingRunnables.add(runnable);
       LockSupport.unpark(this.getRunningThread());
    }
 
@@ -111,11 +111,11 @@ public abstract class ThreadTaskExecutor<R extends Runnable> implements ITaskExe
       }
    }
 
-   public void managedBlock(BooleanSupplier p_213161_1_) {
+   public void managedBlock(BooleanSupplier supplier) {
       ++this.blockingCount;
 
       try {
-         while(!p_213161_1_.getAsBoolean()) {
+         while(!supplier.getAsBoolean()) {
             if (!this.pollTask()) {
                this.waitForTasks();
             }

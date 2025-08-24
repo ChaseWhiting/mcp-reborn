@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class AbstractRepairScreen<T extends AbstractRepairContainer> extends ContainerScreen<T> implements IContainerListener {
+public abstract class AbstractRepairScreen<T extends AbstractRepairContainer> extends ContainerScreen<T> implements IContainerListener {
    private ResourceLocation menuResource;
 
    public AbstractRepairScreen(T p_i232291_1_, PlayerInventory p_i232291_2_, ITextComponent p_i232291_3_, ResourceLocation p_i232291_4_) {
@@ -54,11 +54,19 @@ public class AbstractRepairScreen<T extends AbstractRepairContainer> extends Con
       int j = (this.height - this.imageHeight) / 2;
       this.blit(p_230450_1_, i, j, 0, 0, this.imageWidth, this.imageHeight);
       this.blit(p_230450_1_, i + 59, j + 20, 0, this.imageHeight + (this.menu.getSlot(0).hasItem() ? 0 : 16), 110, 16);
-      if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem()) && !this.menu.getSlot(2).hasItem()) {
-         this.blit(p_230450_1_, i + 99, j + 45, this.imageWidth, 0, 28, 21);
-      }
+       if (!(this instanceof SmithingTableScreen)) {
+           if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem()) && !this.menu.getSlot(2).hasItem()) {
+              this.blit(p_230450_1_, i + 99, j + 45, this.imageWidth, 0, 28, 21);
+           }
+       }
 
+       this.renderErrorIcon(p_230450_1_, leftPos, topPos);
    }
+
+   protected abstract void renderErrorIcon(MatrixStack var1, int var2, int var3);
+
+
+
 
    public void refreshContainer(Container p_71110_1_, NonNullList<ItemStack> p_71110_2_) {
       this.slotChanged(p_71110_1_, 0, p_71110_1_.getSlot(0).getItem());

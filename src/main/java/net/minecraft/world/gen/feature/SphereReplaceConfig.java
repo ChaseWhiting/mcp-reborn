@@ -15,11 +15,12 @@ public class SphereReplaceConfig implements IFeatureConfig {
          return p_236519_0_.halfHeight;
       }), BlockState.CODEC.listOf().fieldOf("targets").forGetter((p_236517_0_) -> {
          return p_236517_0_.targets;
-      })).apply(p_236518_0_, SphereReplaceConfig::new);
+      }), Codec.BOOL.fieldOf("river").forGetter(i -> i.river)).apply(p_236518_0_, SphereReplaceConfig::new);
    });
    public final BlockState state;
    public final FeatureSpread radius;
    public final int halfHeight;
+   public final boolean river;
    public final List<BlockState> targets;
 
    public SphereReplaceConfig(BlockState p_i241986_1_, FeatureSpread p_i241986_2_, int p_i241986_3_, List<BlockState> p_i241986_4_) {
@@ -27,5 +28,14 @@ public class SphereReplaceConfig implements IFeatureConfig {
       this.radius = p_i241986_2_;
       this.halfHeight = p_i241986_3_;
       this.targets = p_i241986_4_;
+      this.river = false;
+   }
+
+   public SphereReplaceConfig(BlockState p_i241986_1_, FeatureSpread p_i241986_2_, int p_i241986_3_, List<BlockState> p_i241986_4_, boolean b) {
+      this.state = p_i241986_1_;
+      this.radius = p_i241986_2_;
+      this.halfHeight = p_i241986_3_;
+      this.targets = p_i241986_4_;
+      this.river = b;
    }
 }

@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+"textures": {
+"layer0": "item/paint_tube_paint",
+"layer1": "item/paint_tube_base"
+}
+}

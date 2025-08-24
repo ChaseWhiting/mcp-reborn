@@ -12,8 +12,8 @@ public class ReuseableStream<T> {
    private final List<T> cache = Lists.newArrayList();
    private final Spliterator<T> source;
 
-   public ReuseableStream(Stream<T> p_i49816_1_) {
-      this.source = p_i49816_1_.spliterator();
+   public ReuseableStream(Stream<T> stream) {
+      this.source = stream.spliterator();
    }
 
    public Stream<T> getStream() {

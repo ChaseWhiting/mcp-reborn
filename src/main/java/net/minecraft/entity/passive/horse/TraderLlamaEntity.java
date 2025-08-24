@@ -75,7 +75,7 @@ public class TraderLlamaEntity extends LlamaEntity {
       if (this.canDespawn()) {
          this.despawnDelay = this.isLeashedToWanderingTrader() ? ((WanderingTraderEntity)this.getLeashHolder()).getDespawnDelay() - 1 : this.despawnDelay - 1;
          if (this.despawnDelay <= 0) {
-            this.dropLeash(true, false);
+            this.dropLeash();
             this.remove();
          }
 

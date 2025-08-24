@@ -16,7 +16,6 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.MoveTowardsRaidGoal;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.monster.creaking.CreakingEntity;
@@ -24,8 +23,6 @@ import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.PotionItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -44,7 +41,6 @@ import net.minecraft.world.raid.RaidManager;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.builder.Diff;
 
 public abstract class AbstractRaiderEntity extends PatrollerEntity {
    protected static final DataParameter<Boolean> IS_CELEBRATING = EntityDataManager.defineId(AbstractRaiderEntity.class, DataSerializers.BOOLEAN);
@@ -164,17 +160,10 @@ public abstract class AbstractRaiderEntity extends PatrollerEntity {
                }
                Difficulty difficulty = this.level.getDifficulty();
                i = MathHelper.clamp(i, 0, 4);
-               Potion potion = switch(difficulty) {
-                   case PEACEFUL, EASY -> Potions.BAD_OMEN;
-                   case NORMAL -> Potions.STRONG_BAD_OMEN;
-                   case HARD -> Potions.STRONGER_BAD_OMEN;
-               };
-               ItemStack itemStack = PotionUtils.setPotion(new ItemStack(Items.POTION), potion);
 
                EffectInstance effectinstance = new EffectInstance(Effects.BAD_OMEN, 120000, i, false, false, true);
                if (!this.level.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
-                  this.spawnAtLocation(itemStack);
-                 // playerentity.addEffect(effectinstance);
+                  playerentity.addEffect(effectinstance);
                }
             }
          }

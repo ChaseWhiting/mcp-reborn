@@ -1,13 +1,8 @@
 package net.minecraft.entity.passive;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
-import net.minecraft.entity.Pose;
+import net.minecraft.client.animation.AnimationState;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.BreedGoal;
@@ -19,10 +14,15 @@ import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
@@ -33,8 +33,10 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
-public class ChickenEntity extends Animal {
+public class ChickenEntity extends Animal implements WarmColdVariantHolder {
    private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS, Items.BEE_POLLEN);
+   private static final DataParameter<WarmColdVariant> DATA_TYPE_ID = EntityDataManager.defineId(ChickenEntity.class, DataSerializers.WARM_COLD_VARIANT);
+
    public float flap;
    public float flapSpeed;
    public float oFlapSpeed;
@@ -42,6 +44,7 @@ public class ChickenEntity extends Animal {
    public float flapping = 1.0F;
    public int eggTime = this.random.nextInt(6000) + 6000;
    public boolean isChickenJockey;
+   public AnimationState breath = new AnimationState();
 
    public ChickenEntity(EntityType<? extends ChickenEntity> p_i50282_1_, World p_i50282_2_) {
       super(p_i50282_1_, p_i50282_2_);
@@ -59,12 +62,25 @@ public class ChickenEntity extends Animal {
       this.goalSelector.addGoal(7, new LookRandomlyGoal(this));
    }
 
+   protected void defineSynchedData() {
+      super.defineSynchedData();
+      this.entityData.define(DATA_TYPE_ID, WarmColdVariant.TEMPERATE);
+   }
+
    protected float getStandingEyeHeight(Pose p_213348_1_, EntitySize p_213348_2_) {
       return this.isBaby() ? p_213348_2_.height * 0.85F : p_213348_2_.height * 0.92F;
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
       return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 4.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
+   }
+
+   public void tick() {
+      super.tick();
+
+      if (this.level.isClientSide) {
+         this.breath.animateWhen(true, this.tickCount);
+      }
    }
 
    public void aiStep() {
@@ -86,10 +102,19 @@ public class ChickenEntity extends Animal {
       this.flap += this.flapping * 2.0F;
       if (!this.level.isClientSide && this.isAlive() && !this.isBaby() && !this.isChickenJockey() && --this.eggTime <= 0) {
          this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-         this.spawnAtLocation(Items.EGG);
+         this.spawnAtLocation(getEgg());
+         this.gameEvent(GameEvent.ENTITY_PLACE);
          this.eggTime = this.random.nextInt(6000) + 6000;
       }
 
+   }
+
+   public Item getEgg() {
+      return switch (this.getVariant()) {
+          case TEMPERATE -> Items.EGG;
+          case WARM -> Items.WARM_EGG;
+          case COLD -> Items.COLD_EGG;
+      };
    }
 
    public boolean causeFallDamage(float p_225503_1_, float p_225503_2_) {
@@ -113,7 +138,9 @@ public class ChickenEntity extends Animal {
    }
 
    public ChickenEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
-      return EntityType.CHICKEN.create(p_241840_1_);
+      ChickenEntity pig = EntityType.CHICKEN.create(p_241840_1_);
+      pig.setVariant(this.random.nextBoolean() ? this.getVariant() : ((ChickenEntity)p_241840_2_).getVariant());
+      return pig;
    }
 
    public boolean isFood(ItemStack p_70877_1_) {
@@ -126,6 +153,8 @@ public class ChickenEntity extends Animal {
 
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
       super.readAdditionalSaveData(p_70037_1_);
+      this.setVariant(getVariantFromTag(p_70037_1_));
+
       this.isChickenJockey = p_70037_1_.getBoolean("IsChickenJockey");
       if (p_70037_1_.contains("EggLayTime")) {
          this.eggTime = p_70037_1_.getInt("EggLayTime");
@@ -135,6 +164,8 @@ public class ChickenEntity extends Animal {
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
+      this.putVariantToTag((p_213281_1_));
+
       p_213281_1_.putBoolean("IsChickenJockey", this.isChickenJockey);
       p_213281_1_.putInt("EggLayTime", this.eggTime);
    }
@@ -162,5 +193,15 @@ public class ChickenEntity extends Animal {
 
    public void setChickenJockey(boolean p_152117_1_) {
       this.isChickenJockey = p_152117_1_;
+   }
+
+   @Override
+   public void setVariant(WarmColdVariant variant) {
+      entityData.set(DATA_TYPE_ID, variant);
+   }
+
+   @Override
+   public WarmColdVariant getVariant() {
+      return entityData.get(DATA_TYPE_ID);
    }
 }

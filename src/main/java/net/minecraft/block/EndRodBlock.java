@@ -35,8 +35,8 @@ public class EndRodBlock extends DirectionalBlock {
       return state.setValue(FACING, mirroring.mirror(state.getValue(FACING)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      switch(p_220053_1_.getValue(FACING).getAxis()) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      switch(state.getValue(FACING).getAxis()) {
       case X:
       default:
          return X_AXIS_AABB;
@@ -66,8 +66,8 @@ public class EndRodBlock extends DirectionalBlock {
 
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING);
    }
 
    public PushReaction getPistonPushReaction(BlockState p_149656_1_) {

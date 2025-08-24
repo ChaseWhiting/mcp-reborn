@@ -27,7 +27,7 @@ public class MinecraftUUIDFetcher {
         scanner.close();
 
         // Check if the response is empty (which means the username does not exist)
-        if (response.length() == 0) {
+        if (response.isEmpty()) {
             throw new Exception("No UUID found for username: " + username);
         }
 
@@ -62,7 +62,7 @@ public class MinecraftUUIDFetcher {
             scanner.close();
 
             // Check if the response is empty (which means the UUID does not exist or has no names)
-            if (response.length() == 0) {
+            if (response.isEmpty()) {
                 return ""; // Return an empty string if no names are found
             }
 

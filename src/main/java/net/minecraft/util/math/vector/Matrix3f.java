@@ -5,6 +5,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Triple;
+import org.joml.Quaternionf;
 
 public final class Matrix3f {
    private static final float G = 3.0F + 2.0F * (float)Math.sqrt(2.0D);
@@ -23,6 +24,130 @@ public final class Matrix3f {
 
    public Matrix3f() {
    }
+
+   public void rotate(Quaternion quat) {
+      // JOML-style rotation applied directly to the matrix fields
+      Matrix3f mat = this;
+      float w = quat.getW();
+      float x = quat.getX();
+      float y = quat.getY();
+      float z = quat.getZ();
+
+      float w2 = w * w;
+      float x2 = x * x;
+      float y2 = y * y;
+      float z2 = z * z;
+      float zw = z * w;
+      float dzw = zw + zw;
+      float xy = x * y;
+      float dxy = xy + xy;
+      float xz = x * z;
+      float dxz = xz + xz;
+      float yw = y * w;
+      float dyw = yw + yw;
+      float yz = y * z;
+      float dyz = yz + yz;
+      float xw = x * w;
+      float dxw = xw + xw;
+
+      float rm00 = w2 + x2 - z2 - y2;
+      float rm01 = dxy + dzw;
+      float rm02 = dxz - dyw;
+      float rm10 = dxy - dzw;
+      float rm11 = y2 - z2 + w2 - x2;
+      float rm12 = dyz + dxw;
+      float rm20 = dyw + dxz;
+      float rm21 = dyz - dxw;
+      float rm22 = z2 - y2 - x2 + w2;
+
+      float nm00 = mat.m00 * rm00 + mat.m10 * rm01 + mat.m20 * rm02;
+      float nm01 = mat.m01 * rm00 + mat.m11 * rm01 + mat.m21 * rm02;
+      float nm02 = mat.m02 * rm00 + mat.m12 * rm01 + mat.m22 * rm02;
+      float nm10 = mat.m00 * rm10 + mat.m10 * rm11 + mat.m20 * rm12;
+      float nm11 = mat.m01 * rm10 + mat.m11 * rm11 + mat.m21 * rm12;
+      float nm12 = mat.m02 * rm10 + mat.m12 * rm11 + mat.m22 * rm12;
+      float nm20 = mat.m00 * rm20 + mat.m10 * rm21 + mat.m20 * rm22;
+      float nm21 = mat.m01 * rm20 + mat.m11 * rm21 + mat.m21 * rm22;
+      float nm22 = mat.m02 * rm20 + mat.m12 * rm21 + mat.m22 * rm22;
+
+      mat.m00 = nm00;
+      mat.m01 = nm01;
+      mat.m02 = nm02;
+      mat.m10 = nm10;
+      mat.m11 = nm11;
+      mat.m12 = nm12;
+      mat.m20 = nm20;
+      mat.m21 = nm21;
+      mat.m22 = nm22;
+   }
+
+
+
+   public static org.joml.Matrix3f toJoml(Matrix3f mcMatrix) {
+      org.joml.Matrix3f joml = new org.joml.Matrix3f();
+      for (int col = 0; col < 3; col++) {
+         for (int row = 0; row < 3; row++) {
+            joml.set(col, row, mcMatrix.get(col, row)); // Minecraft Matrix3f has get(col, row)
+         }
+      }
+      return joml;
+   }
+
+   public static Matrix3f fromJoml(org.joml.Matrix3f jomlMatrix) {
+      Matrix3f mcMatrix = new Matrix3f();
+      for (int col = 0; col < 3; col++) {
+         for (int row = 0; row < 3; row++) {
+            mcMatrix.set(col, row, jomlMatrix.get(col, row));
+         }
+      }
+      return mcMatrix;
+   }
+
+   public float get(int col, int row) {
+      switch (col) {
+         case 0:
+            switch (row) {
+               case 0: return m00;
+               case 1: return m01;
+               case 2: return m02;
+            }
+            break;
+         case 1:
+            switch (row) {
+               case 0: return m10;
+               case 1: return m11;
+               case 2: return m12;
+            }
+            break;
+         case 2:
+            switch (row) {
+               case 0: return m20;
+               case 1: return m21;
+               case 2: return m22;
+            }
+            break;
+      }
+      throw new IndexOutOfBoundsException("col=" + col + ", row=" + row);
+   }
+
+
+
+
+
+
+
+   public static Vector3f transform(Matrix3f matrix, Vector3f vec) {
+      float x = vec.x();
+      float y = vec.y();
+      float z = vec.z();
+
+      float newX = matrix.m00 * x + matrix.m01 * y + matrix.m02 * z;
+      float newY = matrix.m10 * x + matrix.m11 * y + matrix.m12 * z;
+      float newZ = matrix.m20 * x + matrix.m21 * y + matrix.m22 * z;
+
+      return new Vector3f(newX, newY, newZ);
+   }
+
 
    public Matrix3f(Quaternion p_i225696_1_) {
       float f = p_i225696_1_.i();
@@ -49,7 +174,33 @@ public final class Matrix3f {
       this.m12 = 2.0F * (f8 - f10);
    }
 
-   @OnlyIn(Dist.CLIENT)
+   public Matrix3f(Quaternionf p_i225696_1_) {
+      float f = p_i225696_1_.x();
+      float f1 = p_i225696_1_.y();
+      float f2 = p_i225696_1_.z();
+      float f3 = p_i225696_1_.w();
+      float f4 = 2.0F * f * f;
+      float f5 = 2.0F * f1 * f1;
+      float f6 = 2.0F * f2 * f2;
+      this.m00 = 1.0F - f5 - f6;
+      this.m11 = 1.0F - f6 - f4;
+      this.m22 = 1.0F - f4 - f5;
+      float f7 = f * f1;
+      float f8 = f1 * f2;
+      float f9 = f2 * f;
+      float f10 = f * f3;
+      float f11 = f1 * f3;
+      float f12 = f2 * f3;
+      this.m10 = 2.0F * (f7 + f12);
+      this.m01 = 2.0F * (f7 - f12);
+      this.m20 = 2.0F * (f9 - f11);
+      this.m02 = 2.0F * (f9 + f11);
+      this.m21 = 2.0F * (f8 + f10);
+      this.m12 = 2.0F * (f8 - f10);
+   }
+
+
+    @OnlyIn(Dist.CLIENT)
    public static Matrix3f createScaleMatrix(float p_226117_0_, float p_226117_1_, float p_226117_2_) {
       Matrix3f matrix3f = new Matrix3f();
       matrix3f.m00 = p_226117_0_;
@@ -424,6 +575,11 @@ public final class Matrix3f {
 
    @OnlyIn(Dist.CLIENT)
    public void mul(Quaternion p_226115_1_) {
+      this.mul(new Matrix3f(p_226115_1_));
+   }
+
+   @OnlyIn(Dist.CLIENT)
+   public void mul(Quaternionf p_226115_1_) {
       this.mul(new Matrix3f(p_226115_1_));
    }
 

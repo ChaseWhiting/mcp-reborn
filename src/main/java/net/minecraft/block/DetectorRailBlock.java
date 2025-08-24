@@ -264,7 +264,7 @@ public class DetectorRailBlock extends AbstractRailBlock {
       return super.mirror(state, mirroring);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(SHAPE, POWERED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(SHAPE, POWERED);
    }
 }

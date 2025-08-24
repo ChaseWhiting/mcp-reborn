@@ -33,14 +33,14 @@ import org.apache.logging.log4j.Logger;
 public class AnvilSaveConverter {
    private static final Logger LOGGER = LogManager.getLogger();
 
-   static boolean convertLevel(SaveFormat.LevelSave p_237330_0_, IProgressUpdate p_237330_1_) {
-      p_237330_1_.progressStagePercentage(0);
+   static boolean convertLevel(SaveFormat.LevelSave save, IProgressUpdate iProgressUpdate) {
+      iProgressUpdate.progressStagePercentage(0);
       List<File> list = Lists.newArrayList();
       List<File> list1 = Lists.newArrayList();
       List<File> list2 = Lists.newArrayList();
-      File file1 = p_237330_0_.getDimensionPath(World.OVERWORLD);
-      File file2 = p_237330_0_.getDimensionPath(World.NETHER);
-      File file3 = p_237330_0_.getDimensionPath(World.END);
+      File file1 = save.getDimensionPath(World.OVERWORLD);
+      File file2 = save.getDimensionPath(World.NETHER);
+      File file3 = save.getDimensionPath(World.END);
       LOGGER.info("Scanning folders...");
       addRegionFiles(file1, list);
       if (file2.exists()) {
@@ -55,7 +55,7 @@ public class AnvilSaveConverter {
       LOGGER.info("Total conversion count is {}", (int)i);
       DynamicRegistries.Impl dynamicregistries$impl = DynamicRegistries.builtin();
       WorldSettingsImport<INBT> worldsettingsimport = WorldSettingsImport.create(NBTDynamicOps.INSTANCE, IResourceManager.Instance.INSTANCE, dynamicregistries$impl);
-      IServerConfiguration iserverconfiguration = p_237330_0_.getDataTag(worldsettingsimport, DatapackCodec.DEFAULT);
+      IServerConfiguration iserverconfiguration = save.getDataTag(worldsettingsimport, DatapackCodec.DEFAULT);
       long j = iserverconfiguration != null ? iserverconfiguration.worldGenSettings().seed() : 0L;
       Registry<Biome> registry = dynamicregistries$impl.registryOrThrow(Registry.BIOME_REGISTRY);
       BiomeProvider biomeprovider;
@@ -65,16 +65,16 @@ public class AnvilSaveConverter {
          biomeprovider = new OverworldBiomeProvider(j, false, false, registry);
       }
 
-      convertRegions(dynamicregistries$impl, new File(file1, "region"), list, biomeprovider, 0, i, p_237330_1_);
-      convertRegions(dynamicregistries$impl, new File(file2, "region"), list1, new SingleBiomeProvider(registry.getOrThrow(Biomes.NETHER_WASTES)), list.size(), i, p_237330_1_);
-      convertRegions(dynamicregistries$impl, new File(file3, "region"), list2, new SingleBiomeProvider(registry.getOrThrow(Biomes.THE_END)), list.size() + list1.size(), i, p_237330_1_);
-      makeMcrLevelDatBackup(p_237330_0_);
-      p_237330_0_.saveDataTag(dynamicregistries$impl, iserverconfiguration);
+      convertRegions(dynamicregistries$impl, new File(file1, "region"), list, biomeprovider, 0, i, iProgressUpdate);
+      convertRegions(dynamicregistries$impl, new File(file2, "region"), list1, new SingleBiomeProvider(registry.getOrThrow(Biomes.NETHER_WASTES)), list.size(), i, iProgressUpdate);
+      convertRegions(dynamicregistries$impl, new File(file3, "region"), list2, new SingleBiomeProvider(registry.getOrThrow(Biomes.THE_END)), list.size() + list1.size(), i, iProgressUpdate);
+      makeMcrLevelDatBackup(save);
+      save.saveDataTag(dynamicregistries$impl, iserverconfiguration);
       return true;
    }
 
-   private static void makeMcrLevelDatBackup(SaveFormat.LevelSave p_237329_0_) {
-      File file1 = p_237329_0_.getLevelPath(FolderName.LEVEL_DATA_FILE).toFile();
+   private static void makeMcrLevelDatBackup(SaveFormat.LevelSave save) {
+      File file1 = save.getLevelPath(FolderName.LEVEL_DATA_FILE).toFile();
       if (!file1.exists()) {
          LOGGER.warn("Unable to create level.dat_mcr backup");
       } else {
@@ -86,9 +86,9 @@ public class AnvilSaveConverter {
       }
    }
 
-   private static void convertRegions(DynamicRegistries.Impl p_242983_0_, File p_242983_1_, Iterable<File> p_242983_2_, BiomeProvider p_242983_3_, int p_242983_4_, int p_242983_5_, IProgressUpdate p_242983_6_) {
-      for(File file1 : p_242983_2_) {
-         convertRegion(p_242983_0_, p_242983_1_, file1, p_242983_3_, p_242983_4_, p_242983_5_, p_242983_6_);
+   private static void convertRegions(DynamicRegistries.Impl impl, File file, Iterable<File> fileIterable, BiomeProvider provider, int p_242983_4_, int p_242983_5_, IProgressUpdate p_242983_6_) {
+      for(File file1 : fileIterable) {
+         convertRegion(impl, file, file1, provider, p_242983_4_, p_242983_5_, p_242983_6_);
          ++p_242983_4_;
          int i = (int)Math.round(100.0D * (double)p_242983_4_ / (double)p_242983_5_);
          p_242983_6_.progressStagePercentage(i);

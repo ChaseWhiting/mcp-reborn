@@ -73,6 +73,8 @@ public class RegistryUtils {
             case "structure_processor" -> Registry.STRUCTURE_PROCESSOR;
             case "structure_pool_element" -> Registry.STRUCTURE_POOL_ELEMENT;
             case "frisbee" -> Registry.FRISBEE_DATA;
+            case "trim_material" -> Registry.TRIM_MATERIAL;
+            case "trim_pattern" -> Registry.TRIM_PATTERN;
             default -> Registry.REGISTRY;
         };
     }

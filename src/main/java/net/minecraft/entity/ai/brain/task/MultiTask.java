@@ -69,7 +69,7 @@ public class MultiTask<E extends LivingEntity> extends Task<E> {
       return "(" + this.getClass().getSimpleName() + "): " + set;
    }
 
-   static enum Ordering {
+   public static enum Ordering {
       ORDERED((p_220627_0_) -> {
       }),
       SHUFFLED(WeightedList::shuffle);
@@ -85,7 +85,7 @@ public class MultiTask<E extends LivingEntity> extends Task<E> {
       }
    }
 
-   static enum RunType {
+   public static enum RunType {
       RUN_ONE {
          public <E extends LivingEntity> void apply(WeightedList<Task<? super E>> p_220630_1_, ServerWorld p_220630_2_, E p_220630_3_, long p_220630_4_) {
             p_220630_1_.stream().filter((p_220634_0_) -> {

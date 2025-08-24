@@ -1,8 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
 import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuSecondFormEntity;
-import net.minecraft.entity.terraria.monster.demoneye.EyeOfCthulhuModel;
 import net.minecraft.entity.terraria.monster.demoneye.EyeOfCthulhuSecondFormModel;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;

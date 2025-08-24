@@ -13,6 +13,9 @@ public abstract class BiomeRegistry {
 
    private static Biome register(int p_244204_0_, RegistryKey<Biome> p_244204_1_, Biome p_244204_2_) {
       TO_NAME.put(p_244204_0_, p_244204_1_);
+
+      BiomeConstants.ID_BIOME_MAP.put(p_244204_1_, p_244204_0_);
+
       return WorldGenRegistries.registerMapping(WorldGenRegistries.BIOME, p_244204_0_, p_244204_1_, p_244204_2_);
    }
 
@@ -101,6 +104,10 @@ public abstract class BiomeRegistry {
       register(173, Biomes.BASALT_DELTAS, BiomeMaker.basaltDeltasBiome());
       register(200, Biomes.PALE_GARDEN, BiomeMaker.paleGardenBiome(1.2F, 0.007F));
       register(201, Biomes.PALE_GARDEN_CRATER, BiomeMaker.paleGardenBiome(-0.2F, 0.02F));
+      register(203, Biomes.DEEP_DARK, BiomeMaker.sandyDrylands(0.125F, 0.05F, true));
+      register(204, Biomes.SANDY_DRYLANDS, BiomeMaker.sandyDrylands(0.125F, 0.05F, false));
+
+
 
    }
 }

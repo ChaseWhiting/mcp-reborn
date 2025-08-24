@@ -37,6 +37,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.Atlases;
 import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.model.multipart.Multipart;
@@ -49,6 +50,8 @@ import net.minecraft.client.renderer.tileentity.BellTileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.ConduitTileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.EnchantmentTableTileEntityRenderer;
 import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.equipment.trim.PalettedPermutations;
+import net.minecraft.item.equipment.trim.TrimPattern;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
@@ -70,6 +73,8 @@ import org.apache.logging.log4j.Logger;
 public class ModelBakery {
    public static final RenderMaterial FIRE_0 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("block/fire_0"));
    public static final RenderMaterial FIRE_1 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("block/fire_1"));
+   public static final RenderMaterial SOUL_FIRE_0 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("block/soul_fire_0"));
+   public static final RenderMaterial SOUL_FIRE_1 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("block/soul_fire_1"));
    public static final RenderMaterial LAVA_FLOW = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("block/lava_flow"));
    public static final RenderMaterial WATER_FLOW = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("block/water_flow"));
    public static final RenderMaterial WATER_OVERLAY = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation("block/water_overlay"));
@@ -92,6 +97,8 @@ public class ModelBakery {
       p_229337_0_.add(WATER_OVERLAY);
       p_229337_0_.add(FIRE_0);
       p_229337_0_.add(FIRE_1);
+      p_229337_0_.add(SOUL_FIRE_0);
+      p_229337_0_.add(SOUL_FIRE_1);
       p_229337_0_.add(BellTileEntityRenderer.BELL_RESOURCE_LOCATION);
       p_229337_0_.add(ConduitTileEntityRenderer.SHELL_TEXTURE);
       p_229337_0_.add(ConduitTileEntityRenderer.ACTIVE_SHELL_TEXTURE);
@@ -185,12 +192,28 @@ public class ModelBakery {
 
       p_i226056_3_.popPush("special");
       this.loadTopLevel(new ModelResourceLocation("minecraft:trident_in_hand#inventory"));
+      this.loadTopLevel(ItemRenderer.SPYGLASS_IN_HAND_MODEL);
+
+      for (String name : PalettedPermutations.TRIM_MATERIAL_IDS) {
+         if (name.contains("darker")) continue;
+
+         this.loadTopLevel(new ModelResourceLocation("minecraft:trim/spyglass/model/spyglass_model_" + name + "#inventory"));
+         this.loadTopLevel(new ModelResourceLocation("minecraft:trim/spyglass/spyglass_" + name + "#inventory"));
+
+      }
+
       p_i226056_3_.popPush("textures");
       Set<Pair<String, String>> set = Sets.newLinkedHashSet();
       Set<RenderMaterial> set1 = this.topLevelModels.values().stream().flatMap((p_229342_2_) -> {
          return p_229342_2_.getMaterials(this::getModel, set).stream();
       }).collect(Collectors.toSet());
       set1.addAll(UNREFERENCED_TEXTURES);
+      // BEGIN ARMOR TRIM SPRITES PATCH
+      for (TrimPattern pattern : Registry.TRIM_PATTERN) {
+         set1.add(new RenderMaterial(Atlases.ARMOR_TRIMS_SHEET, pattern.getAssetId()));
+      }
+
+
       set.stream().filter((p_229346_0_) -> {
          return !p_229346_0_.getSecond().equals(MISSING_MODEL_LOCATION_STRING);
       }).forEach((p_229330_0_) -> {

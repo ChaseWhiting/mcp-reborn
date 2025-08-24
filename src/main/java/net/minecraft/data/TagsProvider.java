@@ -92,7 +92,7 @@ public abstract class TagsProvider<T> implements IDataProvider {
       private final Registry<T> registry;
       private final String source;
 
-      private Builder(ITag.Builder p_i232553_1_, Registry<T> p_i232553_2_, String p_i232553_3_) {
+      public Builder(ITag.Builder p_i232553_1_, Registry<T> p_i232553_2_, String p_i232553_3_) {
          this.builder = p_i232553_1_;
          this.registry = p_i232553_2_;
          this.source = p_i232553_3_;

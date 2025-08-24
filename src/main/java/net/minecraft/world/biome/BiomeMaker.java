@@ -814,7 +814,7 @@ public class BiomeMaker {
               .specialEffects((new BiomeAmbience.Builder())
                       .waterColor(0x617B64)
                       .waterFogColor(0x4C6559)
-                      .fogColor(0x817770)
+                      .fogColor(0xa0a8b8)
                       .skyColor(calculateSkyColor(2.0F))
                       .grassColorOverride(0x9a7d49)
                       .foliageColorOverride(0xa49549)

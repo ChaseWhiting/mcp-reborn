@@ -8,6 +8,10 @@ public class ConfiguredCarvers {
    public static final ConfiguredCarver<ProbabilityConfig> PALE_GARDEN_CAVE = register("pale_garden_cave", WorldCarver.PALE_GARDEN_CARVER.configured(new ProbabilityConfig(0.34285715F)));
 
    public static final ConfiguredCarver<ProbabilityConfig> CANYON = register("canyon", WorldCarver.CANYON.configured(new ProbabilityConfig(0.02F)));
+   public static final ConfiguredCarver<ProbabilityConfig> HUGE_CANYON = register("huge_canyon", WorldCarver.HUGE_CANYON.configured(new ProbabilityConfig(0.35F)));
+
+   public static final ConfiguredCarver<ProbabilityConfig> SMALL_CANYON = register("small_canyon", WorldCarver.SMALL_CANYON_CARVER.configured(new ProbabilityConfig(0.75F)));
+
    public static final ConfiguredCarver<ProbabilityConfig> OCEAN_CAVE = register("ocean_cave", WorldCarver.CAVE.configured(new ProbabilityConfig(0.06666667F)));
    public static final ConfiguredCarver<ProbabilityConfig> UNDERWATER_CANYON = register("underwater_canyon", WorldCarver.UNDERWATER_CANYON.configured(new ProbabilityConfig(0.02F)));
    public static final ConfiguredCarver<ProbabilityConfig> UNDERWATER_CAVE = register("underwater_cave", WorldCarver.UNDERWATER_CAVE.configured(new ProbabilityConfig(0.06666667F)));

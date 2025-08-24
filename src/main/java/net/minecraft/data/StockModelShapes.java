@@ -3,7 +3,6 @@ package net.minecraft.data;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import net.minecraft.client.renderer.model.Model;
 import net.minecraft.util.ResourceLocation;
 
 public class StockModelShapes {
@@ -106,6 +105,8 @@ public class StockModelShapes {
    public static final ModelsUtil FOUR_TURTLE_EGGS = create("template_four_turtle_eggs", StockTextureAliases.ALL);
    public static final ModelsUtil SINGLE_FACE = create("template_single_face", StockTextureAliases.TEXTURE);
    public static final ModelsUtil FLAT_ITEM = createItem("generated", StockTextureAliases.LAYER0);
+   public static final ModelsUtil TWO_LAYERED_ITEM = createItem("generated", StockTextureAliases.LAYER0, StockTextureAliases.LAYER1);
+   public static final ModelsUtil THREE_LAYERED_ITEM = createItem("generated", StockTextureAliases.LAYER0, StockTextureAliases.LAYER1, StockTextureAliases.LAYER2);
    public static final ModelsUtil FLAT_HANDHELD_ITEM = createItem("handheld", StockTextureAliases.LAYER0);
    public static final ModelsUtil FLAT_HANDHELD_ROD_ITEM = createItem("handheld_rod", StockTextureAliases.LAYER0);
    public static final ModelsUtil SHULKER_BOX_INVENTORY = createItem("template_shulker_box", StockTextureAliases.PARTICLE);

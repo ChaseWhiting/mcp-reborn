@@ -5,17 +5,16 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.monster.ShulkerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.potion.Potions;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DrinkHelper;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.*;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -67,8 +66,39 @@ public class PotionItem extends Item {
             playerentity.inventory.add(new ItemStack(Items.GLASS_BOTTLE));
          }
       }
-
+      entity.gameEvent(GameEvent.DRINK);
       return itemStack;
+   }
+
+
+   public ActionResultType interactLivingEntity(ItemStack stack, PlayerEntity playerentity, LivingEntity entity, Hand hand) {
+      if (PotionUtils.getPotion(stack) == Potions.WATER && entity instanceof ShulkerEntity) {
+         ShulkerEntity shulkerEntity = (ShulkerEntity) entity;
+
+         if (shulkerEntity.getTeamColor() == 16777215) {
+            if (shulkerEntity.isAlive() && shulkerEntity.getColor() != null) {
+               shulkerEntity.level.playSound(playerentity, shulkerEntity, SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                if (!playerentity.level.isClientSide) {
+                    shulkerEntity.setColor(null);
+                    if (stack.getCount() > 1) {
+                       if (!playerentity.abilities.instabuild) {
+                          stack.shrink(1);
+                          playerentity.addOrDrop(new ItemStack(Items.GLASS_BOTTLE, 1));
+                       }
+                    } else {
+                        if (!playerentity.abilities.instabuild) {
+                            playerentity.setItemInHand(hand, new ItemStack(Items.GLASS_BOTTLE, 1));
+                        }
+                    }
+                }
+
+                return ActionResultType.sidedSuccess(playerentity.level.isClientSide);
+            }
+         }
+
+      }
+
+      return ActionResultType.PASS;
    }
 
    public int getUseDuration(ItemStack p_77626_1_) {

@@ -29,6 +29,22 @@ public final class Quaternion {
       this.r = r;
    }
 
+   public float getW() {
+      return r;
+   }
+
+   public float getX() {
+      return i;
+   }
+
+   public float getY() {
+      return j;
+   }
+
+   public float getZ() {
+      return k;
+   }
+
    /**
     * Constructs a quaternion representing a rotation around a given axis.
     *
@@ -186,11 +202,11 @@ public final class Quaternion {
       this.r = r;
    }
 
-   private static float cos(float value) {
+   public static float cos(float value) {
       return (float)Math.cos((double)value);
    }
 
-   private static float sin(float value) {
+   public static float sin(float value) {
       return (float)Math.sin((double)value);
    }
 

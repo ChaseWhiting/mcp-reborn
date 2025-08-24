@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.warden.event.vibrations.ClipBlockStateContext;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -59,6 +60,40 @@ public interface IBlockReader {
          return BlockRayTraceResult.miss(nextContext.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), new BlockPos(nextContext.getTo()));
       });
    }
+
+   default public BlockRayTraceResult isBlockInLine(RayTraceContext rayTraceContext) {
+      return traverseBlocks(rayTraceContext, (context, position) -> {
+         BlockState blockState = this.getBlockState(position);
+         Vector3d from = context.getFrom();
+         Vector3d to = context.getTo();
+         Vector3d directionVector = from.subtract(to);
+
+         // Check if the block matches the desired condition
+         if (context.getBlock() == RayTraceContext.BlockMode.COLLIDER && !blockState.getShape(this, position).isEmpty()) {
+            return new BlockRayTraceResult(to, Direction.getNearest(directionVector.x, directionVector.y, directionVector.z), position, false);
+         }
+
+         return null;
+      }, (context) -> {
+         Vector3d from = context.getFrom();
+         Vector3d to = context.getTo();
+         Vector3d directionVector = from.subtract(to);
+
+         return BlockRayTraceResult.miss(to, Direction.getNearest(directionVector.x, directionVector.y, directionVector.z), new BlockPos(to));
+      });
+   }
+
+   default public BlockRayTraceResult isBlockInLine(ClipBlockStateContext clipBlockStateContext2) {
+      return traverseBlocks(clipBlockStateContext2.getFrom(), clipBlockStateContext2.getTo(), clipBlockStateContext2, (clipBlockStateContext, blockPos) -> {
+         BlockState blockState = this.getBlockState(blockPos);
+         Vector3d vector3D = clipBlockStateContext.getFrom().subtract(clipBlockStateContext.getTo());
+         return clipBlockStateContext.isTargetBlock().test(blockState) ? new BlockRayTraceResult(clipBlockStateContext.getTo(), Direction.getNearest(vector3D.x, vector3D.y, vector3D.z), new BlockPos(clipBlockStateContext.getTo()), false) : null;
+      }, clipBlockStateContext -> {
+         Vector3d vector3D = clipBlockStateContext.getFrom().subtract(clipBlockStateContext.getTo());
+         return BlockRayTraceResult.miss(clipBlockStateContext.getTo(), Direction.getNearest(vector3D.x, vector3D.y, vector3D.z), new BlockPos(clipBlockStateContext.getTo()));
+      });
+   }
+
 
    @Nullable
    default BlockRayTraceResult clipWithInteractionOverride(Vector3d p_217296_1_, Vector3d p_217296_2_, BlockPos p_217296_3_, VoxelShape p_217296_4_, BlockState p_217296_5_) {
@@ -148,5 +183,58 @@ public interface IBlockReader {
             return p_217300_2_.apply(p_217300_0_);
          }
       }
+   }
+
+   public static <T, C> T traverseBlocks(Vector3d vector3D, Vector3d vector32D, C c, BiFunction<C, BlockPos, T> biFunction, Function<C, T> function) {
+      int n;
+      int n2;
+      if (vector3D.equals(vector32D)) {
+         return function.apply(c);
+      }
+      double d = MathHelper.lerp(-1.0E-7, vector32D.x, vector3D.x);
+      double d2 = MathHelper.lerp(-1.0E-7, vector32D.y, vector3D.y);
+      double d3 = MathHelper.lerp(-1.0E-7, vector32D.z, vector3D.z);
+      double d4 = MathHelper.lerp(-1.0E-7, vector3D.x, vector32D.x);
+      double d5 = MathHelper.lerp(-1.0E-7, vector3D.y, vector32D.y);
+      double d6 = MathHelper.lerp(-1.0E-7, vector3D.z, vector32D.z);
+      int n3 = MathHelper.floor(d4);
+      BlockPos.Mutable mutableBlockPos = new BlockPos.Mutable(n3, n2 = MathHelper.floor(d5), n = MathHelper.floor(d6));
+      T t = biFunction.apply(c, mutableBlockPos);
+      if (t != null) {
+         return t;
+      }
+      double d7 = d - d4;
+      double d8 = d2 - d5;
+      double d9 = d3 - d6;
+      int n4 = MathHelper.sign(d7);
+      int n5 = MathHelper.sign(d8);
+      int n6 = MathHelper.sign(d9);
+      double d10 = n4 == 0 ? Double.MAX_VALUE : (double)n4 / d7;
+      double d11 = n5 == 0 ? Double.MAX_VALUE : (double)n5 / d8;
+      double d12 = n6 == 0 ? Double.MAX_VALUE : (double)n6 / d9;
+      double d13 = d10 * (n4 > 0 ? 1.0 - MathHelper.frac(d4) : MathHelper.frac(d4));
+      double d14 = d11 * (n5 > 0 ? 1.0 - MathHelper.frac(d5) : MathHelper.frac(d5));
+      double d15 = d12 * (n6 > 0 ? 1.0 - MathHelper.frac(d6) : MathHelper.frac(d6));
+      while (d13 <= 1.0 || d14 <= 1.0 || d15 <= 1.0) {
+         T t2;
+         if (d13 < d14) {
+            if (d13 < d15) {
+               n3 += n4;
+               d13 += d10;
+            } else {
+               n += n6;
+               d15 += d12;
+            }
+         } else if (d14 < d15) {
+            n2 += n5;
+            d14 += d11;
+         } else {
+            n += n6;
+            d15 += d12;
+         }
+         if ((t2 = biFunction.apply(c, mutableBlockPos.set(n3, n2, n))) == null) continue;
+         return t2;
+      }
+      return function.apply(c);
    }
 }

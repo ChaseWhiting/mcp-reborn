@@ -85,7 +85,7 @@ public class FlowingFluidBlock extends Block implements IBucketPickupHandler {
       return Collections.emptyList();
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return VoxelShapes.empty();
    }
 
@@ -141,8 +141,8 @@ public class FlowingFluidBlock extends Block implements IBucketPickupHandler {
       p_180688_1_.levelEvent(1501, p_180688_2_, 0);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(LEVEL);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(LEVEL);
    }
 
    public Fluid takeLiquid(IWorld p_204508_1_, BlockPos p_204508_2_, BlockState p_204508_3_) {

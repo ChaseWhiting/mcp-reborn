@@ -7,6 +7,8 @@ public class BlockPlacerType<P extends BlockPlacer> {
    public static final BlockPlacerType<SimpleBlockPlacer> SIMPLE_BLOCK_PLACER = register("simple_block_placer", SimpleBlockPlacer.CODEC);
    public static final BlockPlacerType<DoublePlantBlockPlacer> DOUBLE_PLANT_PLACER = register("double_plant_placer", DoublePlantBlockPlacer.CODEC);
    public static final BlockPlacerType<ColumnBlockPlacer> COLUMN_PLACER = register("column_placer", ColumnBlockPlacer.CODEC);
+   public static final BlockPlacerType<CactusColumnBlockPlacer> CACTUS_PLACER = register("cactus_placer", CactusColumnBlockPlacer.CODEC);
+
    private final Codec<P> codec;
 
    private static <P extends BlockPlacer> BlockPlacerType<P> register(String p_236438_0_, Codec<P> p_236438_1_) {

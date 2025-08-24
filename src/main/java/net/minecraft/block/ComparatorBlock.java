@@ -151,7 +151,7 @@ public class ComparatorBlock extends RedstoneDiodeBlock implements ITileEntityPr
       return new ComparatorTileEntity();
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, MODE, POWERED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, MODE, POWERED);
    }
 }

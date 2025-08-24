@@ -10,7 +10,6 @@ import net.minecraft.command.Commands;
 import net.minecraft.groovy.MinecraftUUIDFetcher;
 import net.minecraft.groovy.UUIDData;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.ITextComponent;
 
 import java.util.concurrent.CompletableFuture;
 

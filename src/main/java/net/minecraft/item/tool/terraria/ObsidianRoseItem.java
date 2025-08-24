@@ -1,12 +1,8 @@
 package net.minecraft.item.tool.terraria;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CampfireBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Rarity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
 import net.minecraft.world.World;
 
 public class ObsidianRoseItem extends AccessoryItem {

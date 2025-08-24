@@ -1,20 +1,16 @@
 package net.minecraft.testing;
 // Import necessary classes
 import com.mojang.authlib.GameProfile;
-import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketDirection;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
-import net.minecraft.network.play.server.SEntityVelocityPacket;
-import net.minecraft.network.play.server.SJoinGamePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.Gamemode;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 

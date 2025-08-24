@@ -31,6 +31,12 @@ public class StructureFeatures {
    public static final StructureFeature<VillageConfig, ? extends Structure<VillageConfig>> BASTION_REMNANT = register("bastion_remnant", Structure.BASTION_REMNANT.configured(new VillageConfig(() -> {
       return BastionRemnantsPieces.START;
    }, 6)));
+
+   public static final StructureFeature<VillageConfig, ? extends Structure<VillageConfig>> TRAIL_RUINS = register("trail_ruins", Structure.TRAIL_RUINS.configured(new VillageConfig(() -> {
+      return TrailRuinsRegistry.START;
+   }, 7)));
+
+
    public static final StructureFeature<VillageConfig, ? extends Structure<VillageConfig>> VILLAGE_PLAINS = register("village_plains", Structure.VILLAGE.configured(new VillageConfig(() -> {
       return PlainsVillagePools.START;
    }, 6)));

@@ -5,8 +5,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FrisbeeEntity;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
-import net.minecraft.world.Dimension;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 
 import java.util.Arrays;

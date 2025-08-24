@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ICrossbowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -128,6 +129,7 @@ public class BoggedUtils {
         }
         if (itemInHand.getItem() == (Items.SHEARS) && bogged.readyForShearing()) {
             player.swing(hand);
+            bogged.gameEvent(GameEvent.SHEAR, player);
             if (bogged.getRandom().nextInt(4) == 0 && bogged.getBoggedType() == BoggedType.BLOSSOMED && bogged.getTrustedPlayer().get(0) == null && bogged.level.isServerSide) {
                 bogged.setTrustedPlayer(player.getUUID());
                 bogged.getAttribute(Attributes.MAX_HEALTH).setBaseValue(30D);

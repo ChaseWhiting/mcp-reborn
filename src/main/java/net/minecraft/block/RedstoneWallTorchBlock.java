@@ -32,8 +32,8 @@ public class RedstoneWallTorchBlock extends RedstoneTorchBlock {
       return this.asItem().getDescriptionId();
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return WallTorchBlock.getShape(p_220053_1_);
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return WallTorchBlock.getShape(state);
    }
 
    public boolean canSurvive(BlockState p_196260_1_, IWorldReader p_196260_2_, BlockPos p_196260_3_) {
@@ -79,7 +79,7 @@ public class RedstoneWallTorchBlock extends RedstoneTorchBlock {
       return Blocks.WALL_TORCH.mirror(state, mirroring);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, LIT);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, LIT);
    }
 }

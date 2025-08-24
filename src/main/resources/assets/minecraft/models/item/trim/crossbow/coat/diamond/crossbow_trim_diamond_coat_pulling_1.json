@@ -1,0 +1,7 @@
+{
+  "parent": "item/trim/crossbow/crossbow_base",
+  "textures": {
+    "layer0": "trims/items/crossbow/crossbow_pull_1_coat_diamond",
+    "layer1": "trims/items/crossbow/crossbow_pulling_1_coat_diamond"
+  }
+}

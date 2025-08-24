@@ -15,6 +15,7 @@ import net.minecraft.entity.ai.brain.memory.WalkTarget;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -107,15 +108,19 @@ public class FarmTask extends Task<VillagerEntity> {
                   if (!itemstack.isEmpty()) {
                      if (itemstack.getItem() == Items.WHEAT_SEEDS) {
                         p_212833_1_.setBlock(this.aboveFarmlandPos, Blocks.WHEAT.defaultBlockState(), 3);
+                        p_212833_1_.gameEvent(GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, GameEvent.Context.of(p_212833_2_, blockstate));
                         flag = true;
                      } else if (itemstack.getItem() == Items.POTATO) {
                         p_212833_1_.setBlock(this.aboveFarmlandPos, Blocks.POTATOES.defaultBlockState(), 3);
+                        p_212833_1_.gameEvent(GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, GameEvent.Context.of(p_212833_2_, blockstate));
                         flag = true;
                      } else if (itemstack.getItem() == Items.CARROT) {
                         p_212833_1_.setBlock(this.aboveFarmlandPos, Blocks.CARROTS.defaultBlockState(), 3);
+                        p_212833_1_.gameEvent(GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, GameEvent.Context.of(p_212833_2_, blockstate));
                         flag = true;
                      } else if (itemstack.getItem() == Items.BEETROOT_SEEDS) {
                         p_212833_1_.setBlock(this.aboveFarmlandPos, Blocks.BEETROOTS.defaultBlockState(), 3);
+                        p_212833_1_.gameEvent(GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, GameEvent.Context.of(p_212833_2_, blockstate));
                         flag = true;
                      }
                   }

@@ -158,8 +158,8 @@ public class ChorusFlowerBlock extends Block {
       }
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AGE);
    }
 
    public static void generatePlant(IWorld p_185603_0_, BlockPos p_185603_1_, Random p_185603_2_, int p_185603_3_) {

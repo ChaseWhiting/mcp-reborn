@@ -10,6 +10,7 @@ import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -39,7 +40,7 @@ public class RepairItemRecipe extends SpecialRecipe {
       return list.size() == 2;
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       List<ItemStack> list = Lists.newArrayList();
 
       for(int i = 0; i < p_77572_1_.getContainerSize(); ++i) {

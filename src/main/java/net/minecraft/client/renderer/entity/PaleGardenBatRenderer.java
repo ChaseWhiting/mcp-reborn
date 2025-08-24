@@ -1,12 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.entity.model.BatModel;
 import net.minecraft.client.renderer.entity.model.PaleGardenBatModel;
-import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.PaleGardenBatEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

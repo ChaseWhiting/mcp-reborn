@@ -58,6 +58,7 @@ public class Commands {
       EnchantCommand.register(this.dispatcher);
       ExperienceCommand.register(this.dispatcher);
       FillCommand.register(this.dispatcher);
+      CaptureAreaCommand.register(this.dispatcher);
       ForceLoadCommand.register(this.dispatcher);
       FunctionCommand.register(this.dispatcher);
       GameModeCommand.register(this.dispatcher);
@@ -121,6 +122,9 @@ public class Commands {
       WallCommand.register(this.dispatcher);
       AutowallCommand.register(this.dispatcher);
       PlaceCommand.register(this.dispatcher);
+      ArmorTrimCommand.register(this.dispatcher);
+      ToolTrimCommand.register(this.dispatcher);
+      SpawnArmorTrimsCommand.register(this.dispatcher);
       EntityCommand.register(this.dispatcher);
       TargetCommand.register(this.dispatcher);
       ArenaCommand.register(this.dispatcher);

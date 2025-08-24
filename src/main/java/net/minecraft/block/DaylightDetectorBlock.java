@@ -1,6 +1,7 @@
 package net.minecraft.block;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
@@ -29,7 +30,7 @@ public class DaylightDetectorBlock extends ContainerBlock {
       this.registerDefaultState(this.stateDefinition.any().setValue(POWER, Integer.valueOf(0)).setValue(INVERTED, Boolean.valueOf(false)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 
@@ -69,6 +70,7 @@ public class DaylightDetectorBlock extends ContainerBlock {
          } else {
             BlockState blockstate = p_225533_1_.cycle(INVERTED);
             p_225533_2_.setBlock(p_225533_3_, blockstate, 4);
+            p_225533_2_.gameEvent(GameEvent.BLOCK_CHANGE, p_225533_3_, GameEvent.Context.of(p_225533_4_, blockstate));
             updateSignalStrength(blockstate, p_225533_2_, p_225533_3_);
             return ActionResultType.CONSUME;
          }
@@ -89,7 +91,7 @@ public class DaylightDetectorBlock extends ContainerBlock {
       return new DaylightDetectorTileEntity();
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(POWER, INVERTED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(POWER, INVERTED);
    }
 }

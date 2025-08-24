@@ -17,9 +17,9 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class ListNBT extends CollectionNBT<INBT> {
    public static final INBTType<ListNBT> TYPE = new INBTType<ListNBT>() {
-      public ListNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) throws IOException {
+      public ListNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) throws IOException {
          p_225649_3_.accountBits(296L);
-         if (p_225649_2_ > 512) {
+         if (depth > 512) {
             throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
          } else {
             byte b0 = p_225649_1_.readByte();
@@ -32,7 +32,7 @@ public class ListNBT extends CollectionNBT<INBT> {
                List<INBT> list = Lists.newArrayListWithCapacity(i);
 
                for(int j = 0; j < i; ++j) {
-                  list.add(inbttype.load(p_225649_1_, p_225649_2_ + 1, p_225649_3_));
+                  list.add(inbttype.load(p_225649_1_, depth + 1, p_225649_3_));
                }
 
                return new ListNBT(list, b0);

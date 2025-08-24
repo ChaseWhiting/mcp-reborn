@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "minecraft:block/woodcutter",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "minecraft:block/woodcutter"
+    },
+    "facing=south": {
+      "model": "minecraft:block/woodcutter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "minecraft:block/woodcutter",
+      "y": 270
+    }
+  }
+}

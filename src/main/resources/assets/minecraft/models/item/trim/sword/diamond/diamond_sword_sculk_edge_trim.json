@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "minecraft:item/trim/sword/diamond_sword_trim_edge",
+    "layer1": "minecraft:trims/items/sword_trim_edge_sculk"
+  }
+}

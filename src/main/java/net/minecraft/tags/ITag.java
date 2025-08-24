@@ -7,16 +7,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
+
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 
 public interface ITag<T> {
    static <T> Codec<ITag<T>> codec(Supplier<ITagCollection<T>> p_232947_0_) {
@@ -56,8 +59,49 @@ public interface ITag<T> {
          return this;
       }
 
+      public ITag.Builder remove(ResourceLocation id) {
+         this.entries.removeIf(proxy -> proxy.getEntry().getId().equals(id));
+         return this;
+      }
+
+
       public ITag.Builder add(ITag.ITagEntry p_232955_1_, String p_232955_2_) {
          return this.add(new ITag.Proxy(p_232955_1_, p_232955_2_));
+      }
+
+      public ITag.Builder addItem(ResourceLocation location, String p_232955_2_) {
+         return this.add(new ITag.Proxy(new ItemEntry(location), p_232955_2_));
+      }
+
+      public ITag.Builder addItem(ResourceLocation location) {
+         return this.add(new ITag.Proxy(new ItemEntry(location), "hardcoded"));
+      }
+
+      public ITag.Builder addItem(Item... items) {
+         Arrays.stream(items).forEach(item -> this.add(new ITag.Proxy(new ItemEntry(Registry.ITEM.getKey(item)), "hardcoded")));
+         return this;
+      }
+
+      public ITag.Builder addBlock(Block block) {
+         return this.add(new ITag.Proxy(new ItemEntry(Registry.BLOCK.getKey(block)), "hardcoded"));
+      }
+
+      public ITag.Builder add(Block... blocks) {
+         Arrays.stream(blocks).forEach(block -> this.add(new ITag.Proxy(new ItemEntry(Registry.BLOCK.getKey(block)), "hardcoded")));
+
+         return this;
+      }
+
+      public ITag.Builder add(EntityType<?>... entities) {
+         Arrays.stream(entities).forEach(block -> this.add(new ITag.Proxy(new ItemEntry(Registry.ENTITY_TYPE.getKey(block)), "hardcoded")));
+
+         return this;
+      }
+
+      public ITag.Builder add(List<Block> blocks) {
+         blocks.forEach(block -> this.add(new ITag.Proxy(new ItemEntry(Registry.BLOCK.getKey(block)), "hardcoded")));
+
+         return this;
       }
 
       public ITag.Builder addElement(ResourceLocation p_232961_1_, String p_232961_2_) {
@@ -66,6 +110,10 @@ public interface ITag<T> {
 
       public ITag.Builder addTag(ResourceLocation p_232964_1_, String p_232964_2_) {
          return this.add(new ITag.TagEntry(p_232964_1_), p_232964_2_);
+      }
+
+      public ITag.Builder addTag(INamedTag tag) {
+         return this.add(new ITag.TagEntry(tag.getName()), "hardcoded");
       }
 
       public <T> Optional<ITag<T>> build(Function<ResourceLocation, ITag<T>> p_232959_1_, Function<ResourceLocation, T> p_232959_2_) {
@@ -152,9 +200,17 @@ public interface ITag<T> {
       <T> boolean build(Function<ResourceLocation, ITag<T>> p_230238_1_, Function<ResourceLocation, T> p_230238_2_, Consumer<T> p_230238_3_);
 
       void serializeTo(JsonArray p_230237_1_);
+
+      public default ResourceLocation getId() {
+         if (this instanceof HasID entry) {
+            return entry.getId();
+         }
+
+         return ResourceLocation.withDefaultNamespace("air");
+      }
    }
 
-   public static class ItemEntry implements ITag.ITagEntry {
+   public static class ItemEntry implements ITag.ITagEntry,  HasID {
       private final ResourceLocation id;
 
       public ItemEntry(ResourceLocation p_i231435_1_) {
@@ -177,6 +233,10 @@ public interface ITag<T> {
 
       public String toString() {
          return this.id.toString();
+      }
+
+      public ResourceLocation getId() {
+         return this.id;
       }
    }
 
@@ -236,7 +296,7 @@ public interface ITag<T> {
       }
    }
 
-   public static class Proxy {
+   public static class Proxy implements HasID {
       private final ITag.ITagEntry entry;
       private final String source;
 
@@ -249,16 +309,28 @@ public interface ITag<T> {
          return this.entry;
       }
 
+      public ResourceLocation getId() {
+         return entry.getId();
+      }
+
       public String toString() {
          return this.entry.toString() + " (from " + this.source + ")";
       }
    }
 
-   public static class TagEntry implements ITag.ITagEntry {
+   public interface HasID {
+      ResourceLocation getId();
+   }
+
+   public static class TagEntry implements ITag.ITagEntry, HasID {
       private final ResourceLocation id;
 
       public TagEntry(ResourceLocation p_i48228_1_) {
          this.id = p_i48228_1_;
+      }
+
+      public ResourceLocation getId() {
+         return id;
       }
 
       public <T> boolean build(Function<ResourceLocation, ITag<T>> p_230238_1_, Function<ResourceLocation, T> p_230238_2_, Consumer<T> p_230238_3_) {

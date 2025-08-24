@@ -3,7 +3,6 @@ package net.minecraft.client.gui.screen.inventory;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.merchant.IMerchant;
 import net.minecraft.entity.merchant.villager.VillagerData;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.villager.data.quest.QuestManager;

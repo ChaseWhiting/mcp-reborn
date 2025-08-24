@@ -19,60 +19,60 @@ public class BitArray {
       this(p_i46832_1_, p_i46832_2_, (long[])null);
    }
 
-   public BitArray(int p_i47901_1_, int p_i47901_2_, @Nullable long[] p_i47901_3_) {
-      Validate.inclusiveBetween(1L, 32L, (long)p_i47901_1_);
-      this.size = p_i47901_2_;
-      this.bits = p_i47901_1_;
-      this.mask = (1L << p_i47901_1_) - 1L;
-      this.valuesPerLong = (char)(64 / p_i47901_1_);
+   public BitArray(int i1, int i2, @Nullable long[] longs) {
+      Validate.inclusiveBetween(1L, 32L, (long)i1);
+      this.size = i2;
+      this.bits = i1;
+      this.mask = (1L << i1) - 1L;
+      this.valuesPerLong = (char)(64 / i1);
       int i = 3 * (this.valuesPerLong - 1);
       this.divideMul = MAGIC[i + 0];
       this.divideAdd = MAGIC[i + 1];
       this.divideShift = MAGIC[i + 2];
-      int j = (p_i47901_2_ + this.valuesPerLong - 1) / this.valuesPerLong;
-      if (p_i47901_3_ != null) {
-         if (p_i47901_3_.length != j) {
-            throw (RuntimeException)Util.pauseInIde(new RuntimeException("Invalid length given for storage, got: " + p_i47901_3_.length + " but expected: " + j));
+      int j = (i2 + this.valuesPerLong - 1) / this.valuesPerLong;
+      if (longs != null) {
+         if (longs.length != j) {
+            throw (RuntimeException)Util.pauseInIde(new RuntimeException("Invalid length given for storage, got: " + longs.length + " but expected: " + j));
          }
 
-         this.data = p_i47901_3_;
+         this.data = longs;
       } else {
          this.data = new long[j];
       }
 
    }
 
-   private int cellIndex(int p_232986_1_) {
+   private int cellIndex(int i1) {
       long i = Integer.toUnsignedLong(this.divideMul);
       long j = Integer.toUnsignedLong(this.divideAdd);
-      return (int)((long)p_232986_1_ * i + j >> 32 >> this.divideShift);
+      return (int)((long)i1 * i + j >> 32 >> this.divideShift);
    }
 
-   public int getAndSet(int p_219789_1_, int p_219789_2_) {
-      Validate.inclusiveBetween(0L, (long)(this.size - 1), (long)p_219789_1_);
-      Validate.inclusiveBetween(0L, this.mask, (long)p_219789_2_);
-      int i = this.cellIndex(p_219789_1_);
+   public int getAndSet(int i1, int i2) {
+      Validate.inclusiveBetween(0L, (long)(this.size - 1), (long)i1);
+      Validate.inclusiveBetween(0L, this.mask, (long)i2);
+      int i = this.cellIndex(i1);
       long j = this.data[i];
-      int k = (p_219789_1_ - i * this.valuesPerLong) * this.bits;
+      int k = (i1 - i * this.valuesPerLong) * this.bits;
       int l = (int)(j >> k & this.mask);
-      this.data[i] = j & ~(this.mask << k) | ((long)p_219789_2_ & this.mask) << k;
+      this.data[i] = j & ~(this.mask << k) | ((long)i2 & this.mask) << k;
       return l;
    }
 
-   public void set(int p_188141_1_, int p_188141_2_) {
-      Validate.inclusiveBetween(0L, (long)(this.size - 1), (long)p_188141_1_);
-      Validate.inclusiveBetween(0L, this.mask, (long)p_188141_2_);
-      int i = this.cellIndex(p_188141_1_);
+   public void set(int i1, int i2) {
+      Validate.inclusiveBetween(0L, (long)(this.size - 1), (long)i1);
+      Validate.inclusiveBetween(0L, this.mask, (long)i2);
+      int i = this.cellIndex(i1);
       long j = this.data[i];
-      int k = (p_188141_1_ - i * this.valuesPerLong) * this.bits;
-      this.data[i] = j & ~(this.mask << k) | ((long)p_188141_2_ & this.mask) << k;
+      int k = (i1 - i * this.valuesPerLong) * this.bits;
+      this.data[i] = j & ~(this.mask << k) | ((long)i2 & this.mask) << k;
    }
 
-   public int get(int p_188142_1_) {
-      Validate.inclusiveBetween(0L, (long)(this.size - 1), (long)p_188142_1_);
-      int i = this.cellIndex(p_188142_1_);
+   public int get(int i1) {
+      Validate.inclusiveBetween(0L, (long)(this.size - 1), (long)i1);
+      int i = this.cellIndex(i1);
       long j = this.data[i];
-      int k = (p_188142_1_ - i * this.valuesPerLong) * this.bits;
+      int k = (i1 - i * this.valuesPerLong) * this.bits;
       return (int)(j >> k & this.mask);
    }
 
@@ -84,12 +84,12 @@ public class BitArray {
       return this.size;
    }
 
-   public void getAll(IntConsumer p_225421_1_) {
+   public void getAll(IntConsumer intConsumer) {
       int i = 0;
 
       for(long j : this.data) {
          for(int k = 0; k < this.valuesPerLong; ++k) {
-            p_225421_1_.accept((int)(j & this.mask));
+            intConsumer.accept((int)(j & this.mask));
             j >>= this.bits;
             ++i;
             if (i >= this.size) {

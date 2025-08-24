@@ -6,15 +6,15 @@ public class RangedAttribute extends Attribute {
    private final double minValue;
    private final double maxValue;
 
-   public RangedAttribute(String p_i231504_1_, double p_i231504_2_, double p_i231504_4_, double p_i231504_6_) {
-      super(p_i231504_1_, p_i231504_2_);
-      this.minValue = p_i231504_4_;
-      this.maxValue = p_i231504_6_;
-      if (p_i231504_4_ > p_i231504_6_) {
+   public RangedAttribute(String name, double defaultValue, double minValue, double maxValue) {
+      super(name, defaultValue);
+      this.minValue = minValue;
+      this.maxValue = maxValue;
+      if (minValue > maxValue) {
          throw new IllegalArgumentException("Minimum value cannot be bigger than maximum value!");
-      } else if (p_i231504_2_ < p_i231504_4_) {
+      } else if (defaultValue < minValue) {
          throw new IllegalArgumentException("Default value cannot be lower than minimum value!");
-      } else if (p_i231504_2_ > p_i231504_6_) {
+      } else if (defaultValue > maxValue) {
          throw new IllegalArgumentException("Default value cannot be bigger than maximum value!");
       }
    }

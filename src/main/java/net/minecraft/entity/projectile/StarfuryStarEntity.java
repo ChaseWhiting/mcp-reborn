@@ -6,22 +6,20 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 public class StarfuryStarEntity extends ProjectileItemEntity {
-   private boolean solid = false; // Tracks if the projectile has become solid
+   private boolean solid = false;
 
    public StarfuryStarEntity(EntityType<? extends StarfuryStarEntity> p_i50154_1_, World p_i50154_2_) {
       super(p_i50154_1_, p_i50154_2_);
@@ -47,13 +45,11 @@ public class StarfuryStarEntity extends ProjectileItemEntity {
    protected void onHit(RayTraceResult result) {
       super.onHit(result);
 
-      // Determine the distance within which the projectile becomes solid
       int solidDistance = regular() ? 3 : 6;
       if (this.getOwner() != null && Math.abs(this.getY() - this.getOwner().getY()) <= solidDistance || this.getOwner() != null && this.getY() <= this.getOwner().getY()) {
-         solid = true; // Set the projectile as solid
+         solid = true;
       }
 
-      // Not solid yet; skip damage and explosion particles
       if (this.getItem().getItem() == Items.STAR) {
          makeYellowParticle(4);
          makePinkParticle(6);
@@ -69,7 +65,6 @@ public class StarfuryStarEntity extends ProjectileItemEntity {
                  0, 0, 0);
       }
       if (solid) {
-         // Solid projectile behavior
 
          if (!this.level.isClientSide) {
             List<Entity> entityList = level.getEntitiesOfClass(Entity.class, this.getBoundingBox().inflate(4, 3, 4), entity -> entity != this && entity.isAlive());
@@ -158,19 +153,51 @@ public class StarfuryStarEntity extends ProjectileItemEntity {
       }
    }
 
+   public static void makeColouredParticles(int count, World level, Entity entity, int color) {
+      double red = (double) (color >> 16 & 255) / 255.0D;
+      double green = (double) (color >> 8 & 255) / 255.0D;
+      double blue = (double) (color & 255) / 255.0D;
+
+      Random random = new Random();
+      for (int i = 0; i < count; ++i) {
+         level.addAlwaysVisibleParticle(
+                 ParticleTypes.ENTITY_EFFECT,
+                 entity.getX() + random.nextGaussian() * 0.1,
+                 entity.getY() + random.nextGaussian() * 0.1,
+                 entity.getZ() + random.nextGaussian() * 0.1,
+                 red, green, blue
+         );
+      }
+   }
+
+   public static void makeParticles(int count, World level, Entity entity, int color, IParticleData data) {
+      double red = (double) (color >> 16 & 255) / 255.0D;
+      double green = (double) (color >> 8 & 255) / 255.0D;
+      double blue = (double) (color & 255) / 255.0D;
+
+      Random random = new Random();
+      for (int i = 0; i < count; ++i) {
+         level.addAlwaysVisibleParticle(
+                 data,
+                 entity.getX() + random.nextGaussian() * 0.1,
+                 entity.getY() + random.nextGaussian() * 0.1,
+                 entity.getZ() + random.nextGaussian() * 0.1,
+                 red, green, blue
+         );
+      }
+   }
+
    @Override
    protected Item getDefaultItem() {
       return Items.STAR;
    }
 
-   // Saving the "solid" state
    @Override
    public void addAdditionalSaveData(CompoundNBT tag) {
       super.addAdditionalSaveData(tag);
       tag.putBoolean("Solid", this.solid);
    }
 
-   // Loading the "solid" state
    @Override
    public void readAdditionalSaveData(CompoundNBT tag) {
       super.readAdditionalSaveData(tag);

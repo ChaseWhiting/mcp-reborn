@@ -145,11 +145,11 @@ public class ChestBlock extends AbstractChestBlock<ChestTileEntity> implements I
       return super.updateShape(p_196271_1_, p_196271_2_, p_196271_3_, p_196271_4_, p_196271_5_, p_196271_6_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      if (p_220053_1_.getValue(TYPE) == ChestType.SINGLE) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      if (state.getValue(TYPE) == ChestType.SINGLE) {
          return AABB;
       } else {
-         switch(getConnectedDirection(p_220053_1_)) {
+         switch(getConnectedDirection(state)) {
          case NORTH:
          default:
             return NORTH_AABB;
@@ -328,8 +328,8 @@ public class ChestBlock extends AbstractChestBlock<ChestTileEntity> implements I
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, TYPE, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, TYPE, WATERLOGGED);
    }
 
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {

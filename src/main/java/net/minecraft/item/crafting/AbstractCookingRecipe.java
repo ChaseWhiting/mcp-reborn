@@ -4,6 +4,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -31,7 +32,7 @@ public abstract class AbstractCookingRecipe implements IRecipe<IInventory> {
       return this.ingredient.test(p_77569_1_.getItem(0));
    }
 
-   public ItemStack assemble(IInventory p_77572_1_) {
+   public ItemStack assemble(IInventory p_77572_1_, DynamicRegistries registryAccess) {
       return this.result.copy();
    }
 

@@ -21,6 +21,7 @@ import net.minecraft.entity.Pose;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -77,6 +78,12 @@ public abstract class AbstractMinecartEntity extends Entity {
       p_226574_0_.put(RailShape.NORTH_WEST, Pair.of(vector3i2, vector3i));
       p_226574_0_.put(RailShape.NORTH_EAST, Pair.of(vector3i2, vector3i1));
    });
+
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.EVENTS;
+   }
+
    private int lSteps;
    private double lx;
    private double ly;
@@ -209,6 +216,7 @@ public abstract class AbstractMinecartEntity extends Entity {
             this.setHurtTime(10);
             this.markHurt();
             this.setDamage(this.getDamage() + p_70097_2_ * 10.0F);
+            this.gameEvent(GameEvent.ENTITY_DAMAGE, p_70097_1_.getEntity());
             boolean flag = p_70097_1_.getEntity() instanceof PlayerEntity && ((PlayerEntity)p_70097_1_.getEntity()).abilities.instabuild;
             if (flag || this.getDamage() > 40.0F) {
                this.ejectPassengers();
@@ -396,7 +404,7 @@ public abstract class AbstractMinecartEntity extends Entity {
       boolean flag = false;
       boolean flag1 = false;
       AbstractRailBlock abstractrailblock = (AbstractRailBlock)p_180460_2_.getBlock();
-      if (abstractrailblock == Blocks.POWERED_RAIL) {
+      if (abstractrailblock == Blocks.GOLDEN_POWERED_RAIL) {
          flag = p_180460_2_.getValue(PoweredRailBlock.POWERED);
          flag1 = !flag;
       }

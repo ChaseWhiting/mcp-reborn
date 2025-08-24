@@ -7,14 +7,12 @@ import java.util.function.Function;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HangingMossBlock;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
-import net.minecraft.world.gen.feature.Feature;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class PaleGardenCaveCarver extends CaveWorldCarver {

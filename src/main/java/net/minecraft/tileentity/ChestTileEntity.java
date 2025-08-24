@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.DoubleSidedInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
@@ -163,6 +164,7 @@ public class ChestTileEntity extends LockableLootTileEntity implements IChestLid
          if (this.openCount < 0) {
             this.openCount = 0;
          }
+         this.level.gameEvent(p_174889_1_, GameEvent.CONTAINER_OPEN, worldPosition);
 
          ++this.openCount;
          this.signalOpenCount();
@@ -173,6 +175,7 @@ public class ChestTileEntity extends LockableLootTileEntity implements IChestLid
    public void stopOpen(PlayerEntity p_174886_1_) {
       if (!p_174886_1_.isSpectator()) {
          --this.openCount;
+         this.level.gameEvent(p_174886_1_, GameEvent.CONTAINER_CLOSE, worldPosition);
          this.signalOpenCount();
       }
 

@@ -18,6 +18,8 @@ import net.minecraft.util.DebugUtils;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.Region;
@@ -72,6 +74,10 @@ public abstract class PathNavigator {
 
    public void setTargetPos(BlockPos blockpos) {
       this.targetPos = blockpos;
+   }
+
+   public void setTargetPos(double x, double y, double z) {
+      this.targetPos = new BlockPos(x, y ,z);
    }
 
    protected abstract PathFinder createPathFinder(int p_179679_1_);
@@ -369,6 +375,11 @@ public abstract class PathNavigator {
          }
 
       }
+   }
+
+   protected static boolean isClearForMovementBetween(Mob mob, Vector3d vec3, Vector3d vec32, boolean bl) {
+      Vector3d vec33 = new Vector3d(vec32.x, vec32.y + (double)mob.getBbHeight() * 0.5, vec32.z);
+      return mob.level.clip(new RayTraceContext(vec3, vec33, RayTraceContext.BlockMode.COLLIDER, bl ? RayTraceContext.FluidMode.ANY : RayTraceContext.FluidMode.NONE, mob)).getType() == RayTraceResult.Type.MISS;
    }
 
    public boolean isStuck() {

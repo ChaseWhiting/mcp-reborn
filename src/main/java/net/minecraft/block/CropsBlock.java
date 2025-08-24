@@ -1,14 +1,22 @@
 package net.minecraft.block;
 
+import java.util.Map;
 import java.util.Random;
+
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.GildedRavagerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tool.HoeItem;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -21,6 +29,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
 public class CropsBlock extends BushBlock implements IGrowable {
    public static final IntegerProperty AGE = BlockStateProperties.AGE_7;
@@ -31,8 +40,8 @@ public class CropsBlock extends BushBlock implements IGrowable {
       this.registerDefaultState(this.stateDefinition.any().setValue(this.getAgeProperty(), Integer.valueOf(0)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return SHAPE_BY_AGE[p_220053_1_.getValue(this.getAgeProperty())];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return SHAPE_BY_AGE[state.getValue(this.getAgeProperty())];
    }
 
    protected boolean mayPlaceOn(BlockState p_200014_1_, IBlockReader p_200014_2_, BlockPos p_200014_3_) {
@@ -49,6 +58,48 @@ public class CropsBlock extends BushBlock implements IGrowable {
 
    protected int getAge(BlockState p_185527_1_) {
       return p_185527_1_.getValue(this.getAgeProperty());
+   }
+
+   @Override
+   public void playerDestroy(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity entity, ItemStack stack) {
+      super.playerDestroy(world, player, pos, state, entity, stack);
+
+
+      if (!player.isShiftKeyDown() && isMaxAge(state)) {
+         if (stack.getItem() instanceof HoeItem && EnchantmentHelper.has(stack, Enchantments.REPLANTING)) {
+            world.setBlock(pos, state.setValue(getAgeProperty(), 0), 3);
+
+            int level = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.REPLANTING, stack);
+            if (level == 2) {
+               replant(world, pos.east(), stack, player);
+               replant(world, pos.west(), stack, player);
+               replant(world, pos.south(), stack, player);
+               replant(world, pos.north(), stack, player);
+            }
+         }
+      }
+
+   }
+
+   private static void replant(World world, BlockPos pos, ItemStack stack, PlayerEntity player) {
+      ItemStack s = removeEnchant(stack);
+      if (world.getBlockState(pos).getBlock() instanceof CropsBlock cropsBlock) {
+         BlockState state = world.getBlockState(pos);
+
+         if (cropsBlock.isMaxAge(state) && world.getBlockState(pos.below()).is(Blocks.FARMLAND)) {
+            cropsBlock.playerDestroy(world, player, pos, state, world.getBlockEntity(pos), s);
+         }
+      }
+   }
+
+   private static ItemStack removeEnchant(ItemStack stack) {
+      ItemStack s1 = stack.copy();
+      if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.REPLANTING, s1) != 2) return s1;
+      Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(s1);
+      map.remove(Enchantments.REPLANTING, 2);
+      map.put(Enchantments.REPLANTING, 1);
+      EnchantmentHelper.setEnchantments(map, s1);
+      return s1;
    }
 
    public BlockState getStateForAge(int p_185528_1_) {
@@ -166,7 +217,7 @@ public class CropsBlock extends BushBlock implements IGrowable {
       this.growCrops(p_225535_1_, p_225535_3_, p_225535_4_);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AGE);
    }
 }

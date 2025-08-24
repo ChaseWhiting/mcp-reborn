@@ -1,9 +1,5 @@
 package net.minecraft.util;
 
-import net.minecraft.item.ArrowItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-
 import java.util.function.Predicate;
 
 public class PredicateBuilder {

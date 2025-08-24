@@ -23,8 +23,8 @@ public class NetherWartBlock extends BushBlock {
       this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return SHAPE_BY_AGE[p_220053_1_.getValue(AGE)];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return SHAPE_BY_AGE[state.getValue(AGE)];
    }
 
    protected boolean mayPlaceOn(BlockState p_200014_1_, IBlockReader p_200014_2_, BlockPos p_200014_3_) {
@@ -49,7 +49,7 @@ public class NetherWartBlock extends BushBlock {
       return new ItemStack(Items.NETHER_WART);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AGE);
    }
 }

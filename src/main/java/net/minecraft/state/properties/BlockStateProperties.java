@@ -1,7 +1,8 @@
 package net.minecraft.state.properties;
 
+import net.minecraft.block.CandleBlock;
 import net.minecraft.block.WallHeight;
-import net.minecraft.block.WallSide;
+import net.minecraft.block.sensor.SculkSensorPhase;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
@@ -14,7 +15,12 @@ public class BlockStateProperties {
    public static final BooleanProperty BOTTOM = BooleanProperty.create("bottom");
    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
    public static final BooleanProperty NATURAL = BooleanProperty.create("natural");
+   public static final BooleanProperty BLOOM = BooleanProperty.create("bloom");
+   public static final BooleanProperty SHRIEKING = BooleanProperty.create("shrieking");
+   public static final BooleanProperty CAN_SUMMON = BooleanProperty.create("can_summon");
+   public static final BooleanProperty CRACKED = BooleanProperty.create("cracked");
 
+   public static final IntegerProperty DUSTED = IntegerProperty.create("dusted", 0, 3);
    public static final BooleanProperty CONDITIONAL = BooleanProperty.create("conditional");
    public static final BooleanProperty DISARMED = BooleanProperty.create("disarmed");
    public static final BooleanProperty TIP = BooleanProperty.create("tip");
@@ -99,6 +105,9 @@ public class BlockStateProperties {
    public static final IntegerProperty PICKLES = IntegerProperty.create("pickles", 1, 4);
    public static final IntegerProperty POWER = IntegerProperty.create("power", 0, 15);
    public static final IntegerProperty STAGE = IntegerProperty.create("stage", 0, 1);
+   public static final IntegerProperty BLOOMING_IVY_STAGE = IntegerProperty.create("stage", 1, 3);
+
+
    public static final IntegerProperty STABILITY_DISTANCE = IntegerProperty.create("distance", 0, 7);
    public static final IntegerProperty RESPAWN_ANCHOR_CHARGES = IntegerProperty.create("charges", 0, 4);
    public static final IntegerProperty ROTATION_16 = IntegerProperty.create("rotation", 0, 15);
@@ -112,4 +121,10 @@ public class BlockStateProperties {
    public static final EnumProperty<StairsShape> STAIRS_SHAPE = EnumProperty.create("shape", StairsShape.class);
    public static final EnumProperty<StructureMode> STRUCTUREBLOCK_MODE = EnumProperty.create("mode", StructureMode.class);
    public static final EnumProperty<BambooLeaves> BAMBOO_LEAVES = EnumProperty.create("leaves", BambooLeaves.class);
+
+   public static final IntegerProperty CANDLES = IntegerProperty.create("candles", CandleBlock.MIN_CANDLES, CandleBlock.MAX_CANDLES);
+
+
+   public static final EnumProperty<SculkSensorPhase> SCULK_SENSOR_PHASE = EnumProperty.create("sculk_sensor_phase", SculkSensorPhase.class);
+
 }

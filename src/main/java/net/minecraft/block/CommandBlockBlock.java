@@ -159,8 +159,8 @@ public class CommandBlockBlock extends ContainerBlock {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, CONDITIONAL);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, CONDITIONAL);
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {

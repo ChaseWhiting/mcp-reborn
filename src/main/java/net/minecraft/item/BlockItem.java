@@ -11,11 +11,13 @@ import net.minecraft.block.SoundType;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.Property;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
@@ -36,13 +38,26 @@ public class BlockItem extends Item {
       this.block = p_i48527_1_;
    }
 
+   public static void setBlockEntityData(ItemStack itemStack, TileEntityType<?> blockEntityType, CompoundNBT compoundTag) {
+      if (compoundTag.isEmpty()) {
+         itemStack.removeTagKey("BlockEntityTag");
+      } else {
+         addEntityType(compoundTag, blockEntityType);
+         itemStack.addTagElement("BlockEntityTag", compoundTag);
+      }
+   }
+
+   public static void addEntityType(CompoundNBT compoundTag, TileEntityType<?> blockEntityType) {
+      compoundTag.putString("id", TileEntityType.getKey(blockEntityType).toString());
+   }
+
    public boolean canFitInsideContainerItems() {
       return !(this.block instanceof ShulkerBoxBlock);
    }
 
    public ActionResultType useOn(ItemUseContext p_195939_1_) {
       ActionResultType actionresulttype = this.place(new BlockItemUseContext(p_195939_1_));
-      return !actionresulttype.consumesAction() && this.isEdible() ? this.use(p_195939_1_.getLevel(), p_195939_1_.getPlayer(), p_195939_1_.getHand()).getResult() : actionresulttype;
+      return !actionresulttype.consumesAction() && (this.isEdible() || p_195939_1_.getItemInHand().isEdible()) ? this.use(p_195939_1_.getLevel(), p_195939_1_.getPlayer(), p_195939_1_.getHand()).getResult() : actionresulttype;
    }
 
    public ActionResultType place(BlockItemUseContext p_195942_1_) {
@@ -76,6 +91,7 @@ public class BlockItem extends Item {
 
                SoundType soundtype = blockstate1.getSoundType();
                world.playSound(playerentity, blockpos, this.getPlaceSound(blockstate1), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+               world.gameEvent(GameEvent.BLOCK_PLACE, blockpos, GameEvent.Context.of(playerentity, blockstate1));
                if (playerentity == null || !playerentity.abilities.instabuild) {
                   itemstack.shrink(1);
                }

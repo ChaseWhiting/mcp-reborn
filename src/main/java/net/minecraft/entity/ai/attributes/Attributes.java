@@ -4,6 +4,11 @@ import net.minecraft.util.registry.Registry;
 
 public class Attributes {
    public static final Attribute MAX_HEALTH = register("generic.max_health", (new RangedAttribute("attribute.name.generic.max_health", 20.0D, 1.0D, 10000.0D)).setSyncable(true));
+   public static final Attribute REACH_DISTANCE = register("generic.reach_distance", (new RangedAttribute("attribute.name.generic.reach_distance", 4.5D, 0.00D, 100D)).setSyncable(true));
+   public static final Attribute ENTITY_REACH_DISTANCE = register("generic.entity_reach_distance", (new RangedAttribute("attribute.name.generic.entity_reach_distance", 3D, 0.00D, 100D)).setSyncable(true));
+
+   public static final Attribute TEMPT_RANGE = register("generic.tempt_range", new RangedAttribute("attribute.name.generic.tempt_range", 10.0D, 0.0D, 2048.0D));
+   public static final Attribute CAMERA_DISTANCE = register("camera_distance", new RangedAttribute("attribute.name.camera_distance", 4.0D, 0.0D, 32.0D)).setSyncable(true);
    public static final Attribute FOLLOW_RANGE = register("generic.follow_range", new RangedAttribute("attribute.name.generic.follow_range", 32.0D, 0.0D, 2048.0D));
    public static final Attribute KNOCKBACK_RESISTANCE = register("generic.knockback_resistance", new RangedAttribute("attribute.name.generic.knockback_resistance", 0.0D, 0.0D, 1.0D));
    public static final Attribute MOVEMENT_SPEED = register("generic.movement_speed", (new RangedAttribute("attribute.name.generic.movement_speed", (double)0.7F, 0.0D, 1024.0D)).setSyncable(true));
@@ -17,7 +22,11 @@ public class Attributes {
    public static final Attribute SPAWN_REINFORCEMENTS_CHANCE = register("zombie.spawn_reinforcements", new RangedAttribute("attribute.name.zombie.spawn_reinforcements", 0.0D, 0.0D, 1.0D));
    public static final Attribute JUMP_STRENGTH = register("horse.jump_strength", (new RangedAttribute("attribute.name.horse.jump_strength", 0.7D, 0.0D, 2.0D)).setSyncable(true));
 
-   private static Attribute register(String p_233831_0_, Attribute p_233831_1_) {
-      return Registry.register(Registry.ATTRIBUTE, p_233831_0_, p_233831_1_);
+
+   public static final Attribute BLAST_RESISTANCE = register("generic.blast_resistance", new RangedAttribute("attribute.name.generic.blast_resistance", 0.0D, 0.0D, 1.0D));
+
+
+   private static Attribute register(String id, Attribute attribute) {
+      return Registry.register(Registry.ATTRIBUTE, id, attribute);
    }
 }

@@ -71,8 +71,8 @@ public class ChorusPlantBlock extends SixWayBlock {
       return block2 == this || block2 == Blocks.END_STONE;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
    }
 
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {

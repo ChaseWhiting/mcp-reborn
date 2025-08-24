@@ -33,6 +33,8 @@ public class SnowBlock extends Block {
          return p_196266_1_.getValue(LAYERS) < 5;
       case WATER:
          return false;
+         case LAVA:
+            return false;
       case AIR:
          return false;
       default:
@@ -40,8 +42,8 @@ public class SnowBlock extends Block {
       }
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return SHAPE_BY_LAYER[p_220053_1_.getValue(LAYERS)];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return SHAPE_BY_LAYER[state.getValue(LAYERS)];
    }
 
    public VoxelShape getCollisionShape(BlockState p_220071_1_, IBlockReader p_220071_2_, BlockPos p_220071_3_, ISelectionContext p_220071_4_) {
@@ -109,7 +111,7 @@ public class SnowBlock extends Block {
       }
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(LAYERS);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(LAYERS);
    }
 }

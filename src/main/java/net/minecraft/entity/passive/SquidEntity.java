@@ -2,13 +2,7 @@ package net.minecraft.entity.passive;
 
 import java.util.Random;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.Goal;
@@ -43,6 +37,11 @@ public class SquidEntity extends WaterMobEntity {
    private float tx;
    private float ty;
    private float tz;
+
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.EVENTS;
+   }
 
    public SquidEntity(EntityType<? extends SquidEntity> p_i50243_1_, World p_i50243_2_) {
       super(p_i50243_1_, p_i50243_2_);

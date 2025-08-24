@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import net.minecraft.client.animation.definitions.Animation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.NewHierarchicalModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -78,5 +80,89 @@ public class KeyframeAnimations {
 
     public static Vector3f scaleVec(double x, double y, double z) {
         return Animation.scaleVec(x, y, z);
+    }
+
+
+    public static void animateNew(NewHierarchicalModel<?> model, AnimationDefinition animationDefinition, long currentTime, float partialTicks, Vector3f tempVector) {
+        float elapsedSeconds = getElapsedSeconds(animationDefinition, currentTime);
+
+        // Iterate over each bone and its animation channels
+        for (Map.Entry<String, List<AnimationChannel>> entry : animationDefinition.getBoneAnimations().entrySet()) {
+            Optional<ModelPart> optional = model.getAnyDescendantWithName(entry.getKey());
+            List<AnimationChannel> animationChannels = entry.getValue();
+
+            optional.ifPresent((modelPart) -> {
+                animationChannels.forEach((animationChannel) -> {
+                    Keyframe[] keyframes = animationChannel.getKeyframes();
+
+                    // Binary search to find the current keyframe index
+                    int i = Math.max(0, MathHelper.binarySearch(0, keyframes.length, (index) -> {
+                        return elapsedSeconds <= keyframes[index].getTimestamp();
+                    }) - 1);
+                    int j = Math.min(keyframes.length - 1, i + 1);
+
+                    Keyframe keyframeStart = keyframes[i];
+                    Keyframe keyframeEnd = keyframes[j];
+                    float deltaTime = elapsedSeconds - keyframeStart.getTimestamp();
+                    float progress;
+
+                    // Calculate progress between the two keyframes
+                    if (j != i) {
+                        progress = MathHelper.clamp(deltaTime / (keyframeEnd.getTimestamp() - keyframeStart.getTimestamp()), 0.0F, 1.0F);
+                    } else {
+                        progress = 0.0F;
+                    }
+
+                    // Get the start and end vectors from the two keyframes
+                    Vector3f startVector = keyframeStart.getTarget();    // Target values for the start keyframe
+                    Vector3f endVector = keyframeEnd.getTarget();     // Target values for the end keyframe
+
+                    tempVector.set(
+                            MathHelper.lerp(progress, startVector.x(), endVector.x()),
+                            MathHelper.lerp(progress, startVector.y(), endVector.y()),
+                            MathHelper.lerp(progress, startVector.z(), endVector.z())
+                    );
+
+                    // Use the interpolation from the end keyframe to apply the transformation
+                    keyframeEnd.getInterpolation().apply(tempVector, progress, keyframes, i, j, partialTicks);
+
+                    // Apply the result to the modelPart using the channel's target (preserving the vector set at the end)
+                    AnimationChannel.Target target = animationChannel.getTarget();
+
+                    AnimationChannel.Target2 target2 = target == Targets.ROTATION ? Targets2.ROTATION : target == Targets.SCALE ? Targets2.SCALE : Targets2.POSITION;
+
+                    target2.apply(modelPart, tempVector);
+
+                    //animationChannel.getTarget().apply(modelPart, tempVector);
+                });
+            });
+        }
+    }
+
+
+    public static void animateA(NewHierarchicalModel model, AnimationDefinition animationDefinition, long l, float f, Vector3f vector3f) {
+        float f2 = KeyframeAnimations.getElapsedSeconds(animationDefinition, l);
+        for (Map.Entry<String, List<AnimationChannel>> entry : animationDefinition.getBoneAnimations().entrySet()) {
+            Optional<ModelPart> optional = model.getAnyDescendantWithName(entry.getKey());
+            List<AnimationChannel> list = entry.getValue();
+            optional.ifPresent(modelPart -> list.forEach(animationChannel -> {
+                Keyframe[] keyframeArray = animationChannel.getKeyframes();
+                int n2 = Math.max(0, MathHelper.binarySearch(0, keyframeArray.length, n -> f2 <= keyframeArray[n].getTimestamp()) - 1);
+                int n3 = Math.min(keyframeArray.length - 1, n2 + 1);
+                Keyframe keyframe = keyframeArray[n2];
+                Keyframe keyframe2 = keyframeArray[n3];
+                float f3 = f2 - keyframe.getTimestamp();
+                float f4 = n3 != n2 ? MathHelper.clamp(f3 / (keyframe2.getTimestamp() - keyframe.getTimestamp()), 0.0f, 1.0f) : 0.0f;
+                keyframe2.getInterpolation().apply(vector3f, f4, keyframeArray, n2, n3, f);
+                AnimationChannel.Target target = animationChannel.getTarget();
+
+                AnimationChannel.Target2 target2 = target == Targets.ROTATION ? Targets2.ROTATION : target == Targets.SCALE ? Targets2.SCALE : Targets2.POSITION;
+
+                target2.apply(modelPart, vector3f);
+
+
+                //animationChannel.getTarget().apply((ModelPart)modelPart, vector3f);
+            }));
+        }
     }
 }

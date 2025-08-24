@@ -1,7 +1,11 @@
 package net.minecraft.entity.merchant.villager;
 
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
+
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Mob;
@@ -31,14 +35,11 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.potion.Potions;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.server.ServerWorld;
 
 public class WanderingTraderEntity extends AbstractVillagerEntity {
@@ -55,6 +56,9 @@ public class WanderingTraderEntity extends AbstractVillagerEntity {
       this.goalSelector.addGoal(0, new SwimGoal(this));
       this.goalSelector.addGoal(0, new UseItemGoal<>(this, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.INVISIBILITY), SoundEvents.WANDERING_TRADER_DISAPPEARED, (p_213733_1_) -> {
          return this.level.isNight() && !p_213733_1_.isInvisible();
+      }));
+      this.goalSelector.addGoal(2, new UseItemGoal<>(this, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.HEALING), SoundEvents.GENERIC_DRINK, (p_213733_1_) -> {
+         return this.getHealth() <= 15 && this.hurtTime < 1;
       }));
       this.goalSelector.addGoal(0, new UseItemGoal<>(this, new ItemStack(Items.MILK_BUCKET), SoundEvents.WANDERING_TRADER_REAPPEARED, (p_213736_1_) -> {
          return this.level.isDay() && p_213736_1_.isInvisible();
@@ -113,19 +117,19 @@ public class WanderingTraderEntity extends AbstractVillagerEntity {
    }
 
    protected void updateTrades() {
-      VillagerTrades.ITrade[] avillagertrades$itrade = VillagerTrades.WANDERING_TRADER_TRADES.get(1);
-      VillagerTrades.ITrade[] avillagertrades$itrade1 = VillagerTrades.WANDERING_TRADER_TRADES.get(2);
-      if (avillagertrades$itrade != null && avillagertrades$itrade1 != null) {
-         MerchantOffers merchantoffers = this.getOffers();
-         this.addOffersFromItemListings(merchantoffers, avillagertrades$itrade, 5);
-         int i = this.random.nextInt(avillagertrades$itrade1.length);
-         VillagerTrades.ITrade villagertrades$itrade = avillagertrades$itrade1[i];
-         MerchantOffer merchantoffer = villagertrades$itrade.getOffer(this, this.random);
-         if (merchantoffer != null) {
-            merchantoffers.add(merchantoffer);
-         }
-
+      MerchantOffers merchantOffers = this.getOffers();
+      for (Pair<VillagerTrades.ITrade[], Integer> pair : this.getTradeFromLocation()) {
+         VillagerTrades.ITrade[] itemListingArray = (VillagerTrades.ITrade[])pair.getFirst();
+         this.addOffersFromItemListings(merchantOffers, itemListingArray, (Integer)pair.getSecond());
       }
+   }
+
+   public List<Pair<VillagerTrades.ITrade[], Integer>> getTradeFromLocation() {
+      BlockPos pos = this.getWanderTarget() != null ? this.getWanderTarget() : this.blockPosition();
+
+      Optional<RegistryKey<Biome>> biome = this.level.getBiomeName(pos);
+
+      return biome.isPresent() ? VillagerTrades.BIOME_TO_WANDERING_TRADER_TRADES.getOrDefault(biome.get(), VillagerTrades.WANDERING_TRADER_TRADES_) : VillagerTrades.WANDERING_TRADER_TRADES_;
    }
 
    @Override

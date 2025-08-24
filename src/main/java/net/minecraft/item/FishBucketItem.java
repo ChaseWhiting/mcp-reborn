@@ -6,11 +6,15 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.axolotl.AxolotlEntity;
+import net.minecraft.entity.axolotl.Bucketable;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.passive.fish.TropicalFishEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -27,7 +31,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class FishBucketItem extends BucketItem {
    private final EntityType<?> type;
 
-   public FishBucketItem(EntityType<?> p_i49022_1_, Fluid p_i49022_2_, Item.Properties p_i49022_3_) {
+   public FishBucketItem(EntityType<?> p_i49022_1_, Fluid p_i49022_2_, Properties p_i49022_3_) {
       super(p_i49022_2_, p_i49022_3_);
       this.type = p_i49022_1_;
    }
@@ -36,9 +40,10 @@ public class FishBucketItem extends BucketItem {
       return 32;
    }
 
-   public void checkExtraContent(World p_203792_1_, ItemStack p_203792_2_, BlockPos p_203792_3_) {
+   public void checkExtraContent(@Nullable PlayerEntity player, World p_203792_1_, ItemStack p_203792_2_, BlockPos p_203792_3_) {
       if (p_203792_1_ instanceof ServerWorld) {
          this.spawn((ServerWorld)p_203792_1_, p_203792_2_, p_203792_3_);
+         p_203792_1_.gameEvent(player, GameEvent.ENTITY_PLACE, p_203792_3_);
       }
 
    }
@@ -49,8 +54,14 @@ public class FishBucketItem extends BucketItem {
 
    private void spawn(ServerWorld p_205357_1_, ItemStack p_205357_2_, BlockPos p_205357_3_) {
       Entity entity = this.type.spawn(p_205357_1_, p_205357_2_, (PlayerEntity)null, p_205357_3_, SpawnReason.BUCKET, true, false);
-      if (entity != null) {
+      if (entity instanceof Bucketable) {
+         Bucketable bucketable = (Bucketable)(entity);
+         bucketable.loadFromBucketTag(p_205357_2_.getOrCreateTag());
+         bucketable.setFromBucket(true);
+      }
+      if (entity != null && !(entity instanceof AxolotlEntity)) {
          ((AbstractFishEntity)entity).setFromBucket(true);
+
       }
 
    }
@@ -84,4 +95,35 @@ public class FishBucketItem extends BucketItem {
       }
 
    }
+
+    @Override
+    public void fillItemCategory(ItemGroup selectedGroup, NonNullList<ItemStack> list) {
+        if (this != Items.AXOLOTL_BUCKET) {
+            super.fillItemCategory(selectedGroup, list);
+        } else {
+            if (this.allowdedIn(selectedGroup) && selectedGroup == ItemGroup.TAB_MISC || selectedGroup == ItemGroup.TAB_SEARCH) {
+                for (int i = 0; i < 10; i++) {
+                    boolean baby = i > 4;
+                    AxolotlEntity.AxolotlVariant variant = switch (i) {
+                        case 0, 5 -> AxolotlEntity.AxolotlVariant.LUCY;
+                        case 1, 6 -> AxolotlEntity.AxolotlVariant.CYAN;
+                        case 2, 7 -> AxolotlEntity.AxolotlVariant.GOLD;
+                        case 3, 8 -> AxolotlEntity.AxolotlVariant.WILD;
+                        case 4, 9 -> AxolotlEntity.AxolotlVariant.BLUE;
+                        default -> throw new IllegalStateException("Unexpected value: " + i);
+                    };
+                    ItemStack bucket = new ItemStack(Items.AXOLOTL_BUCKET);
+                    CompoundNBT nbt = new CompoundNBT();
+                    nbt.putInt("Variant", variant.getId());
+                    if (baby) {
+                        nbt.putInt("Age", -24000);
+                    } else {
+                        nbt.putInt("Age", 0);
+                    }
+                    bucket.setTag(nbt);
+                    list.add(bucket);
+                }
+            }
+        }
+    }
 }

@@ -108,6 +108,10 @@ public class Style {
       return new Style(p_240718_1_, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font);
    }
 
+   public Style withColor(int n) {
+      return this.withColor(Color.fromRgb(n));
+   }
+
    public Style withColor(@Nullable TextFormatting p_240712_1_) {
       return this.withColor(p_240712_1_ != null ? Color.fromLegacyFormat(p_240712_1_) : null);
    }

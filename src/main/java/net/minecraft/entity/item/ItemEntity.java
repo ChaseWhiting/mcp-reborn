@@ -4,11 +4,14 @@ import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.bundle.BundleItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -31,6 +34,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.VisibleForTesting;
 
 public class ItemEntity extends Entity {
    private static final DataParameter<ItemStack> DATA_ITEM = EntityDataManager.defineId(ItemEntity.class, DataSerializers.ITEM_STACK);
@@ -38,9 +42,15 @@ public class ItemEntity extends Entity {
    private int pickupDelay;
    private int health = 5;
    private boolean edible = true;
+   public boolean fromEnderiophage = false;
    private UUID thrower;
    private UUID owner;
    public final float bobOffs;
+
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.NONE;
+   }
 
    public boolean isEdible() {
       return this.edible;
@@ -60,6 +70,13 @@ public class ItemEntity extends Entity {
       this.setPos(p_i1709_2_, p_i1709_4_, p_i1709_6_);
       this.yRot = this.random.nextFloat() * 360.0F;
       this.setDeltaMovement(this.random.nextDouble() * 0.2D - 0.1D, 0.2D, this.random.nextDouble() * 0.2D - 0.1D);
+   }
+
+   public ItemEntity(World level, double d, double d2, double d3, ItemStack itemStack, double d4, double d5, double d6) {
+      this((EntityType<? extends ItemEntity>)EntityType.ITEM, level);
+      this.setPos(d, d2, d3);
+      this.setDeltaMovement(d4, d5, d6);
+      this.setItem(itemStack);
    }
 
    public int getPickupDelay() {
@@ -278,6 +295,7 @@ public class ItemEntity extends Entity {
       } else {
          this.markHurt();
          this.health = (int)((float)this.health - p_70097_2_);
+         this.gameEvent(GameEvent.ENTITY_DAMAGE, p_70097_1_.getEntity());
          if (this.health <= 0) {
             this.getItem().onDestroyed(this);
             this.remove();
@@ -305,6 +323,7 @@ public class ItemEntity extends Entity {
       p_213281_1_.putShort("Health", (short)this.health);
       p_213281_1_.putShort("Age", (short)this.age);
       p_213281_1_.putBoolean("Edible", this.edible);
+      p_213281_1_.putBoolean("FromEnderiophage", this.fromEnderiophage());
       p_213281_1_.putShort("PickupDelay", (short)this.pickupDelay);
       if (this.getThrower() != null) {
          p_213281_1_.putUUID("Thrower", this.getThrower());
@@ -338,7 +357,11 @@ public class ItemEntity extends Entity {
          this.thrower = p_70037_1_.getUUID("Thrower");
       }
 
-      CompoundNBT compoundnbt = p_70037_1_.getCompound("Item");
+       if (p_70037_1_.contains("FromEnderiophage")) {
+           this.fromEnderiophage = p_70037_1_.getBoolean("FromEnderiophage");
+       }
+
+       CompoundNBT compoundnbt = p_70037_1_.getCompound("Item");
       this.setItem(ItemStack.of(compoundnbt));
       if (this.getItem().isEmpty()) {
          this.remove();
@@ -360,9 +383,18 @@ public class ItemEntity extends Entity {
 
             p_70100_1_.awardStat(Stats.ITEM_PICKED_UP.get(item), i);
             p_70100_1_.onItemPickup(this);
+
+            if (this.getItem().getItem() == Items.BLAZE_POWDER && this.fromEnderiophage()) {
+               CriteriaTriggers.NATURAL_RESIDUE.trigger((ServerPlayerEntity) p_70100_1_);
+            }
          }
 
       }
+   }
+
+   @VisibleForTesting
+   public boolean fromEnderiophage() {
+      return this.fromEnderiophage;
    }
 
    public ITextComponent getName() {

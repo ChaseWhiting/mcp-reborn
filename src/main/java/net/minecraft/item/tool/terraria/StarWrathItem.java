@@ -1,11 +1,6 @@
 package net.minecraft.item.tool.terraria;
 
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-
-import java.util.List;
 
 public class StarWrathItem extends StarfuryItem {
 

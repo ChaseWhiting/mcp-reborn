@@ -56,6 +56,10 @@ public class Brain<E extends LivingEntity> {
       return new Brain.BrainCodec<>(p_233705_0_, p_233705_1_);
    }
 
+   public void clearMemories() {
+      this.memories.keySet().forEach(memoryModuleType -> this.memories.put((MemoryModuleType<?>)memoryModuleType, Optional.empty()));
+   }
+
    public static <E extends LivingEntity> Codec<Brain<E>> codec(final Collection<? extends MemoryModuleType<?>> p_233710_0_, final Collection<? extends SensorType<? extends Sensor<? super E>>> p_233710_1_) {
       final MutableObject<Codec<Brain<E>>> mutableobject = new MutableObject<>();
       mutableobject.setValue((new MapCodec<Brain<E>>() {
@@ -125,6 +129,17 @@ public class Brain<E extends LivingEntity> {
 
    }
 
+
+   @Nullable
+   public <U> Optional<U> getMemoryInternal(MemoryModuleType<U> memoryModuleType) {
+      Optional<? extends Memory<U>> optional = (Optional<? extends Memory<U>>) this.memories.get(memoryModuleType);
+      if (optional == null) {
+         return null;
+      }
+      return optional.map(Memory::getValue);
+   }
+
+
    public <T> DataResult<T> serializeStart(DynamicOps<T> p_233702_1_) {
       return this.codec.get().encodeStart(p_233702_1_, this);
    }
@@ -149,6 +164,11 @@ public class Brain<E extends LivingEntity> {
 
    public <U> void setMemoryWithExpiry(MemoryModuleType<U> p_233696_1_, U p_233696_2_, long p_233696_3_) {
       this.setMemoryInternal(p_233696_1_, Optional.of(Memory.of(p_233696_2_, p_233696_3_)));
+   }
+
+   public <U> long getTimeUntilExpiry(MemoryModuleType<U> memoryModuleType) {
+      Optional<? extends Memory<?>> optional = this.memories.get(memoryModuleType);
+      return optional.map(Memory::getTimeToLive).orElse(0L);
    }
 
    public <U> void setMemory(MemoryModuleType<U> p_218226_1_, Optional<? extends U> p_218226_2_) {
@@ -303,7 +323,7 @@ public class Brain<E extends LivingEntity> {
       this.addActivityAndRemoveMemoriesWhenStopped(p_233700_1_, p_233700_2_, p_233700_3_, Sets.newHashSet());
    }
 
-   private void addActivityAndRemoveMemoriesWhenStopped(Activity p_233701_1_, ImmutableList<? extends Pair<Integer, ? extends Task<? super E>>> p_233701_2_, Set<Pair<MemoryModuleType<?>, MemoryModuleStatus>> p_233701_3_, Set<MemoryModuleType<?>> p_233701_4_) {
+   public void addActivityAndRemoveMemoriesWhenStopped(Activity p_233701_1_, ImmutableList<? extends Pair<Integer, ? extends Task<? super E>>> p_233701_2_, Set<Pair<MemoryModuleType<?>, MemoryModuleStatus>> p_233701_3_, Set<MemoryModuleType<?>> p_233701_4_) {
       this.activityRequirements.put(p_233701_1_, p_233701_3_);
       if (!p_233701_4_.isEmpty()) {
          this.activityMemoriesToEraseWhenStopped.put(p_233701_1_, p_233701_4_);

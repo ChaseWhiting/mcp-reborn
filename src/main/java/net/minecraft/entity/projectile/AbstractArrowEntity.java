@@ -2,6 +2,8 @@ package net.minecraft.entity.projectile;
 
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +22,9 @@ import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowEntity;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
+import net.minecraft.entity.terraria.ITerrariaMob;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
@@ -57,12 +62,18 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
    protected int inGroundTime;
    public AbstractArrowEntity.PickupStatus pickup = AbstractArrowEntity.PickupStatus.DISALLOWED;
    public int shakeTime;
-   private int life;
+   protected int life;
    private double baseDamage = 2.0D;
    private int knockback;
+   private float damageMulti = 1F;
    private SoundEvent soundEvent = this.getDefaultHitGroundSoundEvent();
    private IntOpenHashSet piercingIgnoreEntityIds;
    private List<Entity> piercedAndKilledEntities;
+
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.NONE;
+   }
 
    protected AbstractArrowEntity(EntityType<? extends AbstractArrowEntity> p_i48546_1_, World p_i48546_2_) {
       super(p_i48546_1_, p_i48546_2_);
@@ -205,7 +216,7 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
          double d3 = vector3d.x;
          double d4 = vector3d.y;
          double d0 = vector3d.z;
-         if (this.isCritArrow() || shotFromCrossbow()) {
+         if ((this.isCritArrow() || shotFromCrossbow()) && !(this instanceof CustomArrowEntity && ((CustomArrowEntity)this).getArrowType() == CustomArrowType.FLEETING) && !(this instanceof CustomArrowEntity && ((CustomArrowEntity)this).getArrowType() == CustomArrowType.MEEP)) {
             for(int i = 0; i < 4; ++i) {
                this.level.addParticle(ParticleTypes.CRIT, this.getX() + d3 * (double)i / 4.0D, this.getY() + d4 * (double)i / 4.0D, this.getZ() + d0 * (double)i / 4.0D, -d3, -d4 + 0.2D, -d0);
             }
@@ -235,7 +246,11 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
             f2 = this.getWaterInertia();
          }
 
-         this.setDeltaMovement(vector3d.scale((double)f2));
+         if (!(this instanceof CustomArrowEntity && ((CustomArrowEntity)this).getArrowType() == CustomArrowType.JESTER)) {
+            this.setDeltaMovement(vector3d.scale((double)f2));
+
+         }
+
          if (!this.isNoGravity() && !flag) {
             Vector3d vector3d4 = this.getDeltaMovement();
             this.setDeltaMovement(vector3d4.x, vector3d4.y - (double)0.05F, vector3d4.z);
@@ -346,7 +361,53 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
          entity.setSecondsOnFire(5);
       }
 
+      if (this instanceof CustomArrowEntity) {
+
+         i += (int) ((CustomArrowType)((CustomArrowEntity)this).getArrowType()).getBaseDamage();
+
+         if (((CustomArrowEntity)this).getArrowType() == CustomArrowType.AERIAL_BANE) {
+            boolean inAir = false;
+            BlockPos pos = new BlockPos(entity.getX(), entity.getY(), entity.getZ());
+            int count = 0;
+            while (pos.getY() > 1) {
+               pos = pos.below();
+
+               if (level.isEmptyBlock(pos)) {
+                  count++;
+                  if (count >= 8) {
+                     inAir = true;
+                  }
+               } else {
+                  break;
+               }
+            }
+
+            if (inAir) {
+               i *= 1.5;
+            }
+         }
+
+         if (((CustomArrowEntity)this).getArrowType() == CustomArrowType.JESTER) {
+            i *= this.damageMulti;
+         }
+
+
+         if (((CustomArrowEntity)this).getArrowType() == CustomArrowType.JESTER || ((CustomArrowEntity)this).getArrowType() == CustomArrowType.AERIAL_BANE) {
+            if (entity instanceof ITerrariaMob) {
+               i *= 3;
+            }
+         }
+      }
+
+
+
       if (entity.hurt(damagesource, (float)i)) {
+         if (this instanceof CustomArrowEntity) {
+            if (((CustomArrowEntity)this).getArrowType() == CustomArrowType.JESTER) {
+               this.damageMulti -= 0.1F;
+            }
+         }
+
          if (flag) {
             return;
          }
@@ -383,13 +444,17 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
                if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
                   CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(serverplayerentity, this.piercedAndKilledEntities);
                } else if (!entity.isAlive() && this.shotFromCrossbow()) {
-                  CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(serverplayerentity, Arrays.asList(entity));
+                  CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(serverplayerentity, List.of(entity));
                }
             }
          }
 
-         this.playSound(this.soundEvent, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-         if (this.getPierceLevel() <= 0 && this.getRicochetLevel() <= 0) {
+         boolean dps = this instanceof CustomArrowEntity && ((CustomArrowEntity)this).getArrowType() == CustomArrowType.AERIAL_BANE;
+
+          if (!dps) {
+              this.playSound(this.soundEvent, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+          }
+          if (this.getPierceLevel() <= 0 && this.getRicochetLevel() <= 0) {
             this.remove();
          }
       } else {
@@ -407,6 +472,55 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
       }
 
    }
+
+
+   public static List<Vector3d> predictArrowPath(World world, Vector3d startPos, Vector3d startVelocity, AbstractArrowEntity arrow, int maxSteps) {
+      List<Vector3d> path = new ArrayList<>();
+      Vector3d position = startPos;
+      Vector3d velocity = startVelocity;
+
+      float gravity = arrow.isNoGravity() || arrow.isNoPhysics() ? 0.0F : 0.05F;
+      float drag = 0.99F;
+
+      // Water drag logic
+      if (arrow.isInWater()) {
+         drag = arrow.getWaterInertia();
+      }
+
+      for (int i = 0; i < maxSteps; i++) {
+         path.add(position);
+
+         Vector3d nextPos = position.add(velocity);
+
+         // Perform ray trace for blocks (and optionally entities)
+         RayTraceResult result = world.clip(new RayTraceContext(
+                 position,
+                 nextPos,
+                 RayTraceContext.BlockMode.COLLIDER,
+                 RayTraceContext.FluidMode.NONE,
+                 arrow
+         ));
+
+         if (result.getType() != RayTraceResult.Type.MISS) {
+            path.add(result.getLocation()); // Where it would collide
+            break;
+         }
+
+         // Apply movement
+         position = nextPos;
+
+         // Apply drag
+         velocity = velocity.scale(drag);
+
+         // Apply gravity
+         if (!arrow.isNoGravity() && !arrow.isNoPhysics()) {
+            velocity = velocity.subtract(0, gravity, 0);
+         }
+      }
+
+      return path;
+   }
+
 
    public void dealWithGravity() {
       if (getGravityLevel() > 0) {
@@ -451,7 +565,6 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
       }
    }
 
-
    protected void onHitBlock(BlockRayTraceResult result) {
       this.lastState = this.level.getBlockState(result.getBlockPos());
       super.onHitBlock(result);
@@ -495,18 +608,30 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
             ricochetVector = ricochetVector.add(0, 0.2, 0);
          }
 
+         boolean dps = this instanceof CustomArrowEntity && ((CustomArrowEntity)this).getArrowType() == CustomArrowType.AERIAL_BANE;
+
+         dps = dps || this instanceof CustomArrowEntity customArrowEntity && customArrowEntity.getArrowType() == CustomArrowType.FIREWORK;
 
          this.setDeltaMovement(ricochetVector);
          this.setPosRaw(this.getX(), this.getY(), this.getZ());
-         this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-         this.inGround = false; // Make sure the arrow is not marked as in the ground
+          if (!dps) {
+              this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+          }
+          this.inGround = false; // Make sure the arrow is not marked as in the ground
       } else {
          Vector3d vector3d = result.getLocation().subtract(this.getX(), this.getY(), this.getZ());
          this.setDeltaMovement(vector3d);
          Vector3d vector3d1 = vector3d.normalize().scale((double)0.05F);
+         boolean dps = this instanceof CustomArrowEntity && ((CustomArrowEntity)this).getArrowType() == CustomArrowType.AERIAL_BANE;
+
+         dps = dps || this instanceof CustomArrowEntity customArrowEntity && customArrowEntity.getArrowType() == CustomArrowType.FIREWORK;
+
+
          this.setPosRaw(this.getX() - vector3d1.x, this.getY() - vector3d1.y, this.getZ() - vector3d1.z);
-         this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-         this.inGround = true;
+          if (!dps) {
+              this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+          }
+          this.inGround = true;
          this.shakeTime = 7;
          this.setCritArrow(false);
          this.setPierceLevel((byte)0);
@@ -557,6 +682,7 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
       p_213281_1_.putByte("GravityLevel", this.getGravityLevel());
       p_213281_1_.putString("SoundEvent", Registry.SOUND_EVENT.getKey(this.soundEvent).toString());
       p_213281_1_.putBoolean("ShotFromCrossbow", this.shotFromCrossbow());
+      p_213281_1_.putFloat("DamageMulti", this.damageMulti);
    }
 
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
@@ -577,6 +703,8 @@ public abstract class AbstractArrowEntity extends ProjectileEntity {
       } else if (p_70037_1_.contains("player", 99)) {
          this.pickup = p_70037_1_.getBoolean("player") ? AbstractArrowEntity.PickupStatus.ALLOWED : AbstractArrowEntity.PickupStatus.DISALLOWED;
       }
+
+      this.damageMulti = p_70037_1_.getFloat("DamageMulti");
 
       this.setCritArrow(p_70037_1_.getBoolean("crit"));
       this.setPierceLevel(p_70037_1_.getByte("PierceLevel"));

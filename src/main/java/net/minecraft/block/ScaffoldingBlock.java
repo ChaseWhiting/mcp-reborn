@@ -34,13 +34,13 @@ public class ScaffoldingBlock extends Block implements IWaterLoggable {
       this.registerDefaultState(this.stateDefinition.any().setValue(DISTANCE, Integer.valueOf(7)).setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(BOTTOM, Boolean.valueOf(false)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(DISTANCE, WATERLOGGED, BOTTOM);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(DISTANCE, WATERLOGGED, BOTTOM);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      if (!p_220053_4_.isHoldingItem(p_220053_1_.getBlock().asItem())) {
-         return p_220053_1_.getValue(BOTTOM) ? UNSTABLE_SHAPE : STABLE_SHAPE;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      if (!context.isHoldingItem(state.getBlock().asItem())) {
+         return state.getValue(BOTTOM) ? UNSTABLE_SHAPE : STABLE_SHAPE;
       } else {
          return VoxelShapes.block();
       }

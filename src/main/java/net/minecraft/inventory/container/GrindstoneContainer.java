@@ -197,7 +197,7 @@ public class GrindstoneContainer extends Container {
       }).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
       EnchantmentHelper.setEnchantments(map, itemstack);
       itemstack.setRepairCost(0);
-      if (itemstack.getItem() == Items.ENCHANTED_BOOK && map.size() == 0) {
+      if (itemstack.getItem() == Items.ENCHANTED_BOOK && map.isEmpty()) {
          itemstack = new ItemStack(Items.BOOK);
          if (p_217007_1_.hasCustomHoverName()) {
             itemstack.setHoverName(p_217007_1_.getHoverName());

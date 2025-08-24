@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.FireSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ResourceLocation;
@@ -121,6 +122,13 @@ public class OverlayRenderer {
       RenderSystem.defaultBlendFunc();
       RenderSystem.enableTexture();
       TextureAtlasSprite textureatlassprite = ModelBakery.FIRE_1.sprite();
+
+      if (p_228737_0_.player.getFireSource() == FireSource.SOUL_FIRE) {
+         textureatlassprite = ModelBakery.SOUL_FIRE_1.sprite();
+
+         p_228737_0_.player.validateFireSource(textureatlassprite);
+      }
+
       p_228737_0_.getTextureManager().bind(textureatlassprite.atlas().location());
       float f = textureatlassprite.getU0();
       float f1 = textureatlassprite.getU1();

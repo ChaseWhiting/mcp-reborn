@@ -9,8 +9,8 @@ public class GlazedTerracottaBlock extends HorizontalBlock {
       super(p_i48390_1_);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING);
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {

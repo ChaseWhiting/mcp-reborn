@@ -38,8 +38,8 @@ public class EndPortalFrameBlock extends Block {
       return true;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return p_220053_1_.getValue(HAS_EYE) ? FULL_SHAPE : BASE_SHAPE;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return state.getValue(HAS_EYE) ? FULL_SHAPE : BASE_SHAPE;
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {
@@ -62,8 +62,8 @@ public class EndPortalFrameBlock extends Block {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, HAS_EYE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, HAS_EYE);
    }
 
    public static BlockPattern getOrCreatePortalShape() {

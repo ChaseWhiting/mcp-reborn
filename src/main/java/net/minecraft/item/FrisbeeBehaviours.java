@@ -1,6 +1,5 @@
 package net.minecraft.item;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FrisbeeEntity;
 import net.minecraft.util.math.BlockRayTraceResult;

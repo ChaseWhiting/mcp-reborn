@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.brain.Memory;
+import net.minecraft.entity.ai.brain.sensor.NearestVisibleLivingEntities;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.monster.HoglinEntity;
@@ -21,9 +22,11 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.UUIDCodec;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.IPosWrapper;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
 
 public class MemoryModuleType<U> {
@@ -47,6 +50,49 @@ public class MemoryModuleType<U> {
    public static final MemoryModuleType<AgeableEntity> BREED_TARGET = register("breed_target");
    public static final MemoryModuleType<Entity> RIDE_TARGET = register("ride_target");
    public static final MemoryModuleType<Path> PATH = register("path");
+   public static final MemoryModuleType<Unit> DIG_COOLDOWN = MemoryModuleType.register("dig_cooldown", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<LivingEntity> ROAR_TARGET = MemoryModuleType.register("roar_target");
+   public static final MemoryModuleType<Unit> IS_EMERGING = MemoryModuleType.register("is_emerging", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> TOUCH_COOLDOWN = MemoryModuleType.register("touch_cooldown", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<BlockPos> DISTURBANCE_LOCATION = MemoryModuleType.register("disturbance_location");
+   public static final MemoryModuleType<Unit> SNIFF_COOLDOWN = MemoryModuleType.register("sniff_cooldown", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> VIBRATION_COOLDOWN = MemoryModuleType.register("vibration_cooldown", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> RECENT_PROJECTILE = MemoryModuleType.register("recent_projectile", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<NearestVisibleLivingEntities> NEAREST_VISIBLE_LIVING_ENTITIES = MemoryModuleType.register("nearest_visible_mobs");
+   public static final MemoryModuleType<Integer> ITEM_PICKUP_COOLDOWN_TICKS = MemoryModuleType.register("item_pickup_cooldown_ticks", Codec.INT);
+   public static final MemoryModuleType<GlobalPos> LIKED_NOTEBLOCK_POSITION = MemoryModuleType.register("liked_noteblock", GlobalPos.CODEC);
+   public static final MemoryModuleType<Integer> LIKED_NOTEBLOCK_COOLDOWN_TICKS = MemoryModuleType.register("liked_noteblock_cooldown_ticks", Codec.INT);
+
+   public static final MemoryModuleType<PlayerEntity> NEAREST_VISIBLE_ATTACKABLE_PLAYER = MemoryModuleType.register("nearest_visible_targetable_player");
+   public static final MemoryModuleType<List<PlayerEntity>> NEAREST_VISIBLE_ATTACKABLE_PLAYERS = MemoryModuleType.register("nearest_visible_targetable_players");
+
+   public static final MemoryModuleType<UUID> LIKED_PLAYER = MemoryModuleType.register("liked_player", UUIDCodec.CODEC);
+
+
+   public static final MemoryModuleType<LivingEntity> NEAREST_ATTACKABLE = MemoryModuleType.register("nearest_attackable");
+
+
+   public static final MemoryModuleType<Boolean> HAS_HUNTING_COOLDOWN = MemoryModuleType.register("has_hunting_cooldown", Codec.BOOL);
+
+
+   public static final MemoryModuleType<Integer> LONG_JUMP_COOLDOWN_TICKS = register("long_jump_cooldown_ticks");
+   public static final MemoryModuleType<Boolean> LONG_JUMP_MID_JUMP = register("long_jump_mid_jump");
+   public static final MemoryModuleType<Integer> RAM_COOLDOWN_TICKS = register("ram_cooldown_ticks");
+   public static final MemoryModuleType<Integer> TEMPTATION_COOLDOWN_TICKS = register("temptation_cooldown_ticks");
+
+   public static final MemoryModuleType<Vector3d> RAM_TARGET = register("ram_target");
+   public static final MemoryModuleType<Boolean> IS_PANICKING = register("is_panicking");
+   public static final MemoryModuleType<Boolean> IS_TEMPTED = MemoryModuleType.register("is_tempted", Codec.BOOL);
+   public static final MemoryModuleType<PlayerEntity> TEMPTING_PLAYER = MemoryModuleType.register("tempting_player");
+   public static final MemoryModuleType<Integer> GAZE_COOLDOWN_TICKS = MemoryModuleType.register("gaze_cooldown_ticks", Codec.INT);
+
+
+   public static final MemoryModuleType<Unit> IS_IN_WATER = MemoryModuleType.register("is_in_water", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> IS_PREGNANT = MemoryModuleType.register("is_pregnant", Codec.unit(Unit.INSTANCE));
+
+   public static final MemoryModuleType<List<UUID>> UNREACHABLE_TONGUE_TARGETS = MemoryModuleType.register("unreachable_tongue_targets");
+
+
    public static final MemoryModuleType<List<GlobalPos>> INTERACTABLE_DOORS = register("interactable_doors");
    public static final MemoryModuleType<Set<GlobalPos>> DOORS_TO_CLOSE = register("doors_to_close");
    public static final MemoryModuleType<BlockPos> NEAREST_BED = register("nearest_bed");
@@ -62,11 +108,19 @@ public class MemoryModuleType<U> {
    public static final MemoryModuleType<Long> LAST_WOKEN = register("last_woken", Codec.LONG);
    public static final MemoryModuleType<Long> LAST_WORKED_AT_POI = register("last_worked_at_poi", Codec.LONG);
    public static final MemoryModuleType<AgeableEntity> NEAREST_VISIBLE_ADULT = register("nearest_visible_adult");
+   public static final MemoryModuleType<LivingEntity> NEAREST_VISIBLE_ADULT_NON_AGEABLE = register("nearest_visible_adult_non_ageable");
+
+   public static final MemoryModuleType<LivingEntity> NEAREST_SAME_ENTITY = register("nearest_same_entity");
+
    public static final MemoryModuleType<ItemEntity> NEAREST_VISIBLE_WANTED_ITEM = register("nearest_visible_wanted_item");
    public static final MemoryModuleType<Mob> NEAREST_VISIBLE_NEMESIS = register("nearest_visible_nemesis");
    public static final MemoryModuleType<UUID> ANGRY_AT = register("angry_at", UUIDCodec.CODEC);
    public static final MemoryModuleType<Boolean> UNIVERSAL_ANGER = register("universal_anger", Codec.BOOL);
    public static final MemoryModuleType<Boolean> ADMIRING_ITEM = register("admiring_item", Codec.BOOL);
+   public static final MemoryModuleType<Boolean> GIVEN_GOLD = register("given_gold", Codec.BOOL);
+
+   public static final MemoryModuleType<Boolean> FOOLED_RECENTLY = register("fooled_recently", Codec.BOOL);
+
    public static final MemoryModuleType<Integer> TIME_TRYING_TO_REACH_ADMIRE_ITEM = register("time_trying_to_reach_admire_item");
    public static final MemoryModuleType<Boolean> DISABLE_WALK_TO_ADMIRE_ITEM = register("disable_walk_to_admire_item");
    public static final MemoryModuleType<Boolean> ADMIRING_DISABLED = register("admiring_disabled", Codec.BOOL);
@@ -78,6 +132,8 @@ public class MemoryModuleType<U> {
    public static final MemoryModuleType<PlayerEntity> NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD = register("nearest_targetable_player_not_wearing_gold");
    public static final MemoryModuleType<AbstractVillagerEntity> ATTACKABLE_VILLAGER = register("nearest_villager");
    public static final MemoryModuleType<IronGolemEntity> ATTACKABLE_GOLEM = register("nearest_golem");
+   public static final MemoryModuleType<Integer> PLAY_DEAD_TICKS = MemoryModuleType.register("play_dead_ticks", Codec.INT);
+
 
    public static final MemoryModuleType<List<AbstractPiglinEntity>> NEARBY_ADULT_PIGLINS = register("nearby_adult_piglins");
    public static final MemoryModuleType<List<BoggedEntity>> NEARBY_BOGGED = register("nearby_bogged");
@@ -92,6 +148,22 @@ public class MemoryModuleType<U> {
    public static final MemoryModuleType<Boolean> ATE_RECENTLY = register("ate_recently");
    public static final MemoryModuleType<BlockPos> NEAREST_REPELLENT = register("nearest_repellent");
    public static final MemoryModuleType<Boolean> PACIFIED = register("pacified");
+
+   public static final MemoryModuleType<Unit> IS_SNIFFING = MemoryModuleType.register("is_sniffing", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> ROAR_SOUND_DELAY = MemoryModuleType.register("roar_sound_delay", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> ROAR_SOUND_COOLDOWN = MemoryModuleType.register("roar_sound_cooldown", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> SONIC_BOOM_COOLDOWN = MemoryModuleType.register("sonic_boom_cooldown", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> SONIC_BOOM_SOUND_COOLDOWN = MemoryModuleType.register("sonic_boom_sound_cooldown", Codec.unit(Unit.INSTANCE));
+   public static final MemoryModuleType<Unit> SONIC_BOOM_SOUND_DELAY = MemoryModuleType.register("sonic_boom_sound_delay", Codec.unit(Unit.INSTANCE));
+
+
+
+   public static final MemoryModuleType<List<GlobalPos>> SNIFFER_EXPLORED_POSITIONS = MemoryModuleType.register("sniffer_explored_positions", Codec.list(GlobalPos.CODEC));
+   public static final MemoryModuleType<BlockPos> SNIFFER_SNIFFING_TARGET = MemoryModuleType.register("sniffer_sniffing_target");
+   public static final MemoryModuleType<Boolean> SNIFFER_DIGGING = MemoryModuleType.register("sniffer_digging");
+   public static final MemoryModuleType<Boolean> SNIFFER_HAPPY = MemoryModuleType.register("sniffer_happy");
+
+
    private final Optional<Codec<Memory<U>>> codec;
 
    private MemoryModuleType(Optional<Codec<U>> p_i50306_1_) {

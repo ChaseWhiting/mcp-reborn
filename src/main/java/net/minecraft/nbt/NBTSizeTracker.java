@@ -1,5 +1,7 @@
 package net.minecraft.nbt;
 
+import net.minecraft.util.codec.NbtAccounter;
+
 public class NBTSizeTracker {
    public static final NBTSizeTracker UNLIMITED = new NBTSizeTracker(0L) {
       public void accountBits(long p_152450_1_) {
@@ -17,5 +19,11 @@ public class NBTSizeTracker {
       if (this.usage > this.quota) {
          throw new RuntimeException("Tried to read NBT tag that was too big; tried to allocate: " + this.usage + "bytes where max allowed: " + this.quota);
       }
+   }
+
+
+
+   public NbtAccounter toAccounterType() {
+      return new NbtAccounter(quota, 512);
    }
 }

@@ -8,11 +8,8 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.block.Blocks;
@@ -27,10 +24,7 @@ import net.minecraft.client.gui.overlay.DebugOverlayGui;
 import net.minecraft.client.gui.overlay.PlayerTabOverlayGui;
 import net.minecraft.client.gui.overlay.SubtitleOverlayGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.PotionSpriteUploader;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -42,6 +36,9 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.equipment.trim.PalettedPermutations;
+import net.minecraft.item.equipment.trim.ToolTrim;
+import net.minecraft.item.equipment.trim.TrimMaterial;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
@@ -80,6 +77,13 @@ public class IngameGui extends AbstractGui {
    private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
    private static final ResourceLocation PUMPKIN_BLUR_LOCATION = new ResourceLocation("textures/misc/pumpkinblur.png");
    private static final ITextComponent DEMO_EXPIRED_TEXT = new TranslationTextComponent("demo.demoExpired");
+
+   public static final ResourceLocation XP_BAR_BACKGROUND = new ResourceLocation("minecraft", "textures/gui/experience_bar_background.png");
+   public static final ResourceLocation XP_BAR_PROGRESS  = new ResourceLocation("minecraft", "textures/gui/experience_bar_progress.png");
+   public static final ResourceLocation XP_BAR_BLUE_BACKGROUND = new ResourceLocation("minecraft", "textures/gui/experience_bar_blue_background.png");
+   public static final ResourceLocation XP_BAR_BLUE_PROGRESS  = new ResourceLocation("minecraft", "textures/gui/experience_bar_blue_progress.png");
+
+
    private final Random random = new Random();
    private final Minecraft minecraft;
    private final ItemRenderer itemRenderer;
@@ -113,6 +117,9 @@ public class IngameGui extends AbstractGui {
    private int screenHeight;
    private final Map<ChatType, List<IChatListener>> chatListeners = Maps.newHashMap();
 
+   private float scopeScale;
+
+
    public IngameGui(Minecraft p_i46325_1_) {
       this.minecraft = p_i46325_1_;
       this.itemRenderer = p_i46325_1_.getItemRenderer();
@@ -142,6 +149,79 @@ public class IngameGui extends AbstractGui {
       this.titleFadeOutTime = 20;
    }
 
+   private static final ResourceLocation SPYGLASS_SCOPE_LOCATION = new ResourceLocation("textures/misc/scope/spyglass_scope.png");
+
+
+   public static final Map<String, ResourceLocation> SPYGLASS_TRIMMED_GUI_TEXTURES = Util.make(new HashMap<>(), map -> {
+
+      for (String id : PalettedPermutations.TRIM_MATERIAL_IDS) {
+         if (id.contains("darker")) continue;
+
+         map.put(id, new ResourceLocation("minecraft", "textures/misc/spyglass_scope_trim_" + id + ".png"));
+      }
+
+   });
+
+   private void renderSpyglassOverlay(MatrixStack matrixStack, float partialTicks) {
+      float minDim = (float) Math.min(this.screenWidth, this.screenHeight);
+      float scale = Math.min((float) this.screenWidth / minDim, (float) this.screenHeight / minDim) * partialTicks;
+      int scaledWidth = MathHelper.floor(minDim * scale);
+      int scaledHeight = MathHelper.floor(minDim * scale);
+
+      int x = (this.screenWidth - scaledWidth) / 2;
+      int y = (this.screenHeight - scaledHeight) / 2;
+
+      Optional<TrimMaterial> material = Optional.empty();
+
+      if (!minecraft.player.getUseItem().isEmpty()) {
+         Optional<ToolTrim> trim = ToolTrim.getToolTrim(null, minecraft.player.getUseItem());
+
+         if (trim.isPresent()) {
+            material = Optional.ofNullable(trim.get().getMaterial());
+         }
+      }
+
+      this.minecraft.getTextureManager().bind(SPYGLASS_TRIMMED_GUI_TEXTURES.getOrDefault(material.isPresent() ? material.get().getAssetName() : "", SPYGLASS_SCOPE_LOCATION));
+
+      // Render the spyglass texture
+      blit(
+              matrixStack,
+              x, y,                         // x, y
+              scaledWidth, scaledHeight,    // width, height
+              0.0f, 0.0f,                   // u, v
+              scaledWidth, scaledHeight,    // uWidth, vHeight
+              scaledWidth, scaledHeight     // textureWidth, textureHeight
+      );
+
+      // Render black bars (top, bottom, left, right)
+      fill(matrixStack, 0, y + scaledHeight, this.screenWidth, this.screenHeight, 0xFF000000); // Bottom
+      fill(matrixStack, 0, 0, this.screenWidth, y, 0xFF000000);                                // Top
+      fill(matrixStack, 0, y, x, y + scaledHeight, 0xFF000000);                                // Left
+      fill(matrixStack, x + scaledWidth, y, this.screenWidth, y + scaledHeight, 0xFF000000);   // Right
+   }
+
+
+   private void renderPumpkin() {
+      RenderSystem.disableDepthTest();
+      RenderSystem.depthMask(false);
+      RenderSystem.defaultBlendFunc();
+      RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+      RenderSystem.disableAlphaTest();
+      this.minecraft.getTextureManager().bind(PUMPKIN_BLUR_LOCATION);
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder bufferbuilder = tessellator.getBuilder();
+      bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+      bufferbuilder.vertex(0.0D, (double)this.screenHeight, -90.0D).uv(0.0F, 1.0F).endVertex();
+      bufferbuilder.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0D).uv(1.0F, 1.0F).endVertex();
+      bufferbuilder.vertex((double)this.screenWidth, 0.0D, -90.0D).uv(1.0F, 0.0F).endVertex();
+      bufferbuilder.vertex(0.0D, 0.0D, -90.0D).uv(0.0F, 0.0F).endVertex();
+      tessellator.end();
+      RenderSystem.depthMask(true);
+      RenderSystem.enableDepthTest();
+      RenderSystem.enableAlphaTest();
+      RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+   }
+
    public void render(MatrixStack p_238445_1_, float p_238445_2_) {
       this.screenWidth = this.minecraft.getWindow().getGuiScaledWidth();
       this.screenHeight = this.minecraft.getWindow().getGuiScaledHeight();
@@ -154,9 +234,23 @@ public class IngameGui extends AbstractGui {
          RenderSystem.defaultBlendFunc();
       }
 
-      ItemStack itemstack = this.minecraft.player.inventory.getArmor(3);
-      if (this.minecraft.options.getCameraType().isFirstPerson() && itemstack.getItem() == Blocks.CARVED_PUMPKIN.asItem() || this.minecraft.options.getCameraType().isFirstPerson() && itemstack.getItem() == Blocks.WHITE_CARVED_PUMPKIN.asItem()) {
-         this.renderPumpkin();
+//      ItemStack itemstack = this.minecraft.player.inventory.getArmor(3);
+//      if (this.minecraft.options.getCameraType().isFirstPerson() && itemstack.getItem() == Blocks.CARVED_PUMPKIN.asItem() || this.minecraft.options.getCameraType().isFirstPerson() && itemstack.getItem() == Blocks.WHITE_CARVED_PUMPKIN.asItem()) {
+//         this.renderPumpkin();
+//      }
+
+      float f66 = this.minecraft.getDeltaFrameTime();
+      this.scopeScale = MathHelper.lerp(0.5f * f66, this.scopeScale, 1.125f);
+      if (this.minecraft.options.getCameraType().isFirstPerson()) {
+         if (this.minecraft.player.isScoping()) {
+            this.renderSpyglassOverlay(p_238445_1_, this.scopeScale);
+         } else {
+            this.scopeScale = 0.5f;
+            ItemStack itemStack = this.minecraft.player.inventory.getArmor(3);
+            if (itemStack.is(Blocks.CARVED_PUMPKIN.asItem()) || itemStack.is(Blocks.WHITE_PUMPKIN.asItem())) {
+               renderPumpkin();
+            }
+         }
       }
 
       float f = MathHelper.lerp(p_238445_2_, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
@@ -167,7 +261,11 @@ public class IngameGui extends AbstractGui {
       if (this.minecraft.gameMode.getPlayerMode() == Gamemode.SPECTATOR) {
          this.spectatorGui.renderHotbar(p_238445_1_, p_238445_2_);
       } else if (!this.minecraft.options.hideGui) {
-         this.renderHotbar(p_238445_2_, p_238445_1_);
+         boolean render = (this.minecraft.player.isScoping() ? (this.minecraft.options.getCameraType().isFirstPerson() ? false : true) : true);
+
+          if (render) {
+              this.renderHotbar(p_238445_2_, p_238445_1_);
+          }
       }
 
       if (!this.minecraft.options.hideGui) {
@@ -538,34 +636,57 @@ public class IngameGui extends AbstractGui {
       this.minecraft.getProfiler().pop();
    }
 
-   public void renderExperienceBar(MatrixStack p_238454_1_, int p_238454_2_) {
+   public void renderExperienceBar(MatrixStack matrixStack, int x) {
       this.minecraft.getProfiler().push("expBar");
-      this.minecraft.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
-      int i = this.minecraft.player.getXpNeededForNextLevel();
-      if (i > 0) {
-         int j = 182;
-         int k = (int)(this.minecraft.player.experienceProgress * 183.0F);
-         int l = this.screenHeight - 32 + 3;
-         this.blit(p_238454_1_, p_238454_2_, l, 0, 64, 182, 5);
-         if (k > 0) {
-            this.blit(p_238454_1_, p_238454_2_, l, 0, 69, k, 5);
+
+
+      boolean blue = minecraft.player.hasEffect(Effects.INSIGHT);
+      int xpRender = 8453920;
+      ResourceLocation xpBar = XP_BAR_BACKGROUND;
+      ResourceLocation xpBarProgress = XP_BAR_PROGRESS;
+
+      if (blue) {
+         xpBar = XP_BAR_BLUE_BACKGROUND;
+         xpBarProgress = XP_BAR_BLUE_PROGRESS;
+         xpRender = 2162676;
+      }
+
+      int xpNeeded = this.minecraft.player.getXpNeededForNextLevel();
+      if (xpNeeded > 0) {
+         int width = 182;
+         int progressWidth = (int)(this.minecraft.player.experienceProgress * (float)width);
+         int y = this.screenHeight - 32 + 3;
+
+         // Draw background
+         this.minecraft.getTextureManager().bind(xpBar);
+         this.blit(matrixStack, x, y, 0, 0, width, 5, 182, 5); // For background
+
+         // Draw progress
+         if (progressWidth > 0) {
+            this.minecraft.getTextureManager().bind(xpBarProgress);
+            this.blit(matrixStack, x, y, 0, 0, progressWidth, 5, 182, 5); // For progress
          }
       }
 
       this.minecraft.getProfiler().pop();
+
+      // Draw level number if needed
       if (this.minecraft.player.experienceLevel > 0) {
          this.minecraft.getProfiler().push("expLevel");
-         String s = "" + this.minecraft.player.experienceLevel;
-         int i1 = (this.screenWidth - this.getFont().width(s)) / 2;
-         int j1 = this.screenHeight - 31 - 4;
-         this.getFont().draw(p_238454_1_, s, (float)(i1 + 1), (float)j1, 0);
-         this.getFont().draw(p_238454_1_, s, (float)(i1 - 1), (float)j1, 0);
-         this.getFont().draw(p_238454_1_, s, (float)i1, (float)(j1 + 1), 0);
-         this.getFont().draw(p_238454_1_, s, (float)i1, (float)(j1 - 1), 0);
-         this.getFont().draw(p_238454_1_, s, (float)i1, (float)j1, 8453920);
+         String s = Integer.toString(this.minecraft.player.experienceLevel);
+         int textX = (this.screenWidth - this.getFont().width(s)) / 2;
+         int textY = this.screenHeight - 31 - 4;
+         // Draw shadow/outline for readability
+         this.getFont().draw(matrixStack, s, (float)(textX + 1), (float)textY, 0);
+         this.getFont().draw(matrixStack, s, (float)(textX - 1), (float)textY, 0);
+         this.getFont().draw(matrixStack, s, (float)textX, (float)(textY + 1), 0);
+         this.getFont().draw(matrixStack, s, (float)textX, (float)(textY - 1), 0);
+         // Draw level in color
+         this.getFont().draw(matrixStack, s, (float)textX, (float)textY, xpRender);
          this.minecraft.getProfiler().pop();
       }
 
+      minecraft.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
    }
 
    public void renderSelectedItemName(MatrixStack p_238453_1_) {
@@ -749,87 +870,26 @@ public class IngameGui extends AbstractGui {
 
          this.minecraft.getProfiler().push("armor");
 
-         for(int l3 = 0; l3 < 10; ++l3) {
-            if (j3 > 0) {
-               int i4 = i1 + l3 * 8;
-               if (l3 * 2 + 1 < j3) {
-                  this.blit(p_238457_1_, i4, k2, 34, 9, 9, 9);
-               }
-
-               if (l3 * 2 + 1 == j3) {
-                  this.blit(p_238457_1_, i4, k2, 25, 9, 9, 9);
-               }
-
-               if (l3 * 2 + 1 > j3) {
-                  this.blit(p_238457_1_, i4, k2, 16, 9, 9, 9);
-               }
-            }
-         }
+         this.renderArmorBars(p_238457_1_, i1, k2, j3);
 
          this.minecraft.getProfiler().popPush("health");
 
-         for(int l5 = MathHelper.ceil((f + (float)l1) / 2.0F) - 1; l5 >= 0; --l5) {
-            int i6 = 16;
-            if (playerentity.hasEffect(Effects.POISON)) {
-               i6 += 36;
-            } else if (playerentity.hasEffect(Effects.WITHER)) {
-               i6 += 72;
-            } else if (playerentity.hasEffect(Effects.ROOTED)) {
-               i6 += 153;
-            } else if (playerentity.hasEffect(Effects.HONEY)) {
-               i6 += 108;
-            }
+         this.renderHearts(
+                 p_238457_1_,                   // matrix stack
+                 playerentity,                  // player
+                 i1,                            // x base
+                 k1,                            // y base
+                 j2,                            // row spacing
+                 k3,                            // regen highlight
+                 f,                 // max + absorption
+                 i,                             // current health
+                 k,                             // displayed health
+                 l1,                            // absorption amount
+                 flag                           // blinking
+         );
 
-            int j4 = 0;
-            if (flag) {
-               j4 = 1;
-            }
+         this.minecraft.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
 
-            int k4 = MathHelper.ceil((float)(l5 + 1) / 10.0F) - 1;
-            int l4 = i1 + l5 % 10 * 8;
-            int i5 = k1 - k4 * j2;
-            if (i <= 4) {
-               i5 += this.random.nextInt(2);
-            }
-
-            if (i3 <= 0 && l5 == k3) {
-               i5 -= 2;
-            }
-
-            int j5 = 0;
-            if (playerentity.level.getLevelData().isHardcore()) {
-               j5 = 5;
-            }
-
-            this.blit(p_238457_1_, l4, i5, 16 + j4 * 9, 9 * j5, 9, 9);
-            if (flag) {
-               if (l5 * 2 + 1 < k) {
-                  this.blit(p_238457_1_, l4, i5, i6 + 54, 9 * j5, 9, 9);
-               }
-
-               if (l5 * 2 + 1 == k) {
-                  this.blit(p_238457_1_, l4, i5, i6 + 63, 9 * j5, 9, 9);
-               }
-            }
-
-            if (i3 > 0) {
-               if (i3 == l1 && l1 % 2 == 1) {
-                  this.blit(p_238457_1_, l4, i5, i6 + 153, 9 * j5, 9, 9);
-                  --i3;
-               } else {
-                  this.blit(p_238457_1_, l4, i5, i6 + 144, 9 * j5, 9, 9);
-                  i3 -= 2;
-               }
-            } else {
-               if (l5 * 2 + 1 < i) {
-                  this.blit(p_238457_1_, l4, i5, i6 + 36, 9 * j5, 9, 9);
-               }
-
-               if (l5 * 2 + 1 == i) {
-                  this.blit(p_238457_1_, l4, i5, i6 + 45, 9 * j5, 9, 9);
-               }
-            }
-         }
 
          LivingEntity livingentity = this.getPlayerVehicleWithHealth();
          int j6 = this.getVehicleMaxHearts(livingentity);
@@ -885,6 +945,120 @@ public class IngameGui extends AbstractGui {
       }
    }
 
+   private void renderArmorBars(MatrixStack matrixStack, int i1, int k2, int armorValue) {
+      for(int l3 = 0; l3 < 10; ++l3) {
+         if (armorValue > 0) {
+            int i4 = i1 + l3 * 8;
+            if (l3 * 2 + 1 < armorValue) {
+               this.blit(matrixStack, i4, k2, 34, 9, 9, 9);
+            }
+
+            if (l3 * 2 + 1 == armorValue) {
+               this.blit(matrixStack, i4, k2, 25, 9, 9, 9);
+            }
+
+            if (l3 * 2 + 1 > armorValue) {
+               this.blit(matrixStack, i4, k2, 16, 9, 9, 9);
+            }
+         }
+      }
+   }
+
+   private void renderHearts(MatrixStack matrixStack, PlayerEntity player, int xBase, int yBase, int rowSpacing, int regenHighlight, float maxHealth, int currentHealth, int displayedHealth, int absorption, boolean blinking) {
+      HeartType heartType = HeartType.forPlayer(player);
+      boolean hardcore = player.level().getLevelData().isHardcore();
+      int healthHearts = MathHelper.ceil(maxHealth / 2.0F); // normal hearts
+      int absorptionHearts = MathHelper.ceil(absorption / 2.0F); // absorption hearts (***this is the key fix***)
+      int totalHearts = healthHearts + absorptionHearts;
+      int fullHearts = healthHearts * 2;
+
+      for (int i = totalHearts - 1; i >= 0; --i) {
+         int row = i / 10;
+         int col = i % 10;
+         int x = xBase + col * 8;
+         int y = yBase - row * rowSpacing;
+         if (currentHealth + absorption <= 4) {
+            y += this.random.nextInt(2);
+         }
+         if (i < healthHearts && i == regenHighlight) {
+            y -= 2;
+         }
+         this.renderHeart(matrixStack, HeartType.CONTAINER, x, y, hardcore, blinking, false);
+
+         int heartIndex = i * 2;
+
+         boolean isAbsorption = i >= healthHearts;
+         if (isAbsorption && (heartIndex - fullHearts) < absorption) {
+            boolean halfAbsorption = (heartIndex - fullHearts) + 1 == absorption;
+            this.renderHeart(matrixStack, heartType == HeartType.WITHERED ? heartType : HeartType.ABSORBING, x, y, hardcore, false, halfAbsorption);
+         }
+         if (blinking && heartIndex < displayedHealth) {
+            boolean halfBlink = heartIndex + 1 == displayedHealth;
+            this.renderHeart(matrixStack, heartType, x, y, hardcore, true, halfBlink);
+         }
+         if (heartIndex < currentHealth) {
+            boolean halfHeart = heartIndex + 1 == currentHealth;
+            this.renderHeart(matrixStack, heartType, x, y, hardcore, false, halfHeart);
+         }
+      }
+   }
+
+
+//   private void renderHearts(MatrixStack matrixStack, PlayerEntity player, int xBase, int yBase, int rowSpacing, int regenHighlight, float maxHealth, int currentHealth, int displayedHealth, int absorption, boolean blinking) {
+//      HeartType heartType = HeartType.forPlayer(player);
+//      boolean hardcore = player.level.getLevelData().isHardcore();
+//      int totalHearts = MathHelper.ceil(maxHealth / 2.0f);
+//      int absorptionHearts = MathHelper.ceil(absorption / 2.0f);
+//      int total = totalHearts * 2;
+//
+//      for (int i = totalHearts + absorptionHearts - 1; i >= 0; --i) {
+//         int row = i / 10;
+//         int col = i % 10;
+//         int x = xBase + col * 8;
+//         int y = yBase - row * rowSpacing;
+//
+//         if (currentHealth + absorption <= 4) {
+//            y += this.random.nextInt(2);
+//         }
+//         if (i < totalHearts && i == regenHighlight) {
+//            y -= 2;
+//         }
+//
+//         // draw container
+//         this.renderHeart(matrixStack, HeartType.CONTAINER, x, y, hardcore, blinking, false);
+//
+//         int heartIndex = i * 2;
+//         boolean isAbsorption = i >= totalHearts;
+//         if (isAbsorption) {
+//            int absIndex = heartIndex - total;
+//            if (absIndex < absorption) {
+//               boolean half = absIndex + 1 == absorption;
+//               this.renderHeart(matrixStack, HeartType.ABSORBING, x, y, hardcore, false, half);
+//            }
+//         }
+//
+//         if (blinking && heartIndex < displayedHealth) {
+//            boolean half = heartIndex + 1 == displayedHealth;
+//            this.renderHeart(matrixStack, heartType, x, y, hardcore, true, half);
+//         }
+//
+//         if (heartIndex < currentHealth) {
+//            boolean half = heartIndex + 1 == currentHealth;
+//            this.renderHeart(matrixStack, heartType, x, y, hardcore, false, half);
+//         }
+//      }
+//   }
+
+   private void renderHeart(MatrixStack matrixStack, HeartType type, int x, int y, boolean hardcore, boolean blinking, boolean half) {
+      ResourceLocation sprite = type.getSprite(hardcore, half, blinking);
+      this.minecraft.getTextureManager().bind(sprite);
+      this.blit(matrixStack, x, y, 0, 0, 9, 9, 9, 9); // specify 9x9 texture
+   }
+
+
+
+
+
    private void renderVehicleHealth(MatrixStack p_238458_1_) {
       LivingEntity livingentity = this.getPlayerVehicleWithHealth();
       if (livingentity != null) {
@@ -920,27 +1094,6 @@ public class IngameGui extends AbstractGui {
 
          }
       }
-   }
-
-   private void renderPumpkin() {
-      RenderSystem.disableDepthTest();
-      RenderSystem.depthMask(false);
-      RenderSystem.defaultBlendFunc();
-      RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-      RenderSystem.disableAlphaTest();
-      this.minecraft.getTextureManager().bind(PUMPKIN_BLUR_LOCATION);
-      Tessellator tessellator = Tessellator.getInstance();
-      BufferBuilder bufferbuilder = tessellator.getBuilder();
-      bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-      bufferbuilder.vertex(0.0D, (double)this.screenHeight, -90.0D).uv(0.0F, 1.0F).endVertex();
-      bufferbuilder.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0D).uv(1.0F, 1.0F).endVertex();
-      bufferbuilder.vertex((double)this.screenWidth, 0.0D, -90.0D).uv(1.0F, 0.0F).endVertex();
-      bufferbuilder.vertex(0.0D, 0.0D, -90.0D).uv(0.0F, 0.0F).endVertex();
-      tessellator.end();
-      RenderSystem.depthMask(true);
-      RenderSystem.enableDepthTest();
-      RenderSystem.enableAlphaTest();
-      RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
    }
 
    private void updateVignetteBrightness(Entity p_212307_1_) {
@@ -1163,4 +1316,114 @@ public class IngameGui extends AbstractGui {
    public void clearCache() {
       this.debugScreen.clearChunkCache();
    }
+
+
+
+   public enum HeartType {
+      CONTAINER(
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/container.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/container_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/container.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/container_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/container_hardcore.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/container_hardcore_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/container_hardcore.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/container_hardcore_blinking.png")
+      ),
+      NORMAL(
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/half_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/hardcore_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/hardcore_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/hardcore_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/hardcore_half_blinking.png")
+      ),
+      POISONED(
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/poisoned_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/poisoned_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/poisoned_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/poisoned_half_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/poisoned_hardcore_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/poisoned_hardcore_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/poisoned_hardcore_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/poisoned_hardcore_half_blinking.png")
+      ),
+      WITHERED(
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/withered_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/withered_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/withered_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/withered_half_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/withered_hardcore_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/withered_hardcore_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/withered_hardcore_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/withered_hardcore_half_blinking.png")
+      ),
+      ABSORBING(
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/absorbing_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/absorbing_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/absorbing_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/absorbing_half_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/absorbing_hardcore_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/absorbing_hardcore_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/absorbing_hardcore_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/absorbing_hardcore_half_blinking.png")
+      ),
+      ROOTED(
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/rooted_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/rooted_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/rooted_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/rooted_half_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/rooted_hardcore_full.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/rooted_hardcore_full_blinking.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/rooted_hardcore_half.png"),
+              new ResourceLocation("minecraft", "textures/gui/hud/heart/rooted_hardcore_half_blinking.png")
+      );
+
+      public final ResourceLocation full;
+      public final ResourceLocation fullBlinking;
+      public final ResourceLocation half;
+      public final ResourceLocation halfBlinking;
+      public final ResourceLocation hardcoreFull;
+      public final ResourceLocation hardcoreFullBlinking;
+      public final ResourceLocation hardcoreHalf;
+      public final ResourceLocation hardcoreHalfBlinking;
+
+      HeartType(ResourceLocation full, ResourceLocation fullBlinking, ResourceLocation half, ResourceLocation halfBlinking,
+                ResourceLocation hardcoreFull, ResourceLocation hardcoreFullBlinking, ResourceLocation hardcoreHalf, ResourceLocation hardcoreHalfBlinking) {
+         this.full = full;
+         this.fullBlinking = fullBlinking;
+         this.half = half;
+         this.halfBlinking = halfBlinking;
+         this.hardcoreFull = hardcoreFull;
+         this.hardcoreFullBlinking = hardcoreFullBlinking;
+         this.hardcoreHalf = hardcoreHalf;
+         this.hardcoreHalfBlinking = hardcoreHalfBlinking;
+      }
+
+      public ResourceLocation getSprite(boolean hardcore, boolean half, boolean blinking) {
+         if (!hardcore) {
+            if (half) {
+               return blinking ? this.halfBlinking : this.half;
+            } else {
+               return blinking ? this.fullBlinking : this.full;
+            }
+         } else {
+            if (half) {
+               return blinking ? this.hardcoreHalfBlinking : this.hardcoreHalf;
+            } else {
+               return blinking ? this.hardcoreFullBlinking : this.hardcoreFull;
+            }
+         }
+      }
+
+      public static HeartType forPlayer(PlayerEntity player) {
+         if (player.hasEffect(Effects.POISON)) return POISONED;
+         if (player.hasEffect(Effects.WITHER)) return WITHERED;
+         if (player.hasEffect(Effects.ROOTED)) return ROOTED;
+         return NORMAL;
+      }
+   }
+
 }

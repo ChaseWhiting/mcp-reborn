@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundNBT;
@@ -66,6 +67,17 @@ public class ModifiableAttributeInstance {
 
    public boolean hasModifier(AttributeModifier p_180374_1_) {
       return this.modifierById.get(p_180374_1_.getId()) != null;
+   }
+
+   public boolean hasModifierForID(UUID uuid) {
+      AtomicBoolean bl = new AtomicBoolean(Boolean.FALSE);
+      modifierById.forEach((uuid1, mod) -> {
+         if (uuid.equals(uuid1)) {
+            bl.set(true);
+         }
+      });
+
+      return bl.get();
    }
 
    private void addModifier(AttributeModifier p_111121_1_) {

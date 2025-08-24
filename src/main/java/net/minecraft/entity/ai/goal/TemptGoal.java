@@ -19,7 +19,7 @@ public class TemptGoal extends Goal {
    private double pRotX;
    private double pRotY;
    protected PlayerEntity player;
-   private int calmDown;
+   protected int calmDown;
    private boolean isRunning;
    private final Ingredient items;
    private final boolean canScare;

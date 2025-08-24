@@ -52,7 +52,7 @@ public class WeightedPressurePlateBlock extends AbstractPressurePlateBlock {
       return 10;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(POWER);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(POWER);
    }
 }

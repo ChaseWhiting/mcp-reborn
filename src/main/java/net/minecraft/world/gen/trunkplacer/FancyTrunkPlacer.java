@@ -30,39 +30,39 @@ public class FancyTrunkPlacer extends AbstractTrunkPlacer {
       return TrunkPlacerType.FANCY_TRUNK_PLACER;
    }
 
-   public List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader p_230382_1_, Random p_230382_2_, int p_230382_3_, BlockPos p_230382_4_, Set<BlockPos> p_230382_5_, MutableBoundingBox p_230382_6_, BaseTreeFeatureConfig p_230382_7_) {
+   public List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader worldReader, Random random, int number, BlockPos position, Set<BlockPos> blockSet, MutableBoundingBox boundingBox, BaseTreeFeatureConfig configuration) {
       int i = 5;
-      int j = p_230382_3_ + 2;
+      int j = number + 2;
       int k = MathHelper.floor((double)j * 0.618D);
-      if (!p_230382_7_.fromSapling) {
-         setDirtAt(p_230382_1_, p_230382_4_.below());
+      if (!configuration.fromSapling) {
+         setDirtAt(worldReader, position.below());
       }
 
       double d0 = 1.0D;
       int l = Math.min(1, MathHelper.floor(1.382D + Math.pow(1.0D * (double)j / 13.0D, 2.0D)));
-      int i1 = p_230382_4_.getY() + k;
+      int i1 = position.getY() + k;
       int j1 = j - 5;
       List<FancyTrunkPlacer.Foliage> list = Lists.newArrayList();
-      list.add(new FancyTrunkPlacer.Foliage(p_230382_4_.above(j1), i1));
+      list.add(new FancyTrunkPlacer.Foliage(position.above(j1), i1));
 
       for(; j1 >= 0; --j1) {
          float f = this.treeShape(j, j1);
          if (!(f < 0.0F)) {
             for(int k1 = 0; k1 < l; ++k1) {
                double d1 = 1.0D;
-               double d2 = 1.0D * (double)f * ((double)p_230382_2_.nextFloat() + 0.328D);
-               double d3 = (double)(p_230382_2_.nextFloat() * 2.0F) * Math.PI;
+               double d2 = 1.0D * (double)f * ((double) random.nextFloat() + 0.328D);
+               double d3 = (double)(random.nextFloat() * 2.0F) * Math.PI;
                double d4 = d2 * Math.sin(d3) + 0.5D;
                double d5 = d2 * Math.cos(d3) + 0.5D;
-               BlockPos blockpos = p_230382_4_.offset(d4, (double)(j1 - 1), d5);
+               BlockPos blockpos = position.offset(d4, (double)(j1 - 1), d5);
                BlockPos blockpos1 = blockpos.above(5);
-               if (this.makeLimb(p_230382_1_, p_230382_2_, blockpos, blockpos1, false, p_230382_5_, p_230382_6_, p_230382_7_)) {
-                  int l1 = p_230382_4_.getX() - blockpos.getX();
-                  int i2 = p_230382_4_.getZ() - blockpos.getZ();
+               if (this.makeLimb(worldReader, random, blockpos, blockpos1, false, blockSet, boundingBox, configuration)) {
+                  int l1 = position.getX() - blockpos.getX();
+                  int i2 = position.getZ() - blockpos.getZ();
                   double d6 = (double)blockpos.getY() - Math.sqrt((double)(l1 * l1 + i2 * i2)) * 0.381D;
                   int j2 = d6 > (double)i1 ? i1 : (int)d6;
-                  BlockPos blockpos2 = new BlockPos(p_230382_4_.getX(), j2, p_230382_4_.getZ());
-                  if (this.makeLimb(p_230382_1_, p_230382_2_, blockpos2, blockpos, false, p_230382_5_, p_230382_6_, p_230382_7_)) {
+                  BlockPos blockpos2 = new BlockPos(position.getX(), j2, position.getZ());
+                  if (this.makeLimb(worldReader, random, blockpos2, blockpos, false, blockSet, boundingBox, configuration)) {
                      list.add(new FancyTrunkPlacer.Foliage(blockpos, blockpos2.getY()));
                   }
                }
@@ -70,12 +70,12 @@ public class FancyTrunkPlacer extends AbstractTrunkPlacer {
          }
       }
 
-      this.makeLimb(p_230382_1_, p_230382_2_, p_230382_4_, p_230382_4_.above(k), true, p_230382_5_, p_230382_6_, p_230382_7_);
-      this.makeBranches(p_230382_1_, p_230382_2_, j, p_230382_4_, list, p_230382_5_, p_230382_6_, p_230382_7_);
+      this.makeLimb(worldReader, random, position, position.above(k), true, blockSet, boundingBox, configuration);
+      this.makeBranches(worldReader, random, j, position, list, blockSet, boundingBox, configuration);
       List<FoliagePlacer.Foliage> list1 = Lists.newArrayList();
 
       for(FancyTrunkPlacer.Foliage fancytrunkplacer$foliage : list) {
-         if (this.trimBranches(j, fancytrunkplacer$foliage.getBranchBase() - p_230382_4_.getY())) {
+         if (this.trimBranches(j, fancytrunkplacer$foliage.getBranchBase() - position.getY())) {
             list1.add(fancytrunkplacer$foliage.attachment);
          }
       }

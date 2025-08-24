@@ -26,6 +26,11 @@ public interface IClientPlayNetHandler extends INetHandler {
 
    void handleOpenSignEditor(SOpenSignMenuPacket p_147268_1_);
 
+   void handleMosquitoDismount(MosquitoDismount ds);
+
+   void handleMosquitoMountMob(MosquitoMountMob ds);
+
+
    void handleBlockEntityData(SUpdateTileEntityPacket p_147273_1_);
 
    void handleBlockEvent(SBlockActionPacket p_147261_1_);

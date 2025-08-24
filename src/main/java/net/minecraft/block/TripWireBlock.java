@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Items;
 import net.minecraft.state.BooleanProperty;
@@ -40,8 +41,8 @@ public class TripWireBlock extends Block {
       this.hook = p_i48305_1_;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return p_220053_1_.getValue(ATTACHED) ? AABB : NOT_ATTACHED_AABB;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return state.getValue(ATTACHED) ? AABB : NOT_ATTACHED_AABB;
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {
@@ -66,12 +67,13 @@ public class TripWireBlock extends Block {
       }
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       if (!p_176208_1_.isClientSide && !p_176208_4_.getMainHandItem().isEmpty() && p_176208_4_.getMainHandItem().getItem() == Items.SHEARS) {
          p_176208_1_.setBlock(p_176208_2_, p_176208_3_.setValue(DISARMED, Boolean.valueOf(true)), 4);
+         p_176208_1_.gameEvent(p_176208_4_, GameEvent.SHEAR, p_176208_2_);
       }
 
-      super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
+      return super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
    }
 
    private void updateSource(World p_176286_1_, BlockPos p_176286_2_, BlockState p_176286_3_) {
@@ -167,7 +169,7 @@ public class TripWireBlock extends Block {
       }
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(POWERED, ATTACHED, DISARMED, NORTH, EAST, WEST, SOUTH);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(POWERED, ATTACHED, DISARMED, NORTH, EAST, WEST, SOUTH);
    }
 }

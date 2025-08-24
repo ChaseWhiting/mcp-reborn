@@ -1,6 +1,8 @@
 package net.minecraft.world;
 
 import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -9,6 +11,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TargetingConditions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -189,6 +192,16 @@ public interface IEntityReader {
       }
 
       return list1;
+   }
+
+   default public <T extends LivingEntity> List<T> getNearbyEntities(Class<T> clazz, TargetingConditions targetingConditions, LivingEntity livingEntity2, AxisAlignedBB aABB) {
+      List<LivingEntity> list = this.getEntitiesOfClass(clazz, aABB, livingEntity -> true);
+      ArrayList arrayList = Lists.newArrayList();
+      for (LivingEntity livingEntity3 : list) {
+         if (!targetingConditions.test(livingEntity2, livingEntity3)) continue;
+         arrayList.add(livingEntity3);
+      }
+      return arrayList;
    }
 
    @Nullable

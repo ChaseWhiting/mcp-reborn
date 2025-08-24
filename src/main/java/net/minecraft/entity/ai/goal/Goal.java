@@ -1,5 +1,9 @@
 package net.minecraft.entity.ai.goal;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.server.ServerWorld;
+
 import java.util.EnumSet;
 
 public abstract class Goal {
@@ -16,6 +20,14 @@ public abstract class Goal {
    }
 
    public void start() {
+   }
+
+   protected static ServerWorld getServerLevel(Entity entity) {
+      return (ServerWorld)entity.level();
+   }
+
+   protected static int reducedTickDelay(int n) {
+      return MathHelper.positiveCeilDiv(n, 2);
    }
 
    public void stop() {

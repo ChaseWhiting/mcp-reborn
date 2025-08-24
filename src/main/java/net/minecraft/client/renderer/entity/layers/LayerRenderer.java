@@ -9,14 +9,13 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.bogged.BoggedEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class LayerRenderer<T extends Entity, M extends EntityModel<T>> {
-   private final IEntityRenderer<T, M> renderer;
+   protected final IEntityRenderer<T, M> renderer;
 
    public LayerRenderer(IEntityRenderer<T, M> p_i50926_1_) {
       this.renderer = p_i50926_1_;
@@ -29,13 +28,6 @@ public abstract class LayerRenderer<T extends Entity, M extends EntityModel<T>> 
          overlayModel.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
          renderColoredCutoutModel(overlayModel, texture, matrixStack, renderTypeBuffer, packedLight, entity, red, green, blue);
       }
-   }
-
-   protected static <A extends BoggedEntity> void createBogged(EntityModel<A> baseModel, EntityModel<A> overlayModel, ResourceLocation texture, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, A entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float partialTicks, float red, float green, float blue) {
-         baseModel.copyPropertiesTo(overlayModel);
-         overlayModel.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
-         overlayModel.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-         renderColoredCutoutModel(overlayModel, texture, matrixStack, renderTypeBuffer, packedLight, entity, red, green, blue);
    }
 
    protected static <T extends LivingEntity> void coloredCutoutModelCopyLayerRenderNoInvisible(EntityModel<T> baseModel, EntityModel<T> overlayModel, ResourceLocation texture, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float partialTicks, float red, float green, float blue) {

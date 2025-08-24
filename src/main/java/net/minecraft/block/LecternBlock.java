@@ -4,6 +4,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
@@ -84,8 +85,8 @@ public class LecternBlock extends ContainerBlock {
       return SHAPE_COLLISION;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      switch((Direction)p_220053_1_.getValue(FACING)) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      switch((Direction) state.getValue(FACING)) {
       case NORTH:
          return SHAPE_NORTH;
       case SOUTH:
@@ -107,8 +108,8 @@ public class LecternBlock extends ContainerBlock {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, POWERED, HAS_BOOK);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, POWERED, HAS_BOOK);
    }
 
    @Nullable
@@ -116,10 +117,10 @@ public class LecternBlock extends ContainerBlock {
       return new LecternTileEntity();
    }
 
-   public static boolean tryPlaceBook(World p_220151_0_, BlockPos p_220151_1_, BlockState p_220151_2_, ItemStack p_220151_3_) {
+   public static boolean tryPlaceBook(@Nullable PlayerEntity player, World p_220151_0_, BlockPos p_220151_1_, BlockState p_220151_2_, ItemStack p_220151_3_) {
       if (!p_220151_2_.getValue(HAS_BOOK)) {
          if (!p_220151_0_.isClientSide) {
-            placeBook(p_220151_0_, p_220151_1_, p_220151_2_, p_220151_3_);
+            placeBook(player, p_220151_0_, p_220151_1_, p_220151_2_, p_220151_3_);
          }
 
          return true;
@@ -128,13 +129,14 @@ public class LecternBlock extends ContainerBlock {
       }
    }
 
-   private static void placeBook(World p_220148_0_, BlockPos p_220148_1_, BlockState p_220148_2_, ItemStack p_220148_3_) {
+   private static void placeBook(@Nullable PlayerEntity player, World p_220148_0_, BlockPos p_220148_1_, BlockState p_220148_2_, ItemStack p_220148_3_) {
       TileEntity tileentity = p_220148_0_.getBlockEntity(p_220148_1_);
       if (tileentity instanceof LecternTileEntity) {
          LecternTileEntity lecterntileentity = (LecternTileEntity)tileentity;
          lecterntileentity.setBook(p_220148_3_.split(1));
          resetBookState(p_220148_0_, p_220148_1_, p_220148_2_, true);
          p_220148_0_.playSound((PlayerEntity)null, p_220148_1_, SoundEvents.BOOK_PUT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+         p_220148_0_.gameEvent(player, GameEvent.BLOCK_CHANGE, p_220148_1_);
       }
 
    }

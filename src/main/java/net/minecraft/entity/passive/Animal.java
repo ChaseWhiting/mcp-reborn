@@ -1,13 +1,22 @@
 package net.minecraft.entity.passive;
 
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.sounds.AmbientDesertBlockSoundsPlayer;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.ai.attributes.AttributeModifierMap;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.camel.CamelEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -17,21 +26,21 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Animal extends AgeableEntity {
-   private int inLove;
-   private UUID loveCause;
+   protected int inLove;
+   protected UUID loveCause;
 
    protected Animal(EntityType<? extends Animal> p_i48568_1_, World p_i48568_2_) {
       super(p_i48568_1_, p_i48568_2_);
@@ -45,6 +54,10 @@ public abstract class Animal extends AgeableEntity {
       }
 
       super.customServerAiStep();
+   }
+
+   public static AttributeModifierMap.MutableAttribute createAnimalAttributes() {
+      return Mob.createMobAttributes().add(Attributes.TEMPT_RANGE, 10.0);
    }
 
    public void aiStep() {
@@ -98,7 +111,11 @@ public abstract class Animal extends AgeableEntity {
    }
 
    public static boolean checkAnimalSpawnRules(EntityType<? extends Animal> p_223316_0_, IWorld p_223316_1_, SpawnReason p_223316_2_, BlockPos p_223316_3_, Random p_223316_4_) {
-      return p_223316_1_.getBlockState(p_223316_3_.below()).is(Blocks.GRASS_BLOCK) && p_223316_1_.getRawBrightness(p_223316_3_, 0) > 8;
+      boolean badlands = AmbientDesertBlockSoundsPlayer.isBadlands(p_223316_1_.getBiomeName(p_223316_3_).orElse(Biomes.PLAINS)) && p_223316_1_.getBlockState(p_223316_3_.below()).is(Blocks.COARSE_DIRT);
+
+      boolean desert = p_223316_1_.getBiomeName(p_223316_3_).orElse(Biomes.PLAINS) == Biomes.SANDY_DRYLANDS && (p_223316_1_.getBlockState(p_223316_3_.below()).is(List.of(Blocks.SAND, Blocks.COARSE_DIRT)));
+
+      return (p_223316_1_.getBlockState(p_223316_3_.below()).is(Blocks.GRASS_BLOCK) || badlands || desert) && p_223316_1_.getRawBrightness(p_223316_3_, 0) > 8;
    }
 
    public int getAmbientSoundInterval() {
@@ -124,6 +141,35 @@ public abstract class Animal extends AgeableEntity {
          if (!this.level.isClientSide && i == 0 && this.canFallInLove()) {
             this.usePlayerItem(p_230254_1_, itemstack);
             this.setInLove(p_230254_1_);
+
+            if (this instanceof CamelEntity && (itemstack.get() == Items.CHORUS_FRUIT || itemstack.get() == Items.CHORUS_FLOWER)) {
+               double d0 = this.getX();
+               double d1 = this.getY();
+               double d2 = this.getZ();
+
+               for(int z = 0; z < 16; ++z) {
+                  double d3 = this.getX() + (this.getRandom().nextDouble() - 0.5D) * 16.0D;
+                  double d4 = MathHelper.clamp(this.getY() + (double)(this.getRandom().nextInt(16) - 8), 0.0D, (double)(level.getHeight() - 1));
+                  double d5 = this.getZ() + (this.getRandom().nextDouble() - 0.5D) * 16.0D;
+                  if (this.isPassenger()) {
+                     this.stopRiding();
+                  }
+
+                  if (this.randomTeleport(d3, d4, d5, true)) {
+                     if (((CamelEntity) this).isCamelSitting()) {
+                        ((CamelEntity)this).standUpInstantly();
+                        if (!this.getBrain().checkMemory(MemoryModuleType.IS_PANICKING, MemoryModuleStatus.VALUE_PRESENT)) {
+                           this.getBrain().setMemory(MemoryModuleType.HURT_BY, DamageSource.MAGIC);
+                        }
+                     }
+                     SoundEvent soundevent = SoundEvents.CHORUS_FRUIT_TELEPORT;
+                     level.playSound((PlayerEntity)null, d0, d1, d2, soundevent, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                     this.playSound(soundevent, 1.0F, 1.0F);
+                     break;
+                  }
+               }
+            }
+
             return ActionResultType.SUCCESS;
          }
 

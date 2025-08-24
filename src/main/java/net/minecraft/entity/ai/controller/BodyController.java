@@ -59,4 +59,10 @@ public class BodyController {
       double d1 = this.mob.getZ() - this.mob.zo;
       return d0 * d0 + d1 * d1 > (double)2.5000003E-7F;
    }
+
+   public boolean isMovingAtAll() {
+      double d0 = this.mob.getX() - this.mob.xo;
+      double d1 = this.mob.getZ() - this.mob.zo;
+      return d0 * d0 + d1 * d1 > (double)2.5000003E-7F;
+   }
 }

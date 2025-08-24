@@ -43,7 +43,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbowUser {
     private static final DataParameter<Boolean> DATA_IS_CHARGING_CROSSBOW = EntityDataManager.defineId(PiglinBruteEntity.class, DataSerializers.BOOLEAN);
@@ -92,7 +91,9 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
     public ILivingEntityData finalizeSpawn(IServerWorld world, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData iLivingEntityData, @Nullable CompoundNBT compoundNBT) {
         PiglinBruteBrain.initMemories(this);
         this.populateDefaultEquipmentSlots(difficultyInstance);
-        this.setImmuneToZombification(true);
+        if (veryHardmode()) {
+            this.setImmuneToZombification(true);
+        }
         EnchantmentData enchantmentData = this.getRandomCrossbowEnchant();
         if (enchantmentData != null) {
             Enchantment enchantment = enchantmentData.enchantment;
@@ -122,7 +123,6 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
             if (this.getTarget() instanceof AbstractNetherInvaderEntity) {
                 this.setTarget(null);
             }
-            List<AbstractPiglinEntity> piglins2 = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getBoundingBox().inflate(1D, 1D, 1D), e -> e != this);
             List<AbstractPiglinEntity> piglins = this.level.getEntitiesOfClass(AbstractPiglinEntity.class, this.getTarget().getBoundingBox().inflate(1.1D, 3D, 1.1D), e -> e != this);
             if (this.distanceTo(this.getTarget()) < 2.5F) {
                 if (this.storedAxe != null) {
@@ -161,7 +161,9 @@ public class PiglinBruteEntity extends AbstractPiglinEntity implements ICrossbow
     @Override
     public void tick() {
         super.tick();
-        dealWithItems();
+        if (veryHardmode()) {
+            dealWithItems();
+        }
     }
 
     @Override

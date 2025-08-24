@@ -1,11 +1,13 @@
 package net.minecraft.util;
 
+import com.mojang.serialization.Codec;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public enum SoundCategory {
+public enum SoundCategory implements IStringSerializable {
    MASTER("master"),
    MUSIC("music"),
    RECORDS("record"),
@@ -26,5 +28,16 @@ public enum SoundCategory {
 
    public String getName() {
       return this.name;
+   }
+
+   public static final Codec<SoundCategory> CODEC;
+
+   static {
+      CODEC = IStringSerializable.fromEnum(SoundCategory::values);
+   }
+
+   @Override
+   public String getSerializedName() {
+      return this.getName();
    }
 }

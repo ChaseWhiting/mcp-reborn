@@ -1,7 +1,13 @@
 package net.minecraft.entity.monster;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Random;
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FlyingEntity;
@@ -16,23 +22,27 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.random.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nullable;
 
 public class GhastEntity extends FlyingEntity implements IMob {
    private static final DataParameter<Boolean> DATA_IS_CHARGING = EntityDataManager.defineId(GhastEntity.class, DataSerializers.BOOLEAN);
@@ -292,5 +302,211 @@ public class GhastEntity extends FlyingEntity implements IMob {
          double d2 = this.ghast.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
          this.ghast.getMoveControl().setWantedPosition(d0, d1, d2, 1.0D);
       }
+   }
+
+
+   public static class RandomFloatAroundGoal
+           extends Goal {
+      private static final int MAX_ATTEMPTS = 64;
+      private final Mob ghast;
+      private final int distanceToBlocks;
+
+      public RandomFloatAroundGoal(Mob mob) {
+         this(mob, 0);
+      }
+
+      public RandomFloatAroundGoal(Mob mob, int n) {
+         this.ghast = mob;
+         this.distanceToBlocks = n;
+         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+      }
+
+      @Override
+      public boolean canUse() {
+         if (!ghast.getPassengers().isEmpty()) return false;
+
+         double d;
+         double d2;
+         MovementController moveControl = this.ghast.getMoveControl();
+         if (!moveControl.hasWanted()) {
+            return true;
+         }
+         double d3 = moveControl.getWantedX() - this.ghast.getX();
+         double d4 = d3 * d3 + (d2 = moveControl.getWantedY() - this.ghast.getY()) * d2 + (d = moveControl.getWantedZ() - this.ghast.getZ()) * d;
+         return d4 < 1.0 || d4 > 3600.0;
+      }
+
+      @Override
+      public boolean canContinueToUse() {
+         return false;
+      }
+
+      @Override
+      public void start() {
+         Vector3d vec3 = RandomFloatAroundGoal.getSuitableFlyToPosition(this.ghast, this.distanceToBlocks);
+         this.ghast.getMoveControl().setWantedPosition(vec3.x(), vec3.y(), vec3.z(), 1.0);
+      }
+
+      public static Vector3d getSuitableFlyToPosition(Mob mob, int n) {
+         BlockPos blockPos;
+         int n2;
+         World level = mob.level();
+         RandomSource randomSource = RandomSource.create((RandomSource.create(mob.getRandom().nextLong()).forkPositional().at(mob.blockPosition()).nextLong()));
+         Vector3d vec3 = mob.position();
+         Vector3d vec32 = null;
+         for (int i = 0; i < 64; ++i) {
+            vec32 = RandomFloatAroundGoal.chooseRandomPositionWithRestriction(mob, vec3, randomSource);
+            if (vec32 == null || !RandomFloatAroundGoal.isGoodTarget(level, vec32, n)) continue;
+            return vec32;
+         }
+         if (vec32 == null) {
+            vec32 = RandomFloatAroundGoal.chooseRandomPosition(vec3, randomSource);
+         }
+         if ((n2 = level.getHeight(Heightmap.Type.MOTION_BLOCKING, (blockPos = BlockPos.containing(vec32)).getX(), blockPos.getZ())) < blockPos.getY() && n2 > 0) {
+            vec32 = new Vector3d(vec32.x(), mob.getY() - Math.abs(mob.getY() - vec32.y()), vec32.z());
+         }
+         return vec32;
+      }
+
+      private static boolean isGoodTarget(World level, Vector3d vec3, int n) {
+         if (n <= 0) {
+            return true;
+         }
+         BlockPos blockPos = BlockPos.containing(vec3);
+         if (!level.getBlockState(blockPos).isAir()) {
+            return false;
+         }
+         for (Direction direction : Direction.values()) {
+            for (int i = 1; i < n; ++i) {
+               BlockPos blockPos2 = blockPos.relative(direction, i);
+               if (level.getBlockState(blockPos2).isAir()) continue;
+               return true;
+            }
+         }
+         return false;
+      }
+
+      private static Vector3d chooseRandomPosition(Vector3d vec3, RandomSource randomSource) {
+         double d = vec3.x() + (double)((randomSource.nextFloat() * 2.0f - 1.0f) * 16.0f);
+         double d2 = vec3.y() + (double)((randomSource.nextFloat() * 2.0f - 1.0f) * 16.0f);
+         double d3 = vec3.z() + (double)((randomSource.nextFloat() * 2.0f - 1.0f) * 16.0f);
+         return new Vector3d(d, d2, d3);
+      }
+
+      @Nullable
+      private static Vector3d chooseRandomPositionWithRestriction(Mob mob, Vector3d vec3, RandomSource randomSource) {
+         Vector3d vec32 = RandomFloatAroundGoal.chooseRandomPosition(vec3, randomSource);
+         if (mob.hasHome() && !mob.isWithinHome(vec32)) {
+            return null;
+         }
+         return vec32;
+      }
+   }
+
+
+
+   public static class GhastMoveControl
+           extends MovementController {
+      private final Mob ghast;
+      private int floatDuration;
+      private final boolean careful;
+      private final Predicate<Mob> shouldBeStopped;
+
+      public GhastMoveControl(Mob mob, boolean bl, Predicate<Mob> booleanSupplier) {
+         super(mob);
+         this.ghast = mob;
+         this.careful = bl;
+         this.shouldBeStopped = booleanSupplier;
+      }
+
+      @Override
+      public void tick() {
+         if (this.shouldBeStopped.test(mob)) {
+            this.operation = MovementController.Action.WAIT;
+            this.ghast.stopInPlace();
+         }
+         if (this.operation != MovementController.Action.MOVE_TO) {
+            return;
+         }
+         if (this.floatDuration-- <= 0) {
+            this.floatDuration += this.ghast.getRandom().nextInt(5) + 2;
+            Vector3d vec3 = new Vector3d(this.wantedX - this.ghast.getX(), this.wantedY - this.ghast.getY(), this.wantedZ - this.ghast.getZ());
+            if (this.canReach(vec3)) {
+               this.ghast.setDeltaMovement(this.ghast.getDeltaMovement().add(vec3.normalize().scale(this.ghast.getAttributeValue(Attributes.FLYING_SPEED) * 5.0 / 3.0)));
+            } else {
+               this.operation = MovementController.Action.WAIT;
+            }
+         }
+      }
+
+      private boolean canReach(Vector3d vec3) {
+         AxisAlignedBB aABB = this.ghast.getBoundingBox();
+         AxisAlignedBB aABB2 = aABB.move(vec3);
+         if (this.careful) {
+            for (BlockPos blockPos2 : BlockPos.betweenClosed(aABB2.inflate(1.0))) {
+               if (this.blockTraversalPossible(this.ghast.level(), null, null, blockPos2, false, false)) continue;
+               return false;
+            }
+         }
+         boolean bl = this.ghast.isInWater();
+         boolean bl2 = this.ghast.isInLava();
+         Vector3d vec32 = this.ghast.position();
+         Vector3d vec33 = vec32.add(vec3);
+         return IWorld.forEachBlockIntersectedBetween(vec32, vec33, aABB2, (blockPos, n) -> {
+            if (aABB.intersects(blockPos)) {
+               return true;
+            }
+            return this.blockTraversalPossible(this.ghast.level, vec32, vec33, blockPos, bl, bl2);
+         });
+      }
+
+      private boolean blockTraversalPossible(IWorld world, @Nullable Vector3d start, @Nullable Vector3d end, BlockPos pos, boolean allowWater, boolean allowLava) {
+         BlockState blockState = world.getBlockState(pos);
+
+         if (blockState.isAir()) {
+            return true;
+         }
+
+         boolean hasVectors = start != null && end != null;
+
+         boolean noCollision;
+         if (hasVectors) {
+            // Check if the Ghast can move through the block without colliding with its shape
+            noCollision = !this.ghast.collidedWithShapeMovingFrom(
+                    start,
+                    end,
+                    blockState.getCollisionShape(world, pos).move(new Vector3d(pos)).toAabbs()
+            );
+         } else {
+            // No vectors given, so just check if the block has an empty collision shape
+            noCollision = blockState.getCollisionShape(world, pos).isEmpty();
+         }
+
+         if (!this.careful) {
+            return noCollision;
+         }
+
+         // Unsafe blocks the Ghast should avoid
+         if (blockState.is(List.of(Blocks.CACTUS, Blocks.FIRE, Blocks.MAGMA_BLOCK, Blocks.SWEET_BERRY_BUSH, Blocks.WITHER_ROSE))) {
+            return false;
+         }
+
+         FluidState fluidState = world.getFluidState(pos);
+
+         if (!fluidState.isEmpty()) {
+            // If vectors are given and there's no collision with fluid, continue
+            if (!(hasVectors && !this.ghast.collidedWithFluid(fluidState, pos, start, end))) {
+               if (fluidState.is(FluidTags.WATER)) {
+                  return allowWater;
+               }
+               if (fluidState.is(FluidTags.LAVA)) {
+                  return allowLava;
+               }
+            }
+         }
+
+         return noCollision;
+      }
+
    }
 }

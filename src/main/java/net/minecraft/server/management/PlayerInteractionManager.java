@@ -126,7 +126,11 @@ public class PlayerInteractionManager {
       double d1 = this.player.getY() - ((double)p_225416_1_.getY() + 0.5D) + 1.5D;
       double d2 = this.player.getZ() - ((double)p_225416_1_.getZ() + 0.5D);
       double d3 = d0 * d0 + d1 * d1 + d2 * d2;
-      if (d3 > 36.0D) {
+
+      double reach = this.player.getReachDistance() + 1.5;
+      double reachSquared = reach * reach;
+
+      if (d3 > reachSquared) {
          this.player.connection.send(new SPlayerDiggingPacket(p_225416_1_, this.level.getBlockState(p_225416_1_), p_225416_2_, false, "too far"));
       } else if (p_225416_1_.getY() >= p_225416_4_) {
          this.player.connection.send(new SPlayerDiggingPacket(p_225416_1_, this.level.getBlockState(p_225416_1_), p_225416_2_, false, "too high"));
@@ -229,10 +233,10 @@ public class PlayerInteractionManager {
          } else if (this.player.blockActionRestricted(this.level, p_180237_1_, this.gameModeForPlayer)) {
             return false;
          } else {
-            block.playerWillDestroy(this.level, p_180237_1_, blockstate, this.player);
+            BlockState bs2 = block.playerWillDestroy(this.level, p_180237_1_, blockstate, this.player);
             boolean flag = this.level.removeBlock(p_180237_1_, false);
             if (flag) {
-               block.destroy(this.level, p_180237_1_, blockstate);
+               block.destroy(this.level, p_180237_1_, bs2);
             }
 
             if (this.isCreative()) {
@@ -240,10 +244,10 @@ public class PlayerInteractionManager {
             } else {
                ItemStack itemstack = this.player.getMainHandItem();
                ItemStack itemstack1 = itemstack.copy();
-               boolean flag1 = this.player.hasCorrectToolForDrops(blockstate);
-               itemstack.mineBlock(this.level, blockstate, p_180237_1_, this.player);
+               boolean flag1 = this.player.hasCorrectToolForDrops(bs2);
+               itemstack.mineBlock(this.level, bs2, p_180237_1_, this.player);
                if (flag && flag1) {
-                  block.playerDestroy(this.level, this.player, p_180237_1_, blockstate, tileentity, itemstack1);
+                  block.playerDestroy(this.level, this.player, p_180237_1_, bs2, tileentity, itemstack1);
                }
 
                return true;

@@ -10,7 +10,7 @@ import net.minecraft.util.text.StringTextComponent;
 public class DoubleNBT extends NumberNBT {
    public static final DoubleNBT ZERO = new DoubleNBT(0.0D);
    public static final INBTType<DoubleNBT> TYPE = new INBTType<DoubleNBT>() {
-      public DoubleNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) throws IOException {
+      public DoubleNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) throws IOException {
          p_225649_3_.accountBits(128L);
          return DoubleNBT.valueOf(p_225649_1_.readDouble());
       }

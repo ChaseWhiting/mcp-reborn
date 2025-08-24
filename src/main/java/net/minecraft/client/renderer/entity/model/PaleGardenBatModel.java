@@ -1,10 +1,8 @@
 package net.minecraft.client.renderer.entity.model;
 
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.client.animation.HierarchicalModel;
 import net.minecraft.client.animation.definitions.BatAnimation;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.PaleGardenBatEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

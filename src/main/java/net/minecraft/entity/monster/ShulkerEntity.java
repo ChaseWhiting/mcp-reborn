@@ -29,17 +29,13 @@ import net.minecraft.entity.passive.GolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ShulkerBulletEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ShulkerAABBHelper;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -64,6 +60,11 @@ public class ShulkerEntity extends GolemEntity implements IMob {
    public ShulkerEntity(EntityType<? extends ShulkerEntity> p_i50196_1_, World p_i50196_2_) {
       super(p_i50196_1_, p_i50196_2_);
       this.xpReward = 5;
+   }
+
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return MovementEmission.NONE;
    }
 
    protected void registerGoals() {
@@ -285,6 +286,7 @@ public class ShulkerEntity extends GolemEntity implements IMob {
                if (direction != null) {
                   this.entityData.set(DATA_ATTACH_FACE_ID, direction);
                   this.playSound(SoundEvents.SHULKER_TELEPORT, 1.0F, 1.0F);
+                  this.level.gameEvent(GameEvent.TELEPORT, blockpos, GameEvent.Context.of(this));
                   this.entityData.set(DATA_ATTACH_POS_ID, Optional.of(blockpos1));
                   this.entityData.set(DATA_PEEK_ID, (byte)0);
                   this.setTarget((LivingEntity)null);
@@ -354,6 +356,10 @@ public class ShulkerEntity extends GolemEntity implements IMob {
       return this.getRawPeekAmount() == 0;
    }
 
+   public boolean canBeCollidedWith(@Nullable Entity entity) {
+      return this.isAlive();
+   }
+
    public boolean canBeCollidedWith() {
       return this.isAlive();
    }
@@ -381,8 +387,10 @@ public class ShulkerEntity extends GolemEntity implements IMob {
          if (p_184691_1_ == 0) {
             this.getAttribute(Attributes.ARMOR).addPermanentModifier(COVERED_ARMOR_MODIFIER);
             this.playSound(SoundEvents.SHULKER_CLOSE, 1.0F, 1.0F);
+            this.gameEvent(GameEvent.CONTAINER_CLOSE);
          } else {
             this.playSound(SoundEvents.SHULKER_OPEN, 1.0F, 1.0F);
+            this.gameEvent(GameEvent.CONTAINER_OPEN);
          }
       }
 
@@ -434,6 +442,16 @@ public class ShulkerEntity extends GolemEntity implements IMob {
       Byte obyte = this.entityData.get(DATA_COLOR_ID);
       return obyte != 16 && obyte <= 15 ? DyeColor.byId(obyte) : null;
    }
+
+   @OnlyIn(Dist.CLIENT)
+   public void setColor(@Nullable DyeColor color) {
+      if (color != null) {
+         this.entityData.set(DATA_COLOR_ID, (byte) color.getId());
+      } else {
+         this.entityData.set(DATA_COLOR_ID, (byte) 16); // 16 is used to indicate "no color" as in getColor()
+      }
+   }
+
 
    class AttackGoal extends Goal {
       private int attackTime;

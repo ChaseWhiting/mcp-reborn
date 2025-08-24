@@ -38,10 +38,10 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
 
    public void render(T p_225623_1_, float p_225623_2_, float p_225623_3_, MatrixStack p_225623_4_, IRenderTypeBuffer p_225623_5_, int p_225623_6_) {
       super.render(p_225623_1_, p_225623_2_, p_225623_3_, p_225623_4_, p_225623_5_, p_225623_6_);
-      Entity entity = p_225623_1_.getLeashHolder();
-      if (entity != null) {
-         this.renderLeash(p_225623_1_, p_225623_3_, p_225623_4_, p_225623_5_, entity);
-      }
+//      Entity entity = p_225623_1_.getLeashHolder();
+//      if (entity != null) {
+//         this.renderLeash(p_225623_1_, p_225623_3_, p_225623_4_, p_225623_5_, entity);
+//      }
    }
 
    private <E extends Entity> void renderLeash(T p_229118_1_, float p_229118_2_, MatrixStack p_229118_3_, IRenderTypeBuffer p_229118_4_, E p_229118_5_) {
@@ -58,10 +58,10 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
       float f = (float)(vector3d.x - d3);
       float f1 = (float)(vector3d.y - d4);
       float f2 = (float)(vector3d.z - d5);
-      float f3 = 0.025F;
+      float f3 = 0.05F;
       IVertexBuilder ivertexbuilder = p_229118_4_.getBuffer(RenderType.leash());
       Matrix4f matrix4f = p_229118_3_.last().pose();
-      float f4 = MathHelper.fastInvSqrt(f * f + f2 * f2) * 0.025F / 2.0F;
+      float f4 = MathHelper.fastInvSqrt(f * f + f2 * f2) * 0.05F / 2.0F;
       float f5 = f2 * f4;
       float f6 = f * f4;
       BlockPos blockpos = new BlockPos(p_229118_1_.getEyePosition(p_229118_2_));
@@ -70,8 +70,8 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
       int j = this.entityRenderDispatcher.getRenderer(p_229118_5_).getBlockLightLevel(p_229118_5_, blockpos1);
       int k = p_229118_1_.level.getBrightness(LightType.SKY, blockpos);
       int l = p_229118_1_.level.getBrightness(LightType.SKY, blockpos1);
-      renderSide(ivertexbuilder, matrix4f, f, f1, f2, i, j, k, l, 0.025F, 0.025F, f5, f6);
-      renderSide(ivertexbuilder, matrix4f, f, f1, f2, i, j, k, l, 0.025F, 0.0F, f5, f6);
+      renderSide(ivertexbuilder, matrix4f, f, f1, f2, i, j, k, l, 0.05F, 0.05F, f5, f6);
+      renderSide(ivertexbuilder, matrix4f, f, f1, f2, i, j, k, l, 0.05F, 0.0F, f5, f6);
       p_229118_3_.popPose();
    }
 

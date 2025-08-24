@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 
 public class SectionPos extends Vector3i {
@@ -13,8 +14,14 @@ public class SectionPos extends Vector3i {
       super(p_i50794_1_, p_i50794_2_, p_i50794_3_);
    }
 
+
+
    public static SectionPos of(int p_218154_0_, int p_218154_1_, int p_218154_2_) {
       return new SectionPos(p_218154_0_, p_218154_1_, p_218154_2_);
+   }
+
+   public static SectionPos of(Vector3d vector3d) {
+      return new SectionPos((int) vector3d.x >> 4, (int) vector3d.y >> 4, (int) vector3d.z >> 4);
    }
 
    public static SectionPos of(BlockPos p_218167_0_) {

@@ -1,11 +1,7 @@
 package net.minecraft.entity.passive;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Mob;
-import net.minecraft.entity.Pose;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.BreedGoal;
@@ -20,6 +16,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.DrinkHelper;
@@ -30,9 +30,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
-public class CowEntity extends Animal {
+public class CowEntity extends Animal implements WarmColdVariantHolder {
    public CowEntity(EntityType<? extends CowEntity> p_i48567_1_, World p_i48567_2_) {
       super(p_i48567_1_, p_i48567_2_);
+   }
+   private static final DataParameter<WarmColdVariant> VARIANT = EntityDataManager.defineId(CowEntity.class, DataSerializers.WARM_COLD_VARIANT);
+
+
+   protected void defineSynchedData() {
+      super.defineSynchedData();
+      this.entityData.define(VARIANT, WarmColdVariant.TEMPERATE);
    }
 
    protected void registerGoals() {
@@ -83,10 +90,32 @@ public class CowEntity extends Animal {
    }
 
    public CowEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
-      return EntityType.COW.create(p_241840_1_);
+      CowEntity cow = EntityType.COW.create(p_241840_1_);
+      cow.setVariant(this.random.nextBoolean() ? this.getVariant() : ((CowEntity)p_241840_2_).getVariant());
+      return cow;
    }
 
    protected float getStandingEyeHeight(Pose p_213348_1_, EntitySize p_213348_2_) {
       return this.isBaby() ? p_213348_2_.height * 0.95F : 1.3F;
+   }
+
+   @Override
+   public void setVariant(WarmColdVariant variant) {
+      this.entityData.set(VARIANT, variant);
+   }
+
+   public void addAdditionalSaveData(CompoundNBT nbt) {
+      super.addAdditionalSaveData(nbt);
+      this.putVariantToTag(nbt);
+   }
+
+   public void readAdditionalSaveData(CompoundNBT nbt) {
+      super.readAdditionalSaveData(nbt);
+      this.setVariant(this.getVariantFromTag(nbt));
+   }
+
+   @Override
+   public WarmColdVariant getVariant() {
+      return this.entityData.get(VARIANT);
    }
 }

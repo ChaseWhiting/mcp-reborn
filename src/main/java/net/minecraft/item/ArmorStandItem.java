@@ -1,13 +1,13 @@
 package net.minecraft.item;
 
 import java.util.Random;
-import java.util.UUID;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
@@ -52,6 +52,7 @@ public class ArmorStandItem extends Item {
                serverworld.addFreshEntityWithPassengers(armorstandentity);
 
                world.playSound((PlayerEntity)null, armorstandentity.getX(), armorstandentity.getY(), armorstandentity.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundCategory.BLOCKS, 0.75F, 0.8F);
+               armorstandentity.gameEvent(GameEvent.ENTITY_PLACE, p_195939_1_.getPlayer());
             }
 
             itemstack.shrink(1);

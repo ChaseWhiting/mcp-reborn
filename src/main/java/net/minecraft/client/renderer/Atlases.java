@@ -29,6 +29,7 @@ public class Atlases {
    public static final ResourceLocation BANNER_SHEET = new ResourceLocation("textures/atlas/banner_patterns.png");
    public static final ResourceLocation SHIELD_SHEET = new ResourceLocation("textures/atlas/shield_patterns.png");
    public static final ResourceLocation SIGN_SHEET = new ResourceLocation("textures/atlas/signs.png");
+   public static final ResourceLocation ARMOR_TRIMS_SHEET = new ResourceLocation("textures/atlas/armor_trims.png");
    public static final ResourceLocation CHEST_SHEET = new ResourceLocation("textures/atlas/chest.png");
    private static final RenderType SHULKER_BOX_SHEET_TYPE = RenderType.entityCutoutNoCull(SHULKER_SHEET);
    private static final RenderType BED_SHEET_TYPE = RenderType.entitySolid(BED_SHEET);
@@ -38,6 +39,7 @@ public class Atlases {
    private static final RenderType CHEST_SHEET_TYPE = RenderType.entityCutout(CHEST_SHEET);
    private static final RenderType SOLID_BLOCK_SHEET = RenderType.entitySolid(AtlasTexture.LOCATION_BLOCKS);
    private static final RenderType CUTOUT_BLOCK_SHEET = RenderType.entityCutout(AtlasTexture.LOCATION_BLOCKS);
+   private static final RenderType ARMOR_TRIMS_SHEET_TYPE = RenderType.armorCutoutNoCull(ARMOR_TRIMS_SHEET);
    private static final RenderType TRANSLUCENT_ITEM_CULL_BLOCK_SHEET = RenderType.itemEntityTranslucentCull(AtlasTexture.LOCATION_BLOCKS);
    private static final RenderType TRANSLUCENT_CULL_BLOCK_SHEET = RenderType.entityTranslucentCull(AtlasTexture.LOCATION_BLOCKS);
    public static final RenderMaterial DEFAULT_SHULKER_TEXTURE_LOCATION = new RenderMaterial(SHULKER_SHEET, new ResourceLocation("entity/shulker/shulker"));
@@ -93,6 +95,11 @@ public class Atlases {
       return CUTOUT_BLOCK_SHEET;
    }
 
+   public static RenderType armorTrimsSheet() {
+      return ARMOR_TRIMS_SHEET_TYPE;
+   }
+
+
    public static RenderType translucentItemSheet() {
       return TRANSLUCENT_ITEM_CULL_BLOCK_SHEET;
    }
@@ -115,7 +122,6 @@ public class Atlases {
       for(RenderMaterial rendermaterial : BED_TEXTURES) {
          p_228775_0_.accept(rendermaterial);
       }
-
       p_228775_0_.accept(CHEST_TRAP_LOCATION);
       p_228775_0_.accept(CHEST_TRAP_LOCATION_LEFT);
       p_228775_0_.accept(CHEST_TRAP_LOCATION_RIGHT);

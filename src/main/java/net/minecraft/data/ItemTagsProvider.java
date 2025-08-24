@@ -64,7 +64,7 @@ public class ItemTagsProvider extends TagsProvider<Item> {
       this.tag(ItemTags.FISHES).add(Items.COD, Items.COOKED_COD, Items.SALMON, Items.COOKED_SALMON, Items.PUFFERFISH, Items.TROPICAL_FISH);
       this.copy(BlockTags.STANDING_SIGNS, ItemTags.SIGNS);
       this.tag(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(Items.MUSIC_DISC_13, Items.MUSIC_DISC_CAT, Items.MUSIC_DISC_BLOCKS, Items.MUSIC_DISC_CHIRP, Items.MUSIC_DISC_FAR, Items.MUSIC_DISC_MALL, Items.MUSIC_DISC_MELLOHI, Items.MUSIC_DISC_STAL, Items.MUSIC_DISC_STRAD, Items.MUSIC_DISC_WARD, Items.MUSIC_DISC_11, Items.MUSIC_DISC_WAIT);
-      this.tag(ItemTags.MUSIC_DISCS).addTag(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(Items.MUSIC_DISC_PIGSTEP);
+      this.tag(ItemTags.MUSIC_DISCS).addTag(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(Items.MUSIC_DISC_PIGSTEP).add(Items.MUSIC_DISC_PEARTO);
       this.tag(ItemTags.COALS).add(Items.COAL, Items.CHARCOAL);
       this.tag(ItemTags.ARROWS).add(Items.ARROW, Items.TIPPED_ARROW, Items.SPECTRAL_ARROW, Items.BONE_ARROW, Items.POISON_ARROW, Items.BURNING_ARROW, Items.TELEPORTATION_ARROW, Items.HEALING_ARROW, Items.FIREWORK_ARROW, Items.GILDED_ARROW);
       this.tag(ItemTags.LECTERN_BOOKS).add(Items.WRITTEN_BOOK, Items.WRITABLE_BOOK);
@@ -74,6 +74,15 @@ public class ItemTagsProvider extends TagsProvider<Item> {
       this.tag(ItemTags.NON_FLAMMABLE_WOOD).add(Items.WARPED_STEM, Items.STRIPPED_WARPED_STEM, Items.WARPED_HYPHAE, Items.STRIPPED_WARPED_HYPHAE, Items.CRIMSON_STEM, Items.STRIPPED_CRIMSON_STEM, Items.CRIMSON_HYPHAE, Items.STRIPPED_CRIMSON_HYPHAE, Items.CRIMSON_PLANKS, Items.WARPED_PLANKS, Items.CRIMSON_SLAB, Items.WARPED_SLAB, Items.CRIMSON_PRESSURE_PLATE, Items.WARPED_PRESSURE_PLATE, Items.CRIMSON_FENCE, Items.WARPED_FENCE, Items.CRIMSON_TRAPDOOR, Items.WARPED_TRAPDOOR, Items.CRIMSON_FENCE_GATE, Items.WARPED_FENCE_GATE, Items.CRIMSON_STAIRS, Items.WARPED_STAIRS, Items.CRIMSON_BUTTON, Items.WARPED_BUTTON, Items.CRIMSON_DOOR, Items.WARPED_DOOR, Items.CRIMSON_SIGN, Items.WARPED_SIGN);
       this.tag(ItemTags.STONE_TOOL_MATERIALS).add(Items.COBBLESTONE, Items.BLACKSTONE);
       this.tag(ItemTags.STONE_CRAFTING_MATERIALS).add(Items.COBBLESTONE, Items.BLACKSTONE);
+
+      this.tag(ItemTags.SWORDS).add(Items.WOODEN_SWORD).add(Items.STONE_SWORD).add(Items.IRON_SWORD).add(Items.GOLDEN_SWORD).add(Items.DIAMOND_SWORD).add(Items.NETHERITE_SWORD);
+      this.tag(ItemTags.SHOVELS).add(Items.WOODEN_SHOVEL).add(Items.STONE_SHOVEL).add(Items.IRON_SHOVEL).add(Items.GOLDEN_SHOVEL).add(Items.DIAMOND_SHOVEL).add(Items.NETHERITE_SHOVEL);
+      this.tag(ItemTags.PICKAXES).add(Items.WOODEN_PICKAXE).add(Items.STONE_PICKAXE).add(Items.IRON_PICKAXE).add(Items.GOLDEN_PICKAXE).add(Items.DIAMOND_PICKAXE).add(Items.NETHERITE_PICKAXE);
+      this.tag(ItemTags.AXES).add(Items.WOODEN_AXE).add(Items.STONE_AXE).add(Items.IRON_AXE).add(Items.GOLDEN_AXE).add(Items.DIAMOND_AXE).add(Items.NETHERITE_AXE);
+      this.tag(ItemTags.HOES).add(Items.WOODEN_HOE).add(Items.STONE_HOE).add(Items.IRON_HOE).add(Items.GOLDEN_HOE).add(Items.DIAMOND_HOE).add(Items.NETHERITE_HOE);
+
+      this.tag(ItemTags.DESTROYS_DECORATED_POTS).addTag(ItemTags.SWORDS).addTag(ItemTags.PICKAXES).addTag(ItemTags.AXES).addTag(ItemTags.SHOVELS).addTag(ItemTags.HOES).add(Items.TRIDENT);
+
    }
 
    protected void copy(ITag.INamedTag<Block> p_240521_1_, ITag.INamedTag<Item> p_240521_2_) {

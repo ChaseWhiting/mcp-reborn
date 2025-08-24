@@ -61,6 +61,17 @@ public final class ItemTags {
    public static final ITag.INamedTag<Item> STONE_TOOL_MATERIALS = bind("stone_tool_materials");
    public static final ITag.INamedTag<Item> STONE_CRAFTING_MATERIALS = bind("stone_crafting_materials");
 
+   public static final ITag.INamedTag<Item> SWORDS = bind("swords");
+   public static final ITag.INamedTag<Item> PICKAXES = bind("pickaxes");
+   public static final ITag.INamedTag<Item> AXES = bind("axes");
+   public static final ITag.INamedTag<Item> SHOVELS = bind("shovels");
+   public static final ITag.INamedTag<Item> HOES = bind("hoes");
+
+
+   public static final ITag.INamedTag<Item> DESTROYS_DECORATED_POTS = bind("destroys_decorated_pots");
+   public static final ITag.INamedTag<Item> HARNESSES = bind("harnesses");
+
+
    private static ITag.INamedTag<Item> bind(String p_199901_0_) {
       return HELPER.bind(p_199901_0_);
    }

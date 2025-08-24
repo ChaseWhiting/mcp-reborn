@@ -10,6 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SpawnEggItem;
+import net.minecraft.item.dyeable.PaintTubeItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.IItemProvider;
@@ -30,6 +31,31 @@ public class ItemColors {
       itemcolors.register((p_210239_0_, p_210239_1_) -> {
          return p_210239_1_ > 0 ? -1 : ((IDyeableArmorItem)p_210239_0_.getItem()).getColor(p_210239_0_);
       }, Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS, Items.LEATHER_HORSE_ARMOR);
+
+      for (Item item : PaintTubeItem.PAINT_TUBES) {
+         itemcolors.register((stack, i) -> {
+            return i > 0 ? -1 : switch (((PaintTubeItem)stack.getItem()).getDyeColor().getId()) {
+               case 0 -> 0xF9FFFE;
+               case 1 -> 0xF9801D;
+               case 2 -> 0xC74EBD;
+               case 3 -> 0x3AB3DA;
+               case 4 -> 0xFED83D;
+               case 5 -> 0x80C71F;
+               case 6 -> 0xF38BAA;
+               case 7 -> 0x474F52;
+               case 8 -> 0x9D9D97;
+               case 9 -> 0x169C9C;
+               case 10 -> 0x8932B8;
+               case 11 -> 0x3C44AA;
+               case 12 -> 0x835432;
+               case 13 -> 0x5E7C16;
+               case 14 -> 0xB02E26;
+               case 15 -> 0x1D1D21;
+               default -> 0xFFFFFF;
+            };
+         }, item);
+      }
+
       itemcolors.register((p_210236_0_, p_210236_1_) -> {
          return GrassColors.get(0.5D, 1.0D);
       }, Blocks.TALL_GRASS, Blocks.LARGE_FERN);

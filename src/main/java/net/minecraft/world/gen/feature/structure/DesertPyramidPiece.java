@@ -1,5 +1,7 @@
 package net.minecraft.world.gen.feature.structure;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -16,9 +18,16 @@ import net.minecraft.world.gen.feature.template.TemplateManager;
 
 public class DesertPyramidPiece extends ScatteredStructurePiece {
    private final boolean[] hasPlacedChest = new boolean[4];
+   private final List<BlockPos> potentialSuspiciousSandWorldPositions = new ArrayList<>();
+   private BlockPos randomCollapsedRoofPos = BlockPos.ZERO;
 
-   public DesertPyramidPiece(Random p_i48658_1_, int p_i48658_2_, int p_i48658_3_) {
-      super(IStructurePieceType.DESERT_PYRAMID_PIECE, p_i48658_1_, p_i48658_2_, 64, p_i48658_3_, 21, 15, 21);
+
+   public List<BlockPos> getPotentialSuspiciousSandWorldPositions() {
+      return potentialSuspiciousSandWorldPositions;
+   }
+
+   public DesertPyramidPiece(Random p_i48658_1_, int n, int n2) {
+      super(IStructurePieceType.DESERT_PYRAMID_PIECE, n, 64, n2, 21, 15, 21, DesertPyramidPiece.getRandomHorizontalDirection(p_i48658_1_));;
    }
 
    public DesertPyramidPiece(TemplateManager p_i51351_1_, CompoundNBT p_i51351_2_) {
@@ -224,7 +233,142 @@ public class DesertPyramidPiece extends ScatteredStructurePiece {
             this.hasPlacedChest[direction.get2DDataValue()] = this.createChest(p_230383_1_, p_230383_5_, p_230383_4_, 10 + i1, -11, 10 + j1, LootTables.DESERT_PYRAMID);
          }
       }
+      this.addCellar(p_230383_1_, p_230383_5_);
 
       return true;
    }
+
+   protected BlockPos.Mutable getWorldPos(int n, int n2, int n3) {
+      return new BlockPos.Mutable(this.getWorldX(n, n3), this.getWorldY(n2), this.getWorldZ(n, n3));
+   }
+
+
+   private void addCellar(ISeedReader world, MutableBoundingBox box) {
+      BlockPos pos = new BlockPos(16, -4, 13);
+      this.addCellarStairs(pos, world, box);
+      this.addCellarRoom(pos, world, box);
+   }
+
+   private void addCellarStairs(BlockPos pos, ISeedReader world, MutableBoundingBox box) {
+      int x = pos.getX();
+      int y = pos.getY();
+      int z = pos.getZ();
+      BlockState stair = Blocks.SANDSTONE_STAIRS.defaultBlockState();
+
+      this.placeBlock(world, stair.setValue(StairsBlock.FACING, Direction.WEST), 13, -1, 17, box);
+      this.placeBlock(world, stair.setValue(StairsBlock.FACING, Direction.WEST), 14, -2, 17, box);
+      this.placeBlock(world, stair.setValue(StairsBlock.FACING, Direction.WEST), 15, -3, 17, box);
+
+      BlockState sand = Blocks.SAND.defaultBlockState();
+      BlockState sandstone = Blocks.SANDSTONE.defaultBlockState();
+      boolean alternate = world.getRandom().nextBoolean();
+
+      this.placeBlock(world, sand, x - 4, y + 4, z + 4, box);
+      this.placeBlock(world, sand, x - 3, y + 4, z + 4, box);
+      this.placeBlock(world, sand, x - 2, y + 4, z + 4, box);
+      this.placeBlock(world, sand, x - 1, y + 4, z + 4, box);
+      this.placeBlock(world, sand, x, y + 4, z + 4, box);
+      this.placeBlock(world, sand, x - 2, y + 3, z + 4, box);
+      this.placeBlock(world, alternate ? sand : sandstone, x - 1, y + 3, z + 4, box);
+      this.placeBlock(world, alternate ? sandstone : sand, x, y + 3, z + 4, box);
+      this.placeBlock(world, sand, x - 1, y + 2, z + 4, box);
+      this.placeBlock(world, sandstone, x, y + 2, z + 4, box);
+      this.placeBlock(world, sand, x, y + 1, z + 4, box);
+   }
+
+   private void addCellarRoom(BlockPos pos, ISeedReader world, MutableBoundingBox box) {
+      int x = pos.getX();
+      int y = pos.getY();
+      int z = pos.getZ();
+      BlockState cut = Blocks.CUT_SANDSTONE.defaultBlockState();
+      BlockState chiseled = Blocks.CHISELED_SANDSTONE.defaultBlockState();
+
+      this.generateBox(world, box, x - 3, y + 1, z - 3, x - 3, y + 1, z + 2, cut, cut, true);
+      this.generateBox(world, box, x + 3, y + 1, z - 3, x + 3, y + 1, z + 2, cut, cut, true);
+      this.generateBox(world, box, x - 3, y + 1, z - 3, x + 3, y + 1, z - 2, cut, cut, true);
+      this.generateBox(world, box, x - 3, y + 1, z + 3, x + 3, y + 1, z + 3, cut, cut, true);
+      this.generateBox(world, box, x - 3, y + 2, z - 3, x - 3, y + 2, z + 2, chiseled, chiseled, true);
+      this.generateBox(world, box, x + 3, y + 2, z - 3, x + 3, y + 2, z + 2, chiseled, chiseled, true);
+      this.generateBox(world, box, x - 3, y + 2, z - 3, x + 3, y + 2, z - 2, chiseled, chiseled, true);
+      this.generateBox(world, box, x - 3, y + 2, z + 3, x + 3, y + 2, z + 3, chiseled, chiseled, true);
+
+      this.generateBox(world, box, x - 3, -1, z - 3, x - 3, -1, z + 2, cut, cut, true);
+      this.generateBox(world, box, x + 3, -1, z - 3, x + 3, -1, z + 2, cut, cut, true);
+      this.generateBox(world, box, x - 3, -1, z - 3, x + 3, -1, z - 2, cut, cut, true);
+      this.generateBox(world, box, x - 3, -1, z + 3, x + 3, -1, z + 3, cut, cut, true);
+
+      this.placeSandBox(x - 2, y + 1, z - 2, x + 2, y + 3, z + 2);
+      this.placeCollapsedRoof(world, box, x - 2, y + 4, z - 2, x + 2, z + 2);
+
+      BlockState orange = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
+      BlockState blue = Blocks.BLUE_TERRACOTTA.defaultBlockState();
+      this.placeBlock(world, blue, x, y, z, box);
+      this.placeBlock(world, orange, x + 1, y, z - 1, box);
+      this.placeBlock(world, orange, x + 1, y, z + 1, box);
+      this.placeBlock(world, orange, x - 1, y, z - 1, box);
+      this.placeBlock(world, orange, x - 1, y, z + 1, box);
+      this.placeBlock(world, orange, x + 2, y, z, box);
+      this.placeBlock(world, orange, x - 2, y, z, box);
+      this.placeBlock(world, orange, x, y, z + 2, box);
+      this.placeBlock(world, orange, x, y, z - 2, box);
+      this.placeBlock(world, orange, x + 3, y, z, box);
+      this.placeSand(x + 3, y + 1, z);
+      this.placeSand(x + 3, y + 2, z);
+      this.placeBlock(world, cut, x + 4, y + 1, z, box);
+      this.placeBlock(world, chiseled, x + 4, y + 2, z, box);
+      this.placeBlock(world, orange, x - 3, y, z, box);
+      this.placeSand(x - 3, y + 1, z);
+      this.placeSand(x - 3, y + 2, z);
+      this.placeBlock(world, cut, x - 4, y + 1, z, box);
+      this.placeBlock(world, chiseled, x - 4, y + 2, z, box);
+      this.placeBlock(world, orange, x, y, z + 3, box);
+      this.placeSand(x, y + 1, z + 3);
+      this.placeSand(x, y + 2, z + 3);
+      this.placeBlock(world, orange, x, y, z - 3, box);
+      this.placeSand(x, y + 1, z - 3);
+      this.placeSand(x, y + 2, z - 3);
+      this.placeBlock(world, cut, x, y + 1, z - 4, box);
+      this.placeBlock(world, chiseled, x, -2, z - 4, box);
+   }
+
+   private void placeSand(int x, int y, int z) {
+      BlockPos.Mutable pos = this.getWorldPos(x, y, z);
+      this.potentialSuspiciousSandWorldPositions.add(pos);
+   }
+
+   private void placeSandBox(int x1, int y1, int z1, int x2, int y2, int z2) {
+      for (int y = y1; y <= y2; ++y) {
+         for (int x = x1; x <= x2; ++x) {
+            for (int z = z1; z <= z2; ++z) {
+               this.placeSand(x, y, z);
+            }
+         }
+      }
+   }
+
+   private void placeCollapsedRoofPiece(ISeedReader world, int x, int y, int z, MutableBoundingBox box) {
+      BlockState block = world.getRandom().nextFloat() < 0.33f
+              ? Blocks.SANDSTONE.defaultBlockState()
+              : Blocks.SAND.defaultBlockState();
+      this.placeBlock(world, block, x, y, z, box);
+   }
+
+   private void placeCollapsedRoof(ISeedReader world, MutableBoundingBox box, int x1, int y, int z1, int x2, int z2) {
+      for (int x = x1; x <= x2; ++x) {
+         for (int z = z1; z <= z2; ++z) {
+            this.placeCollapsedRoofPiece(world, x, y, z, box);
+         }
+      }
+
+      Random rand = world.getRandom();
+      int randomX = x1 + rand.nextInt(x2 - x1 + 1);
+      int randomZ = z1 + rand.nextInt(z2 - z1 + 1);
+      this.randomCollapsedRoofPos = new BlockPos(randomX, y, randomZ);
+   }
+
+   public BlockPos getRandomCollapsedRoofPos() {
+      return this.randomCollapsedRoofPos;
+   }
+
+
 }

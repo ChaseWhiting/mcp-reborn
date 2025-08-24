@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.ChestContainer;
 import net.minecraft.inventory.container.Container;
@@ -79,6 +80,7 @@ public class BarrelTileEntity extends LockableLootTileEntity {
          boolean flag = blockstate.getValue(BarrelBlock.OPEN);
          if (!flag) {
             this.playSound(blockstate, SoundEvents.BARREL_OPEN);
+            this.level.gameEvent(p_174889_1_, GameEvent.CONTAINER_OPEN, this.worldPosition);
             this.updateBlockState(blockstate, true);
          }
 
@@ -117,6 +119,7 @@ public class BarrelTileEntity extends LockableLootTileEntity {
    public void stopOpen(PlayerEntity p_174886_1_) {
       if (!p_174886_1_.isSpectator()) {
          --this.openCount;
+         this.level.gameEvent(p_174886_1_, GameEvent.CONTAINER_CLOSE, this.worldPosition);
       }
 
    }

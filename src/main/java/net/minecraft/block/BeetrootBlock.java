@@ -47,11 +47,11 @@ public class BeetrootBlock extends CropsBlock {
       return super.getBonemealAgeIncrease(p_185529_1_) / 3;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AGE);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return SHAPE_BY_AGE[p_220053_1_.getValue(this.getAgeProperty())];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return SHAPE_BY_AGE[state.getValue(this.getAgeProperty())];
    }
 }

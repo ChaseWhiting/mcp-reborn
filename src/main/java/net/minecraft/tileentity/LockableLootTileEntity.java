@@ -123,7 +123,14 @@ public abstract class LockableLootTileEntity extends LockableTileEntity {
       if (this.level.getBlockEntity(this.worldPosition) != this) {
          return false;
       } else {
-         return !(p_70300_1_.distanceToSqr((double)this.worldPosition.getX() + 0.5D, (double)this.worldPosition.getY() + 0.5D, (double)this.worldPosition.getZ() + 0.5D) > 64.0D);
+         double reach = p_70300_1_.getReachDistance() + 4;
+         double reachSq = reach * reach;
+
+         return p_70300_1_.distanceToSqr(
+                 (double)this.worldPosition.getX() + 0.5D,
+                 (double)this.worldPosition.getY() + 0.5D,
+                 (double)this.worldPosition.getZ() + 0.5D
+         ) <= reachSq;
       }
    }
 

@@ -75,8 +75,8 @@ public class SeaPickleBlock extends BushBlock implements IGrowable, IWaterLoggab
       return p_196253_2_.getItemInHand().getItem() == this.asItem() && p_196253_1_.getValue(PICKLES) < 4 ? true : super.canBeReplaced(p_196253_1_, p_196253_2_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      switch(p_220053_1_.getValue(PICKLES)) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      switch(state.getValue(PICKLES)) {
       case 1:
       default:
          return ONE_AABB;
@@ -93,8 +93,8 @@ public class SeaPickleBlock extends BushBlock implements IGrowable, IWaterLoggab
       return p_204507_1_.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(p_204507_1_);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(PICKLES, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(PICKLES, WATERLOGGED);
    }
 
    public boolean isValidBonemealTarget(IBlockReader p_176473_1_, BlockPos p_176473_2_, BlockState p_176473_3_, boolean p_176473_4_) {

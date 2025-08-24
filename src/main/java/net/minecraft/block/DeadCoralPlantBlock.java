@@ -12,7 +12,7 @@ public class DeadCoralPlantBlock extends AbstractCoralPlantBlock {
       super(p_i49811_1_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 }

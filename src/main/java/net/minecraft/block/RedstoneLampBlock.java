@@ -43,7 +43,7 @@ public class RedstoneLampBlock extends Block {
 
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(LIT);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(LIT);
    }
 }

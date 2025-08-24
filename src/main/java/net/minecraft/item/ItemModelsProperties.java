@@ -3,6 +3,7 @@ package net.minecraft.item;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import net.minecraft.bundle.BundleColour;
@@ -15,7 +16,9 @@ import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.monster.MarauderEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.equipment.trim.*;
 import net.minecraft.item.tool.FishingRodItem;
+import net.minecraft.item.tool.TerrariaBowItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.Direction;
@@ -32,6 +35,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemModelsProperties {
+   public static final ResourceLocation TRIM_TYPE_PREDICATE_ID = new ResourceLocation("trim_type");
+
    private static final Map<ResourceLocation, IItemPropertyGetter> GENERIC_PROPERTIES = Maps.newHashMap();
    private static final ResourceLocation DAMAGED = new ResourceLocation("damaged");
    private static final ResourceLocation DAMAGE = new ResourceLocation("damage");
@@ -76,8 +81,50 @@ public class ItemModelsProperties {
    }
 
    static {
+      register(Items.BRUSH, new ResourceLocation("brushing"), (itemStack, clientLevel, livingEntity) -> {
+         if (livingEntity == null || livingEntity.getUseItem() != itemStack) {
+            return 0.0f;
+         }
+         return (float)(livingEntity.getUseItemRemainingTicks() % 10) / 10.0f;
+      });
       registerGeneric(new ResourceLocation("lefthanded"), (p_239432_0_, p_239432_1_, p_239432_2_) -> {
          return p_239432_2_ != null && p_239432_2_.getMainArm() != HandSide.RIGHT ? 1.0F : 0.0F;
+      });
+
+      registerGeneric(new ResourceLocation("trim_type"), (itemstack, world, entity) -> {
+         if (!ArmorTrim.TRIMMABLE_ARMOR.contains(itemstack.getItem())) {
+            return Float.NEGATIVE_INFINITY;
+         }
+
+
+         return ArmorTrim.getTrim(null, itemstack)
+                 .map(ArmorTrim::material)
+                 .map(Supplier::get)
+                 .map(TrimMaterial::getItemModelIndex).orElse(Float.valueOf(0.0f)).floatValue();
+      });
+
+      registerGeneric(new ResourceLocation("tool_trim_material"), (itemstack, world, entity) -> {
+         if (!ToolTrim.TRIMMABLE_TOOLS.contains(itemstack.getItem())) {
+            return Float.NEGATIVE_INFINITY;
+         }
+
+
+         return ToolTrim.getToolTrim(null, itemstack)
+                 .map(ToolTrim::material)
+                 .map(Supplier::get)
+                 .map(TrimMaterial::getItemModelIndex).orElse(Float.valueOf(0.0f)).floatValue();
+      });
+
+      registerGeneric(new ResourceLocation("tool_trim_type"), (itemstack, world, entity) -> {
+         if (!ToolTrim.TRIMMABLE_TOOLS.contains(itemstack.getItem())) {
+            return Float.NEGATIVE_INFINITY;
+         }
+
+
+         return ToolTrim.getToolTrim(null, itemstack)
+                 .map(ToolTrim::toolPattern)
+                 .map(Supplier::get)
+                 .map(ToolTrimPattern::getID).orElse(Float.valueOf(0.0f)).floatValue();
       });
       registerGeneric(new ResourceLocation("cooldown"), (p_239431_0_, p_239431_1_, p_239431_2_) -> {
          return p_239431_2_ instanceof PlayerEntity ? ((PlayerEntity)p_239431_2_).getCooldowns().getCooldownPercent(p_239431_0_.getItem(), 0.0F) : 0.0F;
@@ -106,6 +153,22 @@ public class ItemModelsProperties {
       register(Items.BONE_BOW, new ResourceLocation("pulling"), (p_239428_0_, p_239428_1_, p_239428_2_) -> {
          return p_239428_2_ != null && p_239428_2_.isUsingItem() && p_239428_2_.getUseItem() == p_239428_0_ ? 1.0F : 0.0F;
       });
+
+      for (Item item : Registry.ITEM) {
+         if (item instanceof TerrariaBowItem) {
+            register(item, new ResourceLocation("pulling"), (p_239428_0_, p_239428_1_, p_239428_2_) -> {
+               return p_239428_2_ != null && p_239428_2_.isUsingItem() && p_239428_2_.getUseItem() == p_239428_0_ ? 1.0F : 0.0F;
+            });
+            register(item, new ResourceLocation("pull"), (p_239429_0_, p_239429_1_, p_239429_2_) -> {
+               if (p_239429_2_ == null) {
+                  return 0.0F;
+               } else {
+                  return p_239429_2_.getUseItem() != p_239429_0_ ? 0.0F : (float)(p_239429_0_.getUseDuration() - p_239429_2_.getUseItemRemainingTicks()) / 20.0F;
+               }
+            });
+         }
+      }
+
       register(Items.CLOCK, new ResourceLocation("time"), new IItemPropertyGetter() {
          private double rotation;
          private double rota;
@@ -304,6 +367,7 @@ public class ItemModelsProperties {
 
 
 
+      register(Items.GOAT_HORN, new ResourceLocation("tooting"), (itemStack, clientLevel, livingEntity) -> livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == itemStack ? 1.0f : 0.0f);
 
       register(Items.ELYTRA, new ResourceLocation("broken"), (p_239423_0_, p_239423_1_, p_239423_2_) -> {
          return ElytraItem.isFlyEnabled(p_239423_0_) ? 0.0F : 1.0F;
@@ -365,6 +429,24 @@ public class ItemModelsProperties {
          }
 
          return BundleColour.REGULAR.getId();
+      });
+      register(Items.AXOLOTL_BUCKET, new ResourceLocation("variant"), (item, world, entity) -> {
+         CompoundNBT nbt = item.getOrCreateTag();
+         if (nbt.contains("Variant")) {
+            int variant = nbt.getInt("Variant");
+            return variant;
+         }
+
+         return 0;
+      });
+      register(Items.AXOLOTL_BUCKET, new ResourceLocation("baby"), (item, world, entity) -> {
+         CompoundNBT nbt = item.getOrCreateTag();
+         if (nbt.contains("Age")) {
+            int age = nbt.getInt("Age");
+            return age < 0 ? 1 : 0;
+         }
+
+         return 0;
       });
    }
 

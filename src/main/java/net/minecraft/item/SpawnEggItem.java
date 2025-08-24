@@ -14,6 +14,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.stats.Stats;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
@@ -76,6 +77,7 @@ public class SpawnEggItem extends Item {
                abstractspawner.setEntityId(entitytype1);
                tileentity.setChanged();
                world.sendBlockUpdated(blockpos, blockstate, blockstate, 3);
+               world.gameEvent(context.getPlayer(), GameEvent.BLOCK_CHANGE, blockpos);
                itemstack.shrink(1);
                return ActionResultType.CONSUME;
             }
@@ -94,6 +96,7 @@ public class SpawnEggItem extends Item {
          // If mob is successfully spawned, call the custom spawn handler if present
          if (mob != null) {
             itemstack.shrink(1);
+            world.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, blockpos);
             if (this.spawnHandler != null) {
                this.spawnHandler.onMobSpawn(mob, (ServerWorld) world, blockpos1, context.getPlayer());
             }
@@ -125,6 +128,7 @@ public class SpawnEggItem extends Item {
                   itemstack.shrink(1);
                }
                player.awardStat(Stats.ITEM_USED.get(this));
+               world.gameEvent(player, GameEvent.ENTITY_PLACE, mob.blockPosition());
                if (this.spawnHandler != null) {
                   this.spawnHandler.onMobSpawn(mob, (ServerWorld) world, blockpos, player);
                }

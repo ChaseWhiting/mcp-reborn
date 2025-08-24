@@ -19,9 +19,9 @@ import net.minecraft.entity.boss.dragon.phase.PhaseManager;
 import net.minecraft.entity.boss.dragon.phase.PhaseType;
 import net.minecraft.entity.item.EnderCrystalEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -490,6 +490,8 @@ public class EnderDragonEntity extends Mob implements IMob {
 
    public void kill() {
       this.remove();
+
+      this.gameEvent(GameEvent.ENTITY_DIE);
       if (this.dragonFight != null) {
          this.dragonFight.updateDragon(this);
          this.dragonFight.setDragonKilled(this);
@@ -539,6 +541,7 @@ public class EnderDragonEntity extends Mob implements IMob {
          }
 
          this.remove();
+         this.gameEvent(GameEvent.ENTITY_DIE);
       }
 
    }

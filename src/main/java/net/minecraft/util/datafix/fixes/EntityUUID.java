@@ -126,9 +126,11 @@ public class EntityUUID extends AbstractUUIDFix {
    }
 
    private static Dynamic<?> updateMob(Dynamic<?> p_233228_0_) {
-      return updateLivingEntity(p_233228_0_).update("Leash", (p_233232_0_) -> {
-         return replaceUUIDLeastMost(p_233232_0_, "UUID", "UUID").orElse(p_233232_0_);
-      });
+      return p_233228_0_;
+
+//      return updateLivingEntity(p_233228_0_).update("Leash", (p_233232_0_) -> {
+//         return replaceUUIDLeastMost(p_233232_0_, "UUID", "UUID").orElse(p_233232_0_);
+//      });
    }
 
    public static Dynamic<?> updateLivingEntity(Dynamic<?> p_233212_0_) {

@@ -100,11 +100,11 @@ public class ShulkerBoxBlock extends ContainerBlock {
       return this.defaultBlockState().setValue(FACING, p_196258_1_.getClickedFace());
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING);
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       TileEntity tileentity = p_176208_1_.getBlockEntity(p_176208_2_);
       if (tileentity instanceof ShulkerBoxTileEntity) {
          ShulkerBoxTileEntity shulkerboxtileentity = (ShulkerBoxTileEntity)tileentity;
@@ -127,7 +127,7 @@ public class ShulkerBoxBlock extends ContainerBlock {
          }
       }
 
-      super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
+      return super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
    }
 
    public List<ItemStack> getDrops(BlockState p_220076_1_, LootContext.Builder p_220076_2_) {
@@ -205,9 +205,9 @@ public class ShulkerBoxBlock extends ContainerBlock {
       return PushReaction.DESTROY;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      TileEntity tileentity = p_220053_2_.getBlockEntity(p_220053_3_);
-      return tileentity instanceof ShulkerBoxTileEntity ? VoxelShapes.create(((ShulkerBoxTileEntity)tileentity).getBoundingBox(p_220053_1_)) : VoxelShapes.block();
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      TileEntity tileentity = world.getBlockEntity(pos);
+      return tileentity instanceof ShulkerBoxTileEntity ? VoxelShapes.create(((ShulkerBoxTileEntity)tileentity).getBoundingBox(state)) : VoxelShapes.block();
    }
 
    public boolean hasAnalogOutputSignal(BlockState p_149740_1_) {

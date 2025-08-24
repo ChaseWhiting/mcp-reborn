@@ -1,10 +1,9 @@
 package net.minecraft.bundle;
 
 
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.fonts.Font;
 import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -30,7 +29,7 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
       return this.backgroundHeight() + 4;
    }
 
-   public int getWidth(Font p_169901_) {
+   public int getWidth(FontRenderer p_169901_) {
       return this.backgroundWidth();
    }
 
@@ -42,7 +41,7 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
       return this.gridSizeY() * 20 + 2;
    }
 
-   public void renderImage(Font p_194042_, int p_194043_, int p_194044_, ItemRenderer p_282522_) {
+   public void renderImage(FontRenderer p_194042_, int p_194043_, int p_194044_, ItemRenderer p_282522_) {
       int i = this.gridSizeX();
       int j = this.gridSizeY();
      // p_282522_.blitSprite(BACKGROUND_SPRITE, p_194043_, p_194044_, this.backgroundWidth(), this.backgroundHeight());
@@ -59,7 +58,7 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
 
    }
 
-   private void renderSlot(int p_283180_, int p_282972_, int p_282547_, boolean p_283053_, ItemRenderer p_283625_, Font p_281863_) {
+   private void renderSlot(int p_283180_, int p_282972_, int p_282547_, boolean p_283053_, ItemRenderer p_283625_, FontRenderer p_281863_) {
       if (p_282547_ >= this.items.size()) {
          this.blit(p_283625_, p_283180_, p_282972_, p_283053_ ? ClientBundleTooltip.Texture.BLOCKED_SLOT : ClientBundleTooltip.Texture.SLOT);
       } else {

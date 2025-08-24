@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 import net.minecraft.world.storage.MapDecoration;
@@ -55,7 +56,7 @@ public class MapExtendingRecipe extends ShapedRecipe {
       return false;
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       ItemStack itemstack = ItemStack.EMPTY;
 
       for(int i = 0; i < p_77572_1_.getContainerSize() && itemstack.isEmpty(); ++i) {

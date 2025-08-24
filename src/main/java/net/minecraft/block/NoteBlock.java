@@ -1,6 +1,8 @@
 package net.minecraft.block;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.state.BooleanProperty;
@@ -18,6 +20,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 public class NoteBlock extends Block {
    public static final EnumProperty<NoteBlockInstrument> INSTRUMENT = BlockStateProperties.NOTEBLOCK_INSTRUMENT;
@@ -41,7 +45,7 @@ public class NoteBlock extends Block {
       boolean flag = p_220069_2_.hasNeighborSignal(p_220069_3_);
       if (flag != p_220069_1_.getValue(POWERED)) {
          if (flag) {
-            this.playNote(p_220069_2_, p_220069_3_);
+            this.playNote(null, p_220069_2_, p_220069_3_);
          }
 
          p_220069_2_.setBlock(p_220069_3_, p_220069_1_.setValue(POWERED, Boolean.valueOf(flag)), 3);
@@ -49,9 +53,10 @@ public class NoteBlock extends Block {
 
    }
 
-   private void playNote(World p_196482_1_, BlockPos p_196482_2_) {
+   private void playNote(@Nullable Entity entity, World p_196482_1_, BlockPos p_196482_2_) {
       if (p_196482_1_.getBlockState(p_196482_2_.above()).isAir()) {
          p_196482_1_.blockEvent(p_196482_2_, this, 0, 0);
+         p_196482_1_.gameEvent(entity, GameEvent.NOTE_BLOCK_PLAY, p_196482_2_);
       }
 
    }
@@ -62,7 +67,7 @@ public class NoteBlock extends Block {
       } else {
          p_225533_1_ = p_225533_1_.cycle(NOTE);
          p_225533_2_.setBlock(p_225533_3_, p_225533_1_, 3);
-         this.playNote(p_225533_2_, p_225533_3_);
+         this.playNote(p_225533_4_,p_225533_2_, p_225533_3_);
          p_225533_4_.awardStat(Stats.TUNE_NOTEBLOCK);
          return ActionResultType.CONSUME;
       }
@@ -70,7 +75,7 @@ public class NoteBlock extends Block {
 
    public void attack(BlockState p_196270_1_, World p_196270_2_, BlockPos p_196270_3_, PlayerEntity p_196270_4_) {
       if (!p_196270_2_.isClientSide) {
-         this.playNote(p_196270_2_, p_196270_3_);
+         this.playNote(p_196270_4_,p_196270_2_, p_196270_3_);
          p_196270_4_.awardStat(Stats.PLAY_NOTEBLOCK);
       }
    }
@@ -83,7 +88,7 @@ public class NoteBlock extends Block {
       return true;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(INSTRUMENT, POWERED, NOTE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(INSTRUMENT, POWERED, NOTE);
    }
 }

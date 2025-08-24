@@ -17,12 +17,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.EntityBoundSoundInstance;
 import net.minecraft.client.audio.EntityTickableSound;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.multiplayer.ClientChunkProvider;
 import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.client.particle.FireworkParticle;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.color.ColorCache;
 import net.minecraft.crash.CrashReport;
@@ -94,6 +96,10 @@ public class ClientWorld extends World {
       p_228319_0_.put(BiomeColors.WATER_COLOR_RESOLVER, new ColorCache());
    });
    private final ClientChunkProvider chunkSource;
+
+   @Override
+   public void gameEvent(net.minecraft.entity.warden.event.GameEvent gameEvent, Vector3d vector3D, net.minecraft.entity.warden.event.GameEvent.Context context) {
+   }
 
    public ClientWorld(ClientPlayNetHandler p_i242067_1_, ClientWorld.ClientWorldInfo p_i242067_2_, RegistryKey<World> p_i242067_3_, DimensionType p_i242067_4_, int p_i242067_5_, Supplier<IProfiler> p_i242067_6_, WorldRenderer p_i242067_7_, boolean p_i242067_8_, long p_i242067_9_) {
       super(p_i242067_2_, p_i242067_3_, p_i242067_4_, p_i242067_6_, true, p_i242067_8_, p_i242067_9_);
@@ -478,6 +484,13 @@ public class ClientWorld extends World {
 
    }
 
+   @Override
+   public void playPlayerSound(SoundEvent soundEvent, SoundCategory soundSource, float f, float f2) {
+      if (this.minecraft.player != null) {
+         this.minecraft.getSoundManager().play(new EntityBoundSoundInstance(soundEvent, soundSource, f, f2, this.minecraft.player, this.random.nextLong()));
+      }
+   }
+
    public void createFireworks(double p_92088_1_, double p_92088_3_, double p_92088_5_, double p_92088_7_, double p_92088_9_, double p_92088_11_, @Nullable CompoundNBT p_92088_13_) {
       this.minecraft.particleEngine.add(new FireworkParticle.Starter(this, p_92088_1_, p_92088_3_, p_92088_5_, p_92088_7_, p_92088_9_, p_92088_11_, this.minecraft.particleEngine, p_92088_13_));
    }
@@ -593,12 +606,19 @@ public class ClientWorld extends World {
       this.levelRenderer.addParticle(p_195594_1_, p_195594_1_.getType().getOverrideLimiter(), p_195594_2_, p_195594_4_, p_195594_6_, p_195594_8_, p_195594_10_, p_195594_12_);
    }
 
+
+
    public void addParticle(IParticleData p_195590_1_, boolean p_195590_2_, double p_195590_3_, double p_195590_5_, double p_195590_7_, double p_195590_9_, double p_195590_11_, double p_195590_13_) {
       this.levelRenderer.addParticle(p_195590_1_, p_195590_1_.getType().getOverrideLimiter() || p_195590_2_, p_195590_3_, p_195590_5_, p_195590_7_, p_195590_9_, p_195590_11_, p_195590_13_);
    }
 
    public void addAlwaysVisibleParticle(IParticleData p_195589_1_, double p_195589_2_, double p_195589_4_, double p_195589_6_, double p_195589_8_, double p_195589_10_, double p_195589_12_) {
       this.levelRenderer.addParticle(p_195589_1_, false, true, p_195589_2_, p_195589_4_, p_195589_6_, p_195589_8_, p_195589_10_, p_195589_12_);
+   }
+
+   @Nullable
+   public Particle addAlwaysVisibleParticleAndReturn(IParticleData p_195589_1_, double p_195589_2_, double p_195589_4_, double p_195589_6_, double p_195589_8_, double p_195589_10_, double p_195589_12_) {
+      return this.levelRenderer.addParticleAndReturn(p_195589_1_, false, true, p_195589_2_, p_195589_4_, p_195589_6_, p_195589_8_, p_195589_10_, p_195589_12_);
    }
 
    public void addAlwaysVisibleParticle(IParticleData p_217404_1_, boolean p_217404_2_, double p_217404_3_, double p_217404_5_, double p_217404_7_, double p_217404_9_, double p_217404_11_, double p_217404_13_) {

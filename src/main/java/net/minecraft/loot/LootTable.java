@@ -12,13 +12,13 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.functions.ILootFunction;
 import net.minecraft.loot.functions.LootFunctionManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.WeightedItemStack;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
@@ -93,6 +93,10 @@ public class LootTable {
       this.getRandomItemsRaw(p_216120_1_, createStackSplitter(p_216120_2_));
    }
 
+   public List<ItemStack> getRandomItems(LootContext.Builder lootParams, long l) {
+      return this.getRandomItems(lootParams.withOptionalRandomSeed(l).create(LootParameterSets.CHEST));
+   }
+
    public List<ItemStack> getRandomItems(LootContext p_216113_1_) {
       List<ItemStack> list = Lists.newArrayList();
       this.getRandomItems(p_216113_1_, list::add);
@@ -117,6 +121,28 @@ public class LootTable {
    public void fill(IInventory p_216118_1_, LootContext p_216118_2_) {
       List<ItemStack> list = this.getRandomItems(p_216118_2_);
       Random random = p_216118_2_.getRandom();
+      List<Integer> list1 = this.getAvailableSlots(p_216118_1_, random);
+      this.shuffleAndSplitItems(list, list1.size(), random);
+
+      for(ItemStack itemstack : list) {
+         if (list1.isEmpty()) {
+            LOGGER.warn("Tried to over-fill a container");
+            return;
+         }
+
+         if (itemstack.isEmpty()) {
+            p_216118_1_.setItem(list1.remove(list1.size() - 1), ItemStack.EMPTY);
+         } else {
+            p_216118_1_.setItem(list1.remove(list1.size() - 1), itemstack);
+         }
+      }
+
+   }
+
+   public void fill(IInventory p_216118_1_, LootContext.Builder p_216118_2_, long l) {
+      LootContext content = p_216118_2_.withOptionalRandomSeed(l).create(LootParameterSets.CHEST);
+      List<ItemStack> list = this.getRandomItems(content);
+      Random random = content.getRandom();
       List<Integer> list1 = this.getAvailableSlots(p_216118_1_, random);
       this.shuffleAndSplitItems(list, list1.size(), random);
 

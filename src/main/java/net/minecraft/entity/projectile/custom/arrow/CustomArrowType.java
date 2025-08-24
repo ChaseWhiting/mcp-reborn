@@ -32,7 +32,14 @@ public class CustomArrowType {
     public static final CustomArrowType HEALING = new CustomArrowType("healing", 4, 0D);
     public static final CustomArrowType FIREWORK = new CustomArrowType("firework", 5, 4.5D);
     public static final CustomArrowType GILDED = new CustomArrowType("gilded", 6, 5.5D);
-    public static final CustomArrowType[] ALL_TYPES = new CustomArrowType[]{FROZEN, BURNING, POISON, TELEPORTATION, HEALING, FIREWORK, GILDED};
+    public static final CustomArrowType FLEETING = new CustomArrowType("fleeting", 7, 2.5D);
+    public static final CustomArrowType MEEP = new CustomArrowType("meep", 8, 2.5D);
+    public static final CustomArrowType AERIAL_BANE = new CustomArrowType("aerial_bane", 9, 3.5D);
+    public static final CustomArrowType JESTER = new CustomArrowType("jester", 10, 4.5D);
+
+
+
+    public static final CustomArrowType[] ALL_TYPES = new CustomArrowType[]{FROZEN, BURNING, POISON, TELEPORTATION, HEALING, FIREWORK, GILDED, FLEETING, AERIAL_BANE, MEEP, JESTER};
 
     public static CustomArrowType getCustomArrowTypeByName(String name){
         for(CustomArrowType type : ALL_TYPES){

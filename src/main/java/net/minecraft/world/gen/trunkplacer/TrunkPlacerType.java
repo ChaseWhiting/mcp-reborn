@@ -10,6 +10,7 @@ public class TrunkPlacerType<P extends AbstractTrunkPlacer> {
    public static final TrunkPlacerType<MegaJungleTrunkPlacer> MEGA_JUNGLE_TRUNK_PLACER = register("mega_jungle_trunk_placer", MegaJungleTrunkPlacer.CODEC);
    public static final TrunkPlacerType<DarkOakTrunkPlacer> DARK_OAK_TRUNK_PLACER = register("dark_oak_trunk_placer", DarkOakTrunkPlacer.CODEC);
    public static final TrunkPlacerType<PaleOakLargeTrunkPlacer> PALE_OAK_TRUNK_PLACER = register("pale_oak_large_trunk_placer", PaleOakLargeTrunkPlacer.CODEC);
+   public static final TrunkPlacerType<UpwardsBranchingTrunkPlacer> UPWARDS_BRANCHING_TRUNK_PLACER_TRUNK = register("upwards_branching_trunk_placer", UpwardsBranchingTrunkPlacer.CODEC);
 
    public static final TrunkPlacerType<FancyTrunkPlacer> FANCY_TRUNK_PLACER = register("fancy_trunk_placer", FancyTrunkPlacer.CODEC);
    private final Codec<P> codec;

@@ -114,7 +114,7 @@ public class MusicDiscItem extends Item {
       if (blockstate.is(Blocks.JUKEBOX) && !blockstate.getValue(JukeboxBlock.HAS_RECORD)) {
          ItemStack itemstack = p_195939_1_.getItemInHand();
          if (!world.isClientSide) {
-            ((JukeboxBlock)Blocks.JUKEBOX).setRecord(world, blockpos, blockstate, itemstack);
+            ((JukeboxBlock)Blocks.JUKEBOX).setRecord(p_195939_1_.getPlayer(), world, blockpos, blockstate, itemstack);
             world.levelEvent((PlayerEntity)null, 1010, blockpos, Item.getId(this));
             itemstack.shrink(1);
             PlayerEntity playerentity = p_195939_1_.getPlayer();

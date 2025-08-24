@@ -1,9 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.entity.layers.RaccoonEyesLayer;
 import net.minecraft.client.renderer.entity.layers.RaccoonHeldItemLayer;
-import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.client.renderer.entity.model.RaccoonModel;
 import net.minecraft.entity.passive.RaccoonEntity;
 import net.minecraft.util.ResourceLocation;

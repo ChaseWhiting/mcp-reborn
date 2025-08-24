@@ -3,11 +3,24 @@ package net.minecraft.world.gen.feature.structure;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.List;
+import java.util.Random;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
+import net.minecraft.loot.LootTables;
+import net.minecraft.tileentity.BrushableBlockEntity;
 import net.minecraft.util.SharedSeedRandom;
+import net.minecraft.util.SortedArraySet;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.MutableBoundingBox;
+import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.random.RandomSource;
 import net.minecraft.util.registry.DynamicRegistries;
+import net.minecraft.world.ISeedReader;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.MobSpawnInfo;
 import net.minecraft.world.biome.provider.BiomeProvider;
@@ -53,6 +66,60 @@ public class FortressStructure extends Structure<NoFeatureConfig> {
 
          this.calculateBoundingBox();
          this.moveInsideHeights(this.random, 48, 70);
+      }
+   }
+
+   @Override
+   public void afterPlace(ISeedReader world, StructureManager structureManager, ChunkGenerator generator, Random globalRandom, MutableBoundingBox boundingBox, ChunkPos chunkPos, List<StructurePiece> pieces) {
+      RandomSource seedBasedRandom = RandomSource.create(world.getSeed());
+
+      for (StructurePiece piece : pieces) {
+         if (!(piece instanceof FortressPieces.Piece fortressPiece)) continue;
+
+         SortedArraySet<Vector3i> piecePositions = SortedArraySet.create(128);
+         piecePositions.addAll(fortressPiece.getPotentialSuspiciousCrackedBricksWorldPositions());
+
+         ObjectArrayList<BlockPos> crackedPositions = new ObjectArrayList<>();
+
+         double crackedPlacementChance = fortressPiece.getCrackedBlockPlaceChance();
+
+         for (Vector3i vec : piecePositions) {
+            BlockPos pos = new BlockPos(vec.getX(), vec.getY(), vec.getZ());
+
+            if (!boundingBox.isInside(pos)) continue;
+
+            if (seedBasedRandom.nextDouble() < crackedPlacementChance) {
+               crackedPositions.add(pos);
+               world.setBlock(pos, Blocks.CRACKED_NETHER_BRICKS.defaultBlockState(), 2);
+
+               if (world.getBlockEntity(pos) instanceof BrushableBlockEntity brushableBlock) {
+                  brushableBlock.setLootTable(LootTables.FORTRESS_BRICKS_NON_SUSPICIOUS_ARCHAEOLOGY, RandomSource.create(world.getSeed()).forkPositional().at(pos).nextLong() >> 4);
+               }
+            }
+         }
+
+         Util.shuffle(crackedPositions, seedBasedRandom);
+
+         int minSuspicious = 7;
+         int maxSuspicious = 15;
+         int suspiciousCount = Math.min(crackedPositions.size(), MathHelper.randomBetweenInclusive(seedBasedRandom, minSuspicious, maxSuspicious));
+
+         for (int i = 0; i < suspiciousCount; i++) {
+            BlockPos pos = crackedPositions.get(i);
+            placeSuspiciousCrackedNetherBricks(boundingBox, world, pos);
+         }
+      }
+   }
+
+
+
+   private static void placeSuspiciousCrackedNetherBricks(MutableBoundingBox box, ISeedReader world, BlockPos pos) {
+      if (box.isInside(pos)) {
+         world.setBlock(pos, Blocks.SUSPICIOUS_CRACKED_NETHER_BRICKS.defaultBlockState(), 2);
+
+         if (world.getBlockEntity(pos) instanceof BrushableBlockEntity brushableBlock) {
+            brushableBlock.setLootTable(LootTables.FORTRESS_BRICKS_ARCHAEOLOGY, RandomSource.create(world.getSeed()).forkPositional().at(pos).nextLong());
+         }
       }
    }
 }

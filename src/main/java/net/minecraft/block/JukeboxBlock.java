@@ -1,9 +1,12 @@
 package net.minecraft.block;
 
 import javax.annotation.Nullable;
+
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
@@ -45,18 +48,22 @@ public class JukeboxBlock extends ContainerBlock {
       if (p_225533_1_.getValue(HAS_RECORD)) {
          this.dropRecording(p_225533_2_, p_225533_3_);
          p_225533_1_ = p_225533_1_.setValue(HAS_RECORD, Boolean.valueOf(false));
+         p_225533_2_.gameEvent(GameEvent.JUKEBOX_STOP_PLAY, p_225533_3_, GameEvent.Context.of(p_225533_4_, p_225533_1_));
          p_225533_2_.setBlock(p_225533_3_, p_225533_1_, 2);
+         p_225533_2_.gameEvent(GameEvent.BLOCK_CHANGE, p_225533_3_, GameEvent.Context.of(p_225533_4_, p_225533_1_));
          return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);
       } else {
          return ActionResultType.PASS;
       }
    }
 
-   public void setRecord(IWorld p_176431_1_, BlockPos p_176431_2_, BlockState p_176431_3_, ItemStack p_176431_4_) {
+   public void setRecord(@Nullable Entity entity, IWorld p_176431_1_, BlockPos p_176431_2_, BlockState p_176431_3_, ItemStack p_176431_4_) {
       TileEntity tileentity = p_176431_1_.getBlockEntity(p_176431_2_);
       if (tileentity instanceof JukeboxTileEntity) {
          ((JukeboxTileEntity)tileentity).setRecord(p_176431_4_.copy());
          p_176431_1_.setBlock(p_176431_2_, p_176431_3_.setValue(HAS_RECORD, Boolean.valueOf(true)), 2);
+         p_176431_1_.gameEvent(GameEvent.JUKEBOX_PLAY, p_176431_2_, GameEvent.Context.of(entity, p_176431_3_));
+         p_176431_1_.gameEvent(GameEvent.BLOCK_CHANGE, p_176431_2_, GameEvent.Context.of(entity, p_176431_3_));
       }
    }
 
@@ -113,7 +120,7 @@ public class JukeboxBlock extends ContainerBlock {
       return BlockRenderType.MODEL;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(HAS_RECORD);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(HAS_RECORD);
    }
 }

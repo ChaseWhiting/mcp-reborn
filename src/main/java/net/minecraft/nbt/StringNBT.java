@@ -9,7 +9,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class StringNBT implements INBT {
    public static final INBTType<StringNBT> TYPE = new INBTType<StringNBT>() {
-      public StringNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) throws IOException {
+      public StringNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) throws IOException {
          p_225649_3_.accountBits(288L);
          String s = p_225649_1_.readUTF();
          p_225649_3_.accountBits((long)(16 * s.length()));

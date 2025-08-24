@@ -21,7 +21,7 @@ public class PotatoBlock extends CropsBlock {
       return Items.POTATO;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return SHAPE_BY_AGE[p_220053_1_.getValue(this.getAgeProperty())];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return SHAPE_BY_AGE[state.getValue(this.getAgeProperty())];
    }
 }

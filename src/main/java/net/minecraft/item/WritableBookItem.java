@@ -24,7 +24,7 @@ public class WritableBookItem extends Item {
       BlockPos blockpos = p_195939_1_.getClickedPos();
       BlockState blockstate = world.getBlockState(blockpos);
       if (blockstate.is(Blocks.LECTERN)) {
-         return LecternBlock.tryPlaceBook(world, blockpos, blockstate, p_195939_1_.getItemInHand()) ? ActionResultType.sidedSuccess(world.isClientSide) : ActionResultType.PASS;
+         return LecternBlock.tryPlaceBook(p_195939_1_.getPlayer(), world, blockpos, blockstate, p_195939_1_.getItemInHand()) ? ActionResultType.sidedSuccess(world.isClientSide) : ActionResultType.PASS;
       } else {
          return ActionResultType.PASS;
       }

@@ -5,8 +5,6 @@ import java.util.stream.Stream;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.bundle.SlotAccess;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.TooltipComponent;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
@@ -18,7 +16,6 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.text.*;
 

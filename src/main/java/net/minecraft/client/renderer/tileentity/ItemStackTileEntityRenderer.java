@@ -30,16 +30,7 @@ import net.minecraft.item.Items;
 import net.minecraft.item.tool.ShieldItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
-import net.minecraft.tileentity.BannerPattern;
-import net.minecraft.tileentity.BannerTileEntity;
-import net.minecraft.tileentity.BedTileEntity;
-import net.minecraft.tileentity.ChestTileEntity;
-import net.minecraft.tileentity.ConduitTileEntity;
-import net.minecraft.tileentity.EnderChestTileEntity;
-import net.minecraft.tileentity.ShulkerBoxTileEntity;
-import net.minecraft.tileentity.SkullTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TrappedChestTileEntity;
+import net.minecraft.tileentity.*;
 import net.minecraft.util.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -59,6 +50,8 @@ public class ItemStackTileEntityRenderer {
    private final BedTileEntity bed = new BedTileEntity();
    private final ConduitTileEntity conduit = new ConduitTileEntity();
    private final ShieldModel shieldModel = new ShieldModel();
+   private final DecoratedPotTileEntity decoratedPot = new DecoratedPotTileEntity();
+
    private final CthulhuShieldModel cthulhuShieldModel = new CthulhuShieldModel();
 
    private final TridentModel tridentModel = new TridentModel();
@@ -96,7 +89,10 @@ public class ItemStackTileEntityRenderer {
                tileentity = this.chest;
             } else if (block == Blocks.ENDER_CHEST) {
                tileentity = this.enderChest;
-            } else if (block == Blocks.TRAPPED_CHEST) {
+            } else if (block == Blocks.DECORATED_POT) {
+               this.decoratedPot.setFromItem(itemStack);
+               tileentity = this.decoratedPot;
+            }else if (block == Blocks.TRAPPED_CHEST) {
                tileentity = this.trappedChest;
             } else {
                if (!(block instanceof ShulkerBoxBlock)) {
@@ -139,13 +135,11 @@ public class ItemStackTileEntityRenderer {
             matrixStack.pushPose();
             matrixStack.scale(1.0F, -1.0F, -1.0F);
 
-            // Use your custom material for the netherite shield
-            RenderMaterial rendermaterial = ModelBakery.NETHERITE_SHIELD; // Replace with your actual render material
+            RenderMaterial rendermaterial = ModelBakery.NETHERITE_SHIELD;
 
             IVertexBuilder ivertexbuilder = rendermaterial.sprite().wrap(ItemRenderer.getFoilBufferDirect(buffer, this.shieldModel.renderType(rendermaterial.atlasLocation()), true, itemStack.hasFoil()));
             this.shieldModel.handle().render(matrixStack, ivertexbuilder, i, i2, 1.0F, 1.0F, 1.0F, 1.0F);
 
-            // Since the netherite shield has no patterns, we render the plate directly
             this.shieldModel.plate().render(matrixStack, ivertexbuilder, i, i2, 1.0F, 1.0F, 1.0F, 1.0F);
 
             matrixStack.popPose();

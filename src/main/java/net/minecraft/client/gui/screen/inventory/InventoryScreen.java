@@ -20,6 +20,9 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+
+import javax.annotation.Nullable;
 
 @OnlyIn(Dist.CLIENT)
 public class InventoryScreen extends DisplayEffectsScreen<PlayerContainer> implements IRecipeShownListener {
@@ -137,6 +140,60 @@ public class InventoryScreen extends DisplayEffectsScreen<PlayerContainer> imple
       p_228187_5_.yHeadRot = f6;
       RenderSystem.popMatrix();
    }
+
+   public static void renderEntityInInventory(
+           MatrixStack matrixStack,
+           int x, int y, int scale,
+           Quaternionf poseJoml,
+           @Nullable Quaternionf cameraOverrideJoml,
+           LivingEntity entity) {
+
+      Quaternion pose = mojangQuaternionFromJoml(poseJoml);
+      Quaternion cameraOverride = cameraOverrideJoml != null ? mojangQuaternionFromJoml(cameraOverrideJoml) : null;
+
+      float prevBodyRot = entity.yBodyRot;
+      float prevYaw = entity.yRot;
+      float prevPitch = entity.xRot;
+      float prevHeadYaw = entity.yHeadRot;
+      float prevHeadYawO = entity.yHeadRotO;
+
+      RenderSystem.pushMatrix();
+      RenderSystem.translatef((float)x, (float)y, 50.0F);
+      RenderSystem.scalef((float)scale, (float)scale, (float)-scale);
+
+      matrixStack.pushPose();
+      matrixStack.mulPose(pose);
+      EntityRendererManager manager = Minecraft.getInstance().getEntityRenderDispatcher();
+      if (cameraOverride != null) {
+         cameraOverride.conj();
+         manager.overrideCameraOrientation(cameraOverride);
+      }
+
+
+      manager.setRenderShadow(false);
+      IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+
+      RenderSystem.runAsFancy(() -> {
+         manager.render(entity, 0.0D, 0.5D, 0.0D, 0.0F, 1.0F, matrixStack, buffer, 15728880);
+      });
+
+      buffer.endBatch();
+      manager.setRenderShadow(true);
+      matrixStack.popPose();
+      RenderSystem.popMatrix();
+
+      entity.yBodyRot = prevBodyRot;
+      entity.yRot = prevYaw;
+      entity.xRot = prevPitch;
+      entity.yHeadRot = prevHeadYaw;
+      entity.yHeadRotO = prevHeadYawO;
+   }
+
+   // Conversion function:
+   public static Quaternion mojangQuaternionFromJoml(Quaternionf q) {
+      return new Quaternion(q.x, q.y, q.z, q.w);
+   }
+
 
    protected boolean isHovering(int p_195359_1_, int p_195359_2_, int p_195359_3_, int p_195359_4_, double p_195359_5_, double p_195359_7_) {
       return (!this.widthTooNarrow || !this.recipeBookComponent.isVisible()) && super.isHovering(p_195359_1_, p_195359_2_, p_195359_3_, p_195359_4_, p_195359_5_, p_195359_7_);

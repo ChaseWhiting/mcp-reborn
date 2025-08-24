@@ -1,10 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.renderer.entity.model.AbstractBipedModelMaker;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.entity.Mob;
 import net.minecraft.entity.monster.ColetteEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.warden.event.GameEventListenerRegistry;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -46,6 +47,10 @@ public interface IChunk extends IBlockReader, IStructureReader {
       }
 
       return null;
+   }
+
+   public default GameEventListenerRegistry getListenerRegistry(int n) {
+      return GameEventListenerRegistry.NOOP;
    }
 
    default int getHighestSectionPosition() {

@@ -136,6 +136,13 @@ public class LootPool {
          return this;
       }
 
+      public LootPool.Builder when(ILootCondition.IBuilder... builders) {
+         for (ILootCondition.IBuilder builder : builders) {
+            this.when(builder);
+         }
+         return this;
+      }
+
       public LootPool.Builder apply(ILootFunction.IBuilder p_212841_1_) {
          this.functions.add(p_212841_1_.build());
          return this;

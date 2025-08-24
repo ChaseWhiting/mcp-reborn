@@ -23,6 +23,6 @@ public class MooshroomRenderer extends MobRenderer<MooshroomEntity, CowModel<Moo
    }
 
    public ResourceLocation getTextureLocation(MooshroomEntity p_110775_1_) {
-      return TEXTURES.get(p_110775_1_.getMushroomType());
+      return TEXTURES.get(p_110775_1_.getMooshroomVariant());
    }
 }

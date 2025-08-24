@@ -1,6 +1,5 @@
 package net.minecraft.item;
 
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fallout.Addiction;
 import net.minecraft.potion.EffectInstance;
@@ -8,11 +7,9 @@ import net.minecraft.potion.Effects;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class Chem extends Item {
     public static Item.Properties properties = new Properties().tab(ItemGroup.TAB_FOOD);

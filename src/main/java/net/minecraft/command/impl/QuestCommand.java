@@ -15,9 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class QuestCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {

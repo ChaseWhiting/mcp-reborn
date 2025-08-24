@@ -58,6 +58,10 @@ public abstract class TicketManager {
       this.mainThreadExecutor = p_i50707_2_;
    }
 
+   public boolean inBlockTickingRange(long l) {
+      return this.ticketTracker.getLevel(l) < 33;
+   }
+
    protected void purgeStaleTickets() {
       ++this.ticketTickCounter;
       ObjectIterator<Entry<SortedArraySet<Ticket<?>>>> objectiterator = this.tickets.long2ObjectEntrySet().fastIterator();

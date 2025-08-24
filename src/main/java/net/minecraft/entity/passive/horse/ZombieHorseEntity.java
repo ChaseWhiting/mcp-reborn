@@ -55,32 +55,7 @@ public class ZombieHorseEntity extends AbstractHorseEntity {
    }
 
    public ActionResultType mobInteract(PlayerEntity p_230254_1_, Hand p_230254_2_) {
-      ItemStack itemstack = p_230254_1_.getItemInHand(p_230254_2_);
-      if (!this.isTamed()) {
-         return ActionResultType.PASS;
-      } else if (this.isBaby()) {
-         return super.mobInteract(p_230254_1_, p_230254_2_);
-      } else if (p_230254_1_.isSecondaryUseActive()) {
-         this.openInventory(p_230254_1_);
-         return ActionResultType.sidedSuccess(this.level.isClientSide);
-      } else if (this.isVehicle()) {
-         return super.mobInteract(p_230254_1_, p_230254_2_);
-      } else {
-         if (!itemstack.isEmpty()) {
-            if (itemstack.getItem() == Items.SADDLE && !this.isSaddled()) {
-               this.openInventory(p_230254_1_);
-               return ActionResultType.sidedSuccess(this.level.isClientSide);
-            }
-
-            ActionResultType actionresulttype = itemstack.interactLivingEntity(p_230254_1_, this, p_230254_2_);
-            if (actionresulttype.consumesAction()) {
-               return actionresulttype;
-            }
-         }
-
-         this.doPlayerRide(p_230254_1_);
-         return ActionResultType.sidedSuccess(this.level.isClientSide);
-      }
+      return this.defaultHorseRide(p_230254_1_, p_230254_2_);
    }
 
    protected void addBehaviourGoals() {

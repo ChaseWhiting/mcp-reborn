@@ -8,7 +8,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class EndNBT implements INBT {
    public static final INBTType<EndNBT> TYPE = new INBTType<EndNBT>() {
-      public EndNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) {
+      public EndNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) {
          p_225649_3_.accountBits(64L);
          return EndNBT.INSTANCE;
       }

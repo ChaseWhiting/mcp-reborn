@@ -2,7 +2,12 @@ package net.minecraft.block;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
+
+import com.google.common.base.Suppliers;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -12,6 +17,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.dyeable.IDyeSource;
+import net.minecraft.item.dyeable.IDyeableBlock;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
@@ -45,7 +52,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
 
-public class BedBlock extends HorizontalBlock implements ITileEntityProvider {
+public class BedBlock extends HorizontalBlock implements ITileEntityProvider, IDyeableBlock {
    public static final EnumProperty<BedPart> PART = BlockStateProperties.BED_PART;
    public static final BooleanProperty OCCUPIED = BlockStateProperties.OCCUPIED;
    protected static final VoxelShape BASE = Block.box(0.0D, 3.0D, 0.0D, 16.0D, 9.0D, 16.0D);
@@ -65,6 +72,73 @@ public class BedBlock extends HorizontalBlock implements ITileEntityProvider {
       this.registerDefaultState(this.stateDefinition.any().setValue(PART, BedPart.FOOT).setValue(OCCUPIED, Boolean.valueOf(false)));
    }
 
+   public Block getBlock() {
+      return this;
+   }
+
+   public String getBlockPrefix() {
+      return "bed";
+   }
+
+   @Override
+   public BlockState colouredState(World world, BlockPos pos, DyeColor newColor) {
+      BlockState currentState = world.getBlockState(pos);
+
+      Direction facing = currentState.getValue(FACING);
+      BedPart part = currentState.getValue(PART);
+      BlockPos otherPos = pos.relative(part == BedPart.FOOT ? facing : facing.getOpposite());
+
+      Block newBedBlock = this.getDyeConversion().get().get(newColor);
+      if (!(newBedBlock instanceof BedBlock)) {
+         return currentState;
+      }
+
+      BlockState newCurrent = newBedBlock.defaultBlockState()
+              .setValue(FACING, facing)
+              .setValue(PART, part)
+              .setValue(OCCUPIED, false);
+
+      BlockState newOther = newBedBlock.defaultBlockState()
+              .setValue(FACING, facing)
+              .setValue(PART, part == BedPart.HEAD ? BedPart.FOOT : BedPart.HEAD)
+              .setValue(OCCUPIED, false);
+
+      if (!world.isClientSide) {
+         int suppressFlags = 2 | 8 | 16 | 32;
+
+         world.setBlock(pos, Blocks.AIR.defaultBlockState(), suppressFlags);
+         world.setBlock(otherPos, Blocks.AIR.defaultBlockState(), suppressFlags);
+
+         world.setBlock(pos, newCurrent, 3);
+         world.setBlock(otherPos, newOther, 3);
+      }
+
+      return newCurrent;
+   }
+
+
+   @Override
+   public Supplier<BiMap<DyeColor, Block>> getDyeConversion() {
+      return Suppliers.memoize(() -> ImmutableBiMap.<DyeColor, Block>builder()
+              .put(DyeColor.WHITE, Blocks.WHITE_BED)
+              .put(DyeColor.ORANGE, Blocks.ORANGE_BED)
+              .put(DyeColor.MAGENTA, Blocks.MAGENTA_BED)
+              .put(DyeColor.LIGHT_BLUE, Blocks.LIGHT_BLUE_BED)
+              .put(DyeColor.YELLOW, Blocks.YELLOW_BED)
+              .put(DyeColor.LIME, Blocks.LIME_BED)
+              .put(DyeColor.PINK, Blocks.PINK_BED)
+              .put(DyeColor.GRAY, Blocks.GRAY_BED)
+              .put(DyeColor.LIGHT_GRAY, Blocks.LIGHT_GRAY_BED)
+              .put(DyeColor.CYAN, Blocks.CYAN_BED)
+              .put(DyeColor.PURPLE, Blocks.PURPLE_BED)
+              .put(DyeColor.BLUE, Blocks.BLUE_BED)
+              .put(DyeColor.BROWN, Blocks.BROWN_BED)
+              .put(DyeColor.GREEN, Blocks.GREEN_BED)
+              .put(DyeColor.RED, Blocks.RED_BED)
+              .put(DyeColor.BLACK, Blocks.BLACK_BED)
+              .build());
+   }
+
    @Nullable
    @OnlyIn(Dist.CLIENT)
    public static Direction getBedOrientation(IBlockReader p_220174_0_, BlockPos p_220174_1_) {
@@ -73,6 +147,13 @@ public class BedBlock extends HorizontalBlock implements ITileEntityProvider {
    }
 
    public ActionResultType use(BlockState p_225533_1_, World p_225533_2_, BlockPos p_225533_3_, PlayerEntity p_225533_4_, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
+      if (p_225533_4_.getItemInHand(p_225533_5_).getItem() instanceof IDyeSource) {
+         IDyeSource item = (IDyeSource) p_225533_4_.getItemInHand(p_225533_5_).get();
+         if (item.getDyeColor() != this.color) {
+            return super.use(p_225533_1_, p_225533_2_, p_225533_3_, p_225533_4_, p_225533_5_, p_225533_6_);
+         }
+      }
+
       if (p_225533_2_.isClientSide) {
          return ActionResultType.CONSUME;
       } else {
@@ -159,7 +240,7 @@ public class BedBlock extends HorizontalBlock implements ITileEntityProvider {
       return p_208070_0_ == BedPart.FOOT ? p_208070_1_ : p_208070_1_.getOpposite();
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       if (!p_176208_1_.isClientSide && p_176208_4_.isCreative()) {
          BedPart bedpart = p_176208_3_.getValue(PART);
          if (bedpart == BedPart.FOOT) {
@@ -172,7 +253,7 @@ public class BedBlock extends HorizontalBlock implements ITileEntityProvider {
          }
       }
 
-      super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
+      return super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
    }
 
    @Nullable
@@ -183,8 +264,8 @@ public class BedBlock extends HorizontalBlock implements ITileEntityProvider {
       return p_196258_1_.getLevel().getBlockState(blockpos1).canBeReplaced(p_196258_1_) ? this.defaultBlockState().setValue(FACING, direction) : null;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      Direction direction = getConnectedDirection(p_220053_1_).getOpposite();
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      Direction direction = getConnectedDirection(state).getOpposite();
       switch(direction) {
       case NORTH:
          return NORTH_SHAPE;
@@ -275,8 +356,8 @@ public class BedBlock extends HorizontalBlock implements ITileEntityProvider {
       return BlockRenderType.ENTITYBLOCK_ANIMATED;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, PART, OCCUPIED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, PART, OCCUPIED);
    }
 
    public TileEntity newBlockEntity(IBlockReader p_196283_1_) {

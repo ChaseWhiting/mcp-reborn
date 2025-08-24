@@ -48,6 +48,8 @@ public class DebugCommand {
    private static boolean debugBeeEnabled = false;
    private static boolean debugBrainAIEnabled = false;
    private static boolean debugRaccoonEnabled = false;
+   private static boolean debugNeighbourEnabled = false;
+
 
    private static boolean shouldRender = true;
    private static final Logger LOGGER = LogManager.getLogger();
@@ -101,6 +103,8 @@ public class DebugCommand {
 
                       .then(Commands.literal("raccoonRender").executes(DebugCommand::showRaccoonRender))
 
+                      .then(Commands.literal("neighbourRender").executes(DebugCommand::showNeighbourRender))
+
                       .then(Commands.literal("stopRendering").executes(DebugCommand::stopRender))
 
                       .then(Commands.literal("renderAll").executes(DebugCommand::renderAll))
@@ -137,12 +141,18 @@ public class DebugCommand {
       return debugRaccoonEnabled;
    }
 
+   public static boolean isDebugNeighbourUpdatesEnabled() {
+
+      return debugNeighbourEnabled;
+   }
+
    public static int stopRender(CommandContext<CommandSource> context) {
       debugRaidEnabled = false;
       debugBrainAIEnabled = false;
       debugBeeEnabled = false;
       debugGoalEnabled = false;
       debugPathEnabled = false;
+      debugNeighbourEnabled = false;
       shouldRender = false;
       return 1;
    }
@@ -153,6 +163,7 @@ public class DebugCommand {
       debugBeeEnabled = true;
       debugGoalEnabled = true;
       debugPathEnabled = true;
+      debugNeighbourEnabled = true;
       shouldRender = true;
       return 1;
    }
@@ -183,6 +194,11 @@ public class DebugCommand {
 
    public static  int showRaccoonRender(CommandContext<CommandSource> context) {
       debugRaccoonEnabled = !debugRaccoonEnabled;
+      return 1;
+   }
+
+   public static  int showNeighbourRender(CommandContext<CommandSource> context) {
+      debugNeighbourEnabled = !debugNeighbourEnabled;
       return 1;
    }
    public static int showBrainAIRender(CommandContext<CommandSource> context) {

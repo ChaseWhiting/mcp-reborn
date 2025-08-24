@@ -7,17 +7,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.BlockState;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
@@ -115,6 +108,10 @@ public abstract class StateHolder<O, S> {
             return s;
          }
       }
+   }
+
+   public <T extends Comparable<T>> T getValueOrElse(Property<T> property, T t) {
+      return (T)((Comparable) Objects.requireNonNullElse(this.getValue(property), t));
    }
 
    public void populateNeighbours(Map<Map<Property<?>, Comparable<?>>, S> p_235899_1_) {

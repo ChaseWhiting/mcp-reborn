@@ -4,12 +4,8 @@ import com.google.common.collect.Iterators;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
+
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -72,6 +68,14 @@ public enum Direction implements IStringSerializable {
       this.axis = p_i46016_8_;
       this.axisDirection = p_i46016_7_;
       this.normal = p_i46016_9_;
+   }
+
+   public static Collection<Direction> allShuffled(Random randomSource) {
+      return Util.shuffledCopy(Direction.values(), randomSource);
+   }
+
+   public static Stream<Direction> stream() {
+      return Stream.of(VALUES);
    }
 
    public static Direction[] orderedByNearest(Entity p_196054_0_) {
@@ -201,6 +205,11 @@ public enum Direction implements IStringSerializable {
    @OnlyIn(Dist.CLIENT)
    public Vector3f step() {
       return new Vector3f((float)this.getStepX(), (float)this.getStepY(), (float)this.getStepZ());
+   }
+
+   @OnlyIn(Dist.CLIENT)
+   public org.joml.Vector3f stepJOML() {
+      return new org.joml.Vector3f((float)this.getStepX(), (float)this.getStepY(), (float)this.getStepZ());
    }
 
    public String getName() {
@@ -447,6 +456,10 @@ public enum Direction implements IStringSerializable {
 
       public Stream<Direction> stream() {
          return Arrays.stream(this.faces);
+      }
+
+      public List<Direction> shuffledCopy(Random randomSource) {
+         return Util.shuffledCopy(this.faces, randomSource);
       }
    }
 }

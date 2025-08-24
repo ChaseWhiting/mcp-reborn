@@ -67,8 +67,8 @@ public class FourWayBlock extends Block implements IWaterLoggable {
       return !p_200123_1_.getValue(WATERLOGGED);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return this.shapeByIndex[this.getAABBIndex(p_220053_1_)];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return this.shapeByIndex[this.getAABBIndex(state)];
    }
 
    public VoxelShape getCollisionShape(BlockState p_220071_1_, IBlockReader p_220071_2_, BlockPos p_220071_3_, ISelectionContext p_220071_4_) {

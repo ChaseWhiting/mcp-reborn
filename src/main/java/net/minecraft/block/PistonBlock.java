@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathType;
@@ -46,9 +47,9 @@ public class PistonBlock extends DirectionalBlock {
       this.isSticky = p_i48281_1_;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      if (p_220053_1_.getValue(EXTENDED)) {
-         switch((Direction)p_220053_1_.getValue(FACING)) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      if (state.getValue(EXTENDED)) {
+         switch((Direction) state.getValue(FACING)) {
          case DOWN:
             return DOWN_AABB;
          case UP:
@@ -164,6 +165,7 @@ public class PistonBlock extends DirectionalBlock {
 
          p_189539_2_.setBlock(p_189539_3_, p_189539_1_.setValue(EXTENDED, Boolean.valueOf(true)), 67);
          p_189539_2_.playSound((PlayerEntity)null, p_189539_3_, SoundEvents.PISTON_EXTEND, SoundCategory.BLOCKS, 0.5F, p_189539_2_.random.nextFloat() * 0.25F + 0.6F);
+         p_189539_2_.gameEvent(null, GameEvent.PISTON_EXTEND, p_189539_3_);
       } else if (p_189539_4_ == 1 || p_189539_4_ == 2) {
          TileEntity tileentity1 = p_189539_2_.getBlockEntity(p_189539_3_.relative(direction));
          if (tileentity1 instanceof PistonTileEntity) {
@@ -202,6 +204,7 @@ public class PistonBlock extends DirectionalBlock {
          }
 
          p_189539_2_.playSound((PlayerEntity)null, p_189539_3_, SoundEvents.PISTON_CONTRACT, SoundCategory.BLOCKS, 0.5F, p_189539_2_.random.nextFloat() * 0.15F + 0.6F);
+         p_189539_2_.gameEvent(null, GameEvent.PISTON_CONTRACT, p_189539_3_);
       }
 
       return true;
@@ -276,6 +279,7 @@ public class PistonBlock extends DirectionalBlock {
             TileEntity tileentity = blockstate1.getBlock().isEntityBlock() ? p_176319_1_.getBlockEntity(blockpos2) : null;
             dropResources(blockstate1, p_176319_1_, blockpos2, tileentity);
             p_176319_1_.setBlock(blockpos2, Blocks.AIR.defaultBlockState(), 18);
+            p_176319_1_.gameEvent(GameEvent.BLOCK_DESTROY, blockpos2, GameEvent.Context.of(blockstate1));
             ablockstate[j++] = blockstate1;
          }
 
@@ -341,8 +345,8 @@ public class PistonBlock extends DirectionalBlock {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, EXTENDED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, EXTENDED);
    }
 
    public boolean useShapeForLightOcclusion(BlockState p_220074_1_) {

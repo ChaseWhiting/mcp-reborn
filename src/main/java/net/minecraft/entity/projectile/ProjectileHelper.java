@@ -36,6 +36,26 @@ public final class ProjectileHelper {
       return raytraceresult;
    }
 
+   public static RayTraceResult getHitResultOnViewVector(Entity entity, Predicate<Entity> predicate, double d) {
+      Vector3d vec3 = entity.getViewVector(0.0f).scale(d);
+      World level = entity.level();
+      Vector3d vec32 = entity.getEyePosition(1.0F);
+      return getHitResult(vec32, entity, predicate, vec3, level);
+   }
+
+   private static RayTraceResult getHitResult(Vector3d vec3, Entity entity, Predicate<Entity> predicate, Vector3d vec32, World level) {
+      EntityRayTraceResult entityHitResult;
+      Vector3d vec33 = vec3.add(vec32);
+      RayTraceResult hitResult = level.clip(new RayTraceContext(vec3, vec33, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, entity));
+      if (((RayTraceResult)hitResult).getType() != RayTraceResult.Type.MISS) {
+         vec33 = hitResult.getLocation();
+      }
+      if ((entityHitResult = getEntityHitResult(level, entity, vec3, vec33, entity.getBoundingBox().expandTowards(vec32).inflate(1.0), predicate)) != null) {
+         hitResult = entityHitResult;
+      }
+      return hitResult;
+   }
+
    @Nullable
    @OnlyIn(Dist.CLIENT)
    public static EntityRayTraceResult getEntityHitResult(Entity p_221273_0_, Vector3d p_221273_1_, Vector3d p_221273_2_, AxisAlignedBB p_221273_3_, Predicate<Entity> p_221273_4_, double p_221273_5_) {
@@ -57,17 +77,16 @@ public final class ProjectileHelper {
             Vector3d vector3d1 = optional.get();
             double d1 = p_221273_1_.distanceToSqr(vector3d1);
             if (d1 < d0 || d0 == 0.0D) {
-               if (entity1.getRootVehicle() == p_221273_0_.getRootVehicle()) {
-                  if (d0 == 0.0D) {
-                     entity = entity1;
-                     vector3d = vector3d1;
-                  }
-               } else {
+               boolean sameVehicle = entity1.getRootVehicle() == p_221273_0_.getRootVehicle();
+               boolean allowRiderInteraction = entity1.canRiderInteract();
+
+               if (!sameVehicle || allowRiderInteraction) {
                   entity = entity1;
                   vector3d = vector3d1;
                   d0 = d1;
                }
             }
+
          }
       }
 

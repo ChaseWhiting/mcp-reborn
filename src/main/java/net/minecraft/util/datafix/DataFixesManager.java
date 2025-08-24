@@ -356,6 +356,11 @@ public class DataFixesManager {
       datafixer.addFixer(new AddNewChoices(schema126, "Added Owl", TypeReferences.ENTITY));
       Schema schema127 = datafixer.addSchema(2571, V2571::new);
       datafixer.addFixer(new AddNewChoices(schema127, "Added new mobs", TypeReferences.ENTITY));
+
+      Schema schema128 = datafixer.addSchema(2572, SAME_NAMESPACED);
+      datafixer.addFixer(ItemRename.create(schema128, "Rename powered rail", createRenamer("minecraft:powered_rail", "minecraft:golden_powered_rail")));
+      datafixer.addFixer(BlockRename.create(schema128, "Rename powered rail", createRenamer("minecraft:powered_rail", "minecraft:golden_powered_rail")));
+
    }
 
    private static UnaryOperator<String> createRenamer(Map<String, String> p_241301_0_) {

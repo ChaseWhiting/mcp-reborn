@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.DryVegetationBlock;
 import net.minecraft.block.pattern.BlockStateMatcher;
 import net.minecraft.entity.Mob;
 import net.minecraft.util.math.BlockPos;
@@ -13,6 +14,9 @@ import net.minecraft.world.World;
 
 public class EatGrassGoal extends Goal {
    private static final Predicate<BlockState> IS_TALL_GRASS = BlockStateMatcher.forBlock(Blocks.GRASS);
+   private static final Predicate<BlockState> DRY_GRASS = (block) -> {
+      return block.getBlock() instanceof DryVegetationBlock;
+   };
    private final Mob mob;
    private final World level;
    private int eatAnimationTick;
@@ -28,7 +32,7 @@ public class EatGrassGoal extends Goal {
          return false;
       } else {
          BlockPos blockpos = this.mob.blockPosition();
-         if (IS_TALL_GRASS.test(this.level.getBlockState(blockpos))) {
+         if (IS_TALL_GRASS.test(this.level.getBlockState(blockpos)) || DRY_GRASS.test(this.level.getBlockState(blockpos))) {
             return true;
          } else {
             return this.level.getBlockState(blockpos.below()).is(Blocks.GRASS_BLOCK);
@@ -58,7 +62,7 @@ public class EatGrassGoal extends Goal {
       this.eatAnimationTick = Math.max(0, this.eatAnimationTick - 1);
       if (this.eatAnimationTick == 4) {
          BlockPos blockpos = this.mob.blockPosition();
-         if (IS_TALL_GRASS.test(this.level.getBlockState(blockpos))) {
+         if (IS_TALL_GRASS.test(this.level.getBlockState(blockpos)) || DRY_GRASS.test(this.level.getBlockState(blockpos))) {
             if (this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                this.level.destroyBlock(blockpos, false);
             }

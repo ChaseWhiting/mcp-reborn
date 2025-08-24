@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "half=lower,waterlogged=false": {
+      "model": "minecraft:block/cattails_bottom"
+    },
+    "half=lower,waterlogged=true": {
+      "model": "minecraft:block/cattails_bottom_waterlogged"
+    },
+    "half=upper": {
+      "model": "minecraft:block/cattails_top"
+    }
+  }
+}

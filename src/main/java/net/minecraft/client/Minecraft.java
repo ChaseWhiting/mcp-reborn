@@ -132,7 +132,6 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.EnderCrystalEntity;
@@ -143,7 +142,6 @@ import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.player.ChatVisibility;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
 import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuSecondFormEntity;
 import net.minecraft.item.Item;
@@ -152,7 +150,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SkullItem;
 import net.minecraft.item.SpawnEggItem;
-import net.minecraft.item.tool.terraria.AccessoryHolderItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -210,7 +207,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.listener.ChainedChunkStatusListener;
 import net.minecraft.world.chunk.listener.TrackingChunkStatusListener;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
@@ -239,6 +235,9 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
    private final DataFixer fixerUpper;
    private final VirtualScreen virtualScreen;
    private final MainWindow window;
+
+   public static final long tickTimer = 50L;
+
    private final Timer timer = new Timer(20.0F, 0L);
    private final Snooper snooper = new Snooper("client", this, Util.getMillis());
    private final RenderTypeBuffers renderBuffers;
@@ -345,6 +344,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
    private final TimeTracker fpsPieProfiler = new TimeTracker(Util.timeSource, () -> {
       return this.fpsPieRenderTicks;
    });
+
 
    public static boolean isDebugging() {
       return ManagementFactory.getRuntimeMXBean()
@@ -455,6 +455,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
       this.resourceManager.registerReloadListener(this.modelManager);
       this.itemRenderer = new ItemRenderer(this.textureManager, this.modelManager, this.itemColors);
       this.entityRenderDispatcher = new EntityRendererManager(this.textureManager, this.itemRenderer, this.resourceManager, this.font, this.options);
+      this.resourceManager.registerReloadListener(entityRenderDispatcher.entityModels);
       this.itemInHandRenderer = new FirstPersonRenderer(this);
       this.resourceManager.registerReloadListener(this.itemRenderer);
       this.renderBuffers = new RenderTypeBuffers();
@@ -715,7 +716,6 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
          Bootstrap.realStdoutPrintln("#@?@# Game crashed! Crash report could not be saved. #@?@#");
          System.exit(-2);
       }
-
    }
 
    public boolean isEnforceUnicode() {
@@ -754,7 +754,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
             if (blockstate.getRenderShape() == BlockRenderType.MODEL) {
                IBakedModel ibakedmodel1 = blockmodelshapes.getBlockModel(blockstate);
                if (ibakedmodel1 == ibakedmodel) {
-                  LOGGER.debug("Missing model for: {}", (Object)blockstate);
+                  LOGGER.error("Missing model for: {}", (Object)blockstate);
                   flag = true;
                }
             }
@@ -1567,7 +1567,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
             player.setSprinting(true);  // Set sprinting for visual effect (optional)
             player.setDeltaMovement(
                     lookDirection.x * dashSpeed,
-                    player.getDeltaMovement().y,  // Preserve existing Y movement for gravity/falling
+                    player.getDeltaMovement().y + 0.15,  // Preserve existing Y movement for gravity/falling
                     lookDirection.z * dashSpeed
             );
 
@@ -1996,6 +1996,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
             }
 
             Entity entity = ((EntityRayTraceResult)this.hitResult).getEntity();
+
             if (entity instanceof PaintingEntity) {
                itemstack = new ItemStack(Items.PAINTING);
             } else if (entity instanceof LeashKnotEntity) {
@@ -2045,6 +2046,10 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
                }
 
                itemstack = new ItemStack(spawneggitem);
+            }
+
+            if (!entity.getPickResult().isEmpty()) {
+               itemstack = entity.getPickResult();
             }
          }
 
@@ -2138,7 +2143,7 @@ public class Minecraft extends RecursiveEventLoop<Runnable> implements ISnooperI
             StringBuilder stringbuilder = new StringBuilder();
 
             for(String s1 : p_228009_2_.resourcePacks) {
-               if (stringbuilder.length() > 0) {
+               if (!stringbuilder.isEmpty()) {
                   stringbuilder.append(", ");
                }
 

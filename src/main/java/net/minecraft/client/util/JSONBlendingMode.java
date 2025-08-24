@@ -16,26 +16,26 @@ public class JSONBlendingMode {
    private final boolean separateBlend;
    private final boolean opaque;
 
-   private JSONBlendingMode(boolean p_i45084_1_, boolean p_i45084_2_, int p_i45084_3_, int p_i45084_4_, int p_i45084_5_, int p_i45084_6_, int p_i45084_7_) {
-      this.separateBlend = p_i45084_1_;
-      this.srcColorFactor = p_i45084_3_;
-      this.dstColorFactor = p_i45084_4_;
-      this.srcAlphaFactor = p_i45084_5_;
-      this.dstAlphaFactor = p_i45084_6_;
-      this.opaque = p_i45084_2_;
-      this.blendFunc = p_i45084_7_;
+   private JSONBlendingMode(boolean separateBlend, boolean isOpaque, int i, int i1, int i2, int i3, int i4) {
+      this.separateBlend = separateBlend;
+      this.srcColorFactor = i;
+      this.dstColorFactor = i1;
+      this.srcAlphaFactor = i2;
+      this.dstAlphaFactor = i3;
+      this.opaque = isOpaque;
+      this.blendFunc = i4;
    }
 
    public JSONBlendingMode() {
       this(false, true, 1, 0, 1, 0, 32774);
    }
 
-   public JSONBlendingMode(int p_i45085_1_, int p_i45085_2_, int p_i45085_3_) {
-      this(false, false, p_i45085_1_, p_i45085_2_, p_i45085_1_, p_i45085_2_, p_i45085_3_);
+   public JSONBlendingMode(int i, int i1, int i2) {
+      this(false, false, i, i1, i, i1, i2);
    }
 
-   public JSONBlendingMode(int p_i45086_1_, int p_i45086_2_, int p_i45086_3_, int p_i45086_4_, int p_i45086_5_) {
-      this(true, false, p_i45086_1_, p_i45086_2_, p_i45086_3_, p_i45086_4_, p_i45086_5_);
+   public JSONBlendingMode(int i, int i1, int i2, int i3, int i4) {
+      this(true, false, i, i1, i2, i3, i4);
    }
 
    public void apply() {
@@ -99,8 +99,8 @@ public class JSONBlendingMode {
       return this.opaque;
    }
 
-   public static int stringToBlendFunc(String p_148108_0_) {
-      String s = p_148108_0_.trim().toLowerCase(Locale.ROOT);
+   public static int stringToBlendFunc(String string) {
+      String s = string.trim().toLowerCase(Locale.ROOT);
       if ("add".equals(s)) {
          return 32774;
       } else if ("subtract".equals(s)) {
@@ -116,8 +116,8 @@ public class JSONBlendingMode {
       }
    }
 
-   public static int stringToBlendFactor(String p_148107_0_) {
-      String s = p_148107_0_.trim().toLowerCase(Locale.ROOT);
+   public static int stringToBlendFactor(String string) {
+      String s = string.trim().toLowerCase(Locale.ROOT);
       s = s.replaceAll("_", "");
       s = s.replaceAll("one", "1");
       s = s.replaceAll("zero", "0");

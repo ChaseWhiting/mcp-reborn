@@ -159,7 +159,7 @@ public class WalkNodeProcessor extends NodeProcessor {
       return i;
    }
 
-   private boolean isNeighborValid(PathPoint p_237235_1_, PathPoint p_237235_2_) {
+   boolean isNeighborValid(PathPoint p_237235_1_, PathPoint p_237235_2_) {
       return p_237235_1_ != null && !p_237235_1_.closed && (p_237235_1_.costMalus >= 0.0F || p_237235_2_.costMalus < 0.0F);
    }
 
@@ -204,8 +204,12 @@ public class WalkNodeProcessor extends NodeProcessor {
       return (double)blockpos.getY() + (voxelshape.isEmpty() ? 0.0D : voxelshape.max(Direction.Axis.Y));
    }
 
+   public boolean isAmphibious() {
+      return false;
+   }
+
    @Nullable
-   private PathPoint getLandNode(int p_186332_1_, int p_186332_2_, int p_186332_3_, int p_186332_4_, double p_186332_5_, Direction p_186332_7_, PathNodeType p_186332_8_) {
+   PathPoint getLandNode(int p_186332_1_, int p_186332_2_, int p_186332_3_, int p_186332_4_, double p_186332_5_, Direction p_186332_7_, PathNodeType p_186332_8_) {
       PathPoint pathpoint = null;
       BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
       double d0 = getFloorLevel(this.level, blockpos$mutable.set(p_186332_1_, p_186332_2_, p_186332_3_));
@@ -225,7 +229,7 @@ public class WalkNodeProcessor extends NodeProcessor {
             pathpoint = null;
          }
 
-         if (pathnodetype == PathNodeType.WALKABLE) {
+         if (pathnodetype == PathNodeType.WALKABLE || this.isAmphibious() && pathnodetype == PathNodeType.WATER) {
             return pathpoint;
          } else {
             if ((pathpoint == null || pathpoint.costMalus < 0.0F) && p_186332_4_ > 0 && pathnodetype != PathNodeType.FENCE && pathnodetype != PathNodeType.UNPASSABLE_RAIL && pathnodetype != PathNodeType.TRAPDOOR) {
@@ -237,6 +241,21 @@ public class WalkNodeProcessor extends NodeProcessor {
                   if (this.hasCollisions(axisalignedbb)) {
                      pathpoint = null;
                   }
+               }
+            }
+
+            if (!this.isAmphibious() && pathnodetype == PathNodeType.WATER && !this.canFloat()) {
+               if (this.getCachedBlockType(this.mob, p_186332_2_, p_186332_3_ - 1, p_186332_4_) != PathNodeType.WATER) {
+                  return pathpoint;
+               }
+               while (p_186332_2_ > 2) {
+                  if ((pathnodetype = this.getCachedBlockType(this.mob, p_186332_1_, --p_186332_2_, p_186332_3_)) == PathNodeType.WATER) {
+                     pathpoint = this.getNode(p_186332_1_, p_186332_2_, p_186332_3_);
+                     pathpoint.type = pathnodetype;
+                     pathpoint.costMalus = Math.max(pathpoint.costMalus, this.mob.getPathfindingMalus(pathnodetype));
+                     continue;
+                  }
+                  return pathpoint;
                }
             }
 
@@ -383,7 +402,7 @@ public class WalkNodeProcessor extends NodeProcessor {
       return this.getCachedBlockType(p_186329_1_, p_186329_2_.getX(), p_186329_2_.getY(), p_186329_2_.getZ());
    }
 
-   private PathNodeType getCachedBlockType(Mob p_237230_1_, int p_237230_2_, int p_237230_3_, int p_237230_4_) {
+   PathNodeType getCachedBlockType(Mob p_237230_1_, int p_237230_2_, int p_237230_3_, int p_237230_4_) {
       return this.pathTypesByPosCache.computeIfAbsent(BlockPos.asLong(p_237230_2_, p_237230_3_, p_237230_4_), (p_237229_5_) -> {
          return this.getBlockPathType(this.level, p_237230_2_, p_237230_3_, p_237230_4_, p_237230_1_, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors());
       });

@@ -9,33 +9,33 @@ public enum Mirror {
 
    private final Orientation rotation;
 
-   private Mirror(Orientation p_i241181_3_) {
-      this.rotation = p_i241181_3_;
+   private Mirror(Orientation orientation) {
+      this.rotation = orientation;
    }
 
-   public int mirror(int p_185802_1_, int p_185802_2_) {
-      int i = p_185802_2_ / 2;
-      int j = p_185802_1_ > i ? p_185802_1_ - p_185802_2_ : p_185802_1_;
+   public int mirror(int i1, int i2) {
+      int i = i2 / 2;
+      int j = i1 > i ? i1 - i2 : i1;
       switch(this) {
       case FRONT_BACK:
-         return (p_185802_2_ - j) % p_185802_2_;
+         return (i2 - j) % i2;
       case LEFT_RIGHT:
-         return (i - j + p_185802_2_) % p_185802_2_;
+         return (i - j + i2) % i2;
       default:
-         return p_185802_1_;
+         return i1;
       }
    }
 
-   public Rotation getRotation(Direction p_185800_1_) {
-      Direction.Axis direction$axis = p_185800_1_.getAxis();
+   public Rotation getRotation(Direction direction) {
+      Direction.Axis direction$axis = direction.getAxis();
       return (this != LEFT_RIGHT || direction$axis != Direction.Axis.Z) && (this != FRONT_BACK || direction$axis != Direction.Axis.X) ? Rotation.NONE : Rotation.CLOCKWISE_180;
    }
 
-   public Direction mirror(Direction p_185803_1_) {
-      if (this == FRONT_BACK && p_185803_1_.getAxis() == Direction.Axis.X) {
-         return p_185803_1_.getOpposite();
+   public Direction mirror(Direction direction) {
+      if (this == FRONT_BACK && direction.getAxis() == Direction.Axis.X) {
+         return direction.getOpposite();
       } else {
-         return this == LEFT_RIGHT && p_185803_1_.getAxis() == Direction.Axis.Z ? p_185803_1_.getOpposite() : p_185803_1_;
+         return this == LEFT_RIGHT && direction.getAxis() == Direction.Axis.Z ? direction.getOpposite() : direction;
       }
    }
 

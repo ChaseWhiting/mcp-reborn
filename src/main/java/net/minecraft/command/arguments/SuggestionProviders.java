@@ -11,6 +11,9 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.equipment.trim.ToolTrimPattern;
+import net.minecraft.item.equipment.trim.TrimMaterial;
+import net.minecraft.item.equipment.trim.TrimPattern;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.registry.Registry;
@@ -36,6 +39,24 @@ public class SuggestionProviders {
          return new TranslationTextComponent(Util.makeDescriptionId("entity", EntityType.getKey(p_201209_0_)));
       });
    });
+   public static final SuggestionProvider<CommandSource> TRIM_PATTERNS = register(new ResourceLocation("trim_patterns"), (context, suggestionBuilder) -> {
+      return ISuggestionProvider.suggestResource(Registry.TRIM_PATTERN.stream(), suggestionBuilder, TrimPattern::getKey, (pattern -> {
+         return new TranslationTextComponent(Util.makeDescriptionId("trim_pattern", TrimPattern.getKey(pattern)));
+      }));
+   });
+
+   public static final SuggestionProvider<CommandSource> TOOL_TRIM_PATTERNS = register(new ResourceLocation("tool_trim_patterns"), (context, suggestionBuilder) -> {
+      return ISuggestionProvider.suggestResource(Registry.TOOL_TRIM_PATTERN.stream(), suggestionBuilder, ToolTrimPattern::getKey, (pattern -> {
+         return new TranslationTextComponent(Util.makeDescriptionId("tool_trim_pattern", ToolTrimPattern.getKey(pattern)));
+      }));
+   });
+   public static final SuggestionProvider<CommandSource> TRIM_MATERIALS = register(new ResourceLocation("trim_materials"), (context, suggestionBuilder) -> {
+      return ISuggestionProvider.suggestResource(Registry.TRIM_MATERIAL.stream(), suggestionBuilder, TrimMaterial::getKey, (material -> {
+         return new TranslationTextComponent(Util.makeDescriptionId("trim_material", TrimMaterial.getKey(material)));
+      }));
+   });
+
+
    public static final SuggestionProvider<CommandSource> ALL_ENTITIES = register(new ResourceLocation("all_entities"), (location, provider) -> {
       return ISuggestionProvider.suggestResource(Registry.ENTITY_TYPE.stream(), provider, EntityType::getKey, (entity) -> {
          return new TranslationTextComponent(Util.makeDescriptionId("entity", EntityType.getKey(entity)));

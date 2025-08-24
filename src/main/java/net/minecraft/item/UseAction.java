@@ -7,5 +7,8 @@ public enum UseAction {
    BLOCK,
    BOW,
    SPEAR,
-   CROSSBOW;
+   CROSSBOW,
+   TOOT_HORN,
+   SPYGLASS,
+   BRUSH;
 }

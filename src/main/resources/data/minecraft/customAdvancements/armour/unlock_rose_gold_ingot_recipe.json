@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "minecraft:rose_gold_ingot_raw",
+      "minecraft:rose_gold_ingot_raw_blasting"
+    ]
+  },
+  "criteria": {
+    "has_raw_rose_gold": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:raw_rose_gold"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_raw_rose_gold"
+    ]
+  ]
+}

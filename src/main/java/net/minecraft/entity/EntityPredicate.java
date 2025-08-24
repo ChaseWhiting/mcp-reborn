@@ -1,7 +1,5 @@
 package net.minecraft.entity;
 
-import net.minecraft.potion.Effects;
-
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 

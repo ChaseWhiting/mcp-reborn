@@ -1,14 +1,8 @@
 package net.minecraft.util;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
 
 public class RandomValueRange {
       private final float min;

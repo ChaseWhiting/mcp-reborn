@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
@@ -37,6 +38,8 @@ public class NeighborsUpdateDebugRenderer implements DebugRenderer.IDebugRendere
 
    public void render(MatrixStack p_225619_1_, IRenderTypeBuffer p_225619_2_, double p_225619_3_, double p_225619_5_, double p_225619_7_) {
       long i = this.minecraft.level.getGameTime();
+
+
       int j = 200;
       double d0 = 0.0025D;
       Set<BlockPos> set = Sets.newHashSet();
@@ -55,10 +58,13 @@ public class NeighborsUpdateDebugRenderer implements DebugRenderer.IDebugRendere
             for(Entry<BlockPos, Integer> entry1 : map1.entrySet()) {
                BlockPos blockpos = entry1.getKey();
                Integer integer = entry1.getValue();
-               if (set.add(blockpos)) {
-                  AxisAlignedBB axisalignedbb = (new AxisAlignedBB(BlockPos.ZERO)).inflate(0.002D).deflate(0.0025D * (double)k).move((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ()).move(-p_225619_3_, -p_225619_5_, -p_225619_7_);
-                  WorldRenderer.renderLineBox(p_225619_1_, ivertexbuilder, axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.maxY, axisalignedbb.maxZ, 1.0F, 1.0F, 1.0F, 1.0F);
-                  map.put(blockpos, integer);
+
+               if (minecraft.player.blockPosition().closerThan(blockpos, 45.0D)) {
+                  if (set.add(blockpos)) {
+                     AxisAlignedBB axisalignedbb = (new AxisAlignedBB(BlockPos.ZERO)).inflate(0.002D).deflate(0.0025D * (double)k).move((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ()).move(-p_225619_3_, -p_225619_5_, -p_225619_7_);
+                     WorldRenderer.renderLineBox(p_225619_1_, ivertexbuilder, axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.maxY, axisalignedbb.maxZ, 1.0F, 1.0F, 1.0F, 1.0F);
+                     map.put(blockpos, integer);
+                  }
                }
             }
          }
@@ -67,8 +73,12 @@ public class NeighborsUpdateDebugRenderer implements DebugRenderer.IDebugRendere
       for(Entry<BlockPos, Integer> entry2 : map.entrySet()) {
          BlockPos blockpos1 = entry2.getKey();
          Integer integer1 = entry2.getValue();
-         DebugRenderer.renderFloatingText(String.valueOf((Object)integer1), blockpos1.getX(), blockpos1.getY(), blockpos1.getZ(), -1);
+          if (minecraft.player.blockPosition().closerThan(blockpos1, 45.0D)) {
+              DebugRenderer.renderFloatingText(String.valueOf((Object)integer1), blockpos1.getX(), blockpos1.getY(), blockpos1.getZ(), -1);
+          }
       }
 
    }
+
+
 }

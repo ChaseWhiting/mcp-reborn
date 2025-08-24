@@ -29,6 +29,9 @@ public class SCustomPayloadPlayPacket implements IPacket<IClientPlayNetHandler> 
 
    public static final ResourceLocation DEBUG_RACCOON = new ResourceLocation("debug/raccoon");
    public static final ResourceLocation DEBUG_PATH = new ResourceLocation("debug/path");
+
+   //public static final ResourceLocation
+
    private ResourceLocation identifier;
    private PacketBuffer data;
 

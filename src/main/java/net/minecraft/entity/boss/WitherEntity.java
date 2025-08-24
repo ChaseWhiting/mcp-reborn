@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
@@ -32,7 +31,6 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;

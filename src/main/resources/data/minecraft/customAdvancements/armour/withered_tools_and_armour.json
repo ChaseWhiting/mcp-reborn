@@ -1,0 +1,50 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "minecraft:wither_helmet",
+      "minecraft:wither_chestplate",
+      "minecraft:wither_leggings",
+      "minecraft:wither_boots",
+      "minecraft:wither_cutlass",
+      "minecraft:withered_bones_coal",
+      "minecraft:fortified_bones_coal",
+      "minecraft:fortified_bones_from_ribcage"
+    ]
+  },
+  "criteria": {
+    "has_ribcage": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:wither_skeleton_ribcage"
+          }
+        ]
+      }
+    },
+    "has_wither_bone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:wither_bone"
+          }
+        ]
+      }
+    },
+    "has_fortified_wither_bone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:fortified_wither_bone"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    ["has_ribcage", "has_wither_bone", "has_fortified_wither_bone"]
+  ]
+}

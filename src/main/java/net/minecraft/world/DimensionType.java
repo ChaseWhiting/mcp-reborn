@@ -14,6 +14,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.MutableRegistry;
@@ -78,6 +79,14 @@ public class DimensionType {
    private final ResourceLocation effectsLocation;
    private final float ambientLight;
    private final transient float[] brightnessRamp;
+
+   public static final int BITS_FOR_Y = BlockPos.PACKED_Y_LENGTH;
+   public static final int MIN_HEIGHT = 16;
+   public static final int Y_SIZE = (1 << BITS_FOR_Y) - 32;
+   public static final int MAX_Y = (Y_SIZE >> 1) - 1;
+   public static final int MIN_Y = MAX_Y - Y_SIZE + 1;
+   public static final int WAY_ABOVE_MAX_Y = MAX_Y << 4;
+   public static final int WAY_BELOW_MIN_Y = MIN_Y << 4;
 
    protected DimensionType(OptionalLong p_i241972_1_, boolean p_i241972_2_, boolean p_i241972_3_, boolean p_i241972_4_, boolean p_i241972_5_, double p_i241972_6_, boolean p_i241972_8_, boolean p_i241972_9_, boolean p_i241972_10_, boolean p_i241972_11_, int p_i241972_12_, ResourceLocation p_i241972_13_, ResourceLocation p_i241972_14_, float p_i241972_15_) {
       this(p_i241972_1_, p_i241972_2_, p_i241972_3_, p_i241972_4_, p_i241972_5_, p_i241972_6_, false, p_i241972_8_, p_i241972_9_, p_i241972_10_, p_i241972_11_, p_i241972_12_, FuzzedBiomeMagnifier.INSTANCE, p_i241972_13_, p_i241972_14_, p_i241972_15_);

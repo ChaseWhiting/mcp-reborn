@@ -34,6 +34,10 @@ public class ChunkPos {
       return (long)p_77272_0_ & 4294967295L | ((long)p_77272_1_ & 4294967295L) << 32;
    }
 
+   public static long asLong(BlockPos blockPos) {
+      return ChunkPos.asLong(SectionPos.blockToSectionCoord(blockPos.getX()), SectionPos.blockToSectionCoord(blockPos.getZ()));
+   }
+
    public static int getX(long p_212578_0_) {
       return (int)(p_212578_0_ & 4294967295L);
    }

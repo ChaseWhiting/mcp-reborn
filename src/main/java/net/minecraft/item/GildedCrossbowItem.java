@@ -2,7 +2,6 @@ package net.minecraft.item;
 
 import com.google.common.collect.Lists;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;

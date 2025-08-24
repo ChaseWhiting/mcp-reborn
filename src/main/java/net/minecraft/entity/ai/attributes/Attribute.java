@@ -5,9 +5,9 @@ public class Attribute {
    private boolean syncable;
    private final String descriptionId;
 
-   protected Attribute(String p_i231500_1_, double p_i231500_2_) {
-      this.defaultValue = p_i231500_2_;
-      this.descriptionId = p_i231500_1_;
+   protected Attribute(String name, double defaultValue) {
+      this.defaultValue = defaultValue;
+      this.descriptionId = name;
    }
 
    public double getDefaultValue() {

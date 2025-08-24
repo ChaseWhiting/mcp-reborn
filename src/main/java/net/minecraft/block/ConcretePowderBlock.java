@@ -2,6 +2,7 @@ package net.minecraft.block;
 
 import net.minecraft.entity.item.FallingBlockEntity;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.dyeable.IDyeableBlock;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -11,7 +12,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ConcretePowderBlock extends FallingBlock {
+public class ConcretePowderBlock extends FallingBlock implements IDyeableBlock {
    private final BlockState concrete;
 
    public ConcretePowderBlock(Block p_i48423_1_, AbstractBlock.Properties p_i48423_2_) {
@@ -67,5 +68,15 @@ public class ConcretePowderBlock extends FallingBlock {
    @OnlyIn(Dist.CLIENT)
    public int getDustColor(BlockState p_189876_1_, IBlockReader p_189876_2_, BlockPos p_189876_3_) {
       return p_189876_1_.getMapColor(p_189876_2_, p_189876_3_).col;
+   }
+
+   @Override
+   public Block getBlock() {
+      return this;
+   }
+
+   @Override
+   public String getBlockPrefix() {
+      return "concrete_powder";
    }
 }

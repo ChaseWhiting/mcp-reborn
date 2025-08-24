@@ -25,13 +25,13 @@ public class StraightTrunkPlacer extends AbstractTrunkPlacer {
       return TrunkPlacerType.STRAIGHT_TRUNK_PLACER;
    }
 
-   public List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader p_230382_1_, Random p_230382_2_, int p_230382_3_, BlockPos p_230382_4_, Set<BlockPos> p_230382_5_, MutableBoundingBox p_230382_6_, BaseTreeFeatureConfig p_230382_7_) {
-      setDirtAt(p_230382_1_, p_230382_4_.below());
+   public List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader worldReader, Random random, int number, BlockPos position, Set<BlockPos> blockSet, MutableBoundingBox boundingBox, BaseTreeFeatureConfig configuration) {
+      setDirtAt(worldReader, position.below());
 
-      for(int i = 0; i < p_230382_3_; ++i) {
-         placeLog(p_230382_1_, p_230382_2_, p_230382_4_.above(i), p_230382_5_, p_230382_6_, p_230382_7_);
+      for(int i = 0; i < number; ++i) {
+         placeLog(worldReader, random, position.above(i), blockSet, boundingBox, configuration);
       }
 
-      return ImmutableList.of(new FoliagePlacer.Foliage(p_230382_4_.above(p_230382_3_), 0, false));
+      return ImmutableList.of(new FoliagePlacer.Foliage(position.above(number), 0, false));
    }
 }

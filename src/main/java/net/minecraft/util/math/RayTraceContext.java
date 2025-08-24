@@ -14,6 +14,11 @@ import net.minecraft.world.IBlockReader;
 public class RayTraceContext {
    private final Vector3d from;
    private final Vector3d to;
+
+   public BlockMode getBlock() {
+      return block;
+   }
+
    private final RayTraceContext.BlockMode block;
    private final RayTraceContext.FluidMode fluid;
    private final ISelectionContext collisionContext;

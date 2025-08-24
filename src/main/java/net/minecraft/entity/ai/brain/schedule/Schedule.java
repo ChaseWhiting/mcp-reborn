@@ -13,6 +13,9 @@ public class Schedule {
    public static final Schedule SIMPLE = register("simple").changeActivityAt(5000, Activity.WORK).changeActivityAt(11000, Activity.REST).build();
    public static final Schedule VILLAGER_BABY = register("villager_baby").changeActivityAt(10, Activity.IDLE).changeActivityAt(3000, Activity.PLAY).changeActivityAt(6000, Activity.IDLE).changeActivityAt(10000, Activity.PLAY).changeActivityAt(12000, Activity.REST).build();
    public static final Schedule VILLAGER_DEFAULT = register("villager_default").changeActivityAt(10, Activity.IDLE).changeActivityAt(2000, Activity.WORK).changeActivityAt(9000, Activity.MEET).changeActivityAt(11000, Activity.IDLE).changeActivityAt(12000, Activity.REST).build();
+
+   public static final Schedule PIGLIN = register("piglin_default").changeActivityAt(0, Activity.IDLE).changeActivityAt(3000, Activity.MEET).changeActivityAt(10000, Activity.IDLE).build();
+
    private final Map<Activity, ScheduleDuties> timelines = Maps.newHashMap();
 
    protected static ScheduleBuilder register(String p_221380_0_) {

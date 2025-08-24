@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "item/bone"
+        "layer0": "item/withered_bone"
     }
 }

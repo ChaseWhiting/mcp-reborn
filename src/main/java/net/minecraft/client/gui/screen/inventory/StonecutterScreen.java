@@ -50,8 +50,8 @@ public class StonecutterScreen extends ContainerScreen<StonecutterContainer> {
       this.renderRecipes(l, i1, j1);
    }
 
-   protected void renderTooltip(MatrixStack p_230459_1_, int p_230459_2_, int p_230459_3_) {
-      super.renderTooltip(p_230459_1_, p_230459_2_, p_230459_3_);
+   protected void renderTooltip(MatrixStack matrix, int n, int n2) {
+      super.renderTooltip(matrix, n, n2);
       if (this.displayRecipes) {
          int i = this.leftPos + 52;
          int j = this.topPos + 14;
@@ -62,8 +62,8 @@ public class StonecutterScreen extends ContainerScreen<StonecutterContainer> {
             int i1 = l - this.startIndex;
             int j1 = i + i1 % 4 * 16;
             int k1 = j + i1 / 4 * 18 + 2;
-            if (p_230459_2_ >= j1 && p_230459_2_ < j1 + 16 && p_230459_3_ >= k1 && p_230459_3_ < k1 + 18) {
-               this.renderTooltip(p_230459_1_, list.get(l).getResultItem(), p_230459_2_, p_230459_3_);
+            if (n >= j1 && n < j1 + 16 && n2 >= k1 && n2 < k1 + 18) {
+               this.renderTooltip(matrix, list.get(l).getResultItem(), n, n2);
             }
          }
       }

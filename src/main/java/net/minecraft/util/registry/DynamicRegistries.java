@@ -2,10 +2,7 @@ package net.minecraft.util.registry;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.Lifecycle;
+import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +50,10 @@ public abstract class DynamicRegistries {
       });
       return dynamicregistries$impl;
    });
+
+   public <V> RegistryOps<V> createSerializationContext(DynamicOps<V> dynamicOps) {
+      return RegistryOps.create(dynamicOps, this);
+   }
 
    public abstract <E> Optional<MutableRegistry<E>> registry(RegistryKey<? extends Registry<E>> p_230521_1_);
 

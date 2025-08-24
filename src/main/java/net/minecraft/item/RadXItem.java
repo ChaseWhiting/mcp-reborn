@@ -2,8 +2,6 @@ package net.minecraft.item;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fallout.Addiction;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 

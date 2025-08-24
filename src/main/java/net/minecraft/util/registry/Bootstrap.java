@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import net.minecraft.block.Block;
 import net.minecraft.block.ComposterBlock;
+import net.minecraft.block.DryVegetationBlock;
 import net.minecraft.block.FireBlock;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.ArgumentTypes;
@@ -16,6 +17,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraft.item.Item;
+import net.minecraft.item.equipment.trim.ToolTrimPatterns;
+import net.minecraft.item.equipment.trim.TrimMaterials;
+import net.minecraft.item.equipment.trim.TrimPatterns;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.PotionBrewing;
 import net.minecraft.server.DebugLoggingPrintStream;
@@ -48,6 +52,12 @@ public class Bootstrap {
                IDispenseItemBehavior.bootStrap();
                ArgumentTypes.bootStrap();
                TagRegistryManager.bootStrap();
+               DryVegetationBlock.bootstrap();
+
+               TrimMaterials.bootstrap();
+               TrimPatterns.bootstrap();
+               ToolTrimPatterns.bootstrap();
+
                wrapStreams();
             }
          }
@@ -85,6 +95,9 @@ public class Bootstrap {
       checkTranslations(Registry.ITEM, Item::getDescriptionId, set);
       checkTranslations(Registry.ENCHANTMENT, Enchantment::getDescriptionId, set);
       checkTranslations(Registry.BLOCK, Block::getDescriptionId, set);
+      checkTranslations(Registry.TRIM_MATERIAL, trim -> trim.getDescription().getString(), set);
+      checkTranslations(Registry.TRIM_PATTERN, pattern -> pattern.getDescription().getString(), set);
+
       checkTranslations(Registry.CUSTOM_STAT, (p_218820_0_) -> {
          return "stat." + p_218820_0_.toString().replace(':', '.');
       }, set);

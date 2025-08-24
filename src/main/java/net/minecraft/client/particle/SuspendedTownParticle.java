@@ -61,6 +61,24 @@ public class SuspendedTownParticle extends SpriteTexturedParticle {
       }
    }
 
+   public static class EggCrackProvider
+           implements IParticleFactory<BasicParticleType> {
+      private final IAnimatedSprite sprite;
+
+      public EggCrackProvider(IAnimatedSprite spriteSet) {
+         this.sprite = spriteSet;
+      }
+
+      @Override
+      public Particle createParticle(BasicParticleType simpleParticleType, ClientWorld clientLevel, double d, double d2, double d3, double d4, double d5, double d6) {
+         SuspendedTownParticle suspendedTownParticle = new SuspendedTownParticle(clientLevel, d, d2, d3, d4, d5, d6);
+         suspendedTownParticle.pickSprite(this.sprite);
+         suspendedTownParticle.setColor(1.0f, 1.0f, 1.0f);
+         return suspendedTownParticle;
+      }
+
+   }
+
    @OnlyIn(Dist.CLIENT)
    public static class DolphinSpeedFactory implements IParticleFactory<BasicParticleType> {
       private final IAnimatedSprite sprite;

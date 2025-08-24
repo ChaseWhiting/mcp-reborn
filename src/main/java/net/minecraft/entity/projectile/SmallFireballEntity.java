@@ -18,8 +18,8 @@ public class SmallFireballEntity extends AbstractFireballEntity {
       super(p_i50160_1_, p_i50160_2_);
    }
 
-   public SmallFireballEntity(World p_i1771_1_, LivingEntity p_i1771_2_, double p_i1771_3_, double p_i1771_5_, double p_i1771_7_) {
-      super(EntityType.SMALL_FIREBALL, p_i1771_2_, p_i1771_3_, p_i1771_5_, p_i1771_7_, p_i1771_1_);
+   public SmallFireballEntity(World p_i1771_1_, LivingEntity p_i1771_2_, double x, double y, double z) {
+      super(EntityType.SMALL_FIREBALL, p_i1771_2_, x, y, z, p_i1771_1_);
    }
 
    public SmallFireballEntity(World p_i1772_1_, double p_i1772_2_, double p_i1772_4_, double p_i1772_6_, double p_i1772_8_, double p_i1772_10_, double p_i1772_12_) {

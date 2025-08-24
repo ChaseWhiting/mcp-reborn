@@ -11,7 +11,7 @@ public class HugeExplosionParticle extends MetaParticle {
    private int life;
    private final int lifeTime = 8;
 
-   private HugeExplosionParticle(ClientWorld p_i232398_1_, double p_i232398_2_, double p_i232398_4_, double p_i232398_6_) {
+   public HugeExplosionParticle(ClientWorld p_i232398_1_, double p_i232398_2_, double p_i232398_4_, double p_i232398_6_) {
       super(p_i232398_1_, p_i232398_2_, p_i232398_4_, p_i232398_6_, 0.0D, 0.0D, 0.0D);
    }
 

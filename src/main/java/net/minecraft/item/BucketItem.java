@@ -9,6 +9,7 @@ import net.minecraft.block.ILiquidContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -45,8 +46,16 @@ public class BucketItem extends Item {
       ItemStack itemstack = player.getItemInHand(hand);
       RayTraceResult raytraceresult = getPlayerPOVHitResult(world, player, this.content == Fluids.EMPTY ? RayTraceContext.FluidMode.SOURCE_ONLY : RayTraceContext.FluidMode.NONE);
       if (raytraceresult.getType() == RayTraceResult.Type.MISS) {
+         if (itemstack.getOrCreateTag().contains("FoodData")) {
+            return super.use(world, player, hand);
+         }
+
          return ActionResult.pass(itemstack);
       } else if (raytraceresult.getType() != RayTraceResult.Type.BLOCK) {
+         if (itemstack.getOrCreateTag().contains("FoodData")) {
+            return super.use(world, player, hand);
+         }
+
          return ActionResult.pass(itemstack);
       } else {
          BlockRayTraceResult blockraytraceresult = (BlockRayTraceResult)raytraceresult;
@@ -62,6 +71,7 @@ public class BucketItem extends Item {
                      player.awardStat(Stats.ITEM_USED.get(this));
                      player.playSound(fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
                      ItemStack itemstack1 = DrinkHelper.createFilledResult(itemstack, player, new ItemStack(fluid.getBucket()));
+                     world.gameEvent(player, GameEvent.FLUID_PICKUP, blockpos);
                      if (!world.isClientSide) {
                         CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayerEntity) player, new ItemStack(fluid.getBucket()));
                      }
@@ -75,7 +85,7 @@ public class BucketItem extends Item {
                BlockState blockstate = world.getBlockState(blockpos);
                BlockPos blockpos2 = blockstate.getBlock() instanceof ILiquidContainer && this.content == Fluids.WATER ? blockpos : blockpos1;
                if (this.emptyBucket(player, world, blockpos2, blockraytraceresult)) {
-                  this.checkExtraContent(world, itemstack, blockpos2);
+                  this.checkExtraContent(player, world, itemstack, blockpos2);
                   if (player instanceof ServerPlayerEntity) {
                      CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayerEntity) player, blockpos2, itemstack);
                   }
@@ -96,7 +106,7 @@ public class BucketItem extends Item {
       return !p_203790_2_.abilities.instabuild ? new ItemStack(Items.BUCKET) : p_203790_1_;
    }
 
-   public void checkExtraContent(World p_203792_1_, ItemStack p_203792_2_, BlockPos p_203792_3_) {
+   public void checkExtraContent(@Nullable PlayerEntity player, World p_203792_1_, ItemStack p_203792_2_, BlockPos p_203792_3_) {
    }
 
    public boolean emptyBucket(@Nullable PlayerEntity p_180616_1_, World p_180616_2_, BlockPos p_180616_3_, @Nullable BlockRayTraceResult p_180616_4_) {
@@ -143,5 +153,6 @@ public class BucketItem extends Item {
    protected void playEmptySound(@Nullable PlayerEntity p_203791_1_, IWorld p_203791_2_, BlockPos p_203791_3_) {
       SoundEvent soundevent = this.content.is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
       p_203791_2_.playSound(p_203791_1_, p_203791_3_, soundevent, SoundCategory.BLOCKS, 1.0F, 1.0F);
+      p_203791_2_.gameEvent(p_203791_1_, GameEvent.FLUID_PLACE, p_203791_3_);
    }
 }

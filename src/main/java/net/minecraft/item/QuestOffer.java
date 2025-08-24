@@ -3,7 +3,6 @@ package net.minecraft.item;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.villager.data.quest.Quest;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.StringTextComponent;
 
 public class QuestOffer {
    private Quest quest;

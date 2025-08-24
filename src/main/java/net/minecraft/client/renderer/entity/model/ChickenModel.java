@@ -9,8 +9,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ChickenModel<T extends Entity> extends AgeableModel<T> {
-   private final ModelRenderer head;
-   private final ModelRenderer body;
+   public final ModelRenderer head;
+   public final ModelRenderer body;
    private final ModelRenderer leg0;
    private final ModelRenderer leg1;
    private final ModelRenderer wing0;

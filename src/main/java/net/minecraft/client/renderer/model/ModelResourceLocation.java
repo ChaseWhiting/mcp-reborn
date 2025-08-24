@@ -22,8 +22,22 @@ public class ModelResourceLocation extends ResourceLocation {
       this(p_i46080_1_.toString(), p_i46080_2_);
    }
 
+   public ModelResourceLocation(String string, String string2, String string3) {
+      super(string, string2);
+      this.variant = ModelResourceLocation.lowercaseVariant(string3);
+   }
+
+   private static String lowercaseVariant(String string) {
+      return string.toLowerCase(Locale.ROOT);
+   }
+
+
    public ModelResourceLocation(String p_i46081_1_, String p_i46081_2_) {
       this(decompose(p_i46081_1_ + '#' + p_i46081_2_));
+   }
+
+   public static ModelResourceLocation vanilla(String string, String string2) {
+      return new ModelResourceLocation("minecraft", string, string2);
    }
 
    protected static String[] decompose(String p_177517_0_) {

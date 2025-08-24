@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.BannerTileEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -57,7 +58,7 @@ public class BannerDuplicateRecipe extends SpecialRecipe {
       return itemstack != null && itemstack1 != null;
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       for(int i = 0; i < p_77572_1_.getContainerSize(); ++i) {
          ItemStack itemstack = p_77572_1_.getItem(i);
          if (!itemstack.isEmpty()) {

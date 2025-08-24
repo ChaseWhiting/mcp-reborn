@@ -25,7 +25,7 @@ public class SnowyDirtBlock extends Block {
       return this.defaultBlockState().setValue(SNOWY, Boolean.valueOf(blockstate.is(Blocks.SNOW_BLOCK) || blockstate.is(Blocks.SNOW)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(SNOWY);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(SNOWY);
    }
 }

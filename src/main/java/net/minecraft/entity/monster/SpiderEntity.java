@@ -36,6 +36,10 @@ public class SpiderEntity extends Monster {
 
    public SpiderEntity(EntityType<? extends SpiderEntity> p_i48550_1_, World p_i48550_2_) {
       super(p_i48550_1_, p_i48550_2_);
+
+      if (veryHardmode()) {
+         this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(24D);
+      }
    }
 
    protected void registerGoals() {

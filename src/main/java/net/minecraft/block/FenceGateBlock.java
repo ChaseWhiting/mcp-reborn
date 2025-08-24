@@ -1,6 +1,7 @@
 package net.minecraft.block;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.BooleanProperty;
@@ -39,11 +40,11 @@ public class FenceGateBlock extends HorizontalBlock {
       this.registerDefaultState(this.stateDefinition.any().setValue(OPEN, Boolean.valueOf(false)).setValue(POWERED, Boolean.valueOf(false)).setValue(IN_WALL, Boolean.valueOf(false)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      if (p_220053_1_.getValue(IN_WALL)) {
-         return p_220053_1_.getValue(FACING).getAxis() == Direction.Axis.X ? X_SHAPE_LOW : Z_SHAPE_LOW;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      if (state.getValue(IN_WALL)) {
+         return state.getValue(FACING).getAxis() == Direction.Axis.X ? X_SHAPE_LOW : Z_SHAPE_LOW;
       } else {
-         return p_220053_1_.getValue(FACING).getAxis() == Direction.Axis.X ? X_SHAPE : Z_SHAPE;
+         return state.getValue(FACING).getAxis() == Direction.Axis.X ? X_SHAPE : Z_SHAPE;
       }
    }
 
@@ -115,6 +116,7 @@ public class FenceGateBlock extends HorizontalBlock {
       }
 
       p_225533_2_.levelEvent(p_225533_4_, p_225533_1_.getValue(OPEN) ? 1008 : 1014, p_225533_3_, 0);
+      p_225533_2_.gameEvent(p_225533_4_, p_225533_1_.getValue(OPEN) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, p_225533_3_);
       return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);
    }
 
@@ -125,14 +127,15 @@ public class FenceGateBlock extends HorizontalBlock {
             p_220069_2_.setBlock(p_220069_3_, p_220069_1_.setValue(POWERED, Boolean.valueOf(flag)).setValue(OPEN, Boolean.valueOf(flag)), 2);
             if (p_220069_1_.getValue(OPEN) != flag) {
                p_220069_2_.levelEvent((PlayerEntity)null, flag ? 1008 : 1014, p_220069_3_, 0);
+               p_220069_2_.gameEvent(null, flag ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, p_220069_3_);
             }
          }
 
       }
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, OPEN, POWERED, IN_WALL);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, OPEN, POWERED, IN_WALL);
    }
 
    public static boolean connectsToDirection(BlockState p_220253_0_, Direction p_220253_1_) {

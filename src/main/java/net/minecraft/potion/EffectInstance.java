@@ -2,12 +2,26 @@ package net.minecraft.potion;
 
 import com.google.common.collect.ComparisonChain;
 import javax.annotation.Nullable;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.ListCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTDynamicOps;
+import net.minecraft.network.RegistryPacketBuffer;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.codec.ByteBufCodecs;
+import net.minecraft.util.codec.StreamCodec;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Optional;
 
 public class EffectInstance implements Comparable<EffectInstance> {
    private static final Logger LOGGER = LogManager.getLogger();
@@ -22,6 +36,25 @@ public class EffectInstance implements Comparable<EffectInstance> {
    private boolean showIcon;
    @Nullable
    private EffectInstance hiddenEffect;
+   private final Optional<FactorData> factorData;
+
+
+   public static final Codec<EffectInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(Effect.CODEC.fieldOf("id")
+           .forGetter(EffectInstance::getEffect), Details.MAP_CODEC
+           .forGetter(EffectInstance::asDetails)).apply(instance, EffectInstance::new));
+
+   public static final StreamCodec<RegistryPacketBuffer, EffectInstance> STREAM_CODEC =
+           StreamCodec.composite(Effect.STREAM_CODEC, EffectInstance::getEffect, Details.STREAM_CODEC, EffectInstance::asDetails, EffectInstance::new);
+
+
+   private Details asDetails() {
+      return new Details(this.getAmplifier(), this.getDuration(), this.isAmbient(), this.isVisible(), this.showIcon(), Optional.ofNullable(this.hiddenEffect).map(EffectInstance::asDetails));
+   }
+
+   private EffectInstance(Effect holder, Details details2) {
+      this(holder, details2.duration(), details2.amplifier(), details2.ambient(), details2.showParticles(), details2.showIcon(), details2.hiddenEffect().map(details -> new EffectInstance(holder, (Details)details)).orElse(null));
+   }
+
 
    public EffectInstance(Effect effect) {
       this(effect, 0, 0);
@@ -44,6 +77,10 @@ public class EffectInstance implements Comparable<EffectInstance> {
    }
 
    public EffectInstance(Effect effect, int duration, int level, boolean ambient, boolean visible, boolean showIcon, @Nullable EffectInstance hiddenEffect) {
+      this(effect, duration, level, ambient, visible, showIcon, hiddenEffect, effect.createFactorData());
+   }
+
+   public EffectInstance(Effect effect, int duration, int level, boolean ambient, boolean visible, boolean showIcon, @Nullable EffectInstance hiddenEffect, Optional<FactorData> factorData) {
       this.effect = effect;
       this.duration = duration;
       this.amplifier = level;
@@ -51,10 +88,12 @@ public class EffectInstance implements Comparable<EffectInstance> {
       this.visible = visible;
       this.showIcon = showIcon;
       this.hiddenEffect = hiddenEffect;
+      this.factorData = factorData;
    }
 
    public EffectInstance(EffectInstance other) {
       this.effect = other.effect;
+      this.factorData = other.factorData;
       this.setDetailsFrom(other);
    }
 
@@ -65,6 +104,10 @@ public class EffectInstance implements Comparable<EffectInstance> {
       this.ambient = p_230117_1_.ambient;
       this.visible = p_230117_1_.visible;
       this.showIcon = p_230117_1_.showIcon;
+   }
+
+   public Optional<FactorData> getFactorData() {
+      return this.factorData;
    }
 
    public boolean update(EffectInstance p_199308_1_) {
@@ -149,7 +192,7 @@ public class EffectInstance implements Comparable<EffectInstance> {
             p_76455_2_.run();
          }
       }
-
+      this.factorData.ifPresent(factorData -> factorData.update(this));
       return this.duration > 0;
    }
 
@@ -231,6 +274,7 @@ public class EffectInstance implements Comparable<EffectInstance> {
          this.hiddenEffect.save(compoundnbt);
          p_230119_1_.put("HiddenEffect", compoundnbt);
       }
+      this.factorData.ifPresent(factorData -> FactorData.CODEC.encodeStart(NBTDynamicOps.INSTANCE, factorData).resultOrPartial(arg_0 -> LOGGER.error(arg_0)).ifPresent(tag -> p_230119_1_.put("FactorCalculationData", tag)));
 
    }
 
@@ -258,8 +302,9 @@ public class EffectInstance implements Comparable<EffectInstance> {
       if (p_230116_1_.contains("HiddenEffect", 10)) {
          effectinstance = loadSpecifiedEffect(p_230116_0_, p_230116_1_.getCompound("HiddenEffect"));
       }
+      Optional<FactorData> optional = p_230116_1_.contains("FactorCalculationData", 10) ? FactorData.CODEC.parse(NBTDynamicOps.INSTANCE, p_230116_1_.getCompound("FactorCalculationData")).resultOrPartial(arg_0 -> ((Logger)LOGGER).error(arg_0)) : Optional.empty();
 
-      return new EffectInstance(p_230116_0_, j, i < 0 ? 0 : i, flag, flag1, flag2, effectinstance);
+      return new EffectInstance(p_230116_0_, j, i < 0 ? 0 : i, flag, flag1, flag2, effectinstance, optional);
    }
 
    @OnlyIn(Dist.CLIENT)
@@ -275,5 +320,83 @@ public class EffectInstance implements Comparable<EffectInstance> {
    public int compareTo(EffectInstance p_compareTo_1_) {
       int i = 32147;
       return (this.getDuration() <= 32147 || p_compareTo_1_.getDuration() <= 32147) && (!this.isAmbient() || !p_compareTo_1_.isAmbient()) ? ComparisonChain.start().compare(this.isAmbient(), p_compareTo_1_.isAmbient()).compare(this.getDuration(), p_compareTo_1_.getDuration()).compare(this.getEffect().getColor(), p_compareTo_1_.getEffect().getColor()).result() : ComparisonChain.start().compare(this.isAmbient(), p_compareTo_1_.isAmbient()).compare(this.getEffect().getColor(), p_compareTo_1_.getEffect().getColor()).result();
+   }
+
+
+   public static class FactorData {
+      public static final Codec<FactorData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+              ExtraCodecs.NON_NEGATIVE_INT.fieldOf("padding_duration")
+                      .forGetter(factorData -> factorData.paddingDuration), Codec.FLOAT.fieldOf("factor_start")
+                      .orElse(Float.valueOf(0.0f))
+                      .forGetter(factorData -> Float.valueOf(factorData.factorStart)), Codec.FLOAT.fieldOf("factor_target")
+                      .orElse(Float.valueOf(1.0f)).forGetter(factorData -> Float.valueOf(factorData.factorTarget)),
+              Codec.FLOAT.fieldOf("factor_current")
+                      .orElse(Float.valueOf(0.0f)).forGetter(factorData -> Float.valueOf(factorData.factorCurrent)),
+              ExtraCodecs.NON_NEGATIVE_INT.fieldOf("effect_changed_timestamp")
+                      .orElse(0).forGetter(factorData -> factorData.effectChangedTimestamp),
+              Codec.FLOAT.fieldOf("factor_previous_frame")
+                      .orElse(Float.valueOf(0.0f)).forGetter(factorData -> Float.valueOf(factorData.factorPreviousFrame)),
+              Codec.BOOL.fieldOf("had_effect_last_tick")
+                      .orElse(false).forGetter(factorData -> factorData.hadEffectLastTick)).apply(instance, FactorData::new));
+      private final int paddingDuration;
+      private float factorStart;
+      private float factorTarget;
+      private float factorCurrent;
+      int effectChangedTimestamp;
+      private float factorPreviousFrame;
+      private boolean hadEffectLastTick;
+
+      public FactorData(int n, float f, float f2, float f3, int n2, float f4, boolean bl) {
+         this.paddingDuration = n;
+         this.factorStart = f;
+         this.factorTarget = f2;
+         this.factorCurrent = f3;
+         this.effectChangedTimestamp = n2;
+         this.factorPreviousFrame = f4;
+         this.hadEffectLastTick = bl;
+      }
+
+      public FactorData(int n) {
+         this(n, 0.0f, 1.0f, 0.0f, 0, 0.0f, false);
+      }
+
+      public void update(EffectInstance mobEffectInstance) {
+         boolean bl;
+         this.factorPreviousFrame = this.factorCurrent;
+         boolean bl2 = bl = mobEffectInstance.duration > this.paddingDuration;
+         if (this.hadEffectLastTick != bl) {
+            this.hadEffectLastTick = bl;
+            this.effectChangedTimestamp = mobEffectInstance.duration;
+            this.factorStart = this.factorCurrent;
+            this.factorTarget = bl ? 1.0f : 0.0f;
+         }
+         float f = MathHelper.clamp(((float)this.effectChangedTimestamp - (float)mobEffectInstance.duration) / (float)this.paddingDuration, 0.0f, 1.0f);
+         this.factorCurrent = MathHelper.lerp(f, this.factorStart, this.factorTarget);
+      }
+
+      public float getFactor(LivingEntity livingEntity, float f) {
+         if (livingEntity.removed) {
+            this.factorPreviousFrame = this.factorCurrent;
+         }
+         return MathHelper.lerp(f, this.factorPreviousFrame, this.factorCurrent);
+      }
+   }
+
+   record Details(int amplifier, int duration, boolean ambient, boolean showParticles, boolean showIcon, Optional<Details> hiddenEffect) {
+      public static final MapCodec<Details> MAP_CODEC = ExtraCodecs.recursiveMap("MobEffectInstance.Details", codec ->
+              RecordCodecBuilder.mapCodec(instance -> instance.group(ExtraCodecs.UNSIGNED_BYTE.optionalFieldOf("amplifier", 0)
+                      .forGetter(Details::amplifier), Codec.INT.optionalFieldOf("duration", 0)
+                      .forGetter(Details::duration), Codec.BOOL.optionalFieldOf("ambient", false)
+                      .forGetter(Details::ambient), Codec.BOOL.optionalFieldOf("show_particles", true)
+                      .forGetter(Details::showParticles), Codec.BOOL.optionalFieldOf("show_icon")
+                      .forGetter(details -> Optional.of(details.showIcon())),
+                      codec.optionalFieldOf("hidden_effect")
+                      .forGetter(Details::hiddenEffect)).apply(instance, Details::create)));
+
+      public static final StreamCodec<ByteBuf, Details> STREAM_CODEC = StreamCodec.recursive(streamCodec -> StreamCodec.composite(ByteBufCodecs.VAR_INT, Details::amplifier, ByteBufCodecs.VAR_INT, Details::duration, ByteBufCodecs.BOOL, Details::ambient, ByteBufCodecs.BOOL, Details::showParticles, ByteBufCodecs.BOOL, Details::showIcon, streamCodec.apply(ByteBufCodecs::optional), Details::hiddenEffect, Details::new));
+
+      private static Details create(int n, int n2, boolean bl, boolean bl2, Optional<Boolean> optional, Optional<Details> optional2) {
+         return new Details(n, n2, bl, bl2, optional.orElse(bl2), optional2);
+      }
    }
 }

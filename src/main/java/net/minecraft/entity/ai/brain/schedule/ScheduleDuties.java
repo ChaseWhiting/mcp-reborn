@@ -9,35 +9,35 @@ public class ScheduleDuties {
    private final List<DutyTime> keyframes = Lists.newArrayList();
    private int previousIndex;
 
-   public ScheduleDuties addKeyframe(int p_221394_1_, float p_221394_2_) {
-      this.keyframes.add(new DutyTime(p_221394_1_, p_221394_2_));
+   public ScheduleDuties addKeyframe(int a, float b) {
+      this.keyframes.add(new DutyTime(a, b));
       this.sortAndDeduplicateKeyframes();
       return this;
    }
 
    private void sortAndDeduplicateKeyframes() {
       Int2ObjectSortedMap<DutyTime> int2objectsortedmap = new Int2ObjectAVLTreeMap<>();
-      this.keyframes.forEach((p_221393_1_) -> {
-         DutyTime dutytime = int2objectsortedmap.put(p_221393_1_.getTimeStamp(), p_221393_1_);
+      this.keyframes.forEach((dutyTime) -> {
+         DutyTime dutytime = int2objectsortedmap.put(dutyTime.getTimeStamp(), dutyTime);
       });
       this.keyframes.clear();
       this.keyframes.addAll(int2objectsortedmap.values());
       this.previousIndex = 0;
    }
 
-   public float getValueAt(int p_221392_1_) {
+   public float getValueAt(int a) {
       if (this.keyframes.size() <= 0) {
          return 0.0F;
       } else {
          DutyTime dutytime = this.keyframes.get(this.previousIndex);
          DutyTime dutytime1 = this.keyframes.get(this.keyframes.size() - 1);
-         boolean flag = p_221392_1_ < dutytime.getTimeStamp();
+         boolean flag = a < dutytime.getTimeStamp();
          int i = flag ? 0 : this.previousIndex;
          float f = flag ? dutytime1.getValue() : dutytime.getValue();
 
          for(int j = i; j < this.keyframes.size(); ++j) {
             DutyTime dutytime2 = this.keyframes.get(j);
-            if (dutytime2.getTimeStamp() > p_221392_1_) {
+            if (dutytime2.getTimeStamp() > a) {
                break;
             }
 

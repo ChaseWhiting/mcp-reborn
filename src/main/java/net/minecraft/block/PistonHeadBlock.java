@@ -82,8 +82,8 @@ public class PistonHeadBlock extends DirectionalBlock {
       return true;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return (p_220053_1_.getValue(SHORT) ? SHAPES_SHORT : SHAPES_LONG)[p_220053_1_.getValue(FACING).ordinal()];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return (state.getValue(SHORT) ? SHAPES_SHORT : SHAPES_LONG)[state.getValue(FACING).ordinal()];
    }
 
    private boolean isFittingBase(BlockState p_235682_1_, BlockState p_235682_2_) {
@@ -91,7 +91,7 @@ public class PistonHeadBlock extends DirectionalBlock {
       return p_235682_2_.is(block) && p_235682_2_.getValue(PistonBlock.EXTENDED) && p_235682_2_.getValue(FACING) == p_235682_1_.getValue(FACING);
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       if (!p_176208_1_.isClientSide && p_176208_4_.abilities.instabuild) {
          BlockPos blockpos = p_176208_2_.relative(p_176208_3_.getValue(FACING).getOpposite());
          if (this.isFittingBase(p_176208_3_, p_176208_1_.getBlockState(blockpos))) {
@@ -99,7 +99,7 @@ public class PistonHeadBlock extends DirectionalBlock {
          }
       }
 
-      super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
+      return super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
    }
 
    public void onRemove(BlockState p_196243_1_, World p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_, boolean p_196243_5_) {
@@ -143,8 +143,8 @@ public class PistonHeadBlock extends DirectionalBlock {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, TYPE, SHORT);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, TYPE, SHORT);
    }
 
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {

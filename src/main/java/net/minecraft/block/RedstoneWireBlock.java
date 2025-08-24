@@ -77,8 +77,8 @@ public class RedstoneWireBlock extends Block {
       return voxelshape;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return this.SHAPES_CACHE.get(p_220053_1_.setValue(POWER, Integer.valueOf(0)));
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return this.SHAPES_CACHE.get(state.setValue(POWER, Integer.valueOf(0)));
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {
@@ -420,8 +420,8 @@ public class RedstoneWireBlock extends Block {
       }
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(NORTH, EAST, SOUTH, WEST, POWER);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(NORTH, EAST, SOUTH, WEST, POWER);
    }
 
    public ActionResultType use(BlockState p_225533_1_, World p_225533_2_, BlockPos p_225533_3_, PlayerEntity p_225533_4_, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {

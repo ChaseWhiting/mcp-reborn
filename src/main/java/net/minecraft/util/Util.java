@@ -1,5 +1,6 @@
 package net.minecraft.util;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -19,33 +20,28 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.stream.*;
 import javax.annotation.Nullable;
+
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.util.ICharacterPredicate;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.state.Property;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.random.RandomSource;
 import net.minecraft.util.registry.Bootstrap;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
@@ -60,9 +56,71 @@ public class Util {
    public static LongSupplier timeSource = System::nanoTime;
    public static final UUID NIL_UUID = new UUID(0L, 0L);
    private static final Logger LOGGER = LogManager.getLogger();
+   private static Consumer<String> thePauser = string -> {};
+
+   public static <K extends Enum<K>, V> Map<K, V> makeEnumMap(Class<K> clazz, java.util.function.Function<K, V> function) {
+      EnumMap<K, V> enumMap = new EnumMap<>(clazz);
+      for (K enumConstant : clazz.getEnumConstants()) {
+         enumMap.put(enumConstant, function.apply(enumConstant));
+      }
+      return enumMap;
+   }
+
+   public static <K extends Enum<K>, V> Map<K, V> enumMap(Class<K> clazz, java.util.function.Function<Enum<K>, V> function) {
+      EnumMap<K, V> enumMap = new EnumMap<K, V>(clazz);
+      for (K enum_ : clazz.getEnumConstants()) {
+         enumMap.put(enum_, function.apply(enum_));
+      }
+      return enumMap;
+   }
+
+
 
    public static <K, V> Collector<Entry<? extends K, ? extends V>, ?, Map<K, V>> toMap() {
       return Collectors.toMap(Entry::getKey, Entry::getValue);
+   }
+
+   public static void logAndPauseIfInIde(String string) {
+      LOGGER.error(string);
+      if (SharedConstants.IS_RUNNING_IN_IDE) {
+         Util.doPause(string);
+      }
+   }
+
+   private static void doPause(String string) {
+      boolean bl;
+      Instant instant = Instant.now();
+      LOGGER.warn("Did you remember to set a breakpoint here?");
+      boolean bl2 = bl = Duration.between(instant, Instant.now()).toMillis() > 500L;
+      if (!bl) {
+         thePauser.accept(string);
+      }
+   }
+
+   public static void setPause(Consumer<String> consumer) {
+      thePauser = consumer;
+   }
+
+
+
+   public static <T> String getRegisteredName(Registry<T> registry, T t) {
+      ResourceLocation resourceLocation = registry.getKey(t);
+      if (resourceLocation == null) {
+         return "[unregistered]";
+      }
+      return resourceLocation.toString();
+   }
+
+   public static <T> ToIntFunction<T> createIndexLookup(List<T> list) {
+      return Util.createIndexLookup(list, Object2IntOpenHashMap::new);
+   }
+
+   public static <T> ToIntFunction<T> createIndexLookup(List<T> list, IntFunction<Object2IntMap<T>> intFunction) {
+      Object2IntMap<T> object2IntMap = intFunction.apply(list.size());
+      for (int i = 0; i < list.size(); ++i) {
+         object2IntMap.put(list.get(i), i);
+      }
+      return object2IntMap;
    }
 
    public static <T, U, R> BiFunction<T, U, R> memoize(final BiFunction<T, U, R> $$0) {
@@ -78,6 +136,100 @@ public class Util {
             return "memoize/2[function=" + String.valueOf($$0) + ", size=" + this.cache.size() + "]";
          }
       };
+   }
+
+   public static <T, R> Function<T, R> memoize(final Function<T, R> function) {
+      return new Function<T, R>(){
+         private final Map<T, R> cache = new ConcurrentHashMap();
+
+         @Override
+         public R apply(T t) {
+            return this.cache.computeIfAbsent(t, function);
+         }
+
+         public String toString() {
+            return "memoize/1[function=" + function + ", size=" + this.cache.size() + "]";
+         }
+      };
+   }
+
+   public static <T> List<T> toShuffledList(Stream<T> stream, Random randomSource) {
+      List<T> objectArrayList = stream.collect(Collectors.toList());
+      Util.shuffle(objectArrayList, randomSource);
+      return objectArrayList;
+   }
+
+   public static IntArrayList toShuffledList(IntStream intStream, RandomSource randomSource) {
+      int n;
+      IntArrayList intArrayList = IntArrayList.wrap((int[])intStream.toArray());
+      for (int i = n = intArrayList.size(); i > 1; --i) {
+         int n2 = randomSource.nextInt(i);
+         intArrayList.set(i - 1, intArrayList.set(n2, intArrayList.getInt(i - 1)));
+      }
+      return intArrayList;
+   }
+
+   public static <T> Optional<T> getRandomSafe(List<T> list, Random randomSource) {
+      if (list.isEmpty()) {
+         return Optional.empty();
+      }
+      return Optional.of(Util.getRandom(list, randomSource));
+   }
+
+   public static <T> T getRandom(List<T> list, Random randomSource) {
+      return list.get(randomSource.nextInt(list.size()));
+   }
+
+   public static <T> boolean contains(Collection<T> collection, T t) {
+      return collection.contains(t);
+   }
+
+   public static <T> boolean containsEither(Collection<T> collection, T t, T t2) {
+      return contains(collection, t) || contains(collection, t2);
+   }
+
+   public static <T> boolean containsAny(Collection<T> collection, T... ts) {
+      if (Arrays.stream(ts).findAny().isEmpty()) return false;
+      for (T t : ts) {
+         if (contains(collection, t)) return true;
+      }
+
+      return false;
+   }
+
+   public static <T> List<T> shuffledCopy(T[] TArray, Random randomSource) {
+      ObjectArrayList<T> objectArrayList = new ObjectArrayList<T>((T[])TArray);
+      Util.shuffle(objectArrayList, randomSource);
+      return objectArrayList;
+   }
+
+   public static <T> List<T> shuffledCopy(List<T> TArray, Random randomSource) {
+      List<T> mutableList = new ArrayList<>(TArray); // Create a mutable copy
+      Util.shuffle(mutableList, randomSource); // Shuffle the copy
+      return mutableList; // Return the shuffled mutable list
+   }
+
+
+   public static <T> ObjectArrayList<T> shuffledCopy(ObjectArrayList<T> objectArrayList, Random randomSource) {
+      ObjectArrayList objectArrayList2 = new ObjectArrayList(objectArrayList);
+      Util.shuffle(objectArrayList2, randomSource);
+      return objectArrayList2;
+   }
+
+   public static <T> void shuffle(List<T> list, Random randomSource) {
+      int n;
+      for (int i = n = list.size(); i > 1; --i) {
+         int n2 = randomSource.nextInt(i);
+         list.set(i - 1, list.set(n2, list.get(i - 1)));
+      }
+   }
+
+   public static <T> void shuffle(List<T> list, RandomSource randomSource) {
+      int n;
+      for (int i = n = list.size(); i > 1; --i) {
+         int n2 = randomSource.nextInt(i);
+         list.set(i - 1, list.set(n2, list.get(i - 1)));
+      }
    }
 
    public static <T extends Comparable<T>> String getPropertyName(Property<T> p_200269_0_, Object p_200269_1_) {
@@ -366,6 +518,10 @@ public class Util {
       return p_240988_0_[p_240988_1_.nextInt(p_240988_0_.length)];
    }
 
+   public static float getRandom(ImmutableList<Float> p_240988_0_, Random p_240988_1_) {
+      return p_240988_0_.get(p_240988_1_.nextInt(p_240988_0_.size()));
+   }
+
    private static BooleanSupplier createRenamer(final Path p_244363_0_, final Path p_244363_1_) {
       return new BooleanSupplier() {
          public boolean getAsBoolean() {
@@ -454,12 +610,11 @@ public class Util {
       safeReplaceFile(p_240977_0_.toPath(), p_240977_1_.toPath(), p_240977_2_.toPath());
    }
 
-   public static void safeReplaceFile(Path p_244364_0_, Path p_244364_1_, Path p_244364_2_) {
-      int i = 10;
-      if (!Files.exists(p_244364_0_) || runWithRetries(10, "create backup " + p_244364_2_, createDeleter(p_244364_2_), createRenamer(p_244364_0_, p_244364_2_), createFileCreatedCheck(p_244364_2_))) {
-         if (runWithRetries(10, "remove old " + p_244364_0_, createDeleter(p_244364_0_), createFileDeletedCheck(p_244364_0_))) {
-            if (!runWithRetries(10, "replace " + p_244364_0_ + " with " + p_244364_1_, createRenamer(p_244364_1_, p_244364_0_), createFileCreatedCheck(p_244364_0_))) {
-               runWithRetries(10, "restore " + p_244364_0_ + " from " + p_244364_2_, createRenamer(p_244364_2_, p_244364_0_), createFileCreatedCheck(p_244364_0_));
+   public static void safeReplaceFile(Path path1, Path path2, Path path3) {
+      if (!Files.exists(path1) || runWithRetries(10, "create backup " + path3, createDeleter(path3), createRenamer(path1, path3), createFileCreatedCheck(path3))) {
+         if (runWithRetries(10, "remove old " + path1, createDeleter(path1), createFileDeletedCheck(path1))) {
+            if (!runWithRetries(10, "replace " + path1 + " with " + path2, createRenamer(path2, path1), createFileCreatedCheck(path1))) {
+               runWithRetries(10, "restore " + path1 + " from " + path3, createRenamer(path3, path1), createFileCreatedCheck(path1));
             }
 
          }
@@ -502,6 +657,31 @@ public class Util {
          return DataResult.success(aint);
       }
    }
+
+
+
+   public static <T> DataResult<List<T>> fixedSize(List<T> list, int expectedSize) {
+      if (list.size() != expectedSize) {
+         String errorMessage = "Input is not a list of " + expectedSize + " elements";
+         return list.size() >= expectedSize
+                 ? DataResult.error(errorMessage, list.subList(0, expectedSize))
+                 : DataResult.error(errorMessage);
+      }
+      return DataResult.success(list);
+   }
+
+   public static DataResult<long[]> fixedSize(LongStream longStream, int n) {
+      long[] lArray = longStream.limit(n + 1).toArray();
+      if (lArray.length != n) {
+         Supplier<String> supplier = () -> "Input is not a list of " + n + " longs";
+         if (lArray.length >= n) {
+            return DataResult.error(supplier.get(), Arrays.copyOf(lArray, n));
+         }
+         return DataResult.error(supplier.get());
+      }
+      return DataResult.success(lArray);
+   }
+
 
    public static void startTimerHackThread() {
       Thread thread = new Thread("Timer hack thread") {
@@ -570,9 +750,7 @@ public class Util {
       @OnlyIn(Dist.CLIENT)
       public void openUrl(URL p_195639_1_) {
          try {
-            Process process = AccessController.doPrivileged((PrivilegedExceptionAction<Process>)(() -> {
-               return Runtime.getRuntime().exec(this.getOpenUrlArguments(p_195639_1_));
-            }));
+            Process process = Runtime.getRuntime().exec(this.getOpenUrlArguments(p_195639_1_));
 
             for(String s : IOUtils.readLines(process.getErrorStream())) {
                Util.LOGGER.error(s);
@@ -581,7 +759,7 @@ public class Util {
             process.getInputStream().close();
             process.getErrorStream().close();
             process.getOutputStream().close();
-         } catch (IOException | PrivilegedActionException privilegedactionexception) {
+         } catch (IOException privilegedactionexception) {
             Util.LOGGER.error("Couldn't open url '{}'", p_195639_1_, privilegedactionexception);
          }
 

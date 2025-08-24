@@ -22,7 +22,7 @@ public abstract class EntityModel<T extends Entity> extends Model {
       super(p_i225945_1_);
    }
 
-   public abstract void setupAnim(T p_225597_1_, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_);
+   public abstract void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch);
 
    public void prepareMobModel(T p_212843_1_, float p_212843_2_, float p_212843_3_, float p_212843_4_) {
    }

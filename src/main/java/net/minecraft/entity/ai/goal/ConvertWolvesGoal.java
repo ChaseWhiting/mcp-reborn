@@ -1,27 +1,16 @@
 package net.minecraft.entity.ai.goal;
 
 import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.monster.EvokerEntity;
 import net.minecraft.entity.monster.ShamanEntity;
 import net.minecraft.entity.monster.SpellcastingIllagerEntity;
-import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.item.DyeColor;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.server.ServerWorld;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class ConvertWolvesGoal extends SpellcastingIllagerEntity.UseSpellGoal {

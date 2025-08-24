@@ -2,6 +2,7 @@ package net.minecraft.client.renderer;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.Direction;
@@ -47,7 +48,19 @@ public class ActiveRenderInfo {
             this.setRotation(this.yRot + 180.0F, -this.xRot);
          }
 
-         this.move(-this.getMaxZoom(4.0D), 0.0D, 0.0D);
+         double zoom = 4.0D;
+
+         if (p_216772_2_ instanceof LivingEntity entity1) {
+            zoom = entity1.getAttributeValue(Attributes.CAMERA_DISTANCE);
+
+            if (entity1.isPassenger() && entity1.getVehicle() instanceof LivingEntity entity2) {
+               zoom = entity2.getAttributeValue(Attributes.CAMERA_DISTANCE);
+            }
+         }
+
+
+
+         this.move(-this.getMaxZoom(zoom), 0.0D, 0.0D);
       } else if (p_216772_2_ instanceof LivingEntity && ((LivingEntity)p_216772_2_).isSleeping()) {
          Direction direction = ((LivingEntity)p_216772_2_).getBedOrientation();
          this.setRotation(direction != null ? direction.toYRot() - 180.0F : 0.0F, 0.0F);

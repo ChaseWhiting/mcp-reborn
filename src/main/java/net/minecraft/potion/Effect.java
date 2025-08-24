@@ -2,9 +2,13 @@ package net.minecraft.potion;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
+
+import com.mojang.serialization.Codec;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -12,8 +16,12 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierManager;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.RegistryPacketBuffer;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
+import net.minecraft.util.codec.ByteBufCodecs;
+import net.minecraft.util.codec.StreamCodec;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -22,10 +30,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Effect {
    private final Map<Attribute, AttributeModifier> attributeModifiers = Maps.newHashMap();
+   public static final StreamCodec<RegistryPacketBuffer, Effect> STREAM_CODEC = ByteBufCodecs.holderRegistry(Registry.MOB_EFFECT.key());
    private final EffectType category;
    private final int color;
    @Nullable
    private String descriptionId;
+   private Supplier<EffectInstance.FactorData> factorDataFactory = () -> null;
+
+   public static final Codec<Effect> CODEC = ExtraCodecs.lazyInitializedCodec(Registry.MOB_EFFECT::byNameCodec);
+
 
    @Nullable
    public static Effect byId(int p_188412_0_) {
@@ -39,6 +52,13 @@ public class Effect {
    protected Effect(EffectType p_i50391_1_, int p_i50391_2_) {
       this.category = p_i50391_1_;
       this.color = p_i50391_2_;
+   }
+
+
+   public Effect get() {return this;}
+
+   public Optional<EffectInstance.FactorData> createFactorData() {
+      return Optional.ofNullable(this.factorDataFactory.get());
    }
 
    public void applyEffectTick(LivingEntity p_76394_1_, int p_76394_2_) {
@@ -157,6 +177,11 @@ public class Effect {
    public Effect addAttributeModifier(Attribute p_220304_1_, String p_220304_2_, double p_220304_3_, AttributeModifier.Operation p_220304_5_) {
       AttributeModifier attributemodifier = new AttributeModifier(UUID.fromString(p_220304_2_), this::getDescriptionId, p_220304_3_, p_220304_5_);
       this.attributeModifiers.put(p_220304_1_, attributemodifier);
+      return this;
+   }
+
+   public Effect setFactorDataFactory(Supplier<EffectInstance.FactorData> supplier) {
+      this.factorDataFactory = supplier;
       return this;
    }
 

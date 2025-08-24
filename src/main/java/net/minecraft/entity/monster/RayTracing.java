@@ -3,7 +3,6 @@ package net.minecraft.entity.monster;
 import net.minecraft.entity.Creature;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Mob;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.*;

@@ -1,35 +1,19 @@
 package net.minecraft.world.spawner;
 
-import java.awt.*;
-import java.util.List;
 import java.util.Random;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.impl.RaidCommand;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.monster.AbstractRaiderEntity;
 import net.minecraft.entity.monster.PatrollerEntity;
-import net.minecraft.entity.monster.PillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
-import net.minecraft.util.EntityBuilder;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.raid.Raid;
-import net.minecraft.world.raid.RaidManager;
 import net.minecraft.world.server.ServerWorld;
 
 public class PatrolSpawner implements ISpecialSpawner {

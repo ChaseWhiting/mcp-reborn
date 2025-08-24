@@ -38,6 +38,7 @@ public class GiveHeroGiftsTask extends Task<VillagerEntity> {
       p_220395_0_.put(VillagerProfession.LEATHERWORKER, LootTables.LEATHERWORKER_GIFT);
       p_220395_0_.put(VillagerProfession.LIBRARIAN, LootTables.LIBRARIAN_GIFT);
       p_220395_0_.put(VillagerProfession.MASON, LootTables.MASON_GIFT);
+      p_220395_0_.put(VillagerProfession.CARPENTER, LootTables.CARPENTER_GIFT);
       p_220395_0_.put(VillagerProfession.SHEPHERD, LootTables.SHEPHERD_GIFT);
       p_220395_0_.put(VillagerProfession.TOOLSMITH, LootTables.TOOLSMITH_GIFT);
       p_220395_0_.put(VillagerProfession.WEAPONSMITH, LootTables.WEAPONSMITH_GIFT);

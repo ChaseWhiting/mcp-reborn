@@ -7,6 +7,7 @@ import net.minecraft.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.state.properties.RailShape;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ActionResultType;
@@ -91,6 +92,7 @@ public class MinecartItem extends Item {
             }
 
             world.addFreshEntity(abstractminecartentity);
+            world.gameEvent(GameEvent.ENTITY_PLACE, blockpos, GameEvent.Context.of(p_195939_1_.getPlayer(), world.getBlockState(blockpos.below())));
          }
 
          itemstack.shrink(1);

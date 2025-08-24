@@ -2,13 +2,8 @@ package net.minecraft.entity.item;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import net.minecraft.block.AnvilBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ConcretePowderBlock;
-import net.minecraft.block.FallingBlock;
-import net.minecraft.block.ITileEntityProvider;
+
+import net.minecraft.block.*;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -56,6 +51,11 @@ public class FallingBlockEntity extends Entity {
       super(p_i50218_1_, p_i50218_2_);
    }
 
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.NONE;
+   }
+
    public FallingBlockEntity(World p_i45848_1_, double p_i45848_2_, double p_i45848_4_, double p_i45848_6_, BlockState p_i45848_8_) {
       this(EntityType.FALLING_BLOCK, p_i45848_1_);
       this.blockState = p_i45848_8_;
@@ -66,6 +66,13 @@ public class FallingBlockEntity extends Entity {
       this.yo = p_i45848_4_;
       this.zo = p_i45848_6_;
       this.setStartPos(this.blockPosition());
+   }
+
+   public static FallingBlockEntity fall(World level, BlockPos blockPos, BlockState blockState) {
+      FallingBlockEntity fallingBlockEntity = new FallingBlockEntity(level, (double)blockPos.getX() + 0.5, blockPos.getY(), (double)blockPos.getZ() + 0.5, blockState.hasProperty(BlockStateProperties.WATERLOGGED) ? (BlockState)blockState.setValue(BlockStateProperties.WATERLOGGED, false) : blockState);
+      //level.setBlock(blockPos, blockState.getFluidState().createLegacyBlock(), 3);
+      level.addFreshEntity(fallingBlockEntity);
+      return fallingBlockEntity;
    }
 
    public boolean isAttackable() {
@@ -149,8 +156,11 @@ public class FallingBlockEntity extends Entity {
                         }
 
                         if (this.level.setBlock(blockpos1, this.blockState, 3)) {
-                           if (block instanceof FallingBlock) {
-                              ((FallingBlock)block).onLand(this.level, blockpos1, this.blockState, blockstate, this);
+                           if (block instanceof FallingBlock fallingBlock) {
+                              fallingBlock.onLand(this.level, blockpos1, this.blockState, blockstate, this);
+                           }
+                           if (block instanceof Fallable fallable) {
+                              fallable.onLand(this.level, blockpos1, this.blockState, blockstate, this);
                            }
 
                            if (this.blockData != null && block instanceof ITileEntityProvider) {
@@ -177,6 +187,8 @@ public class FallingBlockEntity extends Entity {
                      }
                   } else if (block instanceof FallingBlock) {
                      ((FallingBlock)block).onBroken(this.level, blockpos1, this);
+                  } else if (block instanceof Fallable fallable) {
+                     fallable.onBroken(level, blockpos1, this);
                   }
                }
             }
@@ -210,6 +222,10 @@ public class FallingBlockEntity extends Entity {
       }
 
       return false;
+   }
+
+   public void disableDrop() {
+      this.cancelDrop = true;
    }
 
    protected void addAdditionalSaveData(CompoundNBT p_213281_1_) {

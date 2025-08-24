@@ -2,10 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.ZombieModel;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
-import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

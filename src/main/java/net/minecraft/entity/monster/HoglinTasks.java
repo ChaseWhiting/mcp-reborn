@@ -69,7 +69,10 @@ public class HoglinTasks {
    }
 
    private static FirstShuffledTask<HoglinEntity> createIdleMovementBehaviors() {
-      return new FirstShuffledTask<>(ImmutableList.of(Pair.of(new WalkRandomlyTask(0.4F), 2), Pair.of(new WalkTowardsLookTargetTask(0.4F, 3), 2), Pair.of(new DummyTask(30, 60), 1)));
+      return new FirstShuffledTask<>(ImmutableList.of(
+              Pair.of(new WalkRandomlyTask(0.4F), 2),
+              Pair.of(new WalkTowardsLookTargetTask(0.4F, 3), 2),
+              Pair.of(new DummyTask(30, 60), 1)));
    }
 
    protected static void updateActivity(HoglinEntity p_234377_0_) {

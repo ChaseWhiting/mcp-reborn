@@ -79,8 +79,8 @@ public class FrostedIceBlock extends IceBlock {
       return true;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AGE);
    }
 
    @OnlyIn(Dist.CLIENT)

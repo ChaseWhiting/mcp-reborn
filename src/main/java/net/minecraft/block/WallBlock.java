@@ -97,8 +97,8 @@ public class WallBlock extends Block implements IWaterLoggable {
       return builder.build();
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return this.shapeByIndex.get(p_220053_1_);
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return this.shapeByIndex.get(state);
    }
 
    public VoxelShape getCollisionShape(BlockState p_220071_1_, IBlockReader p_220071_2_, BlockPos p_220071_3_, ISelectionContext p_220071_4_) {
@@ -112,7 +112,8 @@ public class WallBlock extends Block implements IWaterLoggable {
    private boolean connectsTo(BlockState p_220113_1_, boolean p_220113_2_, Direction p_220113_3_) {
       Block block = p_220113_1_.getBlock();
       boolean flag = block instanceof FenceGateBlock && FenceGateBlock.connectsToDirection(p_220113_1_, p_220113_3_);
-      return p_220113_1_.is(BlockTags.WALLS) || !isExceptionForConnection(block) && p_220113_2_ || block instanceof PaneBlock || flag;
+      return p_220113_1_.is(BlockTags.WALLS) || !isExceptionForConnection(block) && p_220113_2_ || block instanceof PaneBlock || flag || block == Blocks.DEEPSLATE_BRICK_WALL
+              || block == Blocks.DEEPSLATE_TILE_WALL || block == Blocks.COBBLED_DEEPSLATE_WALL || block == Blocks.POLISHED_DEEPSLATE_WALL;
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {
@@ -229,8 +230,8 @@ public class WallBlock extends Block implements IWaterLoggable {
       return !p_200123_1_.getValue(WATERLOGGED);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(UP, NORTH_WALL, EAST_WALL, WEST_WALL, SOUTH_WALL, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(UP, NORTH_WALL, EAST_WALL, WEST_WALL, SOUTH_WALL, WATERLOGGED);
    }
 
    public BlockState rotate(BlockState state, Rotation rotation) {

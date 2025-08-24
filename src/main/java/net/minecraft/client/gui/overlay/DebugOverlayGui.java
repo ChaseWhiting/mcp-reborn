@@ -48,6 +48,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.DifficultyInstance;
@@ -206,6 +207,17 @@ public class DebugOverlayGui extends AbstractGui {
          list.add(this.minecraft.level.dimension().location() + " FC: " + longset.size());
          list.add("");
          list.add(String.format(Locale.ROOT, "XYZ: %.3f / %.5f / %.3f", this.minecraft.getCameraEntity().getX(), this.minecraft.getCameraEntity().getY(), this.minecraft.getCameraEntity().getZ()));
+         Vector3d dc = minecraft.getCameraEntity().getDeltaMovement();
+         list.add(String.format(Locale.ROOT, "Velocity: %.2f / %.2f / %.2f", dc.x, dc.y, dc.z));
+
+         double horizontalSpeedPerTick = Math.sqrt(dc.x * dc.x + dc.z * dc.z);
+         double horizontalBps = horizontalSpeedPerTick * 20.0;
+         list.add(String.format(Locale.ROOT, "Horizontal Speed: %.2f bps", horizontalBps));
+
+         double totalSpeedPerTick = Math.sqrt(dc.x * dc.x + dc.y * dc.y + dc.z * dc.z);
+         double totalBps = totalSpeedPerTick * 20.0;
+         list.add(String.format(Locale.ROOT, "Total Speed: %.2f bps", totalBps));
+
          list.add(String.format("Block: %d %d %d", blockpos.getX(), blockpos.getY(), blockpos.getZ()));
          list.add(String.format("Chunk: %d %d %d in %d %d %d", blockpos.getX() & 15, blockpos.getY() & 15, blockpos.getZ() & 15, blockpos.getX() >> 4, blockpos.getY() >> 4, blockpos.getZ() >> 4));
          list.add(String.format(Locale.ROOT, "Facing: %s (%s) (%.1f / %.1f)", direction, s1, MathHelper.wrapDegrees(entity.yRot), MathHelper.wrapDegrees(entity.xRot)));

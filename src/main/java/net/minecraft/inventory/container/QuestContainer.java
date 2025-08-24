@@ -8,10 +8,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.villager.data.quest.QuestManager;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.MerchantInventory;
 import net.minecraft.inventory.QuestInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MerchantOffers;
 import net.minecraft.item.QuestOffer;
 import net.minecraft.item.QuestOffers;
 import net.minecraft.util.SoundCategory;
@@ -211,7 +209,7 @@ public class QuestContainer extends Container {
 
             if (!requiredItems.isEmpty()) {
                // Assuming there are at most 2 required items for simplicity
-               if (requiredItems.size() > 0) {
+               if (!requiredItems.isEmpty()) {
                   ItemStack costA = requiredItems.get(0);
                   this.moveFromInventoryToPaymentSlot(0, costA);
                }

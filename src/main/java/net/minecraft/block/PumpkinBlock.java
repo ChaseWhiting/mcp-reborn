@@ -2,6 +2,7 @@ package net.minecraft.block;
 
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ActionResultType;
@@ -32,6 +33,7 @@ public class PumpkinBlock extends StemGrownBlock {
             itemstack.hurtAndBreak(1, p_225533_4_, (p_220282_1_) -> {
                p_220282_1_.broadcastBreakEvent(p_225533_5_);
             });
+            p_225533_2_.gameEvent(p_225533_4_, GameEvent.SHEAR, p_225533_3_);
          }
 
          return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);

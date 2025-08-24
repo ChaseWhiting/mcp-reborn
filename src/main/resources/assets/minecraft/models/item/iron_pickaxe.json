@@ -1,0 +1,176 @@
+{
+  "parent": "minecraft:item/handheld",
+  "overrides": [
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_quartz_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.1,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_quartz_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.1,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_iron_darker_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.2,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_iron_darker_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.2,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_netherite_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.3,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_netherite_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.3,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_redstone_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.4,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_redstone_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.4,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_copper_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.5,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_copper_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.5,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_gold_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.6,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_gold_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.6,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_emerald_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.7,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_emerald_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.7,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_diamond_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.8,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_diamond_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.8,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_lapis_edge_trim",
+      "predicate": {
+        "tool_trim_material": 0.9,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_lapis_coat_trim",
+      "predicate": {
+        "tool_trim_material": 0.9,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_amethyst_edge_trim",
+      "predicate": {
+        "tool_trim_material": 1.0,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_amethyst_coat_trim",
+      "predicate": {
+        "tool_trim_material": 1.0,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_resin_edge_trim",
+      "predicate": {
+        "tool_trim_material": 1.1,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_resin_coat_trim",
+      "predicate": {
+        "tool_trim_material": 1.1,
+        "tool_trim_type": 2
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_sculk_edge_trim",
+      "predicate": {
+        "tool_trim_material": 1.2,
+        "tool_trim_type": 1
+      }
+    },
+    {
+      "model": "minecraft:item/trim/pickaxe/iron/iron_pickaxe_sculk_coat_trim",
+      "predicate": {
+        "tool_trim_material": 1.2,
+        "tool_trim_type": 2
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "minecraft:item/iron_pickaxe"
+  }
+}

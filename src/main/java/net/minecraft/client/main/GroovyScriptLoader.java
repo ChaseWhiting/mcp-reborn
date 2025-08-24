@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import javax.annotation.Nullable;
-import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.nio.file.*;
 import java.security.MessageDigest;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 public class GroovyScriptLoader {
     public static final Logger LOGGER = LogManager.getLogger();
@@ -140,6 +138,17 @@ public class GroovyScriptLoader {
         Script script = getScript(scriptName);
         try {
             return (String) script.run();
+        } catch (Exception e) {
+            throwException(e);
+            return null;
+        }
+    }
+
+    @Nullable
+    public static <T> T get(String name) {
+        Script script = getScript(name);
+        try {
+            return (T) script.run();
         } catch (Exception e) {
             throwException(e);
             return null;

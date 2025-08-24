@@ -71,8 +71,8 @@ public class SessionLockManager implements AutoCloseable {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public static boolean isLocked(Path p_232999_0_) throws IOException {
-      Path path = p_232999_0_.resolve("session.lock");
+   public static boolean isLocked(Path p) throws IOException {
+      Path path = p.resolve("session.lock");
 
       try (
          FileChannel filechannel = FileChannel.open(path, StandardOpenOption.WRITE);
@@ -94,12 +94,12 @@ public class SessionLockManager implements AutoCloseable {
    }
 
    public static class AlreadyLockedException extends IOException {
-      private AlreadyLockedException(Path p_i231438_1_, String p_i231438_2_) {
-         super(p_i231438_1_.toAbsolutePath() + ": " + p_i231438_2_);
+      private AlreadyLockedException(Path path, String error) {
+         super(path.toAbsolutePath() + ": " + error);
       }
 
-      public static SessionLockManager.AlreadyLockedException alreadyLocked(Path p_233000_0_) {
-         return new SessionLockManager.AlreadyLockedException(p_233000_0_, "already locked (possibly by other Minecraft instance?)");
+      public static SessionLockManager.AlreadyLockedException alreadyLocked(Path path) {
+         return new SessionLockManager.AlreadyLockedException(path, "already locked (possibly by other Minecraft instance?)");
       }
    }
 }

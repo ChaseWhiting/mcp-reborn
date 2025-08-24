@@ -26,8 +26,8 @@ public class ChainBlock extends RotatedPillarBlock implements IWaterLoggable {
       this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(AXIS, Direction.Axis.Y));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      switch((Direction.Axis)p_220053_1_.getValue(AXIS)) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      switch((Direction.Axis) state.getValue(AXIS)) {
       case X:
       default:
          return X_AXIS_AABB;
@@ -53,8 +53,8 @@ public class ChainBlock extends RotatedPillarBlock implements IWaterLoggable {
       return super.updateShape(p_196271_1_, p_196271_2_, p_196271_3_, p_196271_4_, p_196271_5_, p_196271_6_);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(WATERLOGGED).add(AXIS);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(WATERLOGGED).add(AXIS);
    }
 
    public FluidState getFluidState(BlockState p_204507_1_) {

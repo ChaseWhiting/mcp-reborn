@@ -3,7 +3,6 @@ package net.minecraft.item;
 import java.util.List;
 import javax.annotation.Nullable;
 
-import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentData;
@@ -36,19 +35,15 @@ public class EnchantedBookItem extends Item {
       ListNBT enchantments = getEnchantments(book);
       int totalWeight = 0;
 
-      // Iterate through the list of enchantments
       for (int i = 0; i < enchantments.size(); i++) {
          CompoundNBT enchantmentData = enchantments.getCompound(i);
 
-         // Get the enchantment's ID and level
          String enchantmentId = enchantmentData.getString("id");
          int enchantmentLevel = enchantmentData.getInt("lvl");
 
-         // Look up the Enchantment object from the registry using its ID
          Enchantment enchantment = Registry.ENCHANTMENT.get(new ResourceLocation(enchantmentId));
 
 
-         // Apply your weighting logic for this enchantment
          if (enchantment != null) {
             if (enchantment.isCurse()) {
                totalWeight += 5;
@@ -62,7 +57,6 @@ public class EnchantedBookItem extends Item {
                 case RARE -> 6;
                 case VERY_RARE -> 12;
             };
-            // For example, you might want to weight it by level
              totalWeight += enchantmentLevel;
 
 
@@ -78,19 +72,15 @@ public class EnchantedBookItem extends Item {
    public static int returnWeightOfEnchantments(ListNBT enchantments, ItemStack enchantmentbook) {
       int totalWeight = 0;
 
-      // Iterate through the list of enchantments
       for (int i = 0; i < enchantments.size(); i++) {
          CompoundNBT enchantmentData = enchantments.getCompound(i);
 
-         // Get the enchantment's ID and level
          String enchantmentId = enchantmentData.getString("id");
          int enchantmentLevel = enchantmentData.getInt("lvl");
 
-         // Look up the Enchantment object from the registry using its ID
          Enchantment enchantment = Registry.ENCHANTMENT.get(new ResourceLocation(enchantmentId));
 
 
-         // Apply your weighting logic for this enchantment
          if (enchantment != null) {
             if (enchantment.isCurse()) {
                totalWeight += 5;
@@ -104,7 +94,6 @@ public class EnchantedBookItem extends Item {
                case RARE -> 6;
                case VERY_RARE -> 12;
             };
-            // For example, you might want to weight it by level
             totalWeight += enchantmentLevel;
 
          }
@@ -170,9 +159,10 @@ public class EnchantedBookItem extends Item {
       if (p_150895_1_ == ItemGroup.TAB_SEARCH) {
          for(Enchantment enchantment : Registry.ENCHANTMENT) {
             if (enchantment.category != null) {
-               for(int i = enchantment.getMinLevel(); i <= enchantment.getMaxLevel(); ++i) {
-                  p_150895_2_.add(createForEnchantment(new EnchantmentData(enchantment, i)));
-               }
+//               for(int i = enchantment.getMinLevel(); i <= enchantment.getMaxLevel(); ++i) {
+//                  p_150895_2_.add(createForEnchantment(new EnchantmentData(enchantment, i)));
+//               }
+               p_150895_2_.add(createForEnchantment(new EnchantmentData(enchantment, enchantment.getMaxLevel())));
             }
          }
       } else if (p_150895_1_.getEnchantmentCategories().length != 0) {

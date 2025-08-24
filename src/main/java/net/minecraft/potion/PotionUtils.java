@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
@@ -34,6 +35,13 @@ public class PotionUtils {
       list.addAll(potion.getEffects());
       list.addAll(effects);
       return list;
+   }
+
+   public static ItemStack ofPotion(Potion potion) {
+      ItemStack s = new ItemStack(Items.POTION);
+      s.getOrCreateTag().remove("Potion");
+      s.getOrCreateTag().putString("Potion", Registry.POTION.getKey(potion).toString());
+      return s;
    }
 
    public static List<EffectInstance> getAllEffects(@Nullable CompoundNBT p_185185_0_) {
@@ -127,6 +135,18 @@ public class PotionUtils {
          p_185188_0_.removeTagKey("Potion");
       } else {
          p_185188_0_.getOrCreateTag().putString("Potion", resourcelocation.toString());
+      }
+
+      return p_185188_0_;
+   }
+
+
+   public static CompoundNBT setPotion(CompoundNBT p_185188_0_, Potion p_185188_1_) {
+      ResourceLocation resourcelocation = Registry.POTION.getKey(p_185188_1_);
+      if (p_185188_1_ == Potions.EMPTY) {
+         p_185188_0_.remove("Potion");
+      } else {
+         p_185188_0_.putString("Potion", resourcelocation.toString());
       }
 
       return p_185188_0_;

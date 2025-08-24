@@ -83,7 +83,7 @@ public class ClientRecipeBook extends RecipeBook {
          if (itemgroup == ItemGroup.TAB_BUILDING_BLOCKS) {
             return RecipeBookCategories.CRAFTING_BUILDING_BLOCKS;
          } else if (itemgroup != ItemGroup.TAB_TOOLS && itemgroup != ItemGroup.TAB_COMBAT) {
-            return itemgroup == ItemGroup.TAB_REDSTONE ? RecipeBookCategories.CRAFTING_REDSTONE : RecipeBookCategories.CRAFTING_MISC;
+            return itemgroup == ItemGroup.TAB_FUNCTIONAL ? RecipeBookCategories.CRAFTING_REDSTONE : RecipeBookCategories.CRAFTING_MISC;
          } else {
             return RecipeBookCategories.CRAFTING_EQUIPMENT;
          }
@@ -97,11 +97,11 @@ public class ClientRecipeBook extends RecipeBook {
          return p_202887_0_.getResultItem().getItem() instanceof BlockItem ? RecipeBookCategories.BLAST_FURNACE_BLOCKS : RecipeBookCategories.BLAST_FURNACE_MISC;
       } else if (irecipetype == IRecipeType.SMOKING) {
          return RecipeBookCategories.SMOKER_FOOD;
-      } else if (irecipetype == IRecipeType.STONECUTTING) {
+      } else if (irecipetype == IRecipeType.STONECUTTING || irecipetype == IRecipeType.WOODCUTTING) {
          return RecipeBookCategories.STONECUTTER;
       } else if (irecipetype == IRecipeType.CAMPFIRE_COOKING) {
          return RecipeBookCategories.CAMPFIRE;
-      } else if (irecipetype == IRecipeType.SMITHING) {
+      } else if (irecipetype == IRecipeType.SMITHING || irecipetype == IRecipeType.NEW_SMITHING) {
          return RecipeBookCategories.SMITHING;
       } else {
          LOGGER.warn("Unknown recipe category: {}/{}", () -> {

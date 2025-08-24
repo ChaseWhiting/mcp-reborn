@@ -294,7 +294,7 @@ public class StructureBlockTileEntity extends TileEntity {
          BlockPos blockpos2 = new BlockPos(blockpos.getX() + 80, 255, blockpos.getZ() + 80);
          List<StructureBlockTileEntity> list = this.getNearbyCornerBlocks(blockpos1, blockpos2);
          List<StructureBlockTileEntity> list1 = this.filterRelatedCornerBlocks(list);
-         if (list1.size() < 1) {
+         if (list1.isEmpty()) {
             return false;
          } else {
             MutableBoundingBox mutableboundingbox = this.calculateEnclosingBoundingBox(blockpos, list1);

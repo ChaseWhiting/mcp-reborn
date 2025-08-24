@@ -13,7 +13,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class LongArrayNBT extends CollectionNBT<LongNBT> {
    public static final INBTType<LongArrayNBT> TYPE = new INBTType<LongArrayNBT>() {
-      public LongArrayNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) throws IOException {
+      public LongArrayNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) throws IOException {
          p_225649_3_.accountBits(192L);
          int i = p_225649_1_.readInt();
          p_225649_3_.accountBits(64L * (long)i);

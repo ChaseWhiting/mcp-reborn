@@ -3,6 +3,7 @@ package net.minecraft.item;
 import net.minecraft.entity.IEquipable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
@@ -18,6 +19,7 @@ public class SaddleItem extends Item {
          if (!iequipable.isSaddled() && iequipable.isSaddleable()) {
             if (!p_111207_2_.level.isClientSide) {
                iequipable.equipSaddle(SoundCategory.NEUTRAL);
+               p_111207_3_.level.gameEvent(p_111207_3_, GameEvent.EQUIP, p_111207_3_.position());
                p_111207_1_.shrink(1);
             }
 

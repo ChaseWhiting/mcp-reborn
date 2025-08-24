@@ -6,12 +6,10 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.terraria.creature.WormEntity;
 import net.minecraft.entity.terraria.creature.WormPartEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
 
 
 public class WormRenderer extends EntityRenderer<WormEntity> {

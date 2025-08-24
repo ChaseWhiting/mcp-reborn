@@ -12,9 +12,11 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.leashable.Leashable;
 import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -48,7 +50,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class BoatEntity extends Entity {
+public class BoatEntity extends Entity implements Leashable {
    private static final DataParameter<Integer> DATA_ID_HURT = EntityDataManager.defineId(BoatEntity.class, DataSerializers.INT);
    private static final DataParameter<Integer> DATA_ID_HURTDIR = EntityDataManager.defineId(BoatEntity.class, DataSerializers.INT);
    private static final DataParameter<Float> DATA_ID_DAMAGE = EntityDataManager.defineId(BoatEntity.class, DataSerializers.FLOAT);
@@ -80,6 +82,14 @@ public class BoatEntity extends Entity {
    private float bubbleMultiplier;
    private float bubbleAngle;
    private float bubbleAngleO;
+
+   @Nullable
+   private Leashable.LeashData leashData;
+
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.EVENTS;
+   }
 
    public BoatEntity(EntityType<? extends BoatEntity> p_i50129_1_, World p_i50129_2_) {
       super(p_i50129_1_, p_i50129_2_);
@@ -113,6 +123,36 @@ public class BoatEntity extends Entity {
       this.entityData.define(DATA_ID_BUBBLE_TIME, 0);
    }
 
+
+   @Override
+   @Nullable
+   public Leashable.LeashData getLeashData() {
+      return this.leashData;
+   }
+
+   @Override
+   public void setLeashData(@Nullable Leashable.LeashData leashData) {
+      this.leashData = leashData;
+   }
+
+   @Override
+   public Vector3d getLeashOffset() {
+      return new Vector3d(0.0, 0.88f * this.getBbHeight(), 0.64f * this.getBbWidth());
+   }
+
+   @Override
+   public boolean supportQuadLeash() {
+      return true;
+   }
+
+   @Override
+   public Vector3d[] getQuadLeashOffsets() {
+      return Leashable.createQuadLeashOffsets(this, 0.0, 0.64, 0.382, 0.88);
+   }
+
+
+
+
    public boolean canCollideWith(Entity p_241849_1_) {
       return canVehicleCollide(this, p_241849_1_);
    }
@@ -145,6 +185,7 @@ public class BoatEntity extends Entity {
          this.setHurtTime(10);
          this.setDamage(this.getDamage() + p_70097_2_ * 10.0F);
          this.markHurt();
+         this.gameEvent(GameEvent.ENTITY_DAMAGE, p_70097_1_.getEntity());
          boolean flag = p_70097_1_.getEntity() instanceof PlayerEntity && ((PlayerEntity)p_70097_1_.getEntity()).abilities.instabuild;
          if (flag || this.getDamage() > 40.0F) {
             if (!flag && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
@@ -685,28 +726,33 @@ public class BoatEntity extends Entity {
    }
 
    protected void addAdditionalSaveData(CompoundNBT p_213281_1_) {
-      p_213281_1_.putString("BoggedType", this.getBoatType().getName());
+      p_213281_1_.putString("Type", this.getBoatType().getName());
+
+      writeLeashData(p_213281_1_, getLeashData());
    }
 
    protected void readAdditionalSaveData(CompoundNBT p_70037_1_) {
-      if (p_70037_1_.contains("BoggedType", 8)) {
-         this.setType(BoatEntity.Type.byName(p_70037_1_.getString("BoggedType")));
+      if (p_70037_1_.contains("Type", 8)) {
+         this.setType(BoatEntity.Type.byName(p_70037_1_.getString("Type")));
       }
+
+      readLeashData(p_70037_1_);
 
    }
 
-   public ActionResultType interact(PlayerEntity p_184230_1_, Hand p_184230_2_) {
-      if (p_184230_1_.isSecondaryUseActive()) {
-         return ActionResultType.PASS;
-      } else if (this.outOfControlTicks < 60.0F) {
-         if (!this.level.isClientSide) {
-            return p_184230_1_.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
-         } else {
-            return ActionResultType.SUCCESS;
-         }
-      } else {
-         return ActionResultType.PASS;
+   public boolean canBeLeashed() {
+      return false;
+   }
+
+   public ActionResultType interact(PlayerEntity player, Hand interactionHand) {
+      ActionResultType interactionResult = super.interact(player, interactionHand);
+      if (interactionResult != ActionResultType.PASS) {
+         return interactionResult;
       }
+      if (!player.isSecondaryUseActive() && this.outOfControlTicks < 60.0f && (this.level().isClientSide || player.startRiding(this))) {
+         return ActionResultType.SUCCESS;
+      }
+      return ActionResultType.PASS;
    }
 
    protected void checkFallDamage(double p_184231_1_, boolean p_184231_3_, BlockState p_184231_4_, BlockPos p_184231_5_) {

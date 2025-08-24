@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.RedstoneTransmitterBlock;
+import net.minecraft.block.sensor.SculkSensorBlockEntity;
 import net.minecraft.entity.monster.creaking.block.CreakingHeartBlockEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
@@ -34,7 +34,7 @@ public class TileEntityType<T extends TileEntity> {
    public static final TileEntityType<EnchantingTableTileEntity> ENCHANTING_TABLE = register("enchanting_table", TileEntityType.Builder.of(EnchantingTableTileEntity::new, Blocks.ENCHANTING_TABLE));
    public static final TileEntityType<EndPortalTileEntity> END_PORTAL = register("end_portal", TileEntityType.Builder.of(EndPortalTileEntity::new, Blocks.END_PORTAL));
    public static final TileEntityType<BeaconTileEntity> BEACON = register("beacon", TileEntityType.Builder.of(BeaconTileEntity::new, Blocks.BEACON));
-   public static final TileEntityType<SkullTileEntity> SKULL = register("skull", TileEntityType.Builder.of(SkullTileEntity::new, Blocks.SKELETON_SKULL, Blocks.SKELETON_WALL_SKULL, Blocks.CREEPER_HEAD, Blocks.CREEPER_WALL_HEAD, Blocks.DRAGON_HEAD, Blocks.DRAGON_WALL_HEAD, Blocks.ZOMBIE_HEAD, Blocks.ZOMBIE_WALL_HEAD, Blocks.WITHER_SKELETON_SKULL, Blocks.WITHER_SKELETON_WALL_SKULL, Blocks.PLAYER_HEAD, Blocks.PLAYER_WALL_HEAD));
+   public static final TileEntityType<SkullTileEntity> SKULL = register("skull", TileEntityType.Builder.of(SkullTileEntity::new, Blocks.SKELETON_SKULL, Blocks.SKELETON_WALL_SKULL, Blocks.CREEPER_HEAD, Blocks.CREEPER_WALL_HEAD, Blocks.DRAGON_HEAD, Blocks.DRAGON_WALL_HEAD, Blocks.ZOMBIE_HEAD, Blocks.ZOMBIE_WALL_HEAD, Blocks.WITHER_SKELETON_SKULL, Blocks.WITHER_SKELETON_WALL_SKULL, Blocks.PLAYER_HEAD, Blocks.PLAYER_WALL_HEAD, Blocks.PIGLIN_HEAD, Blocks.PIGLIN_WALL_HEAD));
    public static final TileEntityType<DaylightDetectorTileEntity> DAYLIGHT_DETECTOR = register("daylight_detector", TileEntityType.Builder.of(DaylightDetectorTileEntity::new, Blocks.DAYLIGHT_DETECTOR));
    public static final TileEntityType<HopperTileEntity> HOPPER = register("hopper", TileEntityType.Builder.of(HopperTileEntity::new, Blocks.HOPPER));
    public static final TileEntityType<ComparatorTileEntity> COMPARATOR = register("comparator", TileEntityType.Builder.of(ComparatorTileEntity::new, Blocks.COMPARATOR));
@@ -43,7 +43,7 @@ public class TileEntityType<T extends TileEntity> {
    public static final TileEntityType<EndGatewayTileEntity> END_GATEWAY = register("end_gateway", TileEntityType.Builder.of(EndGatewayTileEntity::new, Blocks.END_GATEWAY));
    public static final TileEntityType<CommandBlockTileEntity> COMMAND_BLOCK = register("command_block", TileEntityType.Builder.of(CommandBlockTileEntity::new, Blocks.COMMAND_BLOCK, Blocks.CHAIN_COMMAND_BLOCK, Blocks.REPEATING_COMMAND_BLOCK));
    public static final TileEntityType<ShulkerBoxTileEntity> SHULKER_BOX = register("shulker_box", TileEntityType.Builder.of(ShulkerBoxTileEntity::new, Blocks.SHULKER_BOX, Blocks.BLACK_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX, Blocks.BROWN_SHULKER_BOX, Blocks.CYAN_SHULKER_BOX, Blocks.GRAY_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX, Blocks.LIGHT_BLUE_SHULKER_BOX, Blocks.LIGHT_GRAY_SHULKER_BOX, Blocks.LIME_SHULKER_BOX, Blocks.MAGENTA_SHULKER_BOX, Blocks.ORANGE_SHULKER_BOX, Blocks.PINK_SHULKER_BOX, Blocks.PURPLE_SHULKER_BOX, Blocks.RED_SHULKER_BOX, Blocks.WHITE_SHULKER_BOX, Blocks.YELLOW_SHULKER_BOX));
-   public static final TileEntityType<BedTileEntity> BED = register("bed", TileEntityType.Builder.of(BedTileEntity::new, Blocks.RED_BED, Blocks.BLACK_BED, Blocks.BLUE_BED, Blocks.BROWN_BED, Blocks.CYAN_BED, Blocks.GRAY_BED, Blocks.GREEN_BED, Blocks.LIGHT_BLUE_BED, Blocks.LIGHT_GRAY_BED, Blocks.LIME_BED, Blocks.MAGENTA_BED, Blocks.ORANGE_BED, Blocks.PINK_BED, Blocks.PURPLE_BED, Blocks.WHITE_BED, Blocks.YELLOW_BED, Blocks.CORAL_BED));
+   public static final TileEntityType<BedTileEntity> BED = register("bed", TileEntityType.Builder.of(BedTileEntity::new, Blocks.RED_BED, Blocks.BLACK_BED, Blocks.BLUE_BED, Blocks.BROWN_BED, Blocks.CYAN_BED, Blocks.GRAY_BED, Blocks.GREEN_BED, Blocks.LIGHT_BLUE_BED, Blocks.LIGHT_GRAY_BED, Blocks.LIME_BED, Blocks.MAGENTA_BED, Blocks.ORANGE_BED, Blocks.PINK_BED, Blocks.PURPLE_BED, Blocks.WHITE_BED, Blocks.YELLOW_BED));
    public static final TileEntityType<ConduitTileEntity> CONDUIT = register("conduit", TileEntityType.Builder.of(ConduitTileEntity::new, Blocks.CONDUIT));
    public static final TileEntityType<BarrelTileEntity> BARREL = register("barrel", TileEntityType.Builder.of(BarrelTileEntity::new, Blocks.BARREL));
    public static final TileEntityType<SmokerTileEntity> SMOKER = register("smoker", TileEntityType.Builder.of(SmokerTileEntity::new, Blocks.SMOKER));
@@ -55,6 +55,11 @@ public class TileEntityType<T extends TileEntity> {
 
    public static final TileEntityType<CampfireTileEntity> CAMPFIRE = register("campfire", TileEntityType.Builder.of(CampfireTileEntity::new, Blocks.CAMPFIRE, Blocks.SOUL_CAMPFIRE));
    public static final TileEntityType<BeehiveTileEntity> BEEHIVE = register("beehive", TileEntityType.Builder.of(BeehiveTileEntity::new, Blocks.BEE_NEST, Blocks.BEEHIVE));
+
+   public static final TileEntityType<SculkSensorBlockEntity> SCULK_SENSOR = register("sculk_sensor", Builder.of(SculkSensorBlockEntity::new, Blocks.SCULK_SENSOR));
+   public static final TileEntityType<BrushableBlockEntity> BRUSHABLE_BLOCK = register("brushable_block", Builder.of(BrushableBlockEntity::new, Blocks.SUSPICIOUS_SAND, Blocks.SUSPICIOUS_GRAVEL, Blocks.SUSPICIOUS_CLAY, Blocks.SUSPICIOUS_SOUL_SOIL, Blocks.SUSPICIOUS_CRACKED_NETHER_BRICKS, Blocks.CRACKED_NETHER_BRICKS));
+   public static final TileEntityType<DecoratedPotTileEntity> DECORATED_POT = register("decorated_pot", Builder.of(DecoratedPotTileEntity::new, Blocks.DECORATED_POT));
+
    private final Supplier<? extends T> factory;
    private final Set<Block> validBlocks;
    private final Type<?> dataType;

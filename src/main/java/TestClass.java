@@ -1,135 +1,27 @@
+import javax.swing.*;
 import java.awt.*;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.io.PrintStream;
-import java.util.stream.Stream;
 
 public class TestClass {
 
-    public TestClass() {
-
-    }
-
-    public static A[] AA = new A[]{new C(), new F()};
-
-    interface A {
-
-    }
-
-    interface D extends A {
-
-    }
-    @FunctionalInterface
-    interface E extends A, D {
-        void start();
-    }
-
     public static void main(String[] args) {
-        C c = new C();
-        for (A a : AA) {
-            if (a instanceof E) {
-                ((E)a).start();
-            } else if (a instanceof F) {
-                F f = (F) a;
-                f.print();
-            }
-        }
+
+        Font font = new Font("Serif", Font.PLAIN, 24);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        ge.registerFont(font);
+
+        JFrame frame = new JFrame("My Final Form");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(600, 250);
+
+        JLabel label = new JLabel("<html>I have reached my final form twin♡<br>" +
+                "I've become a Java code twin♡<br>" +
+                "Come be compiled into bytecode and get executed by the Java Virtual Machine with me twin♡</html>");
+        label.setFont(font);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        frame.add(label);
+
+        frame.setVisible(true);
     }
 
-    void st(String[] args) {
-        main(args);
-    }
-
-    public static abstract class B implements A, D {
-
-        public B() {
-
-        }
-
-        abstract A set(D a);
-    }
-
-    public static class C extends B implements E {
-
-        public C() {
-
-        }
-
-        @Override
-        A set(D a) {
-            return new D() {
-                void d() {
-                    TestClass testClass = new TestClass();
-                    testClass.st(new String[]{"Hi..."});
-                }
-            };
-        }
-
-        @Override
-        public void start() {
-            PrintStream ps = new PrintStream(System.out);
-            ps.println("started");
-        }
-    }
-
-    public static class F implements A {
-
-        public F() {
-
-        }
-
-        public void print() {
-            try {
-                Printer printer = new Printer(PrinterJob.getPrinterJob(), new String[]{"Hi, I am a string."});
-                printer.start();
-            } catch (PrinterException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    public static class Printer implements Printable {
-        static PrinterJob job;
-        static String[] arguments;
-
-        public Printer(PrinterJob printerJob, String... string) throws PrinterException {
-            job = printerJob;
-            arguments = string;
-        }
-
-        public void start() {
-            job.setPrintable(this);
-            try {
-                main(arguments);
-            } catch (PrinterException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public static void main(String[] args) throws PrinterException {
-            job.print();
-        }
-
-        @Override
-        public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-            if (pageIndex > 0) return NO_SUCH_PAGE;
-            double x = 0;
-            double y = 0;
-            double[] xy = new double[]{pageFormat.getImageableX(),pageFormat.getImageableY()};
-            Graphics2D g2d = (Graphics2D) graphics;
-            for (String string : arguments) {
-                g2d.translate(xy[0],xy[1]);
-                g2d.draw(new Polygon());
-                g2d.setFont(new Font("Serif", Font.PLAIN, 24));
-                g2d.drawString(string, (int) (100 - x), (int) (100 - y));
-                x -=5;
-                y -=5;
-                g2d.draw3DRect((int) (x + 12), (int) (y + 12), 20, 26, true);
-            }
-
-            return PAGE_EXISTS;
-        }
-    }
 }

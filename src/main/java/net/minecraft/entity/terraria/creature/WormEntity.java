@@ -1,9 +1,7 @@
 package net.minecraft.entity.terraria.creature;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Mob;
-import net.minecraft.entity.MoverType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;

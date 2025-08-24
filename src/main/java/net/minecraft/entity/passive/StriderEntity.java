@@ -280,7 +280,7 @@ public class StriderEntity extends Animal implements IRideable, IEquipable {
       this.checkInsideBlocks();
    }
 
-   private boolean isPanicking() {
+   public boolean isPanicking() {
       return this.panicGoal != null && this.panicGoal.isRunning();
    }
 

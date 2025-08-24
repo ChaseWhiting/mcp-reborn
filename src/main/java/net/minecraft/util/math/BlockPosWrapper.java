@@ -12,6 +12,10 @@ public class BlockPosWrapper implements IPosWrapper {
       this.centerPosition = Vector3d.atCenterOf(p_i50371_1_);
    }
 
+   public BlockPosWrapper(double x, double y, double z) {
+      this(new BlockPos(x, y, z));
+   }
+
    public Vector3d currentPosition() {
       return this.centerPosition;
    }

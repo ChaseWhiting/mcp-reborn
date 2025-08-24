@@ -1,6 +1,5 @@
 package net.minecraft.client.renderer.entity;
 
-import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.BoneArrowEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;

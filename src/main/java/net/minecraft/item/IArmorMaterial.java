@@ -23,4 +23,8 @@ public interface IArmorMaterial {
    float getToughness();
 
    float getKnockbackResistance();
+
+   float getToughnessForSlot(EquipmentSlotType type);
+
+   float getKnockbackResistanceForSlot(EquipmentSlotType type);
 }

@@ -54,4 +54,21 @@ public class FlameParticle extends DeceleratingParticle {
          return flameparticle;
       }
    }
+
+   public static class SmallFlameProvider
+           implements IParticleFactory<BasicParticleType> {
+      private final IAnimatedSprite sprite;
+
+      public SmallFlameProvider(IAnimatedSprite spriteSet) {
+         this.sprite = spriteSet;
+      }
+
+      @Override
+      public Particle createParticle(BasicParticleType simpleParticleType, ClientWorld clientLevel, double d, double d2, double d3, double d4, double d5, double d6) {
+         FlameParticle flameParticle = new FlameParticle(clientLevel, d, d2, d3, d4, d5, d6);
+         flameParticle.pickSprite(this.sprite);
+         flameParticle.scale(0.5f);
+         return flameParticle;
+      }
+   }
 }

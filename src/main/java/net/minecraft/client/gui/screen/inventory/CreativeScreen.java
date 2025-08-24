@@ -76,6 +76,18 @@ public class CreativeScreen extends DisplayEffectsScreen<CreativeScreen.Creative
       this.imageWidth = 195;
    }
 
+   private static final int TAB_WIDTH = 26;
+   private static final int TAB_HEIGHT = 32;
+
+   private int getTabX(int index) {
+      return 28 + (index % 8) * TAB_WIDTH;
+   }
+
+   private int getTabY(int index) {
+      return index < 8 ? -TAB_HEIGHT : this.imageHeight;
+   }
+
+
    public void tick() {
       if (!this.minecraft.gameMode.hasInfiniteItems()) {
          this.minecraft.setScreen(new InventoryScreen(this.minecraft.player));
@@ -388,6 +400,7 @@ public class CreativeScreen extends DisplayEffectsScreen<CreativeScreen.Creative
          double d1 = p_231044_3_ - (double)this.topPos;
 
          for(ItemGroup itemgroup : ItemGroup.TABS) {
+            if (itemgroup.getId() == 12) continue; // Skip Hotbar tab
             if (this.checkTabClicked(itemgroup, d0, d1)) {
                return true;
             }
@@ -409,6 +422,7 @@ public class CreativeScreen extends DisplayEffectsScreen<CreativeScreen.Creative
          this.scrolling = false;
 
          for(ItemGroup itemgroup : ItemGroup.TABS) {
+            if (itemgroup.getId() == 12) continue; // Skip Hotbar tab
             if (this.checkTabClicked(itemgroup, d0, d1)) {
                this.selectTab(itemgroup);
                return true;
@@ -424,6 +438,7 @@ public class CreativeScreen extends DisplayEffectsScreen<CreativeScreen.Creative
    }
 
    private void selectTab(ItemGroup p_147050_1_) {
+      if (p_147050_1_.getId() == 12) return;
       int i = selectedTab;
       selectedTab = p_147050_1_.getId();
       this.quickCraftSlots.clear();
@@ -628,10 +643,11 @@ public class CreativeScreen extends DisplayEffectsScreen<CreativeScreen.Creative
       ItemGroup itemgroup = ItemGroup.TABS[selectedTab];
 
       for(ItemGroup itemgroup1 : ItemGroup.TABS) {
+
          this.minecraft.getTextureManager().bind(CREATIVE_TABS_LOCATION);
-         if (itemgroup1.getId() != selectedTab) {
+         if (itemgroup1.getId() == 12 || itemgroup1.getId() == selectedTab) continue;
             this.renderTabButton(p_230450_1_, itemgroup1);
-         }
+
       }
 
       this.minecraft.getTextureManager().bind(new ResourceLocation("textures/gui/container/creative_inventory/tab_" + itemgroup.getBackgroundSuffix()));
@@ -646,8 +662,10 @@ public class CreativeScreen extends DisplayEffectsScreen<CreativeScreen.Creative
          this.blit(p_230450_1_, i, j + (int)((float)(k - j - 17) * this.scrollOffs), 232 + (this.canScroll() ? 0 : 12), 0, 12, 15);
       }
 
-      this.renderTabButton(p_230450_1_, itemgroup);
-      if (itemgroup == ItemGroup.TAB_INVENTORY) {
+       if (itemgroup.getId() != 12) {
+           this.renderTabButton(p_230450_1_, itemgroup);
+       }
+       if (itemgroup == ItemGroup.TAB_INVENTORY) {
          InventoryScreen.renderEntityInInventory(this.leftPos + 88, this.topPos + 45, 20, (float)(this.leftPos + 88 - p_230450_3_), (float)(this.topPos + 45 - 30 - p_230450_4_), this.minecraft.player);
       }
 

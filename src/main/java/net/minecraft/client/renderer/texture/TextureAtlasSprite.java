@@ -94,7 +94,7 @@ public class TextureAtlasSprite implements AutoCloseable {
             CrashReportCategory crashreportcategory1 = crashreport1.addCategory("Frame being iterated");
             crashreportcategory1.setDetail("First frame", () -> {
                StringBuilder stringbuilder = new StringBuilder();
-               if (stringbuilder.length() > 0) {
+               if (!stringbuilder.isEmpty()) {
                   stringbuilder.append(", ");
                }
 

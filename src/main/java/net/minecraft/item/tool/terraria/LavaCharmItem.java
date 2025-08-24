@@ -1,19 +1,12 @@
 package net.minecraft.item.tool.terraria;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.StarfuryStarEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.Rarity;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-
-import java.util.Random;
 
 import static net.minecraft.item.tool.terraria.StarfuryItem.*;
 

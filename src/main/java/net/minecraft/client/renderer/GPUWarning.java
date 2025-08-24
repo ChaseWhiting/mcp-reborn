@@ -91,7 +91,7 @@ public class GPUWarning extends ReloadListener<GPUWarning.GPUInfo> {
       this.warnings.forEach((p_243498_1_, p_243498_2_) -> {
          stringbuilder.append(p_243498_1_).append(": ").append(p_243498_2_);
       });
-      return stringbuilder.length() == 0 ? null : stringbuilder.toString();
+      return stringbuilder.isEmpty() ? null : stringbuilder.toString();
    }
 
    protected GPUWarning.GPUInfo prepare(IResourceManager p_212854_1_, IProfiler p_212854_2_) {

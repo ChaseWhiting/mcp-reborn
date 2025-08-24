@@ -59,6 +59,8 @@ public class EnchantWithLevels extends LootFunction {
       }
    }
 
+
+
    public static class Serializer extends LootFunction.Serializer<EnchantWithLevels> {
       public void serialize(JsonObject p_230424_1_, EnchantWithLevels p_230424_2_, JsonSerializationContext p_230424_3_) {
          super.serialize(p_230424_1_, p_230424_2_, p_230424_3_);

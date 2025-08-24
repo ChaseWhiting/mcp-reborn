@@ -124,7 +124,7 @@ public class TrackedEntity {
                long j = SEntityPacket.entityToPacket(vector3d.y);
                long k = SEntityPacket.entityToPacket(vector3d.z);
                boolean flag1 = i < -32768L || i > 32767L || j < -32768L || j > 32767L || k < -32768L || k > 32767L;
-               if (!flag1 && this.teleportDelay <= 400 && !this.wasRiding && this.wasOnGround == this.entity.isOnGround()) {
+               if (!this.entity.getRequiresPrecisePosition() && !flag1 && this.teleportDelay <= 400 && !this.wasRiding && this.wasOnGround == this.entity.isOnGround()) {
                   if ((!flag4 || !flag) && !(this.entity instanceof AbstractArrowEntity)) {
                      if (flag4) {
                         ipacket1 = new SEntityPacket.RelativeMovePacket(this.entity.getId(), (short)((int)i), (short)((int)j), (short)((int)k), this.entity.isOnGround());

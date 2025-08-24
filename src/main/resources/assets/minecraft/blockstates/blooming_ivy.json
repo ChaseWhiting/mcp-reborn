@@ -1,0 +1,385 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1"
+      },
+      "when": {
+        "north": "true",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1"
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "true",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "jblock/blooming_ivy_stage1",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "true",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "true",
+        "stage": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage1",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "1"
+      }
+    },
+
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2"
+      },
+      "when": {
+        "north": "true",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2"
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "true",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "true",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "true",
+        "stage": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage2",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "2"
+      }
+    },
+
+
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3"
+      },
+      "when": {
+        "north": "true",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3"
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3",
+        "uvlock": false,
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3",
+        "uvlock": false,
+        "y": 90
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3",
+        "uvlock": false,
+        "y": 180
+      },
+      "when": {
+        "south": "true",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3",
+        "uvlock": false,
+        "y": 180
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3",
+        "uvlock": false,
+        "y": 270
+      },
+      "when": {
+        "west": "true",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3",
+        "uvlock": false,
+        "y": 270
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3",
+        "uvlock": false,
+        "x": 270
+      },
+      "when": {
+        "up": "true",
+        "stage": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "block/blooming_ivy_stage3",
+        "uvlock": false,
+        "x": 270
+      },
+      "when": {
+        "east": "false",
+        "north": "false",
+        "south": "false",
+        "up": "false",
+        "west": "false",
+        "stage": "3"
+      }
+    }
+  ]
+}

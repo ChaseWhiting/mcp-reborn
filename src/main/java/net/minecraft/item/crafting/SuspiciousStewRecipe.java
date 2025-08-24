@@ -10,6 +10,7 @@ import net.minecraft.item.SuspiciousStewItem;
 import net.minecraft.potion.Effect;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -47,7 +48,7 @@ public class SuspiciousStewRecipe extends SpecialRecipe {
       return flag && flag2 && flag1 && flag3;
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       ItemStack itemstack = ItemStack.EMPTY;
 
       for(int i = 0; i < p_77572_1_.getContainerSize(); ++i) {

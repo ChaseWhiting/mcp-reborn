@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "flower_amount=1,facing=north": { "model": "minecraft:block/pale_leaf_pile_1" },
+    "flower_amount=1,facing=east": { "model": "minecraft:block/pale_leaf_pile_1", "y": 90 },
+    "flower_amount=1,facing=south": { "model": "minecraft:block/pale_leaf_pile_1", "y": 180 },
+    "flower_amount=1,facing=west": { "model": "minecraft:block/pale_leaf_pile_1", "y": 270 },
+    "flower_amount=2,facing=north": { "model": "minecraft:block/pale_leaf_pile_2" },
+    "flower_amount=2,facing=east": { "model": "minecraft:block/pale_leaf_pile_2", "y": 90 },
+    "flower_amount=2,facing=south": { "model": "minecraft:block/pale_leaf_pile_2", "y": 180 },
+    "flower_amount=2,facing=west": { "model": "minecraft:block/pale_leaf_pile_2", "y": 270 },
+    "flower_amount=3,facing=north": { "model": "minecraft:block/pale_leaf_pile_3" },
+    "flower_amount=3,facing=east": { "model": "minecraft:block/pale_leaf_pile_3", "y": 90 },
+    "flower_amount=3,facing=south": { "model": "minecraft:block/pale_leaf_pile_3", "y": 180 },
+    "flower_amount=3,facing=west": { "model": "minecraft:block/pale_leaf_pile_3", "y": 270 },
+    "flower_amount=4,facing=north": { "model": "minecraft:block/pale_leaf_pile_4" },
+    "flower_amount=4,facing=east": { "model": "minecraft:block/pale_leaf_pile_4", "y": 90 },
+    "flower_amount=4,facing=south": { "model": "minecraft:block/pale_leaf_pile_4", "y": 180 },
+    "flower_amount=4,facing=west": { "model": "minecraft:block/pale_leaf_pile_4", "y": 270 }
+  }
+}

@@ -15,12 +15,14 @@ import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
@@ -36,18 +38,13 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.village.PointOfInterestManager;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.border.WorldBorder;
-import net.minecraft.world.chunk.AbstractChunkProvider;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.chunk.*;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.lighting.WorldLightManager;
 import net.minecraft.world.server.ChunkHolder;
@@ -74,7 +71,6 @@ public abstract class World implements IWorld, AutoCloseable {
    private final boolean isDebug;
    private int skyDarken;
    protected int randValue = (new Random()).nextInt();
-   protected final int addend = 1013904223;
    protected float oRainLevel;
    protected float rainLevel;
    protected float oThunderLevel;
@@ -91,6 +87,16 @@ public abstract class World implements IWorld, AutoCloseable {
 
    public PointOfInterestManager manager;
    private final RegistryKey<World> dimension;
+
+
+   public float getParticleFallDistanceOntoLeaves(boolean b) {
+      if (b) {
+         return 5.5F;
+      }
+
+      return 3.0F;
+   }
+
 
    protected World(ISpawnWorldInfo p_i241925_1_, RegistryKey<World> p_i241925_2_, final DimensionType p_i241925_3_, Supplier<IProfiler> p_i241925_4_, boolean p_i241925_5_, boolean p_i241925_6_, long p_i241925_7_) {
       this.profiler = p_i241925_4_;
@@ -116,6 +122,14 @@ public abstract class World implements IWorld, AutoCloseable {
       this.thread = Thread.currentThread();
       this.biomeManager = new BiomeManager(this, p_i241925_7_, p_i241925_3_.getBiomeZoomer());
       this.isDebug = p_i241925_6_;
+   }
+
+   public boolean shouldTickBlocksAt(long l) {
+      return true;
+   }
+
+   public boolean shouldTickBlocksAt(BlockPos blockPos) {
+      return this.shouldTickBlocksAt(ChunkPos.asLong(blockPos));
    }
 
    public boolean isClientSide() {
@@ -172,11 +186,11 @@ public abstract class World implements IWorld, AutoCloseable {
       }
    }
 
-   public boolean setBlock(BlockPos pos, BlockState state, int updateTime) {
-      return this.setBlock(pos, state, updateTime, 512);
+   public boolean setBlock(BlockPos pos, BlockState state, int flags) {
+      return this.setBlock(pos, state, flags, 512);
    }
 
-   public boolean setBlock(BlockPos p_241211_1_, BlockState p_241211_2_, int p_241211_3_, int p_241211_4_) {
+   public boolean setBlock(BlockPos p_241211_1_, BlockState p_241211_2_, int flags, int p_241211_4_) {
       if (isOutsideBuildHeight(p_241211_1_)) {
          return false;
       } else if (!this.isClientSide && this.isDebug()) {
@@ -184,12 +198,12 @@ public abstract class World implements IWorld, AutoCloseable {
       } else {
          Chunk chunk = this.getChunkAt(p_241211_1_);
          Block block = p_241211_2_.getBlock();
-         BlockState blockstate = chunk.setBlockState(p_241211_1_, p_241211_2_, (p_241211_3_ & 64) != 0);
+         BlockState blockstate = chunk.setBlockState(p_241211_1_, p_241211_2_, (flags & 64) != 0);
          if (blockstate == null) {
             return false;
          } else {
             BlockState blockstate1 = this.getBlockState(p_241211_1_);
-            if ((p_241211_3_ & 128) == 0 && blockstate1 != blockstate && (blockstate1.getLightBlock(this, p_241211_1_) != blockstate.getLightBlock(this, p_241211_1_) || blockstate1.getLightEmission() != blockstate.getLightEmission() || blockstate1.useShapeForLightOcclusion() || blockstate.useShapeForLightOcclusion())) {
+            if ((flags & 128) == 0 && blockstate1 != blockstate && (blockstate1.getLightBlock(this, p_241211_1_) != blockstate.getLightBlock(this, p_241211_1_) || blockstate1.getLightEmission() != blockstate.getLightEmission() || blockstate1.useShapeForLightOcclusion() || blockstate.useShapeForLightOcclusion())) {
                this.getProfiler().push("queueCheckLight");
                this.getChunkSource().getLightEngine().checkBlock(p_241211_1_);
                this.getProfiler().pop();
@@ -200,19 +214,19 @@ public abstract class World implements IWorld, AutoCloseable {
                   this.setBlocksDirty(p_241211_1_, blockstate, blockstate1);
                }
 
-               if ((p_241211_3_ & 2) != 0 && (!this.isClientSide || (p_241211_3_ & 4) == 0) && (this.isClientSide || chunk.getFullStatus() != null && chunk.getFullStatus().isOrAfter(ChunkHolder.LocationType.TICKING))) {
-                  this.sendBlockUpdated(p_241211_1_, blockstate, p_241211_2_, p_241211_3_);
+               if ((flags & 2) != 0 && (!this.isClientSide || (flags & 4) == 0) && (this.isClientSide || chunk.getFullStatus() != null && chunk.getFullStatus().isOrAfter(ChunkHolder.LocationType.TICKING))) {
+                  this.sendBlockUpdated(p_241211_1_, blockstate, p_241211_2_, flags);
                }
 
-               if ((p_241211_3_ & 1) != 0) {
+               if ((flags & 1) != 0) {
                   this.blockUpdated(p_241211_1_, blockstate.getBlock());
                   if (!this.isClientSide && p_241211_2_.hasAnalogOutputSignal()) {
                      this.updateNeighbourForOutputSignal(p_241211_1_, block);
                   }
                }
 
-               if ((p_241211_3_ & 16) == 0 && p_241211_4_ > 0) {
-                  int i = p_241211_3_ & -34;
+               if ((flags & 16) == 0 && p_241211_4_ > 0) {
+                  int i = flags & -34;
                   blockstate.updateIndirectNeighbourShapes(this, p_241211_1_, i, p_241211_4_ - 1);
                   p_241211_2_.updateNeighbourShapes(this, p_241211_1_, i, p_241211_4_ - 1);
                   p_241211_2_.updateIndirectNeighbourShapes(this, p_241211_1_, i, p_241211_4_ - 1);
@@ -249,7 +263,36 @@ public abstract class World implements IWorld, AutoCloseable {
             Block.dropResources(blockstate, this, p_241212_1_, tileentity, p_241212_3_, ItemStack.EMPTY);
          }
 
-         return this.setBlock(p_241212_1_, fluidstate.createLegacyBlock(), 3, p_241212_4_);
+         boolean bl = this.setBlock(p_241212_1_, fluidstate.createLegacyBlock(), 3, p_241212_4_);
+         if (bl) {
+            this.gameEvent(GameEvent.BLOCK_DESTROY, p_241212_1_, GameEvent.Context.of(p_241212_3_, blockstate));
+         }
+
+         return bl;
+      }
+   }
+
+   public boolean destroyBlock(BlockPos p_241212_1_, boolean p_241212_2_, @Nullable Entity p_241212_3_, int p_241212_4_, boolean event) {
+      BlockState blockstate = this.getBlockState(p_241212_1_);
+      if (blockstate.isAir()) {
+         return false;
+      } else {
+         FluidState fluidstate = this.getFluidState(p_241212_1_);
+         if (!(blockstate.getBlock() instanceof AbstractFireBlock)) {
+            this.levelEvent(2001, p_241212_1_, Block.getId(blockstate));
+         }
+
+         if (p_241212_2_) {
+            TileEntity tileentity = blockstate.getBlock().isEntityBlock() ? this.getBlockEntity(p_241212_1_) : null;
+            Block.dropResources(blockstate, this, p_241212_1_, tileentity, p_241212_3_, ItemStack.EMPTY);
+         }
+
+         boolean bl = this.setBlock(p_241212_1_, fluidstate.createLegacyBlock(), 3, p_241212_4_);
+         if (bl && event) {
+            this.gameEvent(GameEvent.BLOCK_DESTROY, p_241212_1_, GameEvent.Context.of(p_241212_3_, blockstate));
+         }
+
+         return bl;
       }
    }
 
@@ -391,11 +434,20 @@ public abstract class World implements IWorld, AutoCloseable {
    public void addParticle(IParticleData p_195594_1_, double x, double y, double z, double p_195594_8_, double p_195594_10_, double p_195594_12_) {
    }
 
+   public void playPlayerSound(SoundEvent soundEvent, SoundCategory soundSource, float f, float f2) {
+   }
+
    @OnlyIn(Dist.CLIENT)
    public void addParticle(IParticleData p_195590_1_, boolean p_195590_2_, double p_195590_3_, double p_195590_5_, double p_195590_7_, double p_195590_9_, double p_195590_11_, double p_195590_13_) {
    }
 
    public void addAlwaysVisibleParticle(IParticleData p_195589_1_, double p_195589_2_, double p_195589_4_, double p_195589_6_, double p_195589_8_, double p_195589_10_, double p_195589_12_) {
+   }
+
+   @Nullable
+   public Particle addAlwaysVisibleParticleAndReturn(IParticleData p_195589_1_, double p_195589_2_, double p_195589_4_, double p_195589_6_, double p_195589_8_, double p_195589_10_, double p_195589_12_) {
+      
+      return null;
    }
 
    public void addAlwaysVisibleParticle(IParticleData p_217404_1_, boolean p_217404_2_, double p_217404_3_, double p_217404_5_, double p_217404_7_, double p_217404_9_, double p_217404_11_, double p_217404_13_) {
@@ -626,6 +678,10 @@ public abstract class World implements IWorld, AutoCloseable {
 
    public boolean isLoaded(BlockPos p_195588_1_) {
       return isOutsideBuildHeight(p_195588_1_) ? false : this.getChunkSource().hasChunk(p_195588_1_.getX() >> 4, p_195588_1_.getZ() >> 4);
+   }
+
+   public boolean isLoaded(SectionPos section) {
+      return isOutsideBuildHeight(section.y()) ? false : this.getChunkSource().hasChunk(section.x(), section.getZ());
    }
 
    public boolean loadedAndEntityCanStandOnFace(BlockPos p_234929_1_, Entity p_234929_2_, Direction p_234929_3_) {

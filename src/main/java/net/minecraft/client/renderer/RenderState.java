@@ -99,6 +99,10 @@ public abstract class RenderState {
    protected static final RenderState.DepthTestState NO_DEPTH_TEST = new RenderState.DepthTestState("always", 519);
    protected static final RenderState.DepthTestState EQUAL_DEPTH_TEST = new RenderState.DepthTestState("==", 514);
    protected static final RenderState.DepthTestState LEQUAL_DEPTH_TEST = new RenderState.DepthTestState("<=", 515);
+   protected static final RenderState.DepthTestState GREATER_DEPTH_TEST = new RenderState.DepthTestState(">", 516);
+   protected static final RenderState.DepthTestState NOT_EQUAL_DEPTH_TEST = new RenderState.DepthTestState("!=", 517);
+   protected static final RenderState.DepthTestState GEQUAL_DEPTH_TEST = new RenderState.DepthTestState(">=", 518);
+
    protected static final RenderState.WriteMaskState COLOR_DEPTH_WRITE = new RenderState.WriteMaskState(true, true);
    protected static final RenderState.WriteMaskState COLOR_WRITE = new RenderState.WriteMaskState(true, false);
    protected static final RenderState.WriteMaskState DEPTH_WRITE = new RenderState.WriteMaskState(false, true);
@@ -717,4 +721,15 @@ public abstract class RenderState {
          return this.name + "[writeColor=" + this.writeColor + ", writeDepth=" + this.writeDepth + ']';
       }
    }
+
+   @OnlyIn(Dist.CLIENT)
+   public static class ShaderState extends RenderState {
+      private final int shaderProgramId;
+
+      public ShaderState(final int shaderProgramId) {
+         super("shader", () -> RenderSystem.useShaderProgram(shaderProgramId), () -> RenderSystem.useShaderProgram(0));
+         this.shaderProgramId = shaderProgramId;
+      }
+   }
+
 }

@@ -16,6 +16,7 @@ import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.PanicGoal;
 import net.minecraft.entity.ai.goal.RandomSwimmingGoal;
+import net.minecraft.entity.axolotl.AxolotlEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -63,6 +64,10 @@ public abstract class AbstractFishEntity extends WaterMobEntity {
       return p_223363_1_.getBlockState(p_223363_3_).is(Blocks.WATER) && p_223363_1_.getBlockState(p_223363_3_.above()).is(Blocks.WATER);
    }
 
+   public static boolean checkAxolotlSpawnRules(EntityType<? extends AxolotlEntity> p_223363_0_, IWorld p_223363_1_, SpawnReason p_223363_2_, BlockPos p_223363_3_, Random p_223363_4_) {
+      return p_223363_1_.getBlockState(p_223363_3_).is(Blocks.WATER) && p_223363_1_.getBlockState(p_223363_3_.above()).is(Blocks.WATER);
+   }
+
    public boolean removeWhenFarAway(double p_213397_1_) {
       return !this.fromBucket() && !this.hasCustomName();
    }
@@ -76,7 +81,7 @@ public abstract class AbstractFishEntity extends WaterMobEntity {
       this.entityData.define(FROM_BUCKET, false);
    }
 
-   private boolean fromBucket() {
+   public boolean fromBucket() {
       return this.entityData.get(FROM_BUCKET);
    }
 

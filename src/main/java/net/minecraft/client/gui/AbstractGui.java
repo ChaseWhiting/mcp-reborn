@@ -15,6 +15,7 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.lwjgl.opengl.GL11;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractGui {
@@ -150,6 +151,7 @@ public abstract class AbstractGui {
       innerBlit(p_238464_0_, p_238464_1_, p_238464_1_ + p_238464_6_, p_238464_2_, p_238464_2_ + p_238464_7_, p_238464_3_, p_238464_6_, p_238464_7_, p_238464_4_, p_238464_5_, p_238464_9_, p_238464_8_);
    }
 
+
    public static void blit(MatrixStack p_238466_0_, int p_238466_1_, int p_238466_2_, int p_238466_3_, int p_238466_4_, float p_238466_5_, float p_238466_6_, int p_238466_7_, int p_238466_8_, int p_238466_9_, int p_238466_10_) {
       innerBlit(p_238466_0_, p_238466_1_, p_238466_1_ + p_238466_3_, p_238466_2_, p_238466_2_ + p_238466_4_, 0, p_238466_7_, p_238466_8_, p_238466_5_, p_238466_6_, p_238466_9_, p_238466_10_);
    }
@@ -173,6 +175,27 @@ public abstract class AbstractGui {
       RenderSystem.enableAlphaTest();
       WorldVertexBufferUploader.end(bufferbuilder);
    }
+
+   public static void blit(Matrix4f matrix, int x, int y, int z, int width, int height, TextureAtlasSprite sprite) {
+      innerBlit(matrix, x, x + width, y, y + height, z,
+              sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1());
+   }
+
+
+   private static void innerBlit(Matrix4f matrix, int x0, int x1, int y0, int y1, int z,
+                                 float u0, float u1, float v0, float v1,
+                                 float r, float g, float b, float a) {
+      BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
+      bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX);
+      bufferbuilder.vertex(matrix, x0, y1, z).color(r, g, b, a).uv(u0, v1).endVertex();
+      bufferbuilder.vertex(matrix, x1, y1, z).color(r, g, b, a).uv(u1, v1).endVertex();
+      bufferbuilder.vertex(matrix, x1, y0, z).color(r, g, b, a).uv(u1, v0).endVertex();
+      bufferbuilder.vertex(matrix, x0, y0, z).color(r, g, b, a).uv(u0, v0).endVertex();
+      bufferbuilder.end();
+      RenderSystem.enableAlphaTest();
+      WorldVertexBufferUploader.end(bufferbuilder);
+   }
+
 
    public int getBlitOffset() {
       return this.blitOffset;

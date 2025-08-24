@@ -38,7 +38,7 @@ public class PreYggdrasilConverter {
 
       for(String s : list) {
          s = s.trim();
-         if (!s.startsWith("#") && s.length() >= 1) {
+         if (!s.startsWith("#") && !s.isEmpty()) {
             String[] astring = s.split("\\|");
             p_152721_1_.put(astring[0].toLowerCase(Locale.ROOT), astring);
          }

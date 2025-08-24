@@ -1,6 +1,5 @@
 package net.minecraft.enchantment;
 
-import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.inventory.EquipmentSlotType;
 
 public class GravityWellEnchantment extends Enchantment {

@@ -340,7 +340,7 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
 
             this.player.getLevel().getChunkSource().move(this.player);
             this.player.checkMovementStatistics(this.player.getX() - d0, this.player.getY() - d1, this.player.getZ() - d2);
-            this.clientVehicleIsFloating = d7 >= -0.03125D && !this.server.isFlightAllowed() && this.noBlocksAround(entity);
+            this.clientVehicleIsFloating = d7 >= -0.03125D && !this.server.isFlightAllowed() && this.noBlocksAround(entity) && !entity.isFlyingVehicle();
             this.vehicleLastGoodX = entity.getX();
             this.vehicleLastGoodY = entity.getY();
             this.vehicleLastGoodZ = entity.getZ();
@@ -840,10 +840,10 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
 
          ItemStack shield = packet.getShield();
          shield.hurtAndBreak(5, player, (player) -> {
-            player.broadcastBreakEvent(Hand.OFF_HAND); // Notify of break event for offhand
+            player.broadcastBreakEvent(Hand.OFF_HAND);
          });
 
-         int cooldown = player.isOnGround() ? 35 : 60;  // Different cooldowns based on whether the player is airborne
+         int cooldown = player.isOnGround() ? 35 : 60;
          player.getCooldowns().addCooldown(Items.SHIELD_OF_CTHULHU, cooldown);
          player.invulnerableTime += 2;
 
@@ -856,12 +856,10 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
                  lookDirection.z * dashRange
          ).inflate(0.8, 1, 0.8);
 
-         // Find entities in the expanded bounding box
          List<LivingEntity> nearbyEntities = player.level.getEntitiesOfClass(LivingEntity.class,
                  dashBox,
                  (entity) -> entity != null && entity != player && entity.isAlive());
 
-         // Deal damage to entities within the dash range
          for (LivingEntity target : nearbyEntities) {
             if (player.getRandom().nextBoolean()) {
                shield.hurt(1, player);
@@ -930,8 +928,14 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
       BlockPos blockpos = blockraytraceresult.getBlockPos();
       Direction direction = blockraytraceresult.getDirection();
       this.player.resetLastActionTime();
+      double reach = this.player.getReachDistance() + 3;
+      double reachSq = reach * reach;
+
       if (blockpos.getY() < this.server.getMaxBuildHeight()) {
-         if (this.awaitingPositionFromClient == null && this.player.distanceToSqr((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D) < 64.0D && serverworld.mayInteract(this.player, blockpos)) {
+         if (this.awaitingPositionFromClient == null && this.player.distanceToSqr(
+                 (double)blockpos.getX() + 0.5D,
+                 (double)blockpos.getY() + 0.5D,
+                 (double)blockpos.getZ() + 0.5D) < reachSq && serverworld.mayInteract(this.player, blockpos)) {
             ActionResultType actionresulttype = this.player.gameMode.useItemOn(this.player, serverworld, itemstack, hand, blockraytraceresult);
             if (direction == Direction.UP && !actionresulttype.consumesAction() && blockpos.getY() >= this.server.getMaxBuildHeight() - 1 && wasBlockPlacementAttempt(this.player, itemstack)) {
                ITextComponent itextcomponent = (new TranslationTextComponent("build.tooHigh", this.server.getMaxBuildHeight())).withStyle(TextFormatting.RED);
@@ -1161,7 +1165,7 @@ public class ServerPlayNetHandler implements IServerPlayNetHandler {
       this.player.setShiftKeyDown(p_147340_1_.isUsingSecondaryAction());
       if (entity != null) {
          double d0 = 36.0D;
-         if (this.player.distanceToSqr(entity) < 36.0D) {
+         if (this.player.distanceToSqr(entity) < d0) {
             Hand hand = p_147340_1_.getHand();
             ItemStack itemstack = hand != null ? this.player.getItemInHand(hand).copy() : ItemStack.EMPTY;
             Optional<ActionResultType> optional = Optional.empty();

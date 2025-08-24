@@ -160,7 +160,7 @@ public class EntityLootTables implements Consumer<BiConsumer<ResourceLocation, L
          }
       }
 
-      this.map.forEach(p_accept_1_::accept);
+      this.map.forEach(p_accept_1_);
    }
 
    private void add(EntityType<?> p_218582_1_, LootTable.Builder p_218582_2_) {

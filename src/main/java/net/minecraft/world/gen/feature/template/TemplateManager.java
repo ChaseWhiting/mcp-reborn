@@ -1,6 +1,5 @@
 package net.minecraft.world.gen.feature.template;
 
-import com.google.common.collect.Maps;
 import com.mojang.datafixers.DataFixer;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

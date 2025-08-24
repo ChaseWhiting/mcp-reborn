@@ -16,13 +16,19 @@ import net.minecraft.world.IBlockReader;
 public class SkullBlock extends AbstractSkullBlock {
    public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
    protected static final VoxelShape SHAPE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 8.0D, 12.0D);
+   protected static final VoxelShape PIGLIN_SHAPE = Block.box(3.0, 0.0, 3.0, 13.0, 8.0, 13.0);
+
 
    protected SkullBlock(SkullBlock.ISkullType p_i48332_1_, AbstractBlock.Properties p_i48332_2_) {
       super(p_i48332_1_, p_i48332_2_);
       this.registerDefaultState(this.stateDefinition.any().setValue(ROTATION, Integer.valueOf(0)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      if (this.getType() == Types.PIGLIN) {
+         return PIGLIN_SHAPE;
+      }
+
       return SHAPE;
    }
 
@@ -42,8 +48,8 @@ public class SkullBlock extends AbstractSkullBlock {
       return state.setValue(ROTATION, Integer.valueOf(mirroring.mirror(state.getValue(ROTATION), 16)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(ROTATION);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(ROTATION);
    }
 
    public interface ISkullType {
@@ -55,6 +61,7 @@ public class SkullBlock extends AbstractSkullBlock {
       PLAYER,
       ZOMBIE,
       CREEPER,
+      PIGLIN,
       DRAGON;
    }
 }

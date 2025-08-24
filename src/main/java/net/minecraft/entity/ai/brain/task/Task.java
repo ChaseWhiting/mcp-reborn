@@ -9,7 +9,7 @@ import net.minecraft.world.server.ServerWorld;
 
 public abstract class Task<E extends LivingEntity> {
    protected final Map<MemoryModuleType<?>, MemoryModuleStatus> entryCondition;
-   private Task.Status status = Task.Status.STOPPED;
+   protected Task.Status status = Task.Status.STOPPED;
    private long endTimestamp;
    private final int minDuration;
    private final int maxDuration;
@@ -32,7 +32,7 @@ public abstract class Task<E extends LivingEntity> {
       return this.status;
    }
 
-   public final boolean tryStart(ServerWorld p_220378_1_, E p_220378_2_, long p_220378_3_) {
+   public boolean tryStart(ServerWorld p_220378_1_, E p_220378_2_, long p_220378_3_) {
       if (this.hasRequiredMemories(p_220378_2_) && this.checkExtraStartConditions(p_220378_1_, p_220378_2_)) {
          this.status = Task.Status.RUNNING;
          int i = this.minDuration + p_220378_1_.getRandom().nextInt(this.maxDuration + 1 - this.minDuration);
@@ -47,7 +47,7 @@ public abstract class Task<E extends LivingEntity> {
    protected void start(ServerWorld p_212831_1_, E p_212831_2_, long p_212831_3_) {
    }
 
-   public final void tickOrStop(ServerWorld p_220377_1_, E p_220377_2_, long p_220377_3_) {
+   public void tickOrStop(ServerWorld p_220377_1_, E p_220377_2_, long p_220377_3_) {
       if (!this.timedOut(p_220377_3_) && this.canStillUse(p_220377_1_, p_220377_2_, p_220377_3_)) {
          this.tick(p_220377_1_, p_220377_2_, p_220377_3_);
       } else {
@@ -59,7 +59,7 @@ public abstract class Task<E extends LivingEntity> {
    protected void tick(ServerWorld p_212833_1_, E p_212833_2_, long p_212833_3_) {
    }
 
-   public final void doStop(ServerWorld p_220380_1_, E p_220380_2_, long p_220380_3_) {
+   public void doStop(ServerWorld p_220380_1_, E p_220380_2_, long p_220380_3_) {
       this.status = Task.Status.STOPPED;
       this.stop(p_220380_1_, p_220380_2_, p_220380_3_);
    }

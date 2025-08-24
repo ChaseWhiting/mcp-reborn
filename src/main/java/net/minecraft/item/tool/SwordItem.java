@@ -13,11 +13,14 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.TieredItem;
+import net.minecraft.item.*;
+import net.minecraft.item.dagger.DesolateDaggerItem;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.TimeConstants;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.random.RandomSource;
 import net.minecraft.world.World;
 
 public class SwordItem extends TieredItem implements IVanishable {
@@ -30,6 +33,15 @@ public class SwordItem extends TieredItem implements IVanishable {
       Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
       builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", (double)this.attackDamage, AttributeModifier.Operation.ADDITION));
       builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", (double)p_i48460_3_, AttributeModifier.Operation.ADDITION));
+
+      if (this instanceof DesolateDaggerItem) {
+         builder.put(Attributes.REACH_DISTANCE, new AttributeModifier(BASE_REACH_UUID, "Weapon modifier", -2, AttributeModifier.Operation.ADDITION));
+      }
+
+      if (p_i48460_1_ == ItemTier.WITHER_BONE) {
+         builder.put(Attributes.REACH_DISTANCE, new AttributeModifier(BASE_REACH_UUID, "Weapon modifier", -1.25, AttributeModifier.Operation.ADDITION));
+      }
+
       this.defaultModifiers = builder.build();
    }
 
@@ -52,6 +64,13 @@ public class SwordItem extends TieredItem implements IVanishable {
    }
 
    public boolean hurtEnemy(ItemStack p_77644_1_, LivingEntity p_77644_2_, LivingEntity p_77644_3_) {
+
+      if (this == Items.WITHER_BONE_CUTLASS) {
+          if (!p_77644_2_.hasEffect(Effects.WITHER)) {
+              p_77644_2_.addEffect(new EffectInstance(Effects.WITHER, 70, RandomSource.create().nextIntBetweenInclusive(0, 1)));
+          }
+      }
+
       p_77644_1_.hurtAndBreak(1, p_77644_3_, (p_220045_0_) -> {
          p_220045_0_.broadcastBreakEvent(EquipmentSlotType.MAINHAND);
       });

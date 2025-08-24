@@ -2,9 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.entity.model.GildedRavagerModel;
-import net.minecraft.client.renderer.entity.model.RavagerModel;
 import net.minecraft.entity.monster.GildedRavagerEntity;
-import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

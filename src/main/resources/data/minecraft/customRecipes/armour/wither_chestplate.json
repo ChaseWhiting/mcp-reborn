@@ -1,0 +1,26 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "# #",
+        "#N#",
+        "BKB"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:fortified_wither_bone"
+        },
+        "N": {
+            "item": "minecraft:wither_skeleton_ribcage"
+        },
+        "B": {
+            "item": "minecraft:wither_bone"
+        },
+        "K": {
+            "item": "minecraft:netherite_scrap"
+        }
+    },
+    "result": {
+        "item": "minecraft:wither_bone_chestplate",
+        "count": 1
+    }
+}

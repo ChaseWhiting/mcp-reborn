@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.model.Model;
 import net.minecraft.util.ResourceLocation;
 
 public class TexturedModel {

@@ -13,6 +13,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import java.lang.reflect.Type;
+import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,6 +24,7 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
    private static final SimpleCommandExceptionType ERROR_INVALID = new SimpleCommandExceptionType(new TranslationTextComponent("argument.id.invalid"));
    protected final String namespace;
    protected final String path;
+   public static final String DEFAULT_NAMESPACE = "minecraft";
 
    protected ResourceLocation(String[] p_i47923_1_) {
       this.namespace = org.apache.commons.lang3.StringUtils.isEmpty(p_i47923_1_[0]) ? "minecraft" : p_i47923_1_[0];
@@ -34,8 +36,35 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
       }
    }
 
+   public static ResourceLocation withDefaultNamespace(String string) {
+      return new ResourceLocation(DEFAULT_NAMESPACE, ResourceLocation.assertValidPath(DEFAULT_NAMESPACE, string));
+   }
+
+   public ResourceLocation withPrefix(String string) {
+      return this.withPath(string + this.path);
+   }
+
+   public ResourceLocation withSuffix(String string) {
+      return this.withPath(this.path + string);
+   }
+
    public ResourceLocation(String location) {
       this(decompose(location, ':'));
+   }
+
+   private static String assertValidPath(String string, String string2) {
+      if (!ResourceLocation.isValidPath(string2)) {
+         throw new ResourceLocationException("Non [a-z0-9/._-] character in path of location: " + string + ":" + string2);
+      }
+      return string2;
+   }
+
+   public ResourceLocation withPath(String string) {
+      return new ResourceLocation(this.namespace, ResourceLocation.assertValidPath(this.namespace, string));
+   }
+
+   public ResourceLocation withPath(UnaryOperator<String> unaryOperator) {
+      return this.withPath((String)unaryOperator.apply(this.path));
    }
 
    public ResourceLocation(String p_i1292_1_, String p_i1292_2_) {

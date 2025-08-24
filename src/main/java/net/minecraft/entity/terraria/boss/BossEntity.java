@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.terraria.ITerrariaMob;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -15,7 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public abstract class BossEntity extends Monster {
+public abstract class BossEntity extends Monster implements ITerrariaMob {
 
     protected final Set<UUID> playersWhoDealtDamage = new HashSet<>();
 

@@ -22,99 +22,168 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class FishRenderer extends EntityRenderer<FishingBobberEntity> {
-   private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/entity/fishing_hook.png");
+   private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/entity/hooks/metal_fishing_hook.png");
    private static final RenderType RENDER_TYPE = RenderType.entityCutout(TEXTURE_LOCATION);
 
-   public FishRenderer(EntityRendererManager p_i46175_1_) {
-      super(p_i46175_1_);
+   // Tunable constants pulled out of the original code for clarity
+   private static final float BOBBER_SCALE = 0.5F;
+   private static final double FIRST_PERSON_FOV_SCALE = 1.0D / 100.0D;
+   private static final double LINE_OFFSET_SIDE = 0.35D;
+   private static final double LINE_OFFSET_BACK = 0.8D;
+   private static final float LINE_SEGMENTS = 16.0F;
+
+   public FishRenderer(EntityRendererManager dispatcher) {
+      super(dispatcher);
    }
 
-   public void render(FishingBobberEntity p_225623_1_, float p_225623_2_, float p_225623_3_, MatrixStack p_225623_4_, IRenderTypeBuffer p_225623_5_, int p_225623_6_) {
-      PlayerEntity playerentity = p_225623_1_.getPlayerOwner();
-      if (playerentity != null) {
-         p_225623_4_.pushPose();
-         p_225623_4_.pushPose();
-         p_225623_4_.scale(0.5F, 0.5F, 0.5F);
-         p_225623_4_.mulPose(this.entityRenderDispatcher.cameraOrientation());
-         p_225623_4_.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-         MatrixStack.Entry matrixstack$entry = p_225623_4_.last();
-         Matrix4f matrix4f = matrixstack$entry.pose();
-         Matrix3f matrix3f = matrixstack$entry.normal();
-         IVertexBuilder ivertexbuilder = p_225623_5_.getBuffer(RENDER_TYPE);
-         vertex(ivertexbuilder, matrix4f, matrix3f, p_225623_6_, 0.0F, 0, 0, 1);
-         vertex(ivertexbuilder, matrix4f, matrix3f, p_225623_6_, 1.0F, 0, 1, 1);
-         vertex(ivertexbuilder, matrix4f, matrix3f, p_225623_6_, 1.0F, 1, 1, 0);
-         vertex(ivertexbuilder, matrix4f, matrix3f, p_225623_6_, 0.0F, 1, 0, 0);
-         p_225623_4_.popPose();
-         int i = playerentity.getMainArm() == HandSide.RIGHT ? 1 : -1;
-         ItemStack itemstack = playerentity.getMainHandItem();
-         if (itemstack.getItem() != Items.FISHING_ROD) {
-            i = -i;
-         }
+   @Override
+   public void render(FishingBobberEntity bobber, float entityYaw, float partialTicks,
+                      MatrixStack poseStack, IRenderTypeBuffer buffers, int packedLight) {
+      PlayerEntity angler = bobber.getPlayerOwner();
+      if (angler == null) return;
 
-         float f = playerentity.getAttackAnim(p_225623_3_);
-         float f1 = MathHelper.sin(MathHelper.sqrt(f) * (float)Math.PI);
-         float f2 = MathHelper.lerp(p_225623_3_, playerentity.yBodyRotO, playerentity.yBodyRot) * ((float)Math.PI / 180F);
-         double d0 = (double)MathHelper.sin(f2);
-         double d1 = (double)MathHelper.cos(f2);
-         double d2 = (double)i * 0.35D;
-         double d3 = 0.8D;
-         double d4;
-         double d5;
-         double d6;
-         float f3;
-         if ((this.entityRenderDispatcher.options == null || this.entityRenderDispatcher.options.getCameraType().isFirstPerson()) && playerentity == Minecraft.getInstance().player) {
-            double d7 = this.entityRenderDispatcher.options.fov;
-            d7 = d7 / 100.0D;
-            Vector3d vector3d = new Vector3d((double)i * -0.36D * d7, -0.045D * d7, 0.4D);
-            vector3d = vector3d.xRot(-MathHelper.lerp(p_225623_3_, playerentity.xRotO, playerentity.xRot) * ((float)Math.PI / 180F));
-            vector3d = vector3d.yRot(-MathHelper.lerp(p_225623_3_, playerentity.yRotO, playerentity.yRot) * ((float)Math.PI / 180F));
-            vector3d = vector3d.yRot(f1 * 0.5F);
-            vector3d = vector3d.xRot(-f1 * 0.7F);
-            d4 = MathHelper.lerp((double)p_225623_3_, playerentity.xo, playerentity.getX()) + vector3d.x;
-            d5 = MathHelper.lerp((double)p_225623_3_, playerentity.yo, playerentity.getY()) + vector3d.y;
-            d6 = MathHelper.lerp((double)p_225623_3_, playerentity.zo, playerentity.getZ()) + vector3d.z;
-            f3 = playerentity.getEyeHeight();
-         } else {
-            d4 = MathHelper.lerp((double)p_225623_3_, playerentity.xo, playerentity.getX()) - d1 * d2 - d0 * 0.8D;
-            d5 = playerentity.yo + (double)playerentity.getEyeHeight() + (playerentity.getY() - playerentity.yo) * (double)p_225623_3_ - 0.45D;
-            d6 = MathHelper.lerp((double)p_225623_3_, playerentity.zo, playerentity.getZ()) - d0 * d2 + d1 * 0.8D;
-            f3 = playerentity.isCrouching() ? -0.1875F : 0.0F;
-         }
+      poseStack.pushPose();
 
-         double d9 = MathHelper.lerp((double)p_225623_3_, p_225623_1_.xo, p_225623_1_.getX());
-         double d10 = MathHelper.lerp((double)p_225623_3_, p_225623_1_.yo, p_225623_1_.getY()) + 0.25D;
-         double d8 = MathHelper.lerp((double)p_225623_3_, p_225623_1_.zo, p_225623_1_.getZ());
-         float f4 = (float)(d4 - d9);
-         float f5 = (float)(d5 - d10) + f3;
-         float f6 = (float)(d6 - d8);
-         IVertexBuilder ivertexbuilder1 = p_225623_5_.getBuffer(RenderType.lines());
-         Matrix4f matrix4f1 = p_225623_4_.last().pose();
-         int j = 16;
+      // 1) Render the bobber sprite (billboarded quad)
+      renderBobberSprite(poseStack, buffers, packedLight);
 
-         for(int k = 0; k < 16; ++k) {
-            stringVertex(f4, f5, f6, ivertexbuilder1, matrix4f1, fraction(k, 16));
-            stringVertex(f4, f5, f6, ivertexbuilder1, matrix4f1, fraction(k + 1, 16));
-         }
+      // 2) Render the fishing line between the angler and the bobber
+      renderFishingLine(bobber, angler, partialTicks, poseStack, buffers);
 
-         p_225623_4_.popPose();
-         super.render(p_225623_1_, p_225623_2_, p_225623_3_, p_225623_4_, p_225623_5_, p_225623_6_);
+      poseStack.popPose();
+
+      super.render(bobber, entityYaw, partialTicks, poseStack, buffers, packedLight);
+   }
+
+   // ----------------------- Bobber -----------------------
+   private void renderBobberSprite(MatrixStack poseStack, IRenderTypeBuffer buffers, int packedLight) {
+      poseStack.pushPose();
+      poseStack.scale(BOBBER_SCALE, BOBBER_SCALE, BOBBER_SCALE);
+      poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+      poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+
+      MatrixStack.Entry entry = poseStack.last();
+      Matrix4f pose = entry.pose();
+      Matrix3f normal = entry.normal();
+      IVertexBuilder vb = buffers.getBuffer(RENDER_TYPE);
+
+      // Draw a unit quad centered at origin
+      vertex(vb, pose, normal, packedLight, 0.0F, 0, 0, 1);
+      vertex(vb, pose, normal, packedLight, 1.0F, 0, 1, 1);
+      vertex(vb, pose, normal, packedLight, 1.0F, 1, 1, 0);
+      vertex(vb, pose, normal, packedLight, 0.0F, 1, 0, 0);
+
+      poseStack.popPose();
+   }
+
+   // ------------------------ Line ------------------------
+   private void renderFishingLine(FishingBobberEntity bobber, PlayerEntity angler, float partialTicks,
+                                  MatrixStack poseStack, IRenderTypeBuffer buffers) {
+      // Compute hand side (which side the line originates from)
+      int handSign = angler.getMainArm() == HandSide.RIGHT ? 1 : -1;
+      ItemStack mainHand = angler.getMainHandItem();
+      if (mainHand.getItem() != Items.FISHING_ROD) {
+         handSign = -handSign;
+      }
+
+      // Start point at the angler's hand (in world space)
+      HandAnchor anchor = computeHandAnchor(angler, handSign, partialTicks);
+
+      // End point at the bobber (in world space)
+      double bobX = MathHelper.lerp(partialTicks, bobber.xo, bobber.getX());
+      double bobY = MathHelper.lerp(partialTicks, bobber.yo, bobber.getY()) + 0.25D;
+      double bobZ = MathHelper.lerp(partialTicks, bobber.zo, bobber.getZ());
+
+      // Vector from bobber to hand
+      float dx = (float) (anchor.x - bobX);
+      float dy = (float) (anchor.y - bobY) + anchor.yOffset;
+      float dz = (float) (anchor.z - bobZ);
+
+      IVertexBuilder lineBuilder = buffers.getBuffer(RenderType.lines());
+      Matrix4f currentPose = poseStack.last().pose();
+
+      for (int seg = 0; seg < (int) LINE_SEGMENTS; ++seg) {
+         stringVertex(dx, dy, dz, lineBuilder, currentPose, fraction(seg, LINE_SEGMENTS));
+         stringVertex(dx, dy, dz, lineBuilder, currentPose, fraction(seg + 1, LINE_SEGMENTS));
       }
    }
 
-   private static float fraction(int p_229105_0_, int p_229105_1_) {
-      return (float)p_229105_0_ / (float)p_229105_1_;
+   private static class HandAnchor {
+      final double x, y, z; // world-space position of the line start
+      final float yOffset;  // crouch/pose-dependent offset applied later in curve
+      HandAnchor(double x, double y, double z, float yOffset) {
+         this.x = x; this.y = y; this.z = z; this.yOffset = yOffset;
+      }
    }
 
-   private static void vertex(IVertexBuilder p_229106_0_, Matrix4f p_229106_1_, Matrix3f p_229106_2_, int p_229106_3_, float p_229106_4_, int p_229106_5_, int p_229106_6_, int p_229106_7_) {
-      p_229106_0_.vertex(p_229106_1_, p_229106_4_ - 0.5F, (float)p_229106_5_ - 0.5F, 0.0F).color(255, 255, 255, 255).uv((float)p_229106_6_, (float)p_229106_7_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(p_229106_3_).normal(p_229106_2_, 0.0F, 1.0F, 0.0F).endVertex();
+   private HandAnchor computeHandAnchor(PlayerEntity angler, int handSign, float partialTicks) {
+      // Camera-dependent handling (first vs third person)
+      boolean isFirstPerson = (this.entityRenderDispatcher.options == null
+              || this.entityRenderDispatcher.options.getCameraType().isFirstPerson())
+              && angler == Minecraft.getInstance().player;
+
+      float bodyRot = MathHelper.lerp(partialTicks, angler.yBodyRotO, angler.yBodyRot) * ((float) Math.PI / 180F);
+      double sin = MathHelper.sin(bodyRot);
+      double cos = MathHelper.cos(bodyRot);
+
+      double x, y, z;
+      float extraYOffset;
+
+      if (isFirstPerson) {
+         double fovScale = this.entityRenderDispatcher.options.fov * FIRST_PERSON_FOV_SCALE;
+         Vector3d offset = new Vector3d(handSign * -0.36D * fovScale, -0.045D * fovScale, 0.4D);
+
+         offset = offset.xRot(-MathHelper.lerp(partialTicks, angler.xRotO, angler.xRot) * ((float) Math.PI / 180F));
+         offset = offset.yRot(-MathHelper.lerp(partialTicks, angler.yRotO, angler.yRot) * ((float) Math.PI / 180F));
+
+         float attack = angler.getAttackAnim(partialTicks);
+         float swing = MathHelper.sin(MathHelper.sqrt(attack) * (float) Math.PI);
+         offset = offset.yRot(swing * 0.5F).xRot(-swing * 0.7F);
+
+         x = MathHelper.lerp(partialTicks, angler.xo, angler.getX()) + offset.x;
+         y = MathHelper.lerp(partialTicks, angler.yo, angler.getY()) + offset.y;
+         z = MathHelper.lerp(partialTicks, angler.zo, angler.getZ()) + offset.z;
+         extraYOffset = angler.getEyeHeight();
+      } else {
+         // Third person: place near hand/shoulder
+         double side = handSign * LINE_OFFSET_SIDE;
+         x = MathHelper.lerp(partialTicks, angler.xo, angler.getX()) - cos * side - sin * LINE_OFFSET_BACK;
+         y = angler.yo + angler.getEyeHeight() + (angler.getY() - angler.yo) * partialTicks - 0.45D;
+         z = MathHelper.lerp(partialTicks, angler.zo, angler.getZ()) - sin * side + cos * LINE_OFFSET_BACK;
+         extraYOffset = angler.isCrouching() ? -0.1875F : 0.0F;
+      }
+
+      return new HandAnchor(x, y, z, extraYOffset);
    }
 
-   private static void stringVertex(float p_229104_0_, float p_229104_1_, float p_229104_2_, IVertexBuilder p_229104_3_, Matrix4f p_229104_4_, float p_229104_5_) {
-      p_229104_3_.vertex(p_229104_4_, p_229104_0_ * p_229104_5_, p_229104_1_ * (p_229104_5_ * p_229104_5_ + p_229104_5_) * 0.5F + 0.25F, p_229104_2_ * p_229104_5_).color(0, 0, 0, 255).endVertex();
+   // ---------------------- Utilities ----------------------
+   private static float fraction(int idx, float total) {
+      return idx / total;
    }
 
-   public ResourceLocation getTextureLocation(FishingBobberEntity p_110775_1_) {
+   private static void vertex(IVertexBuilder vb, Matrix4f pose, Matrix3f normal, int light,
+                              float u, int vY, int uTex, int vTex) {
+      vb.vertex(pose, u - 0.5F, (float) vY - 0.5F, 0.0F)
+              .color(255, 255, 255, 255)
+              .uv((float) uTex, (float) vTex)
+              .overlayCoords(OverlayTexture.NO_OVERLAY)
+              .uv2(light)
+              .normal(normal, 0.0F, 1.0F, 0.0F)
+              .endVertex();
+   }
+
+   private static void stringVertex(float dx, float dy, float dz, IVertexBuilder vb, Matrix4f pose, float t) {
+      // Quadratic-ish sag: y uses t^2 + t for a slight curve
+      vb.vertex(pose,
+                      dx * t,
+                      dy * (t * t + t) * 0.5F + 0.25F,
+                      dz * t)
+              .color(0, 0, 0, 255)
+              .endVertex();
+   }
+
+   @Override
+   public ResourceLocation getTextureLocation(FishingBobberEntity entity) {
       return TEXTURE_LOCATION;
    }
 }

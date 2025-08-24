@@ -62,7 +62,7 @@ public class WorkbenchContainer extends RecipeBookContainer<CraftingInventory> {
          if (optional.isPresent()) {
             ICraftingRecipe icraftingrecipe = optional.get();
             if (p_217066_4_.setRecipeUsed(p_217066_1_, serverplayerentity, icraftingrecipe)) {
-               itemstack = icraftingrecipe.assemble(p_217066_3_);
+               itemstack = icraftingrecipe.assemble(p_217066_3_, serverplayerentity.level.registryAccess());
             }
          }
 

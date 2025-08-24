@@ -1,5 +1,6 @@
 package net.minecraft.util.math;
 
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.util.Direction;
@@ -32,6 +33,61 @@ public class AxisAlignedBB {
       this.maxX = Math.max(x1, x2);
       this.maxY = Math.max(y1, y2);
       this.maxZ = Math.max(z1, z2);
+   }
+
+   public AxisAlignedBB setMinY(double d) {
+      return new AxisAlignedBB(this.minX, d, this.minZ, this.maxX, this.maxY, this.maxZ);
+   }
+
+   public boolean collidedAlongVector(Vector3d vec3, List<AxisAlignedBB> list) {
+      Vector3d vec32 = this.getCenter();
+      Vector3d vec33 = vec32.add(vec3);
+      for (AxisAlignedBB aABB : list) {
+         AxisAlignedBB aABB2 = aABB.inflate(this.getXsize() * 0.5, this.getYsize() * 0.5, this.getZsize() * 0.5);
+         if (aABB2.contains(vec33) || aABB2.contains(vec32)) {
+            return true;
+         }
+         if (!aABB2.clip(vec32, vec33).isPresent()) continue;
+         return true;
+      }
+      return false;
+   }
+
+   public static Optional<Vector3d> clip(double d, double d2, double d3, double d4, double d5, double d6, Vector3d vec3, Vector3d vec32) {
+      double[] dArray = new double[]{1.0};
+      double d7 = vec32.x - vec3.x;
+      double d8 = vec32.y - vec3.y;
+      double d9 = vec32.z - vec3.z;
+      Direction direction = getDirection(d, d2, d3, d4, d5, d6, vec3, dArray, null, d7, d8, d9);
+      if (direction == null) {
+         return Optional.empty();
+      }
+      double d10 = dArray[0];
+      return Optional.of(vec3.add(d10 * d7, d10 * d8, d10 * d9));
+   }
+
+   public Vector3d getMinPosition() {
+      return new Vector3d(this.minX, this.minY, this.minZ);
+   }
+
+   @Nullable
+   private static Direction getDirection(double d, double d2, double d3, double d4, double d5, double d6, Vector3d vec3, double[] dArray, @Nullable Direction direction, double d7, double d8, double d9) {
+      if (d7 > 1.0E-7) {
+         direction = clipPoint(dArray, direction, d7, d8, d9, d, d2, d5, d3, d6, Direction.WEST, vec3.x, vec3.y, vec3.z);
+      } else if (d7 < -1.0E-7) {
+         direction = clipPoint(dArray, direction, d7, d8, d9, d4, d2, d5, d3, d6, Direction.EAST, vec3.x, vec3.y, vec3.z);
+      }
+      if (d8 > 1.0E-7) {
+         direction = clipPoint(dArray, direction, d8, d9, d7, d2, d3, d6, d, d4, Direction.DOWN, vec3.y, vec3.z, vec3.x);
+      } else if (d8 < -1.0E-7) {
+         direction = clipPoint(dArray, direction, d8, d9, d7, d5, d3, d6, d, d4, Direction.UP, vec3.y, vec3.z, vec3.x);
+      }
+      if (d9 > 1.0E-7) {
+         direction = clipPoint(dArray, direction, d9, d7, d8, d3, d, d4, d2, d5, Direction.NORTH, vec3.z, vec3.x, vec3.y);
+      } else if (d9 < -1.0E-7) {
+         direction = clipPoint(dArray, direction, d9, d7, d8, d6, d, d4, d2, d5, Direction.SOUTH, vec3.z, vec3.x, vec3.y);
+      }
+      return direction;
    }
 
    /**
@@ -280,6 +336,10 @@ public class AxisAlignedBB {
       return this.intersects(p_72326_1_.minX, p_72326_1_.minY, p_72326_1_.minZ, p_72326_1_.maxX, p_72326_1_.maxY, p_72326_1_.maxZ);
    }
 
+   public boolean intersects(BlockPos blockPos) {
+      return this.intersects(blockPos.getX(), blockPos.getY(), blockPos.getZ(), blockPos.getX() + 1, blockPos.getY() + 1, blockPos.getZ() + 1);
+   }
+
    public boolean intersects(double p_186668_1_, double p_186668_3_, double p_186668_5_, double p_186668_7_, double p_186668_9_, double p_186668_11_) {
       return this.minX < p_186668_7_ && this.maxX > p_186668_1_ && this.minY < p_186668_9_ && this.maxY > p_186668_3_ && this.minZ < p_186668_11_ && this.maxZ > p_186668_5_;
    }
@@ -405,5 +465,13 @@ public class AxisAlignedBB {
 
    public static AxisAlignedBB ofSize(double p_241550_0_, double p_241550_2_, double p_241550_4_) {
       return new AxisAlignedBB(-p_241550_0_ / 2.0D, -p_241550_2_ / 2.0D, -p_241550_4_ / 2.0D, p_241550_0_ / 2.0D, p_241550_2_ / 2.0D, p_241550_4_ / 2.0D);
+   }
+
+   public static AxisAlignedBB ofSize(Vector3d vector3d) {
+      return ofSize(vector3d.x, vector3d.y, vector3d.z);
+   }
+
+   public static AxisAlignedBB ofSize(Vector3d vector3D, double d, double d2, double d3) {
+      return new AxisAlignedBB(vector3D.x - d / 2.0, vector3D.y - d2 / 2.0, vector3D.z - d3 / 2.0, vector3D.x + d / 2.0, vector3D.y + d2 / 2.0, vector3D.z + d3 / 2.0);
    }
 }

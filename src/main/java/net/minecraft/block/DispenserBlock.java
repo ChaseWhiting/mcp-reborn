@@ -11,6 +11,7 @@ import net.minecraft.dispenser.Position;
 import net.minecraft.dispenser.ProxyBlockSource;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.BlockItemUseContext;
@@ -77,6 +78,7 @@ public class DispenserBlock extends ContainerBlock {
       int i = dispensertileentity.getRandomSlot();
       if (i < 0) {
          p_176439_1_.levelEvent(1001, p_176439_2_, 0);
+         p_176439_1_.gameEvent(null, GameEvent.DISPENSE_FAIL, p_176439_2_);
       } else {
          ItemStack itemstack = dispensertileentity.getItem(i);
          IDispenseItemBehavior idispenseitembehavior = this.getDispenseMethod(itemstack);
@@ -165,7 +167,7 @@ public class DispenserBlock extends ContainerBlock {
       return state.rotate(mirroring.getRotation(state.getValue(FACING)));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, TRIGGERED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, TRIGGERED);
    }
 }

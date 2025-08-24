@@ -1,6 +1,7 @@
 package net.minecraft.block;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.IntegerProperty;
@@ -28,8 +29,8 @@ public class CakeBlock extends Block {
       this.registerDefaultState(this.stateDefinition.any().setValue(BITES, Integer.valueOf(0)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return SHAPE_BY_BITE[p_220053_1_.getValue(BITES)];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return SHAPE_BY_BITE[state.getValue(BITES)];
    }
 
    public ActionResultType use(BlockState p_225533_1_, World p_225533_2_, BlockPos p_225533_3_, PlayerEntity p_225533_4_, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
@@ -54,10 +55,12 @@ public class CakeBlock extends Block {
          p_226911_4_.awardStat(Stats.EAT_CAKE_SLICE);
          p_226911_4_.getFoodData().eat(2, 0.1F);
          int i = p_226911_3_.getValue(BITES);
+         p_226911_1_.gameEvent(p_226911_4_, GameEvent.EAT, p_226911_2_);
          if (i < 6) {
             p_226911_1_.setBlock(p_226911_2_, p_226911_3_.setValue(BITES, Integer.valueOf(i + 1)), 3);
          } else {
             p_226911_1_.removeBlock(p_226911_2_, false);
+            p_226911_1_.gameEvent(p_226911_4_, GameEvent.BLOCK_DESTROY, p_226911_2_);
          }
 
          return ActionResultType.SUCCESS;
@@ -72,8 +75,8 @@ public class CakeBlock extends Block {
       return p_196260_2_.getBlockState(p_196260_3_.below()).getMaterial().isSolid();
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(BITES);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(BITES);
    }
 
    public int getAnalogOutputSignal(BlockState p_180641_1_, World p_180641_2_, BlockPos p_180641_3_) {

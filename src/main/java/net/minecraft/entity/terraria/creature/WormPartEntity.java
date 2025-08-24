@@ -1,13 +1,10 @@
 package net.minecraft.entity.terraria.creature;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Mob;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
-import net.minecraft.world.World;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class WormPartEntity extends Entity {

@@ -3,28 +3,30 @@ package net.minecraft.item.tool;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.ImmutableMultimap.Builder;
-import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.IVanishable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.TieredItem;
+import net.minecraft.item.*;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.List;
+
 public class ToolItem extends TieredItem implements IVanishable {
-   private final Set<Block> blocks;
+   private final ITag.INamedTag<Block> blocks;
    protected final float speed;
    private final float attackDamageBaseline;
    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
-   protected ToolItem(float p_i48512_1_, float p_i48512_2_, IItemTier p_i48512_3_, Set<Block> p_i48512_4_, Properties p_i48512_5_) {
+   protected ToolItem(float p_i48512_1_, float p_i48512_2_, IItemTier p_i48512_3_, ITag.INamedTag<Block> p_i48512_4_, Properties p_i48512_5_) {
       super(p_i48512_3_, p_i48512_5_);
       this.blocks = p_i48512_4_;
       this.speed = p_i48512_3_.getSpeed();
@@ -37,6 +39,29 @@ public class ToolItem extends TieredItem implements IVanishable {
 
    public float getDestroySpeed(ItemStack p_150893_1_, BlockState p_150893_2_) {
       return this.blocks.contains(p_150893_2_.getBlock()) ? this.speed : 1.0F;
+   }
+
+   @Override
+   public boolean isCorrectToolForDrops(BlockState blockState) {
+      int n = this.getTier().getLevel();
+      if (n < 3 && blockState.is(BlockTags.NEEDS_DIAMOND_TOOL)) {
+         return false;
+      }
+      if (n < 2 && blockState.is(BlockTags.NEEDS_IRON_TOOL)) {
+          if (this.getTier() == ItemTier.ROSE_GOLD && (blockState.is(List.of(Blocks.GOLD_ORE, Blocks.NETHER_GOLD_ORE, Blocks.GOLD_BLOCK, Blocks.ROSE_GOLD_BLOCK)))) {
+              return blockState.is(this.blocks);
+          } else {
+             return false;
+          }
+      }
+      if (n < 1 && blockState.is(BlockTags.NEEDS_STONE_TOOL)) {
+         if (this.getTier() == ItemTier.GOLD && (blockState.is(List.of(Blocks.GOLD_ORE, Blocks.NETHER_GOLD_ORE, Blocks.GOLD_BLOCK, Blocks.ROSE_GOLD_BLOCK)))) {
+            return blockState.is(this.blocks);
+         } else {
+            return false;
+         }
+      }
+      return blockState.is(this.blocks);
    }
 
    public boolean hurtEnemy(ItemStack p_77644_1_, LivingEntity p_77644_2_, LivingEntity p_77644_3_) {

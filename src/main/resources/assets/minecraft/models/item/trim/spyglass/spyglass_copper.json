@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/spyglass",
+  "textures": {
+    "layer0": "trims/items/spyglass/spyglass_trimmed_copper",
+    "layer1": "trims/items/spyglass/spyglass_trimmed_glass"
+  }
+}

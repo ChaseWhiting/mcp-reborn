@@ -12,12 +12,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import net.minecraft.bundle.FormattedCharSequence;
 import net.minecraft.client.gui.fonts.providers.IGlyphProvider;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

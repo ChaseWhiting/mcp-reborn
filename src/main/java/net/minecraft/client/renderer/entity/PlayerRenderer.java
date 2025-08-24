@@ -118,6 +118,16 @@ public class PlayerRenderer extends LivingRenderer<AbstractClientPlayerEntity, P
             if (useaction == UseAction.CROSSBOW && p_241741_1_ == p_241741_0_.getUsedItemHand()) {
                return BipedModel.ArmPose.CROSSBOW_CHARGE;
             }
+            if (useaction == UseAction.TOOT_HORN) {
+               return BipedModel.ArmPose.TOOT_HORN;
+            }
+            if (useaction == UseAction.BRUSH) {
+               return BipedModel.ArmPose.BRUSH;
+            }
+
+            if (useaction == UseAction.SPYGLASS) {
+               return BipedModel.ArmPose.SPYGLASS;
+            }
          } else if (!p_241741_0_.swinging && itemstack.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(itemstack)) {
             return BipedModel.ArmPose.CROSSBOW_HOLD;
          } else if (!p_241741_0_.swinging && itemstack.getItem() == Items.GILDED_CROSSBOW && GildedCrossbowItem.isCharged(itemstack)) {

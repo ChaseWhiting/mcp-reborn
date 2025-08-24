@@ -9,11 +9,7 @@ import io.netty.buffer.Unpooled;
 import java.io.File;
 import java.net.SocketAddress;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.PlayerAdvancements;
 import net.minecraft.block.BlockState;
@@ -608,6 +604,13 @@ public abstract class PlayerList {
       }
 
       return null;
+   }
+
+   @Nullable
+   public ServerPlayerEntity getRandomPlayer() {
+      List<ServerPlayerEntity> players = this.players;
+
+      return players.get(new Random().nextInt(players.size()));
    }
 
    public void broadcast(@Nullable PlayerEntity p_148543_1_, double p_148543_2_, double p_148543_4_, double p_148543_6_, double p_148543_8_, RegistryKey<World> p_148543_10_, IPacket<?> p_148543_11_) {

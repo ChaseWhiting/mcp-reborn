@@ -4,8 +4,11 @@ import com.google.common.base.MoreObjects;
 import com.mojang.serialization.Codec;
 import java.util.stream.IntStream;
 import javax.annotation.concurrent.Immutable;
+
+import com.mojang.serialization.DataResult;
 import net.minecraft.dispenser.IPosition;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,6 +33,17 @@ public class Vector3i implements Comparable<Vector3i> {
       this.y = p_i46007_2_;
       this.z = p_i46007_3_;
    }
+
+   public static Codec<Vector3i> offsetCodec(int n) {
+      return ExtraCodecs.validate(CODEC, vec3i -> {
+         if (Math.abs(vec3i.getX()) < n && Math.abs(vec3i.getY()) < n && Math.abs(vec3i.getZ()) < n) {
+            return DataResult.success(vec3i);
+         }
+         return DataResult.error("Position out of range, expected at most " + n + ": " + vec3i);
+      });
+   }
+
+
 
    public Vector3i(double p_i46008_1_, double p_i46008_3_, double p_i46008_5_) {
       this(MathHelper.floor(p_i46008_1_), MathHelper.floor(p_i46008_3_), MathHelper.floor(p_i46008_5_));
@@ -88,6 +102,23 @@ public class Vector3i implements Comparable<Vector3i> {
       this.z = p_223472_1_;
    }
 
+   public Vector3i setXPublic(int x) {
+      this.x = x;
+      return this;
+
+   }
+
+   public Vector3i setYPublic(int x) {
+      this.y = x;
+      return this;
+   }
+
+   public Vector3i setZPublic(int x) {
+      this.z = x;
+      return this;
+
+   }
+
    public Vector3i above() {
       return this.above(1);
    }
@@ -118,6 +149,10 @@ public class Vector3i implements Comparable<Vector3i> {
 
    public boolean closerThan(IPosition p_218137_1_, double p_218137_2_) {
       return this.distSqr(p_218137_1_.x(), p_218137_1_.y(), p_218137_1_.z(), true) < p_218137_2_ * p_218137_2_;
+   }
+
+   public double distanceSqr(Vector3i p_177951_1_) {
+      return this.distSqr((double)p_177951_1_.getX(), (double)p_177951_1_.getY(), (double)p_177951_1_.getZ(), true);
    }
 
    public double distSqr(Vector3i p_177951_1_) {

@@ -111,6 +111,10 @@ public class EntityDataManager {
       return dataentry;
    }
 
+   public <T> boolean hasItem(DataParameter<T> entityDataAccessor) {
+      return this.itemsById.containsKey(entityDataAccessor.getId());
+   }
+
    public <T> T get(DataParameter<T> p_187225_1_) {
       return this.getItem(p_187225_1_).getValue();
    }

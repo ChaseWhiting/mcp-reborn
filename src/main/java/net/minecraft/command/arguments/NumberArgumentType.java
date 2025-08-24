@@ -1,7 +1,6 @@
 package net.minecraft.command.arguments;
 
 import com.google.gson.JsonObject;
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.*;

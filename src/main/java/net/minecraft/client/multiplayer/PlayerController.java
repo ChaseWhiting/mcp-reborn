@@ -218,7 +218,11 @@ public class PlayerController {
    }
 
    public float getPickRange() {
-      return this.localPlayerMode.isCreative() ? 5.0F : 4.5F;
+      return minecraft.player.getReachDistance();
+
+      //double attribute = minecraft.player.getAttributeValue(Attributes.REACH_DISTANCE);
+
+      //return this.localPlayerMode.isCreative() ? (float) (attribute + 1D) : (float) attribute;
    }
 
    public void tick() {

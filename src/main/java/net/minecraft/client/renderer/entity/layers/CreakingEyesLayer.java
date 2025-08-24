@@ -1,18 +1,17 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.animation.HierarchicalModel;
+import net.minecraft.client.model.geom.NewHierarchicalModel;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.entity.monster.creaking.CreakingEntity;
-import net.minecraft.entity.monster.creaking.CreakingModel;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class CreakingEyesLayer<T extends CreakingEntity, M extends HierarchicalModel<T>> extends AbstractEyesLayer<T, M> {
+public class CreakingEyesLayer<T extends CreakingEntity, M extends NewHierarchicalModel<T>> extends AbstractEyesLayer<T, M> {
    private static final RenderType EYES = RenderType.eyes(new ResourceLocation("textures/entity/creaking/creaking_eyes.png"));
 
    public CreakingEyesLayer(IEntityRenderer<T, M> p_i50921_1_) {

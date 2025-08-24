@@ -4,6 +4,7 @@ import java.util.List;
 import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.potion.Potions;
 import net.minecraft.stats.Stats;
@@ -33,6 +34,7 @@ public class GlassBottleItem extends Item {
          AreaEffectCloudEntity areaeffectcloudentity = list.get(0);
          areaeffectcloudentity.setRadius(areaeffectcloudentity.getRadius() - 0.5F);
          world.playSound((PlayerEntity)null, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL_DRAGONBREATH, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+         world.gameEvent(player, GameEvent.FLUID_PICKUP, player.position());
          return ActionResult.sidedSuccess(this.turnBottleIntoItem(itemstack, player, new ItemStack(Items.DRAGON_BREATH)), world.isClientSide());
       } else {
          RayTraceResult raytraceresult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
@@ -47,6 +49,7 @@ public class GlassBottleItem extends Item {
 
                if (world.getFluidState(blockpos).is(FluidTags.WATER)) {
                   world.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+                  world.gameEvent(player, GameEvent.FLUID_PICKUP, blockpos);
                   return ActionResult.sidedSuccess(this.turnBottleIntoItem(itemstack, player, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)), world.isClientSide());
                }
             }

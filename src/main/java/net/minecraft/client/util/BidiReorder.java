@@ -19,48 +19,48 @@ public class BidiReorder {
    private final List<Style> charStyles;
    private final Int2IntFunction reverseCharModifier;
 
-   private BidiReorder(String p_i242079_1_, List<Style> p_i242079_2_, Int2IntFunction p_i242079_3_) {
-      this.plainText = p_i242079_1_;
-      this.charStyles = ImmutableList.copyOf(p_i242079_2_);
-      this.reverseCharModifier = p_i242079_3_;
+   private BidiReorder(String text, List<Style> styles, Int2IntFunction func) {
+      this.plainText = text;
+      this.charStyles = ImmutableList.copyOf(styles);
+      this.reverseCharModifier = func;
    }
 
    public String getPlainText() {
       return this.plainText;
    }
 
-   public List<IReorderingProcessor> substring(int p_244287_1_, int p_244287_2_, boolean p_244287_3_) {
-      if (p_244287_2_ == 0) {
+   public List<IReorderingProcessor> substring(int i1, int i2, boolean b) {
+      if (i2 == 0) {
          return ImmutableList.of();
       } else {
          List<IReorderingProcessor> list = Lists.newArrayList();
-         Style style = this.charStyles.get(p_244287_1_);
-         int i = p_244287_1_;
+         Style style = this.charStyles.get(i1);
+         int i = i1;
 
-         for(int j = 1; j < p_244287_2_; ++j) {
-            int k = p_244287_1_ + j;
+         for(int j = 1; j < i2; ++j) {
+            int k = i1 + j;
             Style style1 = this.charStyles.get(k);
             if (!style1.equals(style)) {
                String s = this.plainText.substring(i, k);
-               list.add(p_244287_3_ ? IReorderingProcessor.backward(s, style, this.reverseCharModifier) : IReorderingProcessor.forward(s, style));
+               list.add(b ? IReorderingProcessor.backward(s, style, this.reverseCharModifier) : IReorderingProcessor.forward(s, style));
                style = style1;
                i = k;
             }
          }
 
-         if (i < p_244287_1_ + p_244287_2_) {
-            String s1 = this.plainText.substring(i, p_244287_1_ + p_244287_2_);
-            list.add(p_244287_3_ ? IReorderingProcessor.backward(s1, style, this.reverseCharModifier) : IReorderingProcessor.forward(s1, style));
+         if (i < i1 + i2) {
+            String s1 = this.plainText.substring(i, i1 + i2);
+            list.add(b ? IReorderingProcessor.backward(s1, style, this.reverseCharModifier) : IReorderingProcessor.forward(s1, style));
          }
 
-         return p_244287_3_ ? Lists.reverse(list) : list;
+         return b ? Lists.reverse(list) : list;
       }
    }
 
-   public static BidiReorder create(ITextProperties p_244290_0_, Int2IntFunction p_244290_1_, UnaryOperator<String> p_244290_2_) {
+   public static BidiReorder create(ITextProperties properties, Int2IntFunction func, UnaryOperator<String> stringUnaryOperator) {
       StringBuilder stringbuilder = new StringBuilder();
       List<Style> list = Lists.newArrayList();
-      p_244290_0_.visit((p_244289_2_, p_244289_3_) -> {
+      properties.visit((p_244289_2_, p_244289_3_) -> {
          TextProcessing.iterateFormatted(p_244289_3_, p_244289_2_, (p_244288_2_, p_244288_3_, p_244288_4_) -> {
             stringbuilder.appendCodePoint(p_244288_4_);
             int i = Character.charCount(p_244288_4_);
@@ -73,6 +73,6 @@ public class BidiReorder {
          });
          return Optional.empty();
       }, Style.EMPTY);
-      return new BidiReorder(p_244290_2_.apply(stringbuilder.toString()), list, p_244290_1_);
+      return new BidiReorder(stringUnaryOperator.apply(stringbuilder.toString()), list, func);
    }
 }

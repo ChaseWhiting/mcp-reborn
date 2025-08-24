@@ -2,7 +2,6 @@ package net.minecraft.entity.ai.goal;
 
 import net.minecraft.entity.Creature;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.AxisAlignedBB;

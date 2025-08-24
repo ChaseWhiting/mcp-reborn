@@ -3,7 +3,6 @@ package net.minecraft.client;
 import java.util.Locale;
 import javax.annotation.Nullable;
 
-import com.mojang.bridge.game.PerformanceMetrics;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.INestedGuiEventHandler;

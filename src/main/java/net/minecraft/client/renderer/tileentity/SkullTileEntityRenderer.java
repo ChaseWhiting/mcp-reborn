@@ -13,10 +13,14 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.block.WallSkullBlock;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.GenericHeadModel;
 import net.minecraft.client.renderer.entity.model.HumanoidHeadModel;
+import net.minecraft.client.renderer.entity.model.IHeadModel;
+import net.minecraft.client.renderer.entity.model.PiglinHeadModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.tileentity.model.DragonHeadModel;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -30,16 +34,22 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SkullTileEntityRenderer extends TileEntityRenderer<SkullTileEntity> {
-   private static final Map<SkullBlock.ISkullType, GenericHeadModel> MODEL_BY_TYPE = Util.make(Maps.newHashMap(), (p_209262_0_) -> {
+   private static final Map<SkullBlock.ISkullType, IHeadModel> MODEL_BY_TYPE = Util.make(Maps.newHashMap(), (p_209262_0_) -> {
       GenericHeadModel genericheadmodel = new GenericHeadModel(0, 0, 64, 32);
       GenericHeadModel genericheadmodel1 = new HumanoidHeadModel();
       DragonHeadModel dragonheadmodel = new DragonHeadModel(0.0F);
+
+
       p_209262_0_.put(SkullBlock.Types.SKELETON, genericheadmodel);
       p_209262_0_.put(SkullBlock.Types.WITHER_SKELETON, genericheadmodel);
       p_209262_0_.put(SkullBlock.Types.PLAYER, genericheadmodel1);
       p_209262_0_.put(SkullBlock.Types.ZOMBIE, genericheadmodel1);
       p_209262_0_.put(SkullBlock.Types.CREEPER, genericheadmodel);
       p_209262_0_.put(SkullBlock.Types.DRAGON, dragonheadmodel);
+
+      p_209262_0_.put(SkullBlock.Types.PIGLIN, new PiglinHeadModel(new EntityModelSet().bakeLayer(ModelLayers.PIGLIN_HEAD)));
+
+
    });
    private static final Map<SkullBlock.ISkullType, ResourceLocation> SKIN_BY_TYPE = Util.make(Maps.newHashMap(), (p_209263_0_) -> {
       p_209263_0_.put(SkullBlock.Types.SKELETON, new ResourceLocation("textures/entity/skeleton/skeleton.png"));
@@ -48,6 +58,8 @@ public class SkullTileEntityRenderer extends TileEntityRenderer<SkullTileEntity>
       p_209263_0_.put(SkullBlock.Types.CREEPER, new ResourceLocation("textures/entity/creeper/creeper.png"));
       p_209263_0_.put(SkullBlock.Types.DRAGON, new ResourceLocation("textures/entity/enderdragon/dragon.png"));
       p_209263_0_.put(SkullBlock.Types.PLAYER, DefaultPlayerSkin.getDefaultSkin());
+
+      p_209263_0_.put(SkullBlock.Types.PIGLIN, new ResourceLocation("textures/entity/piglin/piglin.png"));
    });
 
    public SkullTileEntityRenderer(TileEntityRendererDispatcher p_i226015_1_) {
@@ -64,7 +76,7 @@ public class SkullTileEntityRenderer extends TileEntityRenderer<SkullTileEntity>
    }
 
    public static void renderSkull(@Nullable Direction p_228879_0_, float p_228879_1_, SkullBlock.ISkullType p_228879_2_, @Nullable GameProfile p_228879_3_, float p_228879_4_, MatrixStack p_228879_5_, IRenderTypeBuffer p_228879_6_, int p_228879_7_) {
-      GenericHeadModel genericheadmodel = MODEL_BY_TYPE.get(p_228879_2_);
+      IHeadModel genericheadmodel = MODEL_BY_TYPE.get(p_228879_2_);
       p_228879_5_.pushPose();
       if (p_228879_0_ == null) {
          p_228879_5_.translate(0.5D, 0.0D, 0.5D);

@@ -106,13 +106,13 @@ public interface ICrossbowUser extends IRangedAttackMob {
                case EASY:
                case PEACEFUL:
                case NORMAL:
-                  if (rand.nextBoolean()) {
+                  if (rand.nextBoolean() && shooter.veryHardmode()) {
                      arrow.addEffect(mainEffect);
                   }
                   arrow.setBaseDamage(damage + 0.5D);
                   break;
                case HARD:
-                  if(rand.nextFloat() < 0.4F) {
+                  if(rand.nextFloat() < 0.4F && shooter.veryHardmode()) {
                      arrow.addEffect(mainEffect);
                   }
                   arrow.setBaseDamage(damage + 1.5D);

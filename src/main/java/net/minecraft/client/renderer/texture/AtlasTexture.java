@@ -149,7 +149,6 @@ public class AtlasTexture extends Texture implements ITickable {
             }
          }
 
-         // Write the image to the file, replacing it if it exists
          ImageIO.write(image, "PNG", file);
          LOGGER.info("Texture atlas saved as " + file.getName());
       } catch (IOException e) {

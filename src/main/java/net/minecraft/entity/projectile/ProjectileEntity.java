@@ -5,11 +5,12 @@ import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowEntity;
+import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
+import net.minecraft.entity.warden.event.GameEvent;
+import net.minecraft.item.tool.TerrariaBowItem;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -20,6 +21,7 @@ public abstract class ProjectileEntity extends Entity {
    private UUID ownerUUID;
    private int ownerNetworkId;
    private boolean leftOwner;
+   private boolean hasBeenShot;
 
    ProjectileEntity(EntityType<? extends ProjectileEntity> p_i231584_1_, World p_i231584_2_) {
       super(p_i231584_1_, p_i231584_2_);
@@ -50,6 +52,7 @@ public abstract class ProjectileEntity extends Entity {
       if (this.leftOwner) {
          p_213281_1_.putBoolean("LeftOwner", true);
       }
+      p_213281_1_.putBoolean("HasBeenShot", this.hasBeenShot);
 
    }
 
@@ -59,9 +62,14 @@ public abstract class ProjectileEntity extends Entity {
       }
 
       this.leftOwner = p_70037_1_.getBoolean("LeftOwner");
+      this.hasBeenShot = p_70037_1_.getBoolean("HasBeenShot");
    }
 
    public void tick() {
+      if (!this.hasBeenShot) {
+         gameEvent(GameEvent.PROJECTILE_SHOOT, this.getOwner());
+         this.hasBeenShot = true;
+      }
       if (!this.leftOwner) {
          this.leftOwner = this.checkLeftOwner();
       }
@@ -84,8 +92,8 @@ public abstract class ProjectileEntity extends Entity {
       return true;
    }
 
-   public void shoot(double p_70186_1_, double p_70186_3_, double p_70186_5_, float p_70186_7_, float p_70186_8_) {
-      Vector3d vector3d = (new Vector3d(p_70186_1_, p_70186_3_, p_70186_5_)).normalize().add(this.random.nextGaussian() * (double)0.0075F * (double)p_70186_8_, this.random.nextGaussian() * (double)0.0075F * (double)p_70186_8_, this.random.nextGaussian() * (double)0.0075F * (double)p_70186_8_).scale((double)p_70186_7_);
+   public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
+      Vector3d vector3d = (new Vector3d(x, y, z)).normalize().add(this.random.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.random.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.random.nextGaussian() * (double)0.0075F * (double)inaccuracy).scale((double)velocity);
       this.setDeltaMovement(vector3d);
       float f = MathHelper.sqrt(getHorizontalDistanceSqr(vector3d));
       this.yRot = (float)(MathHelper.atan2(vector3d.x, vector3d.z) * (double)(180F / (float)Math.PI));
@@ -94,21 +102,30 @@ public abstract class ProjectileEntity extends Entity {
       this.xRotO = this.xRot;
    }
 
-   public void shootFromRotation(Entity p_234612_1_, float p_234612_2_, float p_234612_3_, float p_234612_4_, float p_234612_5_, float p_234612_6_) {
-      float f = -MathHelper.sin(p_234612_3_ * ((float)Math.PI / 180F)) * MathHelper.cos(p_234612_2_ * ((float)Math.PI / 180F));
-      float f1 = -MathHelper.sin((p_234612_2_ + p_234612_4_) * ((float)Math.PI / 180F));
-      float f2 = MathHelper.cos(p_234612_3_ * ((float)Math.PI / 180F)) * MathHelper.cos(p_234612_2_ * ((float)Math.PI / 180F));
-      this.shoot((double)f, (double)f1, (double)f2, p_234612_5_, p_234612_6_);
-      Vector3d vector3d = p_234612_1_.getDeltaMovement();
-      this.setDeltaMovement(this.getDeltaMovement().add(vector3d.x, p_234612_1_.isOnGround() ? 0.0D : vector3d.y, vector3d.z));
+   public void shootFromRotation(Entity entity, float xRotation, float yRotation, float z, float velocity, float inaccuracy) {
+
+      if (this instanceof CustomArrowEntity && (((CustomArrowEntity)this).getArrowType() == CustomArrowType.JESTER)) {
+         velocity = TerrariaBowItem.getVelocityInMCScale(0.6f, 6);
+      }
+
+      float f = -MathHelper.sin(yRotation * ((float)Math.PI / 180F)) * MathHelper.cos(xRotation * ((float)Math.PI / 180F));
+      float f1 = -MathHelper.sin((xRotation + z) * ((float)Math.PI / 180F));
+      float f2 = MathHelper.cos(yRotation * ((float)Math.PI / 180F)) * MathHelper.cos(xRotation * ((float)Math.PI / 180F));
+      this.shoot((double)f, (double)f1, (double)f2, velocity, inaccuracy);
+      Vector3d vector3d = entity.getDeltaMovement();
+      this.setDeltaMovement(this.getDeltaMovement().add(vector3d.x, entity.isOnGround() ? 0.0D : vector3d.y, vector3d.z));
    }
 
    protected void onHit(RayTraceResult p_70227_1_) {
       RayTraceResult.Type raytraceresult$type = p_70227_1_.getType();
       if (raytraceresult$type == RayTraceResult.Type.ENTITY) {
          this.onHitEntity((EntityRayTraceResult)p_70227_1_);
+         this.level.gameEvent(GameEvent.PROJECTILE_LAND, p_70227_1_.getLocation(), GameEvent.Context.of(this, null));
       } else if (raytraceresult$type == RayTraceResult.Type.BLOCK) {
-         this.onHitBlock((BlockRayTraceResult)p_70227_1_);
+         BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) p_70227_1_;
+         this.onHitBlock(blockRayTraceResult);
+         BlockPos pos = blockRayTraceResult.getBlockPos();
+         this.level.gameEvent(GameEvent.PROJECTILE_LAND, pos, GameEvent.Context.of(this, this.level.getBlockState(pos)));
       }
 
    }

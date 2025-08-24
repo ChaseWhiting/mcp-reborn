@@ -1,6 +1,7 @@
 package net.minecraft.network.play.server;
 
 import java.io.IOException;
+
 import net.minecraft.client.network.play.IClientPlayNetHandler;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;

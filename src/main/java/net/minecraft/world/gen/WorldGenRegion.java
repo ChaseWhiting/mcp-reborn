@@ -27,6 +27,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.SectionPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
@@ -169,6 +170,20 @@ public class WorldGenRegion implements ISeedReader {
    }
 
    public boolean destroyBlock(BlockPos p_241212_1_, boolean p_241212_2_, @Nullable Entity p_241212_3_, int p_241212_4_) {
+      BlockState blockstate = this.getBlockState(p_241212_1_);
+      if (blockstate.isAir()) {
+         return false;
+      } else {
+         if (p_241212_2_) {
+            TileEntity tileentity = blockstate.getBlock().isEntityBlock() ? this.getBlockEntity(p_241212_1_) : null;
+            Block.dropResources(blockstate, this.level, p_241212_1_, tileentity, p_241212_3_, ItemStack.EMPTY);
+         }
+
+         return this.setBlock(p_241212_1_, Blocks.AIR.defaultBlockState(), 3, p_241212_4_);
+      }
+   }
+
+   public boolean destroyBlock(BlockPos p_241212_1_, boolean p_241212_2_, @Nullable Entity p_241212_3_, int p_241212_4_, boolean event) {
       BlockState blockstate = this.getBlockState(p_241212_1_);
       if (blockstate.isAir()) {
          return false;
@@ -333,6 +348,11 @@ public class WorldGenRegion implements ISeedReader {
    }
 
    public void onGameEvent(GameEvent gameEvent, BlockPos position, @Nullable PlayerEntity player) {
+
+   }
+
+   @Override
+   public void gameEvent(net.minecraft.entity.warden.event.GameEvent var1, Vector3d var2, net.minecraft.entity.warden.event.GameEvent.Context var3) {
 
    }
 

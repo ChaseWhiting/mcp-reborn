@@ -12,6 +12,10 @@ public final class EntityTypeTags {
    public static final ITag.INamedTag<EntityType<?>> ARROWS = bind("arrows");
    public static final ITag.INamedTag<EntityType<?>> IMPACT_PROJECTILES = bind("impact_projectiles");
 
+   public static final ITag.INamedTag<EntityType<?>> LEASHABLE = bind("leashable");
+   public static final ITag.INamedTag<EntityType<?>> FOLLOWABLE_FRIENDLY_MOBS = bind("followable_friendly_mobs");
+
+
    private static ITag.INamedTag<EntityType<?>> bind(String p_232896_0_) {
       return HELPER.bind(p_232896_0_);
    }

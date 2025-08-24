@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.entity.model.IHasHead;
+import net.minecraft.client.renderer.entity.model.newmodels.HeadedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.SkullTileEntityRenderer;
 import net.minecraft.entity.LivingEntity;
@@ -29,7 +30,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
-public class HeadLayer<T extends LivingEntity, M extends EntityModel<T> & IHasHead> extends LayerRenderer<T, M> {
+public class HeadLayer<T extends LivingEntity, M extends EntityModel<T>> extends LayerRenderer<T, M> {
    private final float scaleX;
    private final float scaleY;
    private final float scaleZ;
@@ -60,8 +61,12 @@ public class HeadLayer<T extends LivingEntity, M extends EntityModel<T> & IHasHe
             p_225628_1_.translate(0.0D, 1.0D, 0.0D);
          }
 
-         this.getParentModel().getHead().translateAndRotate(p_225628_1_);
-         if (item instanceof BlockItem && ((BlockItem)item).getBlock() instanceof AbstractSkullBlock) {
+          if (this.getParentModel() instanceof IHasHead head) {
+              head.getHead().translateAndRotate(p_225628_1_);
+          } else if (this.getParentModel() instanceof HeadedModel headedModel) {
+             headedModel.getHead().translateAndRotate(p_225628_1_);
+          }
+          if (item instanceof BlockItem && ((BlockItem)item).getBlock() instanceof AbstractSkullBlock) {
             float f3 = 1.1875F;
             p_225628_1_.scale(1.1875F, -1.1875F, -1.1875F);
             if (flag) {

@@ -43,7 +43,7 @@ public class HugeMushroomBlock extends Block {
       return state.setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.NORTH)), state.getValue(NORTH)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.SOUTH)), state.getValue(SOUTH)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.EAST)), state.getValue(EAST)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.WEST)), state.getValue(WEST)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.UP)), state.getValue(UP)).setValue(PROPERTY_BY_DIRECTION.get(mirroring.mirror(Direction.DOWN)), state.getValue(DOWN));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(UP, DOWN, NORTH, EAST, SOUTH, WEST);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(UP, DOWN, NORTH, EAST, SOUTH, WEST);
    }
 }

@@ -4,7 +4,11 @@ import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.CampfireBlock;
+import net.minecraft.block.FireBlock;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.IClearable;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
@@ -20,7 +24,9 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 public class CampfireTileEntity extends TileEntity implements IClearable, ITickableTileEntity {
    private final NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
@@ -31,27 +37,97 @@ public class CampfireTileEntity extends TileEntity implements IClearable, ITicka
       super(TileEntityType.CAMPFIRE);
    }
 
-   public void tick() {
-      boolean flag = this.getBlockState().getValue(CampfireBlock.LIT);
-      boolean flag1 = this.level.isClientSide;
-      if (flag1) {
-         if (flag) {
-            this.makeParticles();
-         }
+   // ... existing fields ...
 
+   // Tunables
+   private static final int ATTEMPTS_PER_BURST_MIN = 6;
+   private static final int ATTEMPTS_PER_BURST_MAX = 12;
+   private static final int RADIUS_XZ = 3;   // horizontal spread radius
+   private static final int RADIUS_Y_UP = 4; // up
+   private static final int RADIUS_Y_DOWN = 1; // down
+
+   // Soft throttle: average one burst every ~2–6 seconds (20 ticks/sec).
+   // We randomize each check so it's not periodic and stacks poorly.
+   private static final int BURST_CHECK_EVERY_TICKS = 20; // check once per second
+   private static final float BASE_BURST_CHANCE = 0.35f;  // chance per check to do a burst
+
+   @Override
+   public void tick() {
+      if (this.level == null) return;
+
+      boolean client = this.level.isClientSide;
+      BlockState state = this.getBlockState();
+      boolean lit = state.hasProperty(CampfireBlock.LIT) && state.getValue(CampfireBlock.LIT);
+
+      if (client) {
+         if (lit) this.makeParticles();
+         return;
+      }
+
+      // Server side
+      if (lit) {
+         this.cook();
+         tryStartIgnitionBurst((ServerWorld) this.level, this.worldPosition, state);
       } else {
-         if (flag) {
-            this.cook();
-         } else {
-            for(int i = 0; i < this.items.size(); ++i) {
-               if (this.cookingProgress[i] > 0) {
-                  this.cookingProgress[i] = MathHelper.clamp(this.cookingProgress[i] - 2, 0, this.cookingTime[i]);
-               }
+         // existing cooling logic...
+         for (int i = 0; i < this.items.size(); ++i) {
+            if (this.cookingProgress[i] > 0) {
+               this.cookingProgress[i] = MathHelper.clamp(this.cookingProgress[i] - 2, 0, this.cookingTime[i]);
             }
          }
-
       }
    }
+
+   private void tryStartIgnitionBurst(ServerWorld world, BlockPos pos, BlockState campfireState) {
+      if (!world.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) return;
+      if (!world.getGameRules().getBoolean(GameRules.RULE_VERYHARD)) return;
+
+      if ((world.getGameTime() % BURST_CHECK_EVERY_TICKS) != 0) return;
+
+      Random rng = world.random;
+
+      FireBlock fire = (FireBlock) Blocks.FIRE;
+      int localFlammable = 0;
+      for (BlockPos bp : BlockPos.betweenClosed(
+              pos.offset(-RADIUS_XZ, -RADIUS_Y_DOWN, -RADIUS_XZ),
+              pos.offset( RADIUS_XZ,  RADIUS_Y_UP,    RADIUS_XZ))) {
+         if (bp.equals(pos)) continue;
+         if (fire.canBurn(world.getBlockState(bp))) localFlammable++;
+      }
+      if (localFlammable == 0) return;
+
+      float burstChance = Math.min(0.9f, BASE_BURST_CHANCE + localFlammable * 0.02f);
+      if (rng.nextFloat() >= burstChance) return;
+
+      int attempts = ATTEMPTS_PER_BURST_MIN + rng.nextInt(ATTEMPTS_PER_BURST_MAX - ATTEMPTS_PER_BURST_MIN + 1);
+      for (int a = 0; a < attempts; a++) {
+         BlockPos target = pos.offset(
+                 rng.nextInt(RADIUS_XZ * 2 + 1) - RADIUS_XZ,
+                 rng.nextInt(RADIUS_Y_UP + RADIUS_Y_DOWN + 1) - RADIUS_Y_DOWN,
+                 rng.nextInt(RADIUS_XZ * 2 + 1) - RADIUS_XZ
+         );
+
+         if (!world.isEmptyBlock(target)) continue;
+         if (world.isRainingAt(target)) continue;
+
+         boolean nearFlammable = false;
+         for (Direction d : Direction.values()) {
+            if (fire.canBurn(world.getBlockState(target.relative(d)))) {
+               nearFlammable = true;
+               break;
+            }
+         }
+         if (!nearFlammable) continue;
+
+         BlockState fireState = fire.getStateForPlacement(world, target);
+         if (!fireState.is(Blocks.FIRE)) continue;
+         if (!fireState.canSurvive(world, target)) continue;
+
+         world.setBlock(target, fireState, 11);
+      }
+   }
+
+   // ... rest of your class ...
 
    private void cook() {
       for(int i = 0; i < this.items.size(); ++i) {
@@ -61,12 +137,13 @@ public class CampfireTileEntity extends TileEntity implements IClearable, ITicka
             if (this.cookingProgress[i] >= this.cookingTime[i]) {
                IInventory iinventory = new Inventory(itemstack);
                ItemStack itemstack1 = this.level.getRecipeManager().getRecipeFor(IRecipeType.CAMPFIRE_COOKING, iinventory, this.level).map((p_213979_1_) -> {
-                  return p_213979_1_.assemble(iinventory);
+                  return p_213979_1_.assemble(iinventory, this.level.registryAccess());
                }).orElse(itemstack);
                BlockPos blockpos = this.getBlockPos();
                InventoryHelper.dropItemStack(this.level, (double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ(), itemstack1);
                this.items.set(i, ItemStack.EMPTY);
                this.markUpdated();
+               level.gameEvent(GameEvent.BLOCK_CHANGE, blockpos, GameEvent.Context.of(this.getBlockState()));
             }
          }
       }
@@ -149,13 +226,14 @@ public class CampfireTileEntity extends TileEntity implements IClearable, ITicka
       return this.items.stream().noneMatch(ItemStack::isEmpty) ? Optional.empty() : this.level.getRecipeManager().getRecipeFor(IRecipeType.CAMPFIRE_COOKING, new Inventory(p_213980_1_), this.level);
    }
 
-   public boolean placeFood(ItemStack p_213984_1_, int p_213984_2_) {
+   public boolean placeFood(@Nullable Entity entity, ItemStack p_213984_1_, int p_213984_2_) {
       for(int i = 0; i < this.items.size(); ++i) {
          ItemStack itemstack = this.items.get(i);
          if (itemstack.isEmpty()) {
             this.cookingTime[i] = p_213984_2_;
             this.cookingProgress[i] = 0;
             this.items.set(i, p_213984_1_.split(1));
+            this.level.gameEvent(GameEvent.BLOCK_CHANGE, this.getBlockPos(), GameEvent.Context.of(entity, this.getBlockState()));
             this.markUpdated();
             return true;
          }

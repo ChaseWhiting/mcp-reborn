@@ -27,7 +27,7 @@ public abstract class LootFunction implements ILootFunction {
       return this.compositePredicates.test(p_apply_2_) ? this.run(p_apply_1_, p_apply_2_) : p_apply_1_;
    }
 
-   protected abstract ItemStack run(ItemStack p_215859_1_, LootContext p_215859_2_);
+   public abstract ItemStack run(ItemStack p_215859_1_, LootContext p_215859_2_);
 
    public void validate(ValidationTracker p_225580_1_) {
       ILootFunction.super.validate(p_225580_1_);

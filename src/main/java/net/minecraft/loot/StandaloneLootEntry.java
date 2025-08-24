@@ -4,13 +4,18 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.conditions.ILootCondition;
 import net.minecraft.loot.functions.ILootFunction;
 import net.minecraft.loot.functions.LootFunctionManager;
+import net.minecraft.loot.functions.SetCount;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.ArrayUtils;
@@ -67,6 +72,24 @@ public abstract class StandaloneLootEntry extends LootEntry {
          this.functions.add(p_212841_1_.build());
          return this.getThis();
       }
+
+      public T setCount(IRandomRange randomValueRange) {
+         this.functions.add(SetCount.setCount(randomValueRange).build());
+         return this.getThis();
+      }
+
+      public <E, R extends ILootFunction.IBuilder> T apply(E[] EArray, Function<E, R> function) {
+         return this.apply(Arrays.asList(EArray), function);
+      }
+
+      public <E, R extends ILootFunction.IBuilder> T apply(Iterable<E> iterable, Function<E, R> function) {
+         T t = this.unwrap();
+         for (E e : iterable) {
+            t = t.apply(function.apply(e));
+         }
+         return t;
+      }
+
 
       protected ILootFunction[] getFunctions() {
          return this.functions.toArray(new ILootFunction[0]);

@@ -6,6 +6,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -46,7 +47,7 @@ public class FireworkRocketRecipe extends SpecialRecipe {
       return flag && i >= 1;
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       ItemStack itemstack = new ItemStack(Items.FIREWORK_ROCKET, 3);
       CompoundNBT compoundnbt = itemstack.getOrCreateTagElement("Fireworks");
       ListNBT listnbt = new ListNBT();

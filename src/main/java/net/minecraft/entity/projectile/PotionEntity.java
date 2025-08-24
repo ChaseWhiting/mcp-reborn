@@ -184,7 +184,7 @@ public class PotionEntity extends ProjectileItemEntity implements IRendersAsItem
          this.level.removeBlock(p_184542_1_, false);
       } else if (CampfireBlock.isLitCampfire(blockstate)) {
          this.level.levelEvent((PlayerEntity)null, 1009, p_184542_1_, 0);
-         CampfireBlock.dowse(this.level, p_184542_1_, blockstate);
+         CampfireBlock.dowse(null, this.level, p_184542_1_, blockstate);
          this.level.setBlockAndUpdate(p_184542_1_, blockstate.setValue(CampfireBlock.LIT, Boolean.valueOf(false)));
       }
 

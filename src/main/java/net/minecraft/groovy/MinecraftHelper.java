@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -12,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.UUID;
 
@@ -50,12 +52,26 @@ public class MinecraftHelper {
         return server.getPlayerList().getPlayerByName(name);
     }
 
+    public ServerPlayerEntity getPlayer() {
+        return server.getPlayerList().getRandomPlayer();
+    }
+
     public void command(CommandSource source, String command) {
         server.getCommands().performCommand(source, command);
     }
 
     public void command(String command) {
         server.getCommands().performCommand(server.createCommandSourceStack(), command);
+    }
+
+    public void schedule(Runnable runnable, int ticksDelay) {
+        ServerWorld serverWorld = (ServerWorld) this.getWorld();
+        serverWorld.getServer().tell(new TickDelayedTask(serverWorld.getServer().getTickCount() + ticksDelay, runnable));
+    }
+
+    public void schedule(int ticksDelay, Runnable runnable) {
+        ServerWorld serverWorld = (ServerWorld) this.getWorld();
+        serverWorld.getServer().tell(new TickDelayedTask(serverWorld.getServer().getTickCount() + ticksDelay, runnable));
     }
 
     public UUID getUserUUID(String user) throws Exception {
@@ -71,46 +87,37 @@ public class MinecraftHelper {
     }
 
 
-    // Additional Methods
 
-    // Send a message to a player
     public void sendMessageToPlayer(PlayerEntity player, String message) {
         player.sendMessage(new StringTextComponent(message), player.getUUID());
     }
 
-    // Teleport a player to a specific location
     public void teleportPlayer(PlayerEntity player, BlockPos pos) {
         player.teleportTo(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    // Heal a player by a specific amount
     public void healPlayer(PlayerEntity player, float amount) {
         player.heal(amount);
     }
 
-    // Give an item to a player
     public void giveItemToPlayer(PlayerEntity player, ItemStack itemStack) {
         if (!player.inventory.add(itemStack)) {
             player.drop(itemStack, false);
         }
     }
 
-    // Broadcast a message to all players
     public void broadcastMessage(String message) {
         server.getPlayerList().broadcastMessage(new StringTextComponent(message), ChatType.SYSTEM, executor.getUUID());
     }
 
-    // Check if a player has a specific item
     public boolean playerHasItem(PlayerEntity player, Item item) {
         return player.inventory.contains(new ItemStack(item));
     }
 
-    // Get the position of the player
     public BlockPos getPlayerPosition(PlayerEntity player) {
         return player.blockPosition();
     }
 
-    // Get the current time in the world
     public long getWorldTime() {
         return getWorld().getDayTime();
     }

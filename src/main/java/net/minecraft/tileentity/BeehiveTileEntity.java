@@ -17,6 +17,7 @@ import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.entity.passive.QueenBeeEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTUtil;
@@ -150,7 +151,9 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
                 }
 
                 BlockPos blockPos = this.getBlockPos();
+
                 this.level.playSound(null, blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.BEEHIVE_ENTER, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                this.level.gameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Context.of(entity, this.getBlockState()));
             }
 
             entity.remove();
@@ -164,7 +167,7 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
             BlockPos blockPos = this.getBlockPos();
             CompoundNBT compoundNBT = beeData.entityData;
             compoundNBT.remove("Passengers");
-            compoundNBT.remove("Leash");
+            compoundNBT.remove("leash");
             compoundNBT.remove("UUID");
             Direction direction = blockState.getValue(BeehiveBlock.FACING);
             BlockPos blockPos1 = blockPos.relative(direction);
@@ -239,6 +242,7 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
                         }
 
                         this.level.playSound((PlayerEntity) null, blockPos, SoundEvents.BEEHIVE_EXIT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        level.gameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Context.of(entity, level.getBlockState(blockPos)));
                         return this.level.addFreshEntity(entity);
                     }
                 } else {
@@ -296,7 +300,7 @@ public class BeehiveTileEntity extends TileEntity implements ITickableTileEntity
         if (!this.level.isClientSide) {
             this.tickOccupants();
             BlockPos blockpos = this.getBlockPos();
-            if (this.stored.size() > 0 && this.level.getRandom().nextDouble() < 0.005D) {
+            if (!this.stored.isEmpty() && this.level.getRandom().nextDouble() < 0.005D) {
                 double d0 = (double) blockpos.getX() + 0.5D;
                 double d1 = (double) blockpos.getY();
                 double d2 = (double) blockpos.getZ() + 0.5D;

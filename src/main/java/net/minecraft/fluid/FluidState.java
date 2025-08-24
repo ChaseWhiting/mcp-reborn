@@ -11,11 +11,13 @@ import net.minecraft.state.Property;
 import net.minecraft.state.StateHolder;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,6 +43,11 @@ public final class FluidState extends StateHolder<Fluid, FluidState> {
 
    public float getHeight(IBlockReader p_215679_1_, BlockPos p_215679_2_) {
       return this.getType().getHeight(this, p_215679_1_, p_215679_2_);
+   }
+
+   @Nullable
+   public AxisAlignedBB getAABB(IWorld blockGetter, BlockPos blockPos) {
+      return this.getType().getAABB(this, blockGetter, blockPos);
    }
 
    public float getOwnHeight() {

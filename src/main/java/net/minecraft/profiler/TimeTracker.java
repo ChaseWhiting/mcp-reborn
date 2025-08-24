@@ -8,9 +8,9 @@ public class TimeTracker {
    private final IntSupplier tickCount;
    private IResultableProfiler profiler = EmptyProfiler.INSTANCE;
 
-   public TimeTracker(LongSupplier p_i231483_1_, IntSupplier p_i231483_2_) {
-      this.realTime = p_i231483_1_;
-      this.tickCount = p_i231483_2_;
+   public TimeTracker(LongSupplier realTime, IntSupplier tc) {
+      this.realTime = realTime;
+      this.tickCount = tc;
    }
 
    public boolean isEnabled() {

@@ -68,7 +68,7 @@ public class PaneBlock extends FourWayBlock {
       return !isExceptionForConnection(block) && p_220112_2_ || block instanceof PaneBlock || block.is(BlockTags.WALLS);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(NORTH, EAST, WEST, SOUTH, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(NORTH, EAST, WEST, SOUTH, WATERLOGGED);
    }
 }

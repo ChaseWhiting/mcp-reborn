@@ -3,6 +3,7 @@ package net.minecraft.block;
 import java.util.Random;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +15,8 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
+import javax.annotation.Nullable;
+
 public abstract class AbstractPressurePlateBlock extends Block {
    protected static final VoxelShape PRESSED_AABB = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 0.5D, 15.0D);
    protected static final VoxelShape AABB = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 1.0D, 15.0D);
@@ -23,8 +26,8 @@ public abstract class AbstractPressurePlateBlock extends Block {
       super(p_i48445_1_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return this.getSignalForState(p_220053_1_) > 0 ? PRESSED_AABB : AABB;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return this.getSignalForState(state) > 0 ? PRESSED_AABB : AABB;
    }
 
    protected int getPressedTime() {
@@ -47,7 +50,7 @@ public abstract class AbstractPressurePlateBlock extends Block {
    public void tick(BlockState p_225534_1_, ServerWorld p_225534_2_, BlockPos p_225534_3_, Random p_225534_4_) {
       int i = this.getSignalForState(p_225534_1_);
       if (i > 0) {
-         this.checkPressed(p_225534_2_, p_225534_3_, p_225534_1_, i);
+         this.checkPressed(null, p_225534_2_, p_225534_3_, p_225534_1_, i);
       }
 
    }
@@ -56,13 +59,13 @@ public abstract class AbstractPressurePlateBlock extends Block {
       if (!p_196262_2_.isClientSide) {
          int i = this.getSignalForState(p_196262_1_);
          if (i == 0) {
-            this.checkPressed(p_196262_2_, p_196262_3_, p_196262_1_, i);
+            this.checkPressed(p_196262_4_, p_196262_2_, p_196262_3_, p_196262_1_, i);
          }
 
       }
    }
 
-   protected void checkPressed(World p_180666_1_, BlockPos p_180666_2_, BlockState p_180666_3_, int p_180666_4_) {
+   protected void checkPressed(@Nullable Entity entity, World p_180666_1_, BlockPos p_180666_2_, BlockState p_180666_3_, int p_180666_4_) {
       int i = this.getSignalStrength(p_180666_1_, p_180666_2_);
       boolean flag = p_180666_4_ > 0;
       boolean flag1 = i > 0;
@@ -75,8 +78,10 @@ public abstract class AbstractPressurePlateBlock extends Block {
 
       if (!flag1 && flag) {
          this.playOffSound(p_180666_1_, p_180666_2_);
+         p_180666_1_.gameEvent(entity, GameEvent.BLOCK_DEACTIVATE, p_180666_2_);
       } else if (flag1 && !flag) {
          this.playOnSound(p_180666_1_, p_180666_2_);
+         p_180666_1_.gameEvent(entity, GameEvent.BLOCK_ACTIVATE, p_180666_2_);
       }
 
       if (flag1) {

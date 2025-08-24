@@ -1,5 +1,8 @@
 package net.minecraft.util;
 
+import com.google.common.base.Suppliers;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -14,14 +17,26 @@ import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class JSONUtils {
    private static final Gson GSON = (new GsonBuilder()).create();
+
+   public static final Supplier<BiMap<String, Item>> STRING_ITEM_MAP = Suppliers.memoize(() ->
+           ImmutableBiMap.<String, Item>builder()
+                   .put("minecraft:powered_rail", Items.GOLDEN_POWERED_RAIL)
+                   .build());
+
 
    public static boolean isStringValue(JsonObject p_151205_0_, String p_151205_1_) {
       return !isValidPrimitive(p_151205_0_, p_151205_1_) ? false : p_151205_0_.getAsJsonPrimitive(p_151205_1_).isString();
@@ -80,6 +95,11 @@ public class JSONUtils {
    public static Item convertToItem(JsonElement p_188172_0_, String p_188172_1_) {
       if (p_188172_0_.isJsonPrimitive()) {
          String s = p_188172_0_.getAsString();
+
+         if (STRING_ITEM_MAP.get().containsKey(s)) {
+            return STRING_ITEM_MAP.get().get(s);
+         }
+
          return Registry.ITEM.getOptional(new ResourceLocation(s)).orElseThrow(() -> {
             return new JsonSyntaxException("Expected " + p_188172_1_ + " to be an item, was unknown string '" + s + "'");
          });

@@ -5,19 +5,14 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.monster.Monster;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.terraria.boss.BossEntity;
 import net.minecraft.entity.terraria.boss.BossPhase;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
-import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuSecondFormEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -25,11 +20,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Random;
 
 public class RetinazerEntity extends BossEntity {
     private BossPhase currentPhase = BossPhase.MAX_HEALTH;

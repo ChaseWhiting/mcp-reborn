@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.model;
 
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
 import net.minecraft.item.CrossbowItem;
@@ -19,9 +20,31 @@ public class ModelHelper {
       modelrenderer1.xRot = -1.5F + p_239104_2_.xRot;
    }
 
+   public static void animateCrossbowHold(ModelPart p_239104_0_, ModelPart p_239104_1_, ModelPart p_239104_2_, boolean p_239104_3_) {
+      ModelPart modelrenderer = p_239104_3_ ? p_239104_0_ : p_239104_1_;
+      ModelPart modelrenderer1 = p_239104_3_ ? p_239104_1_ : p_239104_0_;
+      modelrenderer.yRot = (p_239104_3_ ? -0.3F : 0.3F) + p_239104_2_.yRot;
+      modelrenderer1.yRot = (p_239104_3_ ? 0.6F : -0.6F) + p_239104_2_.yRot;
+      modelrenderer.xRot = (-(float)Math.PI / 2F) + p_239104_2_.xRot + 0.1F;
+      modelrenderer1.xRot = -1.5F + p_239104_2_.xRot;
+   }
+
    public static void animateCrossbowCharge(ModelRenderer p_239102_0_, ModelRenderer p_239102_1_, LivingEntity p_239102_2_, boolean p_239102_3_) {
       ModelRenderer modelrenderer = p_239102_3_ ? p_239102_0_ : p_239102_1_;
       ModelRenderer modelrenderer1 = p_239102_3_ ? p_239102_1_ : p_239102_0_;
+      modelrenderer.yRot = p_239102_3_ ? -0.8F : 0.8F;
+      modelrenderer.xRot = -0.97079635F;
+      modelrenderer1.xRot = modelrenderer.xRot;
+      float f = (float)CrossbowItem.getChargeDuration(p_239102_2_.getUseItem());
+      float f1 = MathHelper.clamp((float)p_239102_2_.getTicksUsingItem(), 0.0F, f);
+      float f2 = f1 / f;
+      modelrenderer1.yRot = MathHelper.lerp(f2, 0.4F, 0.85F) * (float)(p_239102_3_ ? 1 : -1);
+      modelrenderer1.xRot = MathHelper.lerp(f2, modelrenderer1.xRot, (-(float)Math.PI / 2F));
+   }
+
+   public static void animateCrossbowCharge(ModelPart p_239102_0_, ModelPart p_239102_1_, LivingEntity p_239102_2_, boolean p_239102_3_) {
+      ModelPart modelrenderer = p_239102_3_ ? p_239102_0_ : p_239102_1_;
+      ModelPart modelrenderer1 = p_239102_3_ ? p_239102_1_ : p_239102_0_;
       modelrenderer.yRot = p_239102_3_ ? -0.8F : 0.8F;
       modelrenderer.xRot = -0.97079635F;
       modelrenderer1.xRot = modelrenderer.xRot;
@@ -59,6 +82,16 @@ public class ModelHelper {
       p_239101_1_.zRot -= MathHelper.cos(p_239101_2_ * 0.09F) * 0.05F + 0.05F;
       p_239101_0_.xRot += MathHelper.sin(p_239101_2_ * 0.067F) * 0.05F;
       p_239101_1_.xRot -= MathHelper.sin(p_239101_2_ * 0.067F) * 0.05F;
+   }
+
+   public static void bobModelPart(ModelRenderer modelPart, float f, float f2) {
+      modelPart.zRot += f2 * (MathHelper.cos(f * 0.09f) * 0.05f + 0.05f);
+      modelPart.xRot += f2 * (MathHelper.sin(f * 0.067f) * 0.05f);
+   }
+
+   public static void bobModelPart(ModelPart modelPart, float f, float f2) {
+      modelPart.zRot += f2 * (MathHelper.cos(f * 0.09f) * 0.05f + 0.05f);
+      modelPart.xRot += f2 * (MathHelper.sin(f * 0.067f) * 0.05f);
    }
 
    public static void animateZombieArms(ModelRenderer p_239105_0_, ModelRenderer p_239105_1_, boolean p_239105_2_, float p_239105_3_, float p_239105_4_) {

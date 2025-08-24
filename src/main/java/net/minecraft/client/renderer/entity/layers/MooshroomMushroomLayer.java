@@ -22,7 +22,7 @@ public class MooshroomMushroomLayer<T extends MooshroomEntity> extends LayerRend
    public void render(MatrixStack p_225628_1_, IRenderTypeBuffer p_225628_2_, int p_225628_3_, T p_225628_4_, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
       if (!p_225628_4_.isBaby() && !p_225628_4_.isInvisible()) {
          BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRenderer();
-         BlockState blockstate = p_225628_4_.getMushroomType().getBlockState();
+         BlockState blockstate = p_225628_4_.getMooshroomVariant().getBlockState();
          int i = LivingRenderer.getOverlayCoords(p_225628_4_, 0.0F);
          p_225628_1_.pushPose();
          p_225628_1_.translate((double)0.2F, (double)-0.35F, 0.5D);

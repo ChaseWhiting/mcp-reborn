@@ -28,6 +28,27 @@ public abstract class ScatteredStructurePiece extends StructurePiece {
 
    }
 
+   protected static MutableBoundingBox makeBoundingBox(int n, int n2, int n3, Direction direction, int n4, int n5, int n6) {
+      if (direction.getAxis() == Direction.Axis.Z) {
+         return new MutableBoundingBox(n, n2, n3, n + n4 - 1, n2 + n5 - 1, n3 + n6 - 1);
+      }
+      return new MutableBoundingBox(n, n2, n3, n + n6 - 1, n2 + n5 - 1, n3 + n4 - 1);
+   }
+
+   protected ScatteredStructurePiece(IStructurePieceType structurePieceType, int n, int n2, int n3, int n4, int n5, int n6, Direction direction) {
+      super(structurePieceType, 0);
+      this.width = n4;
+      this.height = n5;
+      this.depth = n6;
+
+      this.boundingBox = makeBoundingBox(n, n2, n3, direction, n4, n5, n6);
+      this.setOrientation(direction);
+   }
+
+   protected static Direction getRandomHorizontalDirection(Random randomSource) {
+      return Direction.Plane.HORIZONTAL.getRandomDirection(randomSource);
+   }
+
    protected ScatteredStructurePiece(IStructurePieceType p_i51345_1_, CompoundNBT p_i51345_2_) {
       super(p_i51345_1_, p_i51345_2_);
       this.width = p_i51345_2_.getInt("Width");

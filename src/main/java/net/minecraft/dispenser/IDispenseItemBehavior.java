@@ -20,6 +20,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.*;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowEntity;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ArmorItem;
@@ -87,6 +88,25 @@ public interface IDispenseItemBehavior {
          }
       });
 
+      DispenserBlock.registerBehavior(Items.FLEETING_ARROW, new ProjectileDispenseBehavior() {
+         @Override
+         protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            CustomArrowEntity burningArrowEntity = new CustomArrowEntity(world, position.x(), position.y(), position.z());
+            burningArrowEntity.setArrowType(CustomArrowType.FLEETING);
+            burningArrowEntity.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+            return burningArrowEntity;
+         }
+      });
+      DispenserBlock.registerBehavior(Items.MEEP_ARROW, new ProjectileDispenseBehavior() {
+         @Override
+         protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            CustomArrowEntity burningArrowEntity = new CustomArrowEntity(world, position.x(), position.y(), position.z());
+            burningArrowEntity.setArrowType(CustomArrowType.MEEP);
+            burningArrowEntity.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+            return burningArrowEntity;
+         }
+      });
+
 // Register Teleportation Arrow dispenser behavior
       DispenserBlock.registerBehavior(Items.TELEPORTATION_ARROW, new ProjectileDispenseBehavior() {
          @Override
@@ -148,7 +168,21 @@ public interface IDispenseItemBehavior {
       });
       DispenserBlock.registerBehavior(Items.EGG, new ProjectileDispenseBehavior() {
          protected ProjectileEntity getProjectile(World p_82499_1_, IPosition p_82499_2_, ItemStack p_82499_3_) {
-            return Util.make(new EggEntity(p_82499_1_, p_82499_2_.x(), p_82499_2_.y(), p_82499_2_.z()), (p_218408_1_) -> {
+            return Util.make(new TemperateEggEntity(p_82499_1_, p_82499_2_.x(), p_82499_2_.y(), p_82499_2_.z()), (p_218408_1_) -> {
+               p_218408_1_.setItem(p_82499_3_);
+            });
+         }
+      });
+      DispenserBlock.registerBehavior(Items.WARM_EGG, new ProjectileDispenseBehavior() {
+         protected ProjectileEntity getProjectile(World p_82499_1_, IPosition p_82499_2_, ItemStack p_82499_3_) {
+            return Util.make(new WarmEggEntity(p_82499_1_, p_82499_2_.x(), p_82499_2_.y(), p_82499_2_.z()), (p_218408_1_) -> {
+               p_218408_1_.setItem(p_82499_3_);
+            });
+         }
+      });
+      DispenserBlock.registerBehavior(Items.COLD_EGG, new ProjectileDispenseBehavior() {
+         protected ProjectileEntity getProjectile(World p_82499_1_, IPosition p_82499_2_, ItemStack p_82499_3_) {
+            return Util.make(new ColdEggEntity(p_82499_1_, p_82499_2_.x(), p_82499_2_.y(), p_82499_2_.z()), (p_218408_1_) -> {
                p_218408_1_.setItem(p_82499_3_);
             });
          }
@@ -219,6 +253,7 @@ public interface IDispenseItemBehavior {
             EntityType<?> entitytype = ((SpawnEggItem)p_82487_2_.getItem()).getType(p_82487_2_.getTag());
             entitytype.spawn(p_82487_1_.getLevel(), p_82487_2_, (PlayerEntity)null, p_82487_1_.getPos().relative(direction), SpawnReason.DISPENSER, direction != Direction.UP, false);
             p_82487_2_.shrink(1);
+            p_82487_1_.getLevel().gameEvent(null, GameEvent.ENTITY_PLACE, p_82487_1_.getPos());
             return p_82487_2_;
          }
       };
@@ -367,7 +402,7 @@ public interface IDispenseItemBehavior {
             BlockPos blockpos = p_82487_1_.getPos().relative(p_82487_1_.getBlockState().getValue(DispenserBlock.FACING));
             World world = p_82487_1_.getLevel();
             if (bucketitem.emptyBucket((PlayerEntity)null, world, blockpos, (BlockRayTraceResult)null)) {
-               bucketitem.checkExtraContent(world, p_82487_2_, blockpos);
+               bucketitem.checkExtraContent(null, world, p_82487_2_, blockpos);
                return new ItemStack(Items.BUCKET);
             } else {
                return this.defaultDispenseItemBehavior.dispense(p_82487_1_, p_82487_2_);
@@ -393,6 +428,7 @@ public interface IDispenseItemBehavior {
                if (!(fluid instanceof FlowingFluid)) {
                   return super.execute(p_82487_1_, p_82487_2_);
                } else {
+                  iworld.gameEvent(null, GameEvent.FLUID_PICKUP, blockpos);
                   Item item = fluid.getBucket();
                   p_82487_2_.shrink(1);
                   if (p_82487_2_.isEmpty()) {
@@ -408,6 +444,7 @@ public interface IDispenseItemBehavior {
             } else {
                return super.execute(p_82487_1_, p_82487_2_);
             }
+
          }
       });
       DispenserBlock.registerBehavior(Items.FLINT_AND_STEEL, new OptionalDispenseBehavior() {
@@ -421,6 +458,7 @@ public interface IDispenseItemBehavior {
                world.setBlockAndUpdate(blockpos, AbstractFireBlock.getState(world, blockpos));
             } else if (CampfireBlock.canLight(blockstate)) {
                world.setBlockAndUpdate(blockpos, blockstate.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
+               world.gameEvent(null, GameEvent.BLOCK_CHANGE, blockpos);
             } else if (blockstate.getBlock() instanceof TNTBlock) {
                TNTBlock.explode(world, blockpos);
                world.removeBlock(blockpos, false);
@@ -533,6 +571,7 @@ public interface IDispenseItemBehavior {
          private ItemStack takeLiquid(IBlockSource p_229424_1_, ItemStack p_229424_2_, ItemStack p_229424_3_) {
             p_229424_2_.shrink(1);
             if (p_229424_2_.isEmpty()) {
+               p_229424_1_.getLevel().gameEvent(null, GameEvent.FLUID_PICKUP, p_229424_1_.getPos());
                return p_229424_3_.copy();
             } else {
                if (p_229424_1_.<DispenserTileEntity>getEntity().addItem(p_229424_3_.copy()) < 0) {

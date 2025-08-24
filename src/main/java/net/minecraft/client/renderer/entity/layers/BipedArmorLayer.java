@@ -5,17 +5,23 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import java.util.Map;
 import javax.annotation.Nullable;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.DyeableArmorItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.equipment.trim.ArmorTrim;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,6 +31,8 @@ public class BipedArmorLayer<T extends LivingEntity, M extends BipedModel<T>, A 
    private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = Maps.newHashMap();
    private final A innerModel;
    private final A outerModel;
+   private AtlasTexture armorTrimAtlas;
+
 
    public BipedArmorLayer(IEntityRenderer<T, M> p_i50936_1_, A p_i50936_2_, A p_i50936_3_) {
       super(p_i50936_1_);
@@ -59,6 +67,9 @@ public class BipedArmorLayer<T extends LivingEntity, M extends BipedModel<T>, A 
                this.renderModel(p_241739_1_, p_241739_2_, p_241739_5_, armoritem, flag1, p_241739_6_, flag, 1.0F, 1.0F, 1.0F, (String)null);
             }
 
+            ArmorTrim.getTrim(((Entity)p_241739_3_).level().registryAccess(), itemstack).ifPresent(armorTrim -> this.renderTrim((ArmorMaterial) armoritem.getMaterial(), p_241739_1_, p_241739_2_, p_241739_5_, (ArmorTrim)armorTrim, p_241739_6_, flag));
+
+
          }
       }
    }
@@ -91,6 +102,32 @@ public class BipedArmorLayer<T extends LivingEntity, M extends BipedModel<T>, A 
       IVertexBuilder ivertexbuilder = ItemRenderer.getArmorFoilBuffer(p_241738_2_, RenderType.armorCutoutNoCull(this.getArmorLocation(p_241738_4_, p_241738_7_, p_241738_11_)), false, p_241738_5_);
       p_241738_6_.renderToBuffer(p_241738_1_, ivertexbuilder, p_241738_3_, OverlayTexture.NO_OVERLAY, p_241738_8_, p_241738_9_, p_241738_10_, 1.0F);
    }
+
+   private void renderTrim(ArmorMaterial armorMaterial, MatrixStack poseStack, IRenderTypeBuffer multiBufferSource, int n, ArmorTrim armorTrim, A a, boolean usesInnerModel) {
+      ResourceLocation trimTexture;
+
+      String armorTrimMaterial = armorTrim.material().get().getAssetName().replace("minecraft:", "");
+      String armorTrimPattern = armorTrim.pattern().get().getAssetName();
+
+      boolean darker = armorMaterial == ArmorMaterial.NETHERITE && armorTrimMaterial.contains("netherite") ||
+              armorMaterial == ArmorMaterial.IRON && armorTrimMaterial.contains("iron") ||
+              armorMaterial == ArmorMaterial.GOLD && armorTrimMaterial.contains("gold") ||
+              armorMaterial == ArmorMaterial.DIAMOND && armorTrimMaterial.contains("diamond")
+              || armorMaterial == ArmorMaterial.ROSE_GOLD && armorTrimMaterial.contains("rose_gold");
+
+
+      if (usesInnerModel) {
+         trimTexture = new ResourceLocation("minecraft", "textures/trims/models/armor/" + armorTrimPattern + "_leggings_" + armorTrimMaterial + (darker ? "_darker.png" : ".png"));
+      } else {
+         trimTexture = new ResourceLocation("minecraft", "textures/trims/models/armor/" + armorTrimPattern + "_" + armorTrimMaterial + (darker ? "_darker.png" : ".png"));
+      }
+
+      Minecraft.getInstance().getTextureManager().bind(trimTexture);
+
+      IVertexBuilder vertexConsumer = multiBufferSource.getBuffer(RenderType.armorCutoutNoCull(trimTexture));
+      ((BipedModel)a).renderToBuffer(poseStack, vertexConsumer, armorTrimMaterial.contains("sculk") || armorTrim.glow ? 15728880 : n, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+   }
+
 
    private A getArmorModel(EquipmentSlotType p_241736_1_) {
       return (A)(this.usesInnerModel(p_241736_1_) ? this.innerModel : this.outerModel);

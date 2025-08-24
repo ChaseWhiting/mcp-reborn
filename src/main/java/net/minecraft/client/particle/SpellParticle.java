@@ -1,8 +1,12 @@
 package net.minecraft.client.particle;
 
 import java.util.Random;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particles.BasicParticleType;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -38,6 +42,11 @@ public class SpellParticle extends SpriteTexturedParticle {
          this.remove();
       } else {
          this.setSpriteFromAge(this.sprites);
+         if (this.isCloseToScopingPlayer()) {
+            this.setAlpha(0.0F);
+         } else {
+            this.setAlpha(MathHelper.lerp(0.05f, this.alpha, 1.0f));
+         }
          this.yd += 0.004D;
          this.move(this.xd, this.yd, this.zd);
          if (this.y == this.yo) {
@@ -54,6 +63,12 @@ public class SpellParticle extends SpriteTexturedParticle {
          }
 
       }
+   }
+
+   private boolean isCloseToScopingPlayer() {
+      Minecraft minecraft = Minecraft.getInstance();
+      ClientPlayerEntity localPlayer = minecraft.player;
+      return localPlayer != null && localPlayer.getEyePosition(1.0F).distanceToSqr(this.x, this.y, this.z) <= 9.0 && minecraft.options.getCameraType().isFirstPerson() && localPlayer.isScoping();
    }
 
    @OnlyIn(Dist.CLIENT)

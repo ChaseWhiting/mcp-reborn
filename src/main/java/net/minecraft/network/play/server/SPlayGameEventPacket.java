@@ -1,6 +1,5 @@
 package net.minecraft.network.play.server;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.network.play.IClientPlayNetHandler;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.IPacket;

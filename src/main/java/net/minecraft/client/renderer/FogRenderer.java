@@ -10,6 +10,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Items;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.CubicSampler;
@@ -19,7 +21,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
@@ -27,6 +28,7 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
@@ -163,12 +165,31 @@ public class FogRenderer {
 
       // Apply fog based on height
       double fogDistanceFactor = renderInfo.getPosition().y * world.getLevelData().getClearColorScale();
-      if (renderInfo.getEntity() instanceof LivingEntity && ((LivingEntity)renderInfo.getEntity()).hasEffect(Effects.BLINDNESS)) {
-         int blindnessDuration = ((LivingEntity)renderInfo.getEntity()).getEffect(Effects.BLINDNESS).getDuration();
-         if (blindnessDuration < 20) {
-            fogDistanceFactor *= (1.0F - (float)blindnessDuration / 20.0F);
-         } else {
-            fogDistanceFactor = 0.0D;
+
+      if (renderInfo.getEntity() instanceof LivingEntity) {
+         LivingEntity livingEntity = (LivingEntity) renderInfo.getEntity();
+
+         // Handle Blindness effect
+         if (livingEntity.hasEffect(Effects.BLINDNESS)) {
+            int blindnessDuration = livingEntity.getEffect(Effects.BLINDNESS).getDuration();
+            if (blindnessDuration < 20) {
+               fogDistanceFactor *= (1.0F - (float) blindnessDuration / 20.0F);
+            } else {
+               fogDistanceFactor = 0.0D;
+            }
+         }
+
+         // 🔹 Handle Darkness effect 🔹
+         if (livingEntity.hasEffect(Effects.DARKNESS)) {
+            EffectInstance darknessEffect = livingEntity.getEffect(Effects.DARKNESS);
+            float darknessFactor = darknessEffect.getDuration() < 20
+                    ? 1.0F - (float) darknessEffect.getDuration() / 20.0F
+                    : 0.0F;
+
+            // Reduce fog color intensity based on Darkness effect
+            fogRed *= darknessFactor * 0.2F;
+            fogGreen *= darknessFactor * 0.2F;
+            fogBlue *= darknessFactor * 0.2F;
          }
       }
 
@@ -181,6 +202,7 @@ public class FogRenderer {
          fogGreen = (float)((double)fogGreen * fogDistanceFactor);
          fogBlue = (float)((double)fogBlue * fogDistanceFactor);
       }
+
 
       // Adjust fog based on fog density
       if (fogDensity > 0.0F) {
@@ -201,6 +223,8 @@ public class FogRenderer {
          fogGreen = fogGreen * (1.0F - underwaterVisionFactor) + fogGreen * fogClarity * underwaterVisionFactor;
          fogBlue = fogBlue * (1.0F - underwaterVisionFactor) + fogBlue * fogClarity * underwaterVisionFactor;
       }
+
+
       // Handle night vision
       else if (renderInfo.getEntity() instanceof LivingEntity && ((LivingEntity)renderInfo.getEntity()).hasEffect(Effects.NIGHT_VISION)) {
          float nightVisionFactor = GameRenderer.getNightVisionScale((LivingEntity)renderInfo.getEntity(), partialTicks);
@@ -298,6 +322,22 @@ public class FogRenderer {
                fogEndDistance = 1.0F;
             }
          }
+
+         else if (entity instanceof LivingEntity && ((LivingEntity)entity).hasEffect(Effects.DARKNESS)) {
+            EffectInstance darknessEffect = ((LivingEntity) entity).getEffect(Effects.DARKNESS);
+            float darknessFactor = darknessEffect.getDuration() < 20 ? 1.0f - (float) darknessEffect.getDuration() / 20.0f : 0.0f;
+
+            float darknessFogDensity = MathHelper.lerp(darknessFactor, baseFogDensity, 10.0F);
+
+            if (fogType == FogRenderer.FogType.FOG_SKY) {
+               fogStartDistance = 0.0F;
+               fogEndDistance = darknessFogDensity * 0.8F;
+            } else {
+               fogStartDistance = darknessFogDensity * 0.3F;
+               fogEndDistance = darknessFogDensity;
+            }
+         }
+
          // Blindness effect handling
          else if (entity instanceof LivingEntity && ((LivingEntity)entity).hasEffect(Effects.BLINDNESS)) {
             int blindnessDurationInTicks = ((LivingEntity)entity).getEffect(Effects.BLINDNESS).getDuration();
@@ -342,4 +382,73 @@ public class FogRenderer {
       FOG_SKY,
       FOG_TERRAIN;
    }
+
+   static class FogData {
+      public final FogType mode;
+      public float start;
+      public float end;
+
+      public FogData(FogType fogMode) {
+         this.mode = fogMode;
+      }
+   }
+
+   @Nullable
+   private static MobEffectFogFunction getPriorityFogFunction(Entity entity, float f) {
+      if (entity instanceof LivingEntity) {
+         LivingEntity livingEntity = (LivingEntity)entity;
+         return new DarknessFogFunction();
+      }
+      return null;
+   }
+
+   static interface MobEffectFogFunction {
+      public Effect getMobEffect();
+
+      public void setupFog(FogData var1, LivingEntity var2, EffectInstance var3, float var4, float var5);
+
+      default public boolean isEnabled(LivingEntity livingEntity, float f) {
+         return livingEntity.hasEffect(this.getMobEffect());
+      }
+
+      default public float getModifiedVoidDarkness(LivingEntity livingEntity, EffectInstance mobEffectInstance, float f, float f2) {
+         EffectInstance mobEffectInstance2 = livingEntity.getEffect(this.getMobEffect());
+         if (mobEffectInstance2 != null) {
+            f = mobEffectInstance2.getDuration() < 20 ? 1.0f - (float)mobEffectInstance2.getDuration() / 20.0f : 0.0f;
+         }
+         return f;
+      }
+   }
+
+   static class DarknessFogFunction
+           implements MobEffectFogFunction {
+      DarknessFogFunction() {
+      }
+
+      @Override
+      public Effect getMobEffect() {
+         return Effects.DARKNESS;
+      }
+
+      @Override
+      public void setupFog(FogData fogData, LivingEntity livingEntity, EffectInstance mobEffectInstance, float f, float f2) {
+         if (mobEffectInstance.getFactorData().isEmpty()) {
+            return;
+         }
+         float f3 = MathHelper.lerp(mobEffectInstance.getFactorData().get().getFactor(livingEntity, f2), f, 15.0f);
+         fogData.start = fogData.mode == FogType.FOG_SKY ? 0.0f : f3 * 0.75f;
+         fogData.end = f3;
+      }
+
+      @Override
+      public float getModifiedVoidDarkness(LivingEntity livingEntity, EffectInstance mobEffectInstance, float f, float f2) {
+         if (mobEffectInstance.getFactorData().isEmpty()) {
+            return 0.0f;
+         }
+         return 1.0f - mobEffectInstance.getFactorData().get().getFactor(livingEntity, f2);
+      }
+   }
+
+
+
 }

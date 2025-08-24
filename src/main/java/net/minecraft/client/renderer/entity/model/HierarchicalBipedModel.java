@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.entity.model;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.animation.HierarchicalModel;
-import net.minecraft.client.renderer.model.ModelHelper;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.HandSide;

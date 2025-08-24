@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EntityPredicates;
@@ -53,6 +54,7 @@ public class BoatItem extends Item {
             } else {
                if (!world.isClientSide) {
                   world.addFreshEntity(boatentity);
+                  world.gameEvent(player, GameEvent.ENTITY_PLACE, raytraceresult.getLocation());
                   if (!player.abilities.instabuild) {
                      itemstack.shrink(1);
                   }

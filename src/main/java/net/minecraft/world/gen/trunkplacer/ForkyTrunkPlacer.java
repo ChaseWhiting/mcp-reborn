@@ -26,45 +26,45 @@ public class ForkyTrunkPlacer extends AbstractTrunkPlacer {
       return TrunkPlacerType.FORKING_TRUNK_PLACER;
    }
 
-   public List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader p_230382_1_, Random p_230382_2_, int p_230382_3_, BlockPos p_230382_4_, Set<BlockPos> p_230382_5_, MutableBoundingBox p_230382_6_, BaseTreeFeatureConfig p_230382_7_) {
-      setDirtAt(p_230382_1_, p_230382_4_.below());
+   public List<FoliagePlacer.Foliage> placeTrunk(IWorldGenerationReader worldReader, Random random, int number, BlockPos position, Set<BlockPos> blockSet, MutableBoundingBox boundingBox, BaseTreeFeatureConfig configuration) {
+      setDirtAt(worldReader, position.below());
       List<FoliagePlacer.Foliage> list = Lists.newArrayList();
-      Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(p_230382_2_);
-      int i = p_230382_3_ - p_230382_2_.nextInt(4) - 1;
-      int j = 3 - p_230382_2_.nextInt(3);
+      Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(random);
+      int i = number - random.nextInt(4) - 1;
+      int j = 3 - random.nextInt(3);
       BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
-      int k = p_230382_4_.getX();
-      int l = p_230382_4_.getZ();
+      int k = position.getX();
+      int l = position.getZ();
       int i1 = 0;
 
-      for(int j1 = 0; j1 < p_230382_3_; ++j1) {
-         int k1 = p_230382_4_.getY() + j1;
+      for(int j1 = 0; j1 < number; ++j1) {
+         int k1 = position.getY() + j1;
          if (j1 >= i && j > 0) {
             k += direction.getStepX();
             l += direction.getStepZ();
             --j;
          }
 
-         if (placeLog(p_230382_1_, p_230382_2_, blockpos$mutable.set(k, k1, l), p_230382_5_, p_230382_6_, p_230382_7_)) {
+         if (placeLog(worldReader, random, blockpos$mutable.set(k, k1, l), blockSet, boundingBox, configuration)) {
             i1 = k1 + 1;
          }
       }
 
       list.add(new FoliagePlacer.Foliage(new BlockPos(k, i1, l), 1, false));
-      k = p_230382_4_.getX();
-      l = p_230382_4_.getZ();
-      Direction direction1 = Direction.Plane.HORIZONTAL.getRandomDirection(p_230382_2_);
+      k = position.getX();
+      l = position.getZ();
+      Direction direction1 = Direction.Plane.HORIZONTAL.getRandomDirection(random);
       if (direction1 != direction) {
-         int k2 = i - p_230382_2_.nextInt(2) - 1;
-         int l1 = 1 + p_230382_2_.nextInt(3);
+         int k2 = i - random.nextInt(2) - 1;
+         int l1 = 1 + random.nextInt(3);
          i1 = 0;
 
-         for(int i2 = k2; i2 < p_230382_3_ && l1 > 0; --l1) {
+         for(int i2 = k2; i2 < number && l1 > 0; --l1) {
             if (i2 >= 1) {
-               int j2 = p_230382_4_.getY() + i2;
+               int j2 = position.getY() + i2;
                k += direction1.getStepX();
                l += direction1.getStepZ();
-               if (placeLog(p_230382_1_, p_230382_2_, blockpos$mutable.set(k, j2, l), p_230382_5_, p_230382_6_, p_230382_7_)) {
+               if (placeLog(worldReader, random, blockpos$mutable.set(k, j2, l), blockSet, boundingBox, configuration)) {
                   i1 = j2 + 1;
                }
             }

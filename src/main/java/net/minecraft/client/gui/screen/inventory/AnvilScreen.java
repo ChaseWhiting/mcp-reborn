@@ -114,6 +114,11 @@ public class AnvilScreen extends AbstractRepairScreen<RepairContainer> {
       this.name.render(p_230452_1_, p_230452_2_, p_230452_3_, p_230452_4_);
    }
 
+   @Override
+   protected void renderErrorIcon(MatrixStack var1, int var2, int var3) {
+
+   }
+
    public void slotChanged(Container p_71111_1_, int p_71111_2_, ItemStack p_71111_3_) {
       if (p_71111_2_ == 0) {
          this.name.setValue(p_71111_3_.isEmpty() ? "" : p_71111_3_.getHoverName().getString());

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class ByteArrayNBT extends CollectionNBT<ByteNBT> {
    public static final INBTType<ByteArrayNBT> TYPE = new INBTType<ByteArrayNBT>() {
-      public ByteArrayNBT load(DataInput p_225649_1_, int p_225649_2_, NBTSizeTracker p_225649_3_) throws IOException {
+      public ByteArrayNBT load(DataInput p_225649_1_, int depth, NBTSizeTracker p_225649_3_) throws IOException {
          p_225649_3_.accountBits(192L);
          int i = p_225649_1_.readInt();
          p_225649_3_.accountBits(8L * (long)i);

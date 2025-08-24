@@ -7,14 +7,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.BiomeSoundHandler;
-import net.minecraft.client.audio.BubbleColumnAmbientSoundHandler;
-import net.minecraft.client.audio.ElytraSound;
-import net.minecraft.client.audio.IAmbientSoundHandler;
-import net.minecraft.client.audio.RidingMinecartTickableSound;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.audio.UnderwaterAmbientSoundHandler;
-import net.minecraft.client.audio.UnderwaterAmbientSounds;
+import net.minecraft.client.audio.*;
 import net.minecraft.client.gui.screen.CommandBlockScreen;
 import net.minecraft.client.gui.screen.EditBookScreen;
 import net.minecraft.client.gui.screen.EditMinecartCommandBlockScreen;
@@ -30,6 +23,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.IJumpingMount;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.happy_ghast.HappyGhastEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.fallout.Radiation;
@@ -147,6 +141,8 @@ public class ClientPlayerEntity extends AbstractClientPlayerEntity {
       } else {
          if (p_184205_1_ instanceof AbstractMinecartEntity) {
             this.minecraft.getSoundManager().play(new RidingMinecartTickableSound(this, (AbstractMinecartEntity)p_184205_1_));
+         } else if (p_184205_1_ instanceof HappyGhastEntity happyGhast) {
+            this.minecraft.getSoundManager().play(new RidingHappyGhastTickableSound(this, happyGhast));
          }
 
          if (p_184205_1_ instanceof BoatEntity) {

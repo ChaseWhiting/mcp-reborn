@@ -24,6 +24,7 @@ public class RenderTypeBuffers {
       put(p_228485_1_, RenderType.armorGlint());
       put(p_228485_1_, RenderType.armorEntityGlint());
       put(p_228485_1_, RenderType.glint());
+      put(p_228485_1_, RenderType.rainbowGlint());
       put(p_228485_1_, RenderType.glintDirect());
       put(p_228485_1_, RenderType.glintTranslucent());
       put(p_228485_1_, RenderType.entityGlint());
