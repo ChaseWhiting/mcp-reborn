@@ -2,6 +2,7 @@ package net.minecraft.world.gen.treedecorator;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.gen.feature.AttachedToLogsDecorator;
 
 public class TreeDecoratorType<P extends TreeDecorator> {
    public static final TreeDecoratorType<TrunkVineTreeDecorator> TRUNK_VINE = register("trunk_vine", TrunkVineTreeDecorator.CODEC);
@@ -12,6 +13,9 @@ public class TreeDecoratorType<P extends TreeDecorator> {
    public static final TreeDecoratorType<BeehiveTreeDecorator> BEEHIVE = register("beehive", BeehiveTreeDecorator.CODEC);
    public static final TreeDecoratorType<AlterGroundTreeDecorator> ALTER_GROUND = register("alter_ground", AlterGroundTreeDecorator.CODEC);
    public static final TreeDecoratorType<PaleOakTreeGroundDecorator> PALE_OAK_GROUND = register("pale_oak_ground", PaleOakTreeGroundDecorator.CODEC);
+   public static final TreeDecoratorType<LeafLitterTreeDecorator> LEAF_LITTER = register("leaf_litter", LeafLitterTreeDecorator.CODEC);
+   public static final TreeDecoratorType<AttachedToLogsDecorator> ATTACHED_TO_LOGS = register("attached_to_logs", AttachedToLogsDecorator.CODEC);
+
    private final Codec<P> codec;
 
    private static <P extends TreeDecorator> TreeDecoratorType<P> register(String p_236877_0_, Codec<P> p_236877_1_) {

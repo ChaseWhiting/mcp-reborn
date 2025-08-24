@@ -295,13 +295,13 @@ public class PandaEntity extends Animal {
       return false;
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
+   public boolean doHurtTarget(Entity target) {
       this.playSound(SoundEvents.PANDA_BITE, 1.0F, 1.0F);
       if (!this.isAggressive()) {
          this.didBite = true;
       }
 
-      return super.doHurtTarget(p_70652_1_);
+      return super.doHurtTarget(target);
    }
 
    public void tick() {

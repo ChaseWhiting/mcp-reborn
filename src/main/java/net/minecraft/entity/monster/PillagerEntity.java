@@ -8,22 +8,13 @@ import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ICrossbowUser;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
-import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -47,8 +38,10 @@ import net.minecraft.world.raid.Raid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUser {
+public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUser, WarmColdVariantHolder {
    private static final DataParameter<Boolean> IS_CHARGING_CROSSBOW = EntityDataManager.defineId(PillagerEntity.class, DataSerializers.BOOLEAN);
+   private static final DataParameter<WarmColdVariant> VARIANT = EntityDataManager.defineId(PillagerEntity.class, DataSerializers.WARM_COLD_VARIANT);
+
    private final Inventory inventory = new Inventory(5);
 
    public PillagerEntity(EntityType<? extends PillagerEntity> p_i50198_1_, World p_i50198_2_) {
@@ -58,6 +51,7 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
    protected void registerGoals() {
       super.registerGoals();
       this.goalSelector.addGoal(0, new SwimGoal(this));
+      this.goalSelector.addGoal(2, new RaidHornGoal<>(this));
       this.goalSelector.addGoal(2, new AbstractRaiderEntity.FindTargetGoal(this, 10.0F));
       this.goalSelector.addGoal(3, new RangedCrossbowAttackGoal<>(this, 1.0D, 8.0F));
       this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
@@ -76,6 +70,7 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
    protected void defineSynchedData() {
       super.defineSynchedData();
       this.entityData.define(IS_CHARGING_CROSSBOW, false);
+      this.entityData.define(VARIANT, WarmColdVariant.TEMPERATE);
    }
 
    public boolean canFireProjectileWeapon(ShootableItem item) {
@@ -107,10 +102,13 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
       }
 
       p_213281_1_.put("Inventory", listnbt);
+      this.putVariantToTag(p_213281_1_);
    }
 
    @OnlyIn(Dist.CLIENT)
    public AbstractIllagerEntity.ArmPose getArmPose() {
+      if (this.getOffhandItem().get() == Items.GOAT_HORN) return ArmPose.NEUTRAL;
+
       if (this.isChargingCrossbow()) {
          return AbstractIllagerEntity.ArmPose.CROSSBOW_CHARGE;
       } else if (this.isHolding(Items.CROSSBOW) || this.isHolding(Items.GILDED_CROSSBOW) || AbstractCrossbowItem.isHoldingAbstractCrossbowItem(this)) {
@@ -123,7 +121,7 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
       super.readAdditionalSaveData(p_70037_1_);
       ListNBT listnbt = p_70037_1_.getList("Inventory", 10);
-
+      this.setVariant(getVariantFromTag(p_70037_1_));
       for(int i = 0; i < listnbt.size(); ++i) {
          ItemStack itemstack = ItemStack.of(listnbt.getCompound(i));
          if (!itemstack.isEmpty()) {
@@ -237,27 +235,6 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
 
    public void tick() {
       super.tick();
-      boolean isHoldingCrossbow = this.getMainHandItem().getItem() instanceof CrossbowItem
-              || this.getMainHandItem().getItem() instanceof GildedCrossbowItem
-              || this.getMainHandItem().getItem() instanceof AbstractCrossbowItem;
-
-      if (this.getVehicle() != null && this.getVehicle() instanceof HorseEntity && this.getTarget() != null && isHoldingCrossbow) {
-         HorseEntity horse = (HorseEntity) this.getVehicle();
-
-         // Synchronize horse's rotation with the rider's rotation
-         horse.setYBodyRot(this.yBodyRot);
-         horse.setYHeadRot(this.yHeadRot);
-         horse.yRotO = horse.yBodyRot;
-         horse.yRot = horse.yBodyRot;
-
-         // Update horse's navigation
-         if (this.getNavigation().getTargetPos() != null) {
-            horse.getNavigation().moveTo(this.getNavigation().getTargetPos().getX(),
-                    this.getNavigation().getTargetPos().getY(),
-                    this.getNavigation().getTargetPos().getZ(),
-                    horse.getAttributeValue(Attributes.MOVEMENT_SPEED) + 0.3D);
-         }
-      }
    }
 
 
@@ -292,5 +269,15 @@ public class PillagerEntity extends AbstractIllagerEntity implements ICrossbowUs
 
    public SoundEvent getCelebrateSound() {
       return SoundEvents.PILLAGER_CELEBRATE;
+   }
+
+   @Override
+   public void setVariant(WarmColdVariant variant) {
+      entityData.set(VARIANT, variant);
+   }
+
+   @Override
+   public WarmColdVariant getVariant() {
+      return entityData.get(VARIANT);
    }
 }

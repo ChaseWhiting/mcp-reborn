@@ -25,6 +25,7 @@ import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.Item;
@@ -60,7 +61,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
    private static final DataParameter<Integer> DATA_REMAINING_ANGER_TIME = EntityDataManager.defineId(WolfEntity.class, DataSerializers.INT);
    public static final Predicate<LivingEntity> PREY_SELECTOR = (p_213440_0_) -> {
       EntityType<?> entitytype = p_213440_0_.getType();
-      return entitytype == EntityType.SHEEP || entitytype == EntityType.RABBIT || entitytype == EntityType.FOX;
+      return entitytype == EntityType.SHEEP || entitytype == EntityType.RABBIT || entitytype == EntityType.FOX || entitytype == EntityType.ROADRUNNER;
    };
 
    private final Predicate<LivingEntity> SHAMAN_SELECTOR = (entity) -> {
@@ -115,7 +116,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
       fromShaman = val;
    }
 
-   class WolfFollowShamanGoal extends Goal {
+   public static class WolfFollowShamanGoal extends Goal {
       private WolfEntity wolf;
       private ShamanEntity shaman;
       private final IWorldReader level;
@@ -280,6 +281,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
       if (this.getShaman() != null)
          p_213281_1_.putUUID("Shaman", this.getShaman().getUUID());
       p_213281_1_.putBoolean("fromShaman", this.isFromShaman());
+      p_213281_1_.putInt("ShamanDespawnTimer", this.shamanSpawnTimer);
       p_213281_1_.putByte("CollarColor", (byte)this.getCollarColor().getId());
       this.addPersistentAngerSaveData(p_213281_1_);
    }
@@ -292,11 +294,16 @@ public class WolfEntity extends TameableEntity implements IAngerable {
       if(compound.contains("fromShaman")) {
          this.setFromShaman(compound.getBoolean("fromShaman"));
       }
+      if(compound.contains("ShamanDespawnTimer")) {
+         this.shamanSpawnTimer = compound.getInt("ShamanDespawnTimer");
+      }
       if (compound.contains("CollarColor", 99)) {
          this.setCollarColor(DyeColor.byId(compound.getInt("CollarColor")));
       }
 
-      this.readPersistentAngerSaveData((ServerWorld)this.level, compound);
+       if (level instanceof ServerWorld) {
+           this.readPersistentAngerSaveData((ServerWorld)this.level, compound);
+       }
    }
 
    private void setShamanUUID(UUID shaman) {
@@ -374,6 +381,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
          } else if ((this.isWet || this.isShaking) && this.isShaking) {
             if (this.shakeAnim == 0.0F) {
                this.playSound(SoundEvents.WOLF_SHAKE, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+               this.gameEvent(GameEvent.ENTITY_SHAKE);
             }
 
             this.shakeAnimO = this.shakeAnim;
@@ -464,10 +472,10 @@ public class WolfEntity extends TameableEntity implements IAngerable {
       }
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      boolean flag = p_70652_1_.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
+   public boolean doHurtTarget(Entity target) {
+      boolean flag = target.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
       if (flag) {
-         this.doEnchantDamageEffects(this, p_70652_1_);
+         this.doEnchantDamageEffects(this, target);
       }
 
       return flag;
@@ -498,7 +506,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
                   itemstack.shrink(1);
                }
 
-               this.heal((float)item.getFoodProperties().getNutrition());
+               this.heal((float)itemstack.getFoodProperties().getNutrition());
                return ActionResultType.SUCCESS;
             }
 
@@ -524,7 +532,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
 
                return ActionResultType.SUCCESS;
             }
-         } else if (item == Items.BONE && !this.isAngry()) {
+         } else if (item == Items.BONE && !this.isAngry() && !isFromShaman()) {
             if (!p_230254_1_.abilities.instabuild) {
                itemstack.shrink(1);
             }
@@ -571,7 +579,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
 
    public boolean isFood(ItemStack p_70877_1_) {
       Item item = p_70877_1_.getItem();
-      return item.isEdible() && item.getFoodProperties().isMeat();
+      return p_70877_1_.isEdible() && p_70877_1_.getFoodProperties().isMeat();
    }
 
    public int getMaxSpawnClusterSize() {
@@ -663,7 +671,7 @@ public class WolfEntity extends TameableEntity implements IAngerable {
    }
 
    public boolean canBeLeashed(PlayerEntity p_184652_1_) {
-      return !this.isAngry() && super.canBeLeashed(p_184652_1_);
+      return !this.isAngry() && super.canBeLeashed(p_184652_1_) && !isFromShaman();
    }
 
    @OnlyIn(Dist.CLIENT)

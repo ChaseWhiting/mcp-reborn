@@ -1,5 +1,6 @@
 package net.minecraft.entity.monster;
 
+import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 
@@ -20,8 +21,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 
 public abstract class Monster extends Creature implements IMob {
-   protected Monster(EntityType<? extends Monster> p_i48553_1_, World p_i48553_2_) {
-      super(p_i48553_1_, p_i48553_2_);
+   protected Monster(EntityType<? extends Monster> entity, World world) {
+      super(entity, world);
       this.xpReward = 5;
    }
 
@@ -86,6 +87,9 @@ public abstract class Monster extends Creature implements IMob {
 
    public static boolean checkMonsterSpawnRules(EntityType<? extends Monster> p_223325_0_, IServerWorld p_223325_1_, SpawnReason p_223325_2_, BlockPos p_223325_3_, Random p_223325_4_) {
       if (p_223325_0_ != EntityType.CREAKING && checkNearbyBlocks(p_223325_1_, p_223325_3_)) return false;
+      if (p_223325_0_ != EntityType.WARDEN && checkNearbySculkBlocks(p_223325_1_, p_223325_3_)) return false;
+      if (p_223325_0_ != EntityType.WARDEN && p_223325_1_.getBlockState(p_223325_3_.below()).is(List.of(Blocks.SCULK, Blocks.SCULK_CATALYST, Blocks.SCULK_VEIN, Blocks.SCULK_SENSOR))) return false;
+
 
 
       return p_223325_1_.getDifficulty() != Difficulty.PEACEFUL && isDarkEnoughToSpawn(p_223325_1_, p_223325_3_, p_223325_4_) && checkMobSpawnRules(p_223325_0_, p_223325_1_, p_223325_2_, p_223325_3_, p_223325_4_) ;
@@ -96,7 +100,7 @@ public abstract class Monster extends Creature implements IMob {
    }
 
    public static AttributeModifierMap.MutableAttribute createMonsterAttributes() {
-      return Mob.createMobAttributes().add(Attributes.ATTACK_DAMAGE).add(Attributes.FOLLOW_RANGE, 20);
+      return Mob.createMobAttributes().add(Attributes.ATTACK_DAMAGE).add(Attributes.FOLLOW_RANGE, 16);
    }
 
 
@@ -131,6 +135,38 @@ public abstract class Monster extends Creature implements IMob {
               && paleMossBlockCount >= 8
               && paleOakLogCount >= 15
               && paleOakLeavesCount >= 12;
+   }
+
+   public static boolean checkNearbySculkBlocks(IServerWorld world, BlockPos pos) {
+      int sculkBlockCount = 0;
+      int sculkVeinCount = 0;
+      int sculkCatalystCount = 0;
+      int sculkSensorCount = 0;
+
+      int radius = 20;
+
+      for (int x = -radius; x <= radius; x++) {
+         for (int y = -radius; y <= radius; y++) {
+            for (int z = -radius; z <= radius; z++) {
+               BlockPos currentPos = pos.offset(x, y, z);
+               Block block = world.getBlockState(currentPos).getBlock();
+
+               if (block == Blocks.SCULK) {
+                  sculkBlockCount++;
+               } else if (block == Blocks.SCULK_VEIN) {
+                  sculkVeinCount++;
+               } else if (block == Blocks.SCULK_CATALYST) {
+                  sculkCatalystCount++;
+               } else if (block == Blocks.SCULK_SENSOR) {
+                  sculkSensorCount++;
+               }
+            }
+         }
+      }
+
+      return sculkBlockCount >= 15
+              && sculkVeinCount >= 12
+              && sculkCatalystCount >= 2;
    }
 
    protected boolean shouldDropExperience() {

@@ -13,14 +13,11 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractFakeBlockEntity extends Monster {
 	protected AbstractFakeBlockEntity(EntityType<? extends Monster> type, World world) {
 		super(type, world);
 		this.xpReward = 0;
-		this.setNoGravity(true);  // Ensure it doesn't fall like a regular entity.
 		this.jumpControl = null;
 		this.blocksBuilding = true;
 	}
@@ -41,7 +38,7 @@ public abstract class AbstractFakeBlockEntity extends Monster {
 		this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2, false) {
 			@Override
 			protected double getAttackReachSqr(LivingEntity entity) {
-				return 1;
+				return 2;
 			}
 		});
 		this.goalSelector.addGoal(2, new HurtByTargetGoal(this));
@@ -72,7 +69,7 @@ public abstract class AbstractFakeBlockEntity extends Monster {
 	@Override
 	public void aiStep() {
 		super.aiStep();
-		if (this.level.isClientSide) return;
+		//if (this.level.isClientSide) return;
 		// Prevent rotation and keep the entity aligned like a block.
 
 		LivingEntity target = this.getTarget();
@@ -96,16 +93,9 @@ public abstract class AbstractFakeBlockEntity extends Monster {
 		return CreatureAttribute.UNDEFINED;
 	}
 
-//	@Override
-//	public boolean isImmobile() {
-//		// Mimic a real block by being immobile unless a player is close
-//		return this.getTarget() == null;
-//	}
-
 	@Override
 	public void baseTick() {
 		super.baseTick();
-		if (this.level.isClientSide) return;
 
 
 		LivingEntity target = this.getTarget();
@@ -121,6 +111,8 @@ public abstract class AbstractFakeBlockEntity extends Monster {
 		} else {
 			this.removeEffect(Effects.MOVEMENT_SLOWDOWN);
 		}
+
+		this.setNoGravity(target == null);
 	}
 
 

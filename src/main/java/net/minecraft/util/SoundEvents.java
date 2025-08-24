@@ -13,9 +13,396 @@ public class SoundEvents {
    public static final SoundEvent STARFURY_STAR_IMPACT = SoundEvents.register("item.starfury.impact");
    public static final SoundEvent STARFURY_SHOOT = SoundEvents.register("item.starfury.shoot");
    public static final SoundEvent STAR_WRATH_USE = SoundEvents.register("item.star_wrath.use");
+
+   public static final SoundEvent ITEM_14 = register("item_14");
+   public static final SoundEvent AERIAL_BANE_USE = register("aerial_bane_use");
+
    public static final SoundEvent ROAR = register("npc.roar");
    public static final SoundEvent EXPERT_ROAR = register("npc.expert_roar");
+   public static final SoundEvent DYE_USE = SoundEvents.register("item.dye.use");
+
+   public static final SoundEvent SPYGLASS_USE = SoundEvents.register("item.spyglass.use");
+   public static final SoundEvent SPYGLASS_STOP_USING = SoundEvents.register("item.spyglass.stop_using");
+
+
+   public static final SoundEvent HAPPY_GHAST_AMBIENT = SoundEvents.register("entity.happy_ghast.ambient");
+   public static final SoundEvent HAPPY_GHAST_DEATH = SoundEvents.register("entity.happy_ghast.death");
+   public static final SoundEvent HAPPY_GHAST_HURT = SoundEvents.register("entity.happy_ghast.hurt");
+   public static final SoundEvent HAPPY_GHAST_RIDING = SoundEvents.register("entity.happy_ghast.riding");
+
+   public static final SoundEvent GHASTLING_AMBIENT = SoundEvents.register("entity.ghastling.ambient");
+   public static final SoundEvent GHASTLING_DEATH = SoundEvents.register("entity.ghastling.death");
+   public static final SoundEvent GHASTLING_HURT = SoundEvents.register("entity.ghastling.hurt");
+   public static final SoundEvent GHASTLING_SPAWN = SoundEvents.register("entity.ghastling.spawn");
+
+   public static final SoundEvent HARNESS_EQUIP = SoundEvents.register("entity.happy_ghast.equip");
+   public static final SoundEvent HARNESS_UNEQUIP = SoundEvents.register("entity.happy_ghast.unequip");
+   public static final SoundEvent HARNESS_GOGGLES_UP = SoundEvents.register("entity.happy_ghast.harness_goggles_up");
+   public static final SoundEvent HARNESS_GOGGLES_DOWN = SoundEvents.register("entity.happy_ghast.harness_goggles_down");
+
+
+   public static final SoundEvent PACKED_MUD_BREAK = SoundEvents.register("block.packed_mud.break");
+   public static final SoundEvent PACKED_MUD_FALL = SoundEvents.register("block.packed_mud.fall");
+   public static final SoundEvent PACKED_MUD_HIT = SoundEvents.register("block.packed_mud.hit");
+   public static final SoundEvent PACKED_MUD_PLACE = SoundEvents.register("block.packed_mud.place");
+   public static final SoundEvent PACKED_MUD_STEP = SoundEvents.register("block.packed_mud.step");
+
+   public static final SoundEvent DECORATED_POT_BREAK = SoundEvents.register("block.decorated_pot.break");
+   public static final SoundEvent DECORATED_POT_FALL = SoundEvents.register("block.decorated_pot.fall");
+   public static final SoundEvent DECORATED_POT_HIT = SoundEvents.register("block.decorated_pot.hit");
+   public static final SoundEvent DECORATED_POT_INSERT = SoundEvents.register("block.decorated_pot.insert");
+   public static final SoundEvent DECORATED_POT_INSERT_FAIL = SoundEvents.register("block.decorated_pot.insert_fail");
+   public static final SoundEvent DECORATED_POT_STEP = SoundEvents.register("block.decorated_pot.step");
+   public static final SoundEvent DECORATED_POT_PLACE = SoundEvents.register("block.decorated_pot.place");
+   public static final SoundEvent DECORATED_POT_SHATTER = SoundEvents.register("block.decorated_pot.shatter");
+
+   public static final SoundEvent LEAD_BREAK = SoundEvents.register("item.lead.break");
+   public static final SoundEvent LEAD_UNTIED = SoundEvents.register("item.lead.untied");
+   public static final SoundEvent LEAD_TIED = SoundEvents.register("item.lead.tied");
+
+
    public static final SoundEvent BOSS_1 = register("music.boss_1");
+   public static final SoundEvent DEAD_BUSH_IDLE = SoundEvents.register("block.deadbush.idle");
+   public static final SoundEvent SAND_IDLE = SoundEvents.register("block.sand.idle");
+   public static final SoundEvent SAND_WIND = SoundEvents.register("block.sand.wind");
+   public static final SoundEvent BUCKET_FILL_AXOLOTL = SoundEvents.register("item.bucket.fill_axolotl");
+   public static final SoundEvent BUCKET_EMPTY_AXOLOTL = SoundEvents.register("item.bucket.empty_axolotl");
+
+   public static final SoundEvent MOSQUITO_LOOP = register("mosquito_loop");
+   public static final SoundEvent MOSQUITO_HURT = register("mosquito_hurt");
+   public static final SoundEvent MOSQUITO_DIE = register("mosquito_die");
+
+
+   public static final SoundEvent CANDLE_AMBIENT = SoundEvents.register("block.candle.ambient");
+   public static final SoundEvent CANDLE_BREAK = SoundEvents.register("block.candle.break");
+   public static final SoundEvent CANDLE_EXTINGUISH = SoundEvents.register("block.candle.extinguish");
+   public static final SoundEvent CANDLE_FALL = SoundEvents.register("block.candle.fall");
+   public static final SoundEvent CANDLE_HIT = SoundEvents.register("block.candle.hit");
+   public static final SoundEvent CANDLE_PLACE = SoundEvents.register("block.candle.place");
+   public static final SoundEvent CANDLE_STEP = SoundEvents.register("block.candle.step");
+
+
+   public static final SoundEvent BRUSH_GENERIC = SoundEvents.register("item.brush.brushing.generic");
+   public static final SoundEvent BRUSH_SAND = SoundEvents.register("item.brush.brushing.sand");
+   public static final SoundEvent BRUSH_GRAVEL = SoundEvents.register("item.brush.brushing.gravel");
+   public static final SoundEvent BRUSH_SAND_COMPLETED = SoundEvents.register("item.brush.brushing.sand.complete");
+   public static final SoundEvent BRUSH_GRAVEL_COMPLETED = SoundEvents.register("item.brush.brushing.gravel.complete");
+
+   public static final SoundEvent SUSPICIOUS_SAND_BREAK = SoundEvents.register("block.suspicious_sand.break");
+   public static final SoundEvent SUSPICIOUS_SAND_STEP = SoundEvents.register("block.suspicious_sand.step");
+   public static final SoundEvent SUSPICIOUS_SAND_PLACE = SoundEvents.register("block.suspicious_sand.place");
+   public static final SoundEvent SUSPICIOUS_SAND_HIT = SoundEvents.register("block.suspicious_sand.hit");
+   public static final SoundEvent SUSPICIOUS_SAND_FALL = SoundEvents.register("block.suspicious_sand.fall");
+   public static final SoundEvent SUSPICIOUS_GRAVEL_BREAK = SoundEvents.register("block.suspicious_gravel.break");
+   public static final SoundEvent SUSPICIOUS_GRAVEL_STEP = SoundEvents.register("block.suspicious_gravel.step");
+   public static final SoundEvent SUSPICIOUS_GRAVEL_PLACE = SoundEvents.register("block.suspicious_gravel.place");
+   public static final SoundEvent SUSPICIOUS_GRAVEL_HIT = SoundEvents.register("block.suspicious_gravel.hit");
+   public static final SoundEvent SUSPICIOUS_GRAVEL_FALL = SoundEvents.register("block.suspicious_gravel.fall");
+
+
+
+   public static final SoundEvent ROADRUNNER_IDLE = register("roadrunner_idle");
+
+   public static final SoundEvent ROADRUNNER_HURT = register("roadrunner_hurt");
+
+   public static final SoundEvent ROADRUNNER_MEEP = register("roadrunner_meep");
+
+   public static final SoundEvent ENDERIOPHAGE_SQUISH = register("enderiophage_squish");
+
+   public static final SoundEvent ENDERIOPHAGE_HURT = register("enderiophage_hurt");
+
+   public static final SoundEvent ENDERIOPHAGE_WALK = register("enderiophage_walk");
+
+   public static final SoundEvent GUMBEEPER_HURT = register("gumbeeper_hurt");
+   public static final SoundEvent GUMBEEPER_DEATH = register("gumbeeper_death");
+   public static final SoundEvent GUMBEEPER_EXPLODE = register("gumbeeper_explode");
+   public static final SoundEvent GUMBALL_LAUNCH = register("gumball_launch");
+   public static final SoundEvent GUMBALL_HIT = register("gumball_hit");
+   public static final SoundEvent GUMBALL_BOUNCE = register("gumball_bounce");
+
+   public static final SoundEvent DESOLATE_DAGGER_SUMMON = register("desolate_dagger_summon");
+   public static final SoundEvent DESOLATE_DAGGER_HIT = register("desolate_dagger_hit");
+
+   public static final SoundEvent DEEPSLATE_BRICKS_BREAK = SoundEvents.register("block.deepslate_bricks.break");
+   public static final SoundEvent DEEPSLATE_BRICKS_FALL = SoundEvents.register("block.deepslate_bricks.fall");
+   public static final SoundEvent DEEPSLATE_BRICKS_HIT = SoundEvents.register("block.deepslate_bricks.hit");
+   public static final SoundEvent DEEPSLATE_BRICKS_PLACE = SoundEvents.register("block.deepslate_bricks.place");
+   public static final SoundEvent DEEPSLATE_BRICKS_STEP = SoundEvents.register("block.deepslate_bricks.step");
+   public static final SoundEvent DEEPSLATE_BREAK = SoundEvents.register("block.deepslate.break");
+   public static final SoundEvent DEEPSLATE_FALL = SoundEvents.register("block.deepslate.fall");
+   public static final SoundEvent DEEPSLATE_HIT = SoundEvents.register("block.deepslate.hit");
+   public static final SoundEvent DEEPSLATE_PLACE = SoundEvents.register("block.deepslate.place");
+   public static final SoundEvent DEEPSLATE_STEP = SoundEvents.register("block.deepslate.step");
+   public static final SoundEvent DEEPSLATE_TILES_BREAK = SoundEvents.register("block.deepslate_tiles.break");
+   public static final SoundEvent DEEPSLATE_TILES_FALL = SoundEvents.register("block.deepslate_tiles.fall");
+   public static final SoundEvent DEEPSLATE_TILES_HIT = SoundEvents.register("block.deepslate_tiles.hit");
+   public static final SoundEvent DEEPSLATE_TILES_PLACE = SoundEvents.register("block.deepslate_tiles.place");
+   public static final SoundEvent DEEPSLATE_TILES_STEP = SoundEvents.register("block.deepslate_tiles.step");
+   public static final SoundEvent POLISHED_DEEPSLATE_BREAK = SoundEvents.register("block.polished_deepslate.break");
+   public static final SoundEvent POLISHED_DEEPSLATE_FALL = SoundEvents.register("block.polished_deepslate.fall");
+   public static final SoundEvent POLISHED_DEEPSLATE_HIT = SoundEvents.register("block.polished_deepslate.hit");
+   public static final SoundEvent POLISHED_DEEPSLATE_PLACE = SoundEvents.register("block.polished_deepslate.place");
+   public static final SoundEvent POLISHED_DEEPSLATE_STEP = SoundEvents.register("block.polished_deepslate.step");
+
+
+
+   public static final SoundEvent SNIFFER_STEP = SoundEvents.register("entity.sniffer.step");
+   public static final SoundEvent SNIFFER_EAT = SoundEvents.register("entity.sniffer.eat");
+   public static final SoundEvent SNIFFER_IDLE = SoundEvents.register("entity.sniffer.idle");
+   public static final SoundEvent SNIFFER_HURT = SoundEvents.register("entity.sniffer.hurt");
+   public static final SoundEvent SNIFFER_DEATH = SoundEvents.register("entity.sniffer.death");
+   public static final SoundEvent SNIFFER_DROP_SEED = SoundEvents.register("entity.sniffer.drop_seed");
+   public static final SoundEvent SNIFFER_SCENTING = SoundEvents.register("entity.sniffer.scenting");
+   public static final SoundEvent SNIFFER_SNIFFING = SoundEvents.register("entity.sniffer.sniffing");
+   public static final SoundEvent SNIFFER_SEARCHING = SoundEvents.register("entity.sniffer.searching");
+   public static final SoundEvent SNIFFER_DIGGING = SoundEvents.register("entity.sniffer.digging");
+   public static final SoundEvent SNIFFER_DIGGING_STOP = SoundEvents.register("entity.sniffer.digging_stop");
+   public static final SoundEvent SNIFFER_HAPPY = SoundEvents.register("entity.sniffer.happy");
+   public static final SoundEvent SNIFFER_EGG_PLOP = SoundEvents.register("block.sniffer_egg.plop");
+   public static final SoundEvent SNIFFER_EGG_CRACK = SoundEvents.register("block.sniffer_egg.crack");
+   public static final SoundEvent SNIFFER_EGG_HATCH = SoundEvents.register("block.sniffer_egg.hatch");
+
+
+
+   public static final SoundEvent SCULK_BLOCK_SPREAD = SoundEvents.register("block.sculk.spread");
+   public static final SoundEvent SCULK_BLOCK_CHARGE = SoundEvents.register("block.sculk.charge");
+   public static final SoundEvent SCULK_BLOCK_BREAK = SoundEvents.register("block.sculk.break");
+   public static final SoundEvent SCULK_BLOCK_FALL = SoundEvents.register("block.sculk.fall");
+   public static final SoundEvent SCULK_BLOCK_HIT = SoundEvents.register("block.sculk.hit");
+   public static final SoundEvent SCULK_BLOCK_PLACE = SoundEvents.register("block.sculk.place");
+   public static final SoundEvent SCULK_BLOCK_STEP = SoundEvents.register("block.sculk.step");
+   public static final SoundEvent SCULK_CATALYST_BLOOM = SoundEvents.register("block.sculk_catalyst.bloom");
+   public static final SoundEvent SCULK_CATALYST_BREAK = SoundEvents.register("block.sculk_catalyst.break");
+   public static final SoundEvent SCULK_CATALYST_FALL = SoundEvents.register("block.sculk_catalyst.fall");
+   public static final SoundEvent SCULK_CATALYST_HIT = SoundEvents.register("block.sculk_catalyst.hit");
+   public static final SoundEvent SCULK_CATALYST_PLACE = SoundEvents.register("block.sculk_catalyst.place");
+   public static final SoundEvent SCULK_CATALYST_STEP = SoundEvents.register("block.sculk_catalyst.step");
+   public static final SoundEvent SCULK_CLICKING = SoundEvents.register("block.sculk_sensor.clicking");
+   public static final SoundEvent SCULK_CLICKING_STOP = SoundEvents.register("block.sculk_sensor.clicking_stop");
+   public static final SoundEvent SCULK_SENSOR_BREAK = SoundEvents.register("block.sculk_sensor.break");
+   public static final SoundEvent SCULK_SENSOR_FALL = SoundEvents.register("block.sculk_sensor.fall");
+   public static final SoundEvent SCULK_SENSOR_HIT = SoundEvents.register("block.sculk_sensor.hit");
+   public static final SoundEvent SCULK_SENSOR_PLACE = SoundEvents.register("block.sculk_sensor.place");
+   public static final SoundEvent SCULK_SENSOR_STEP = SoundEvents.register("block.sculk_sensor.step");
+   public static final SoundEvent SCULK_SHRIEKER_BREAK = SoundEvents.register("block.sculk_shrieker.break");
+   public static final SoundEvent SCULK_SHRIEKER_FALL = SoundEvents.register("block.sculk_shrieker.fall");
+   public static final SoundEvent SCULK_SHRIEKER_HIT = SoundEvents.register("block.sculk_shrieker.hit");
+   public static final SoundEvent SCULK_SHRIEKER_PLACE = SoundEvents.register("block.sculk_shrieker.place");
+   public static final SoundEvent SCULK_SHRIEKER_SHRIEK = SoundEvents.register("block.sculk_shrieker.shriek");
+   public static final SoundEvent SCULK_SHRIEKER_STEP = SoundEvents.register("block.sculk_shrieker.step");
+   public static final SoundEvent SCULK_VEIN_BREAK = SoundEvents.register("block.sculk_vein.break");
+   public static final SoundEvent SCULK_VEIN_FALL = SoundEvents.register("block.sculk_vein.fall");
+   public static final SoundEvent SCULK_VEIN_HIT = SoundEvents.register("block.sculk_vein.hit");
+   public static final SoundEvent SCULK_VEIN_PLACE = SoundEvents.register("block.sculk_vein.place");
+   public static final SoundEvent SCULK_VEIN_STEP = SoundEvents.register("block.sculk_vein.step");
+
+
+
+   public static final SoundEvent ALLAY_AMBIENT_WITH_ITEM = SoundEvents.register("entity.allay.ambient_with_item");
+   public static final SoundEvent ALLAY_AMBIENT_WITHOUT_ITEM = SoundEvents.register("entity.allay.ambient_without_item");
+   public static final SoundEvent ALLAY_DEATH = SoundEvents.register("entity.allay.death");
+   public static final SoundEvent ALLAY_HURT = SoundEvents.register("entity.allay.hurt");
+   public static final SoundEvent ALLAY_ITEM_GIVEN = SoundEvents.register("entity.allay.item_given");
+   public static final SoundEvent ALLAY_ITEM_TAKEN = SoundEvents.register("entity.allay.item_taken");
+   public static final SoundEvent ALLAY_THROW = SoundEvents.register("entity.allay.item_thrown");
+   public static final SoundEvent AMETHYST_BLOCK_CHIME = SoundEvents.register("block.amethyst_block.chime");
+
+
+   public static final SoundEvent WARDEN_AGITATED = SoundEvents.register("entity.warden.agitated");
+   public static final SoundEvent WARDEN_AMBIENT = SoundEvents.register("entity.warden.ambient");
+   public static final SoundEvent WARDEN_ANGRY = SoundEvents.register("entity.warden.angry");
+   public static final SoundEvent WARDEN_ATTACK_IMPACT = SoundEvents.register("entity.warden.attack_impact");
+   public static final SoundEvent WARDEN_DEATH = SoundEvents.register("entity.warden.death");
+   public static final SoundEvent WARDEN_DIG = SoundEvents.register("entity.warden.dig");
+   public static final SoundEvent WARDEN_EMERGE = SoundEvents.register("entity.warden.emerge");
+   public static final SoundEvent WARDEN_HEARTBEAT = SoundEvents.register("entity.warden.heartbeat");
+   public static final SoundEvent WARDEN_HURT = SoundEvents.register("entity.warden.hurt");
+   public static final SoundEvent WARDEN_LISTENING = SoundEvents.register("entity.warden.listening");
+   public static final SoundEvent WARDEN_LISTENING_ANGRY = SoundEvents.register("entity.warden.listening_angry");
+   public static final SoundEvent WARDEN_NEARBY_CLOSE = SoundEvents.register("entity.warden.nearby_close");
+   public static final SoundEvent WARDEN_NEARBY_CLOSER = SoundEvents.register("entity.warden.nearby_closer");
+   public static final SoundEvent WARDEN_NEARBY_CLOSEST = SoundEvents.register("entity.warden.nearby_closest");
+   public static final SoundEvent WARDEN_ROAR = SoundEvents.register("entity.warden.roar");
+   public static final SoundEvent WARDEN_SNIFF = SoundEvents.register("entity.warden.sniff");
+   public static final SoundEvent WARDEN_SONIC_BOOM = SoundEvents.register("entity.warden.sonic_boom");
+   public static final SoundEvent WARDEN_SONIC_CHARGE = SoundEvents.register("entity.warden.sonic_charge");
+   public static final SoundEvent WARDEN_STEP = SoundEvents.register("entity.warden.step");
+   public static final SoundEvent WARDEN_TENDRIL_CLICKS = SoundEvents.register("entity.warden.tendril_clicks");
+
+   public static final SoundEvent TADPOLE_DEATH = SoundEvents.register("entity.tadpole.death");
+   public static final SoundEvent TADPOLE_FLOP = SoundEvents.register("entity.tadpole.flop");
+   public static final SoundEvent TADPOLE_GROW_UP = SoundEvents.register("entity.tadpole.grow_up");
+   public static final SoundEvent TADPOLE_HURT = SoundEvents.register("entity.tadpole.hurt");
+   public static final SoundEvent BUCKET_FILL_TADPOLE = SoundEvents.register("item.bucket.fill_tadpole");
+
+   public static final SoundEvent CAMEL_AMBIENT = SoundEvents.register("entity.camel.ambient");
+   public static final SoundEvent CAMEL_DASH = SoundEvents.register("entity.camel.dash");
+   public static final SoundEvent CAMEL_DASH_READY = SoundEvents.register("entity.camel.dash_ready");
+   public static final SoundEvent CAMEL_DEATH = SoundEvents.register("entity.camel.death");
+   public static final SoundEvent CAMEL_EAT = SoundEvents.register("entity.camel.eat");
+   public static final SoundEvent CAMEL_HURT = SoundEvents.register("entity.camel.hurt");
+   public static final SoundEvent CAMEL_SIT = SoundEvents.register("entity.camel.sit");
+   public static final SoundEvent CAMEL_STAND = SoundEvents.register("entity.camel.stand");
+   public static final SoundEvent CAMEL_STEP = SoundEvents.register("entity.camel.step");
+   public static final SoundEvent CAMEL_STEP_SAND = SoundEvents.register("entity.camel.step_sand");
+
+
+   public static final SoundEvent FROGLIGHT_BREAK = SoundEvents.register("block.froglight.break");
+   public static final SoundEvent FROGLIGHT_FALL = SoundEvents.register("block.froglight.fall");
+   public static final SoundEvent FROGLIGHT_HIT = SoundEvents.register("block.froglight.hit");
+   public static final SoundEvent FROGLIGHT_PLACE = SoundEvents.register("block.froglight.place");
+   public static final SoundEvent FROGLIGHT_STEP = SoundEvents.register("block.froglight.step");
+   public static final SoundEvent FROGSPAWNSTEP = SoundEvents.register("block.frogspawn.step");
+   public static final SoundEvent FROGSPAWN_BREAK = SoundEvents.register("block.frogspawn.break");
+   public static final SoundEvent FROGSPAWN_FALL = SoundEvents.register("block.frogspawn.fall");
+   public static final SoundEvent FROGSPAWN_HATCH = SoundEvents.register("block.frogspawn.hatch");
+   public static final SoundEvent FROGSPAWN_HIT = SoundEvents.register("block.frogspawn.hit");
+   public static final SoundEvent FROGSPAWN_PLACE = SoundEvents.register("block.frogspawn.place");
+   public static final SoundEvent FROG_AMBIENT = SoundEvents.register("entity.frog.ambient");
+   public static final SoundEvent FROG_DEATH = SoundEvents.register("entity.frog.death");
+   public static final SoundEvent FROG_EAT = SoundEvents.register("entity.frog.eat");
+   public static final SoundEvent FROG_HURT = SoundEvents.register("entity.frog.hurt");
+   public static final SoundEvent FROG_LAY_SPAWN = SoundEvents.register("entity.frog.lay_spawn");
+   public static final SoundEvent FROG_LONG_JUMP = SoundEvents.register("entity.frog.long_jump");
+   public static final SoundEvent FROG_STEP = SoundEvents.register("entity.frog.step");
+   public static final SoundEvent FROG_TONGUE = SoundEvents.register("entity.frog.tongue");
+
+
+   public static final SoundEvent AXOLOTL_ATTACK = SoundEvents.register("entity.axolotl.attack");
+   public static final SoundEvent AXOLOTL_DEATH = SoundEvents.register("entity.axolotl.death");
+   public static final SoundEvent AXOLOTL_HURT = SoundEvents.register("entity.axolotl.hurt");
+   public static final SoundEvent AXOLOTL_IDLE_AIR = SoundEvents.register("entity.axolotl.idle_air");
+   public static final SoundEvent AXOLOTL_IDLE_WATER = SoundEvents.register("entity.axolotl.idle_water");
+   public static final SoundEvent AXOLOTL_SPLASH = SoundEvents.register("entity.axolotl.splash");
+   public static final SoundEvent AXOLOTL_SWIM = SoundEvents.register("entity.axolotl.swim");
+
+   public static final SoundEvent GOAT_HORN_PONDER = register("item.goat_horn.sound.0");
+   public static final SoundEvent GOAT_HORN_SING = register("item.goat_horn.sound.1");
+   public static final SoundEvent GOAT_HORN_SEEK = register("item.goat_horn.sound.2");
+   public static final SoundEvent GOAT_HORN_FEEL = register("item.goat_horn.sound.3");
+   public static final SoundEvent GOAT_HORN_ADMIRE = register("item.goat_horn.sound.4");
+   public static final SoundEvent GOAT_HORN_CALL = register("item.goat_horn.sound.5");
+   public static final SoundEvent GOAT_HORN_YEARN = register("item.goat_horn.sound.6");
+   public static final SoundEvent GOAT_HORN_DREAM = register("item.goat_horn.sound.7");
+
+
+   public static final SoundEvent GOAT_SCREAMING_AMBIENT = SoundEvents.register("entity.goat.screaming.ambient");
+   public static final SoundEvent GOAT_SCREAMING_DEATH = SoundEvents.register("entity.goat.screaming.death");
+   public static final SoundEvent GOAT_SCREAMING_EAT = SoundEvents.register("entity.goat.screaming.eat");
+   public static final SoundEvent GOAT_SCREAMING_HURT = SoundEvents.register("entity.goat.screaming.hurt");
+   public static final SoundEvent GOAT_SCREAMING_LONG_JUMP = SoundEvents.register("entity.goat.screaming.long_jump");
+   public static final SoundEvent GOAT_SCREAMING_MILK = SoundEvents.register("entity.goat.screaming.milk");
+   public static final SoundEvent GOAT_SCREAMING_PREPARE_RAM = SoundEvents.register("entity.goat.screaming.prepare_ram");
+   public static final SoundEvent GOAT_SCREAMING_RAM_IMPACT = SoundEvents.register("entity.goat.screaming.ram_impact");
+   public static final SoundEvent GOAT_SCREAMING_HORN_BREAK = SoundEvents.register("entity.goat.screaming.horn_break");
+   public static final SoundEvent GOAT_STEP = SoundEvents.register("entity.goat.step");
+   public static final SoundEvent GOAT_AMBIENT = SoundEvents.register("entity.goat.ambient");
+   public static final SoundEvent GOAT_DEATH = SoundEvents.register("entity.goat.death");
+   public static final SoundEvent GOAT_EAT = SoundEvents.register("entity.goat.eat");
+   public static final SoundEvent GOAT_HURT = SoundEvents.register("entity.goat.hurt");
+   public static final SoundEvent GOAT_LONG_JUMP = SoundEvents.register("entity.goat.long_jump");
+   public static final SoundEvent GOAT_MILK = SoundEvents.register("entity.goat.milk");
+   public static final SoundEvent GOAT_PREPARE_RAM = SoundEvents.register("entity.goat.prepare_ram");
+   public static final SoundEvent GOAT_RAM_IMPACT = SoundEvents.register("entity.goat.ram_impact");
+   public static final SoundEvent GOAT_HORN_BREAK = SoundEvents.register("entity.goat.horn_break");
+   public static final SoundEvent GOAT_HORN_PLAY = SoundEvents.register("item.goat_horn.play");
+
+   public static final SoundEvent RESIN_BREAK = SoundEvents.register("block.resin.break");
+   public static final SoundEvent RESIN_FALL = SoundEvents.register("block.resin.fall");
+   public static final SoundEvent RESIN_PLACE = SoundEvents.register("block.resin.place");
+   public static final SoundEvent RESIN_STEP = SoundEvents.register("block.resin.step");
+
+   public static final SoundEvent MUD_BREAK = SoundEvents.register("block.mud.break");
+   public static final SoundEvent MUD_FALL = SoundEvents.register("block.mud.fall");
+   public static final SoundEvent MUD_HIT = SoundEvents.register("block.mud.hit");
+   public static final SoundEvent MUD_PLACE = SoundEvents.register("block.mud.place");
+   public static final SoundEvent MUD_STEP = SoundEvents.register("block.mud.step");
+   public static final SoundEvent MUD_BRICKS_BREAK = SoundEvents.register("block.mud_bricks.break");
+   public static final SoundEvent MUD_BRICKS_FALL = SoundEvents.register("block.mud_bricks.fall");
+   public static final SoundEvent MUD_BRICKS_HIT = SoundEvents.register("block.mud_bricks.hit");
+   public static final SoundEvent MUD_BRICKS_PLACE = SoundEvents.register("block.mud_bricks.place");
+   public static final SoundEvent MUD_BRICKS_STEP = SoundEvents.register("block.mud_bricks.step");
+   public static final SoundEvent MUDDY_MANGROVE_ROOTS_BREAK = SoundEvents.register("block.muddy_mangrove_roots.break");
+   public static final SoundEvent MUDDY_MANGROVE_ROOTS_FALL = SoundEvents.register("block.muddy_mangrove_roots.fall");
+   public static final SoundEvent MUDDY_MANGROVE_ROOTS_HIT = SoundEvents.register("block.muddy_mangrove_roots.hit");
+   public static final SoundEvent MUDDY_MANGROVE_ROOTS_PLACE = SoundEvents.register("block.muddy_mangrove_roots.place");
+   public static final SoundEvent MUDDY_MANGROVE_ROOTS_STEP = SoundEvents.register("block.muddy_mangrove_roots.step");
+
+
+
+   public static final SoundEvent BREEZE_CHARGE = SoundEvents.register("entity.breeze.charge");
+   public static final SoundEvent BREEZE_DEFLECT = SoundEvents.register("entity.breeze.deflect");
+   public static final SoundEvent BREEZE_INHALE = SoundEvents.register("entity.breeze.inhale");
+   public static final SoundEvent BREEZE_IDLE_GROUND = SoundEvents.register("entity.breeze.idle_ground");
+   public static final SoundEvent BREEZE_IDLE_AIR = SoundEvents.register("entity.breeze.idle_air");
+   public static final SoundEvent BREEZE_SHOOT = SoundEvents.register("entity.breeze.shoot");
+   public static final SoundEvent BREEZE_JUMP = SoundEvents.register("entity.breeze.jump");
+   public static final SoundEvent BREEZE_LAND = SoundEvents.register("entity.breeze.land");
+   public static final SoundEvent BREEZE_SLIDE = SoundEvents.register("entity.breeze.slide");
+   public static final SoundEvent BREEZE_DEATH = SoundEvents.register("entity.breeze.death");
+   public static final SoundEvent BREEZE_HURT = SoundEvents.register("entity.breeze.hurt");
+   public static final SoundEvent BREEZE_WHIRL = SoundEvents.register("entity.breeze.whirl");
+
+   public static final SoundEvent PEARTO = SoundEvents.register("music_disc.pearto");
+
+   public static final SoundEvent TUFF_BREAK = SoundEvents.register("block.tuff.break");
+   public static final SoundEvent TUFF_STEP = SoundEvents.register("block.tuff.step");
+   public static final SoundEvent TUFF_PLACE = SoundEvents.register("block.tuff.place");
+   public static final SoundEvent TUFF_HIT = SoundEvents.register("block.tuff.hit");
+   public static final SoundEvent TUFF_FALL = SoundEvents.register("block.tuff.fall");
+   public static final SoundEvent TUFF_BRICKS_BREAK = SoundEvents.register("block.tuff_bricks.break");
+   public static final SoundEvent TUFF_BRICKS_FALL = SoundEvents.register("block.tuff_bricks.fall");
+   public static final SoundEvent TUFF_BRICKS_HIT = SoundEvents.register("block.tuff_bricks.hit");
+   public static final SoundEvent TUFF_BRICKS_PLACE = SoundEvents.register("block.tuff_bricks.place");
+   public static final SoundEvent TUFF_BRICKS_STEP = SoundEvents.register("block.tuff_bricks.step");
+   public static final SoundEvent POLISHED_TUFF_BREAK = SoundEvents.register("block.polished_tuff.break");
+   public static final SoundEvent POLISHED_TUFF_FALL = SoundEvents.register("block.polished_tuff.fall");
+   public static final SoundEvent POLISHED_TUFF_HIT = SoundEvents.register("block.polished_tuff.hit");
+   public static final SoundEvent POLISHED_TUFF_PLACE = SoundEvents.register("block.polished_tuff.place");
+   public static final SoundEvent POLISHED_TUFF_STEP = SoundEvents.register("block.polished_tuff.step");
+
+
+
+   public static final SoundEvent COPPER_BREAK = SoundEvents.register("block.copper.break");
+   public static final SoundEvent COPPER_FALL = SoundEvents.register("block.copper.fall");
+   public static final SoundEvent COPPER_HIT = SoundEvents.register("block.copper.hit");
+   public static final SoundEvent COPPER_PLACE = SoundEvents.register("block.copper.place");
+   public static final SoundEvent COPPER_STEP = SoundEvents.register("block.copper.step");
+
+   public static final SoundEvent COPPER_DOOR_CLOSE = SoundEvents.register("block.copper_door.close");
+   public static final SoundEvent COPPER_DOOR_OPEN = SoundEvents.register("block.copper_door.open");
+   public static final SoundEvent COPPER_TRAPDOOR_CLOSE = SoundEvents.register("block.copper_trapdoor.close");
+   public static final SoundEvent COPPER_TRAPDOOR_OPEN = SoundEvents.register("block.copper_trapdoor.open");
+
+
+   public static final SoundEvent COPPER_BULB_BREAK = SoundEvents.register("block.copper_bulb.break");
+   public static final SoundEvent COPPER_BULB_STEP = SoundEvents.register("block.copper_bulb.step");
+   public static final SoundEvent COPPER_BULB_PLACE = SoundEvents.register("block.copper_bulb.place");
+   public static final SoundEvent COPPER_BULB_HIT = SoundEvents.register("block.copper_bulb.hit");
+   public static final SoundEvent COPPER_BULB_FALL = SoundEvents.register("block.copper_bulb.fall");
+   public static final SoundEvent COPPER_BULB_TURN_ON = SoundEvents.register("block.copper_bulb.turn_on");
+   public static final SoundEvent COPPER_BULB_TURN_OFF = SoundEvents.register("block.copper_bulb.turn_off");
+
+   public static final SoundEvent COPPER_GRATE_BREAK = SoundEvents.register("block.copper_grate.break");
+   public static final SoundEvent COPPER_GRATE_STEP = SoundEvents.register("block.copper_grate.step");
+   public static final SoundEvent COPPER_GRATE_PLACE = SoundEvents.register("block.copper_grate.place");
+   public static final SoundEvent COPPER_GRATE_HIT = SoundEvents.register("block.copper_grate.hit");
+   public static final SoundEvent COPPER_GRATE_FALL = SoundEvents.register("block.copper_grate.fall");
+
+   public static final SoundEvent AXE_SCRAPE = SoundEvents.register("item.axe.scrape");
+   public static final SoundEvent AXE_WAX_OFF = SoundEvents.register("item.axe.wax_off");
+   public static final SoundEvent WAX_ON = SoundEvents.register("item.honeycomb.wax_on");
+
+   public static final SoundEvent LEAF_LITTER_BREAK = SoundEvents.register("block.leaf_litter.break");
+   public static final SoundEvent LEAF_LITTER_STEP = SoundEvents.register("block.leaf_litter.step");
+   public static final SoundEvent LEAF_LITTER_PLACE = SoundEvents.register("block.leaf_litter.place");
+   public static final SoundEvent LEAF_LITTER_HIT = SoundEvents.register("block.leaf_litter.hit");
+   public static final SoundEvent LEAF_LITTER_FALL = SoundEvents.register("block.leaf_litter.fall");
+
+   public static final SoundEvent CACTUS_FLOWER_BREAK = SoundEvents.register("block.cactus_flower.break");
+   public static final SoundEvent EMPTY = SoundEvents.register("intentionally_empty");
+
+   public static final SoundEvent CACTUS_FLOWER_PLACE = SoundEvents.register("block.cactus_flower.place");
 
    public static final SoundEvent EYEBLOSSOM_OPEN_LONG = SoundEvents.register("block.eyeblossom.open_long");
 
@@ -92,6 +479,8 @@ public class SoundEvents {
    public static final SoundEvent ARMOR_EQUIP_LEATHER = register("item.armor.equip_leather");
    public static final SoundEvent ARMOR_EQUIP_NETHERITE = register("item.armor.equip_netherite");
    public static final SoundEvent ARMOR_EQUIP_TURTLE = register("item.armor.equip_turtle");
+   public static final SoundEvent ARMOR_EQUIP_BURNT_TURTLE = register("item.armor.equip_burnt_turtle");
+
    public static final SoundEvent ARMOR_STAND_BREAK = register("entity.armor_stand.break");
    public static final SoundEvent ARMOR_STAND_FALL = register("entity.armor_stand.fall");
    public static final SoundEvent ARMOR_STAND_HIT = register("entity.armor_stand.hit");
@@ -296,6 +685,13 @@ public class SoundEvents {
    public static final SoundEvent END_PORTAL_FRAME_FILL = register("block.end_portal_frame.fill");
    public static final SoundEvent END_PORTAL_SPAWN = register("block.end_portal.spawn");
    public static final SoundEvent EVOKER_AMBIENT = register("entity.evoker.ambient");
+
+   public static final SoundEvent TRICKSTER_AMBIENT = register("entity.trickster.ambient");
+   public static final SoundEvent TRICKSTER_HURT = register("entity.trickster.hurt");
+   public static final SoundEvent TRICKSTER_DEATH = register("entity.trickster.death");
+   public static final SoundEvent TRICKSTER_CELEBRATE = register("entity.trickster.celebrate");
+
+
    public static final SoundEvent EVOKER_CAST_SPELL = register("entity.evoker.cast_spell");
    public static final SoundEvent EVOKER_CELEBRATE = register("entity.evoker.celebrate");
    public static final SoundEvent EVOKER_DEATH = register("entity.evoker.death");
@@ -525,6 +921,8 @@ public class SoundEvents {
    public static final SoundEvent MUSIC_DISC_MALL = register("music_disc.mall");
    public static final SoundEvent MUSIC_DISC_MELLOHI = register("music_disc.mellohi");
    public static final SoundEvent MUSIC_DISC_PIGSTEP = register("music_disc.pigstep");
+   public static final SoundEvent MUSIC_DISC_RELIC = register("music_disc.relic");
+
    public static final SoundEvent MUSIC_DISC_STAL = register("music_disc.stal");
    public static final SoundEvent MUSIC_DISC_STRAD = register("music_disc.strad");
    public static final SoundEvent MUSIC_DISC_WAIT = register("music_disc.wait");

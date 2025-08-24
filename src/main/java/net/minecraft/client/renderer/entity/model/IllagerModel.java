@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.model.ModelHelper;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
 import net.minecraft.entity.monster.MarauderEntity;
+import net.minecraft.entity.monster.TricksterEntity;
 import net.minecraft.item.tool.AxeItem;
 import net.minecraft.item.Items;
 import net.minecraft.item.tool.ShieldItem;
@@ -70,6 +71,7 @@ public class IllagerModel<T extends AbstractIllagerEntity> extends SegmentedMode
    }
 
    public void setupAnim(T entity, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
+      if (entity instanceof TricksterEntity) this.hat.visible = true;
       this.head.yRot = p_225597_5_ * ((float)Math.PI / 180F);
       this.head.xRot = p_225597_6_ * ((float)Math.PI / 180F);
       this.arms.y = 3.0F;
@@ -104,6 +106,8 @@ public class IllagerModel<T extends AbstractIllagerEntity> extends SegmentedMode
       }
 
       AbstractIllagerEntity.ArmPose armPose = entity.getArmPose();
+
+      boolean b = entity.getOffhandItem().get() == Items.GOAT_HORN;
       if (armPose == AbstractIllagerEntity.ArmPose.ATTACKING) {
          if (entity instanceof MarauderEntity) {
             if (!entity.getMainHandItem().isEmpty()) {
@@ -137,7 +141,7 @@ public class IllagerModel<T extends AbstractIllagerEntity> extends SegmentedMode
          this.leftArm.xRot = -0.9424779F + this.head.xRot;
          this.leftArm.yRot = this.head.yRot - 0.4F;
          this.leftArm.zRot = ((float)Math.PI / 2F);
-      } else if (armPose == AbstractIllagerEntity.ArmPose.CROSSBOW_HOLD) {
+      } else if (armPose == AbstractIllagerEntity.ArmPose.CROSSBOW_HOLD && !b) {
          ModelHelper.animateCrossbowHold(this.rightArm, this.leftArm, this.head, true);
       } else if (armPose == AbstractIllagerEntity.ArmPose.CROSSBOW_CHARGE) {
          ModelHelper.animateCrossbowCharge(this.rightArm, this.leftArm, entity, true);
@@ -152,6 +156,11 @@ public class IllagerModel<T extends AbstractIllagerEntity> extends SegmentedMode
          this.leftArm.xRot = MathHelper.cos(p_225597_4_ * 0.6662F) * 0.05F;
          this.leftArm.zRot = -2.3561945F;
          this.leftArm.yRot = 0.0F;
+      }
+
+      if (b && armPose != AbstractIllagerEntity.ArmPose.CROSSBOW_CHARGE) {
+         this.leftArm.xRot = MathHelper.clamp(this.head.xRot, -1.2f, 1.2f) - 1.4835298f;
+         this.leftArm.yRot = this.head.yRot + 0.5235988f;
       }
 
       boolean flag = armPose == AbstractIllagerEntity.ArmPose.CROSSED;

@@ -71,11 +71,23 @@ public abstract class Container {
       return slots.get(index).getItem();
    }
 
-   protected static boolean stillValid(IWorldPosCallable p_216963_0_, PlayerEntity p_216963_1_, Block p_216963_2_) {
-      return p_216963_0_.evaluate((p_216960_2_, p_216960_3_) -> {
-         return !p_216960_2_.getBlockState(p_216960_3_).is(p_216963_2_) ? false : p_216963_1_.distanceToSqr((double)p_216960_3_.getX() + 0.5D, (double)p_216960_3_.getY() + 0.5D, (double)p_216960_3_.getZ() + 0.5D) <= 64.0D;
+   protected static boolean stillValid(IWorldPosCallable posCallable, PlayerEntity player, Block block) {
+      return posCallable.evaluate((level, pos) -> {
+         if (!level.getBlockState(pos).is(block)) {
+            return false;
+         }
+
+         double reach = player.getReachDistance() + 4;
+         double reachSq = reach * reach;
+
+         return player.distanceToSqr(
+                 pos.getX() + 0.5D,
+                 pos.getY() + 0.5D,
+                 pos.getZ() + 0.5D
+         ) <= reachSq;
       }, true);
    }
+
 
    public ContainerType<?> getType() {
       if (this.menuType == null) {
@@ -185,7 +197,7 @@ public abstract class Container {
       } catch (Exception exception) {
          CrashReport crashreport = CrashReport.forThrowable(exception, "Container click");
          CrashReportCategory crashreportcategory = crashreport.addCategory("Click info");
-         crashreportcategory.setDetail("Menu BoggedType", () -> {
+         crashreportcategory.setDetail("Menu Type", () -> {
             return this.menuType != null ? Registry.MENU.getKey(this.menuType).toString() : "<no type>";
          });
          crashreportcategory.setDetail("Menu Class", () -> {
@@ -194,7 +206,7 @@ public abstract class Container {
          crashreportcategory.setDetail("Slot Count", this.slots.size());
          crashreportcategory.setDetail("Slot", p_184996_1_);
          crashreportcategory.setDetail("Button", p_184996_2_);
-         crashreportcategory.setDetail("BoggedType", p_184996_3_);
+         crashreportcategory.setDetail("Type", p_184996_3_);
          throw new ReportedException(crashreport);
       }
    }

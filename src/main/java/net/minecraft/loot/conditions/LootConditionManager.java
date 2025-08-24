@@ -17,6 +17,8 @@ public class LootConditionManager {
    public static final LootConditionType ENTITY_SCORES = register("entity_scores", new EntityHasScore.Serializer());
    public static final LootConditionType BLOCK_STATE_PROPERTY = register("block_state_property", new BlockStateProperty.Serializer());
    public static final LootConditionType MATCH_TOOL = register("match_tool", new MatchTool.Serializer());
+   public static final LootConditionType ALWAYS = register("always", new Always.Serializer());
+
    public static final LootConditionType TABLE_BONUS = register("table_bonus", new TableBonus.Serializer());
    public static final LootConditionType SURVIVES_EXPLOSION = register("survives_explosion", new SurvivesExplosion.Serializer());
    public static final LootConditionType DAMAGE_SOURCE_PROPERTIES = register("damage_source_properties", new DamageSourceProperties.Serializer());

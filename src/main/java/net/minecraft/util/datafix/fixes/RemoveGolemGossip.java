@@ -18,7 +18,7 @@ public class RemoveGolemGossip extends NamedEntityFix {
    private static Dynamic<?> fixValue(Dynamic<?> p_242266_0_) {
       return p_242266_0_.update("Gossips", (p_242267_1_) -> {
          return p_242266_0_.createList(p_242267_1_.asStream().filter((p_242268_0_) -> {
-            return !p_242268_0_.get("BoggedType").asString("").equals("golem");
+            return !p_242268_0_.get("Type").asString("").equals("golem");
          }));
       });
    }

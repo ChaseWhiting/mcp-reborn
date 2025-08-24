@@ -36,6 +36,8 @@ public class GameRules {
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_SPAWNER_FARTHER_RANGE = register("spawnMobsFromSpawnerFarther", Category.MOBS, GameRules.BooleanValue.create(false));
    public static final RuleKey<GameRules.BooleanValue> RULE_VERYHARD = register("veryHardMode", Category.MOBS, GameRules.BooleanValue.create(false));
 
+   public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_ADVANCED_FALL_CALCULATION = register("advancedFallCalculation", Category.UPDATES, GameRules.BooleanValue.create(false));
+
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_DROWNING = register("doDrowning", Category.MOBS, GameRules.BooleanValue.create(true));
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_MOBGRIEFING = register("mobGriefing", GameRules.Category.MOBS, GameRules.BooleanValue.create(true));
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_KEEPINVENTORY = register("keepInventory", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
@@ -63,6 +65,7 @@ public class GameRules {
    public static final GameRules.RuleKey<GameRules.IntegerValue> RULE_SPAWN_RADIUS = register("spawnRadius", GameRules.Category.PLAYER, GameRules.IntegerValue.create(10));
    public static final GameRules.RuleKey<GameRules.IntegerValue> SPAWNER_MAX_SPAWN_DELAY = register("spawnerMaxDelay", GameRules.Category.PLAYER, GameRules.IntegerValue.create(800));
    public static final GameRules.RuleKey<GameRules.IntegerValue> SPAWNER_MIN_SPAWN_DELAY = register("spawnerMinDelay", GameRules.Category.PLAYER, GameRules.IntegerValue.create(200));
+   public static final GameRules.RuleKey<GameRules.IntegerValue> LIGHTNING_STRIKE_CHANCE = register("lightningBoltChance", Category.UPDATES, GameRules.IntegerValue.create(100000));
 
    public static final GameRules.RuleKey<GameRules.IntegerValue> RULE_ELYTRA_EXTRA_MOVEMENT = register("elytraMovementVec", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0));
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_DISABLE_ELYTRA_MOVEMENT_CHECK = register("disableElytraMovementCheck", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));

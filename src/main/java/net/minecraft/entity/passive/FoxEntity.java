@@ -47,6 +47,7 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.passive.fish.AbstractGroupFishEntity;
+import net.minecraft.entity.passive.roadrunner.RoadrunnerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -102,7 +103,7 @@ public class FoxEntity extends Animal {
       }
    };
    private static final Predicate<Entity> STALKABLE_PREY = (p_213498_0_) -> {
-      return p_213498_0_ instanceof ChickenEntity || p_213498_0_ instanceof RabbitEntity;
+      return p_213498_0_ instanceof ChickenEntity || p_213498_0_ instanceof RabbitEntity || p_213498_0_ instanceof RoadrunnerEntity;
    };
    private static final Predicate<Entity> AVOID_PLAYERS = (p_213463_0_) -> {
       return !p_213463_0_.isDiscrete() && EntityPredicates.NO_CREATIVE_OR_SPECTATOR.test(p_213463_0_);
@@ -135,7 +136,7 @@ public class FoxEntity extends Animal {
 
    protected void registerGoals() {
       this.landTargetGoal = new NearestAttackableTargetGoal<>(this, Animal.class, 10, false, false, (p_213487_0_) -> {
-         return p_213487_0_ instanceof ChickenEntity || p_213487_0_ instanceof RabbitEntity;
+         return p_213487_0_ instanceof ChickenEntity || p_213487_0_ instanceof RabbitEntity || p_213487_0_ instanceof RoadrunnerEntity;
       });
       this.turtleEggTargetGoal = new NearestAttackableTargetGoal<>(this, TurtleEntity.class, 10, false, false, TurtleEntity.BABY_ON_LAND_SELECTOR);
       this.fishTargetGoal = new NearestAttackableTargetGoal<>(this, AbstractFishEntity.class, 20, false, false, (p_213456_0_) -> {
@@ -219,7 +220,7 @@ public class FoxEntity extends Animal {
    }
 
    private boolean canEat(ItemStack p_213464_1_) {
-      return p_213464_1_.getItem().isEdible() && this.getTarget() == null && this.onGround && !this.isSleeping();
+      return p_213464_1_.isEdible() && this.getTarget() == null && this.onGround && !this.isSleeping();
    }
 
    protected void populateDefaultEquipmentSlots(DifficultyInstance p_180481_1_) {
@@ -360,7 +361,7 @@ public class FoxEntity extends Animal {
 
       p_213281_1_.put("Trusted", listnbt);
       p_213281_1_.putBoolean("Sleeping", this.isSleeping());
-      p_213281_1_.putString("BoggedType", this.getFoxType().getName());
+      p_213281_1_.putString("Type", this.getFoxType().getName());
       p_213281_1_.putBoolean("Sitting", this.isSitting());
       p_213281_1_.putBoolean("Crouching", this.isCrouching());
    }
@@ -374,7 +375,7 @@ public class FoxEntity extends Animal {
       }
 
       this.setSleeping(p_70037_1_.getBoolean("Sleeping"));
-      this.setFoxType(FoxEntity.Type.byName(p_70037_1_.getString("BoggedType")));
+      this.setFoxType(FoxEntity.Type.byName(p_70037_1_.getString("Type")));
       this.setSitting(p_70037_1_.getBoolean("Sitting"));
       this.setIsCrouching(p_70037_1_.getBoolean("Crouching"));
       if (this.level instanceof ServerWorld) {
@@ -440,7 +441,7 @@ public class FoxEntity extends Animal {
    public boolean canHoldItem(ItemStack p_175448_1_) {
       Item item = p_175448_1_.getItem();
       ItemStack itemstack = this.getItemBySlot(EquipmentSlotType.MAINHAND);
-      return itemstack.isEmpty() || this.ticksSinceEaten > 0 && item.isEdible() && !itemstack.getItem().isEdible();
+      return itemstack.isEmpty() || this.ticksSinceEaten > 0 && p_175448_1_.isEdible() && !itemstack.getItem().isEdible();
    }
 
    private void spitOutItem(ItemStack p_213495_1_) {
@@ -608,8 +609,8 @@ public class FoxEntity extends Animal {
       super.setTarget(p_70624_1_);
    }
 
-   protected int calculateFallDamage(float p_225508_1_, float p_225508_2_) {
-      return MathHelper.ceil((p_225508_1_ - 5.0F) * p_225508_2_);
+   protected int calculateFallDamage(float damageToDeal, float damageMultiplier) {
+      return MathHelper.ceil((damageToDeal - 5.0F) * damageMultiplier);
    }
 
    private void wakeUp() {

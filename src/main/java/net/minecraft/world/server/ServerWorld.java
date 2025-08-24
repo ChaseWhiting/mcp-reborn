@@ -35,10 +35,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEventData;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+
+import net.minecraft.block.*;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
@@ -47,11 +45,15 @@ import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.merchant.IReputationTracking;
 import net.minecraft.entity.merchant.IReputationType;
 import net.minecraft.entity.monster.RayTracing;
+import net.minecraft.entity.monster.enderiophage.EntityEnderiophage;
 import net.minecraft.entity.passive.Animal;
+import net.minecraft.entity.passive.LavaMobEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.passive.horse.SkeletonHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.DynamicGameEventListener;
+import net.minecraft.entity.warden.event.GameEventDispatcher;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -164,6 +166,26 @@ public class ServerWorld extends World implements ISeedReader {
    private final DragonFightManager dragonFight;
    private final StructureManager structureFeatureManager;
    private final boolean tickTime;
+   public final GameEventDispatcher gameEventDispatcher;
+
+   @Nullable
+   public PlayerEntity getNearestPlayer(TargetingConditions targetingConditions, LivingEntity livingEntity) {
+      return this.getNearestEntity(this.players(), targetingConditions, livingEntity, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
+   }
+
+   @Nullable
+   public <T extends LivingEntity> T getNearestEntity(List<? extends T> list, TargetingConditions targetingConditions, @Nullable LivingEntity livingEntity, double d, double d2, double d3) {
+      double d4 = -1.0;
+      LivingEntity livingEntity2 = null;
+      for (LivingEntity livingEntity3 : list) {
+         if (!targetingConditions.test(this, livingEntity, livingEntity3)) continue;
+         double d5 = livingEntity3.distanceToSqr(d, d2, d3);
+         if (d4 != -1.0 && !(d5 < d4)) continue;
+         d4 = d5;
+         livingEntity2 = livingEntity3;
+      }
+      return (T)livingEntity2;
+   }
 
    public ServerWorld(MinecraftServer p_i241885_1_, Executor p_i241885_2_, SaveFormat.LevelSave p_i241885_3_, IServerWorldInfo p_i241885_4_, RegistryKey<World> p_i241885_5_, DimensionType p_i241885_6_, IChunkStatusListener p_i241885_7_, ChunkGenerator p_i241885_8_, boolean p_i241885_9_, long p_i241885_10_, List<ISpecialSpawner> p_i241885_12_, boolean p_i241885_13_) {
       super(p_i241885_4_, p_i241885_5_, p_i241885_6_, p_i241885_1_::getProfiler, false, p_i241885_9_, p_i241885_10_);
@@ -194,7 +216,14 @@ public class ServerWorld extends World implements ISeedReader {
       } else {
          this.dragonFight = null;
       }
+      this.gameEventDispatcher = new GameEventDispatcher(this);
 
+
+   }
+
+   @Override
+   public boolean shouldTickBlocksAt(long l) {
+      return this.chunkSource.chunkMap.getDistanceManager().inBlockTickingRange(l);
    }
 
    public void setWeatherParameters(int p_241113_1_, int p_241113_2_, boolean p_241113_3_, boolean p_241113_4_) {
@@ -372,7 +401,7 @@ public class ServerWorld extends World implements ISeedReader {
                Entry<Entity> entry = objectiterator.next();
                entity1 = entry.getValue();
                Entity entity2 = entity1.getVehicle();
-               if (!this.server.isSpawningAnimals() && (entity1 instanceof Animal || entity1 instanceof WaterMobEntity)) {
+               if (!this.server.isSpawningAnimals() && (entity1 instanceof Animal && !(entity1 instanceof EntityEnderiophage) || entity1 instanceof WaterMobEntity || entity1 instanceof LavaMobEntity)) {
                   entity1.remove();
                }
 
@@ -452,11 +481,13 @@ public class ServerWorld extends World implements ISeedReader {
       int j = chunkpos.getMinBlockZ();
       IProfiler iprofiler = this.getProfiler();
       iprofiler.push("thunder");
-      if (flag && this.isThundering() && this.random.nextInt(100000) == 0) {
+      int lightingChance = this.getGameRules().getInt(GameRules.LIGHTNING_STRIKE_CHANCE);
+      if (lightingChance == 0) lightingChance = 1;
+      if (flag && this.isThundering() && this.random.nextInt(lightingChance) == 0) {
          BlockPos blockpos = this.findLightingTargetAround(this.getBlockRandomPos(i, 0, j, 15));
          if (this.isRainingAt(blockpos)) {
             DifficultyInstance difficultyinstance = this.getCurrentDifficultyAt(blockpos);
-            boolean flag1 = this.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING) && this.random.nextDouble() < (double)difficultyinstance.getEffectiveDifficulty() * 0.01D;
+            boolean flag1 = this.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING) && this.random.nextDouble() < (double)difficultyinstance.getEffectiveDifficulty() * 0.01D && !this.getBlockState(blockpos.below()).is(Blocks.LIGHTNING_ROD);
             if (flag1) {
                SkeletonHorseEntity skeletonhorseentity = EntityType.SKELETON_HORSE.create(this);
                skeletonhorseentity.setTrap(true);
@@ -518,8 +549,20 @@ public class ServerWorld extends World implements ISeedReader {
       iprofiler.pop();
    }
 
+   private Optional<BlockPos> findLightningRod(BlockPos blockPos2) {
+      Optional<BlockPos> optional = this.getPoiManager().findClosest(holder -> holder.equals(PointOfInterestType.LIGHTNING_ROD), blockPos -> blockPos.getY() == this.getHeight(Heightmap.Type.WORLD_SURFACE, blockPos.getX(), blockPos.getZ()) - 1, blockPos2, LightningRodBlock.RANGE, PointOfInterestManager.Status.ANY);
+      return optional.map(blockPos -> blockPos.above(1));
+   }
+
+
    protected BlockPos findLightingTargetAround(BlockPos p_175736_1_) {
       BlockPos blockpos = this.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING, p_175736_1_);
+
+      Optional<BlockPos> optional = this.findLightningRod(blockpos);
+      if (optional.isPresent()) {
+         return optional.get();
+      }
+
       AxisAlignedBB axisalignedbb = (new AxisAlignedBB(blockpos, new BlockPos(blockpos.getX(), this.getMaxBuildHeight(), blockpos.getZ()))).inflate(3.0D);
       List<LivingEntity> list = this.getEntitiesOfClass(LivingEntity.class, axisalignedbb, (p_241115_1_) -> {
          return p_241115_1_ != null && p_241115_1_.isAlive() && this.canSeeSky(p_241115_1_.blockPosition());
@@ -900,6 +943,8 @@ public class ServerWorld extends World implements ISeedReader {
          this.navigations.remove(((Mob)p_217484_1_).getNavigation());
       }
 
+      p_217484_1_.updateDynamicGameEventListener(DynamicGameEventListener::remove);
+
    }
 
    private void add(Entity p_217465_1_) {
@@ -918,6 +963,8 @@ public class ServerWorld extends World implements ISeedReader {
          if (p_217465_1_ instanceof Mob) {
             this.navigations.add(((Mob)p_217465_1_).getNavigation());
          }
+
+         p_217465_1_.updateDynamicGameEventListener(DynamicGameEventListener::add);
       }
 
    }
@@ -938,6 +985,7 @@ public class ServerWorld extends World implements ISeedReader {
          ((Chunk)ichunk).removeEntity(p_217454_1_);
       }
 
+      p_217454_1_.updateDynamicGameEventListener(DynamicGameEventListener::remove);
    }
 
    public void removePlayerImmediately(ServerPlayerEntity p_217434_1_) {
@@ -986,6 +1034,11 @@ public class ServerWorld extends World implements ISeedReader {
                this.setBlockAndUpdate(position, Block.stateById(eventData));
          }
       }
+   }
+
+   @Override
+   public void gameEvent(net.minecraft.entity.warden.event.GameEvent gameEvent, Vector3d vector3D, net.minecraft.entity.warden.event.GameEvent.Context context) {
+      this.gameEventDispatcher.post(gameEvent, vector3D, context);
    }
 
    public void onGameEvent(GameEvent gameEvent, BlockPos position, @Nullable PlayerEntity player) {
@@ -1082,19 +1135,33 @@ public class ServerWorld extends World implements ISeedReader {
       return this.server.getStructureManager();
    }
 
-   public <T extends IParticleData> int sendParticles(T p_195598_1_, double p_195598_2_, double p_195598_4_, double p_195598_6_, int p_195598_8_, double p_195598_9_, double p_195598_11_, double p_195598_13_, double p_195598_15_) {
-      SSpawnParticlePacket sspawnparticlepacket = new SSpawnParticlePacket(p_195598_1_, false, p_195598_2_, p_195598_4_, p_195598_6_, (float)p_195598_9_, (float)p_195598_11_, (float)p_195598_13_, (float)p_195598_15_, p_195598_8_);
-      int i = 0;
+   public <T extends IParticleData> int sendParticles(
+           T particleData,
+           double x, double y, double z,
+           int count,
+           double offsetX, double offsetY, double offsetZ,
+           double speed) {
 
-      for(int j = 0; j < this.players.size(); ++j) {
-         ServerPlayerEntity serverplayerentity = this.players.get(j);
-         if (this.sendParticles(serverplayerentity, false, p_195598_2_, p_195598_4_, p_195598_6_, sspawnparticlepacket)) {
-            ++i;
+      SSpawnParticlePacket packet = new SSpawnParticlePacket(
+              particleData, false,
+              x, y, z,
+              (float) offsetX, (float) offsetY, (float) offsetZ,
+              (float) speed,
+              count
+      );
+
+      int sentCount = 0;
+
+      for (int i = 0; i < this.players.size(); ++i) {
+         ServerPlayerEntity player = this.players.get(i);
+         if (this.sendParticles(player, false, x, y, z, packet)) {
+            ++sentCount;
          }
       }
 
-      return i;
+      return sentCount;
    }
+
 
    public <T extends IParticleData> boolean sendParticles(ServerPlayerEntity p_195600_1_, T p_195600_2_, boolean p_195600_3_, double p_195600_4_, double p_195600_6_, double p_195600_8_, int p_195600_10_, double p_195600_11_, double p_195600_13_, double p_195600_15_, double p_195600_17_) {
       IPacket<?> ipacket = new SSpawnParticlePacket(p_195600_2_, p_195600_3_, p_195600_4_, p_195600_6_, p_195600_8_, (float)p_195600_11_, (float)p_195600_13_, (float)p_195600_15_, (float)p_195600_17_, p_195600_10_);

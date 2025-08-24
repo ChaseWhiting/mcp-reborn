@@ -7,7 +7,6 @@ import com.mojang.datafixers.util.Pair;
 import java.util.Set;
 import javax.annotation.Nullable;
 
-import net.minecraft.bundle.BundleItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IHasContainer;
 import net.minecraft.client.gui.screen.Screen;
@@ -114,9 +113,7 @@ public abstract class ContainerScreen<T extends Container> extends Screen implem
 
       for(int i1 = 0; i1 < this.menu.slots.size(); ++i1) {
          Slot slot = this.menu.slots.get(i1);
-         if (slot.isActive()) {
-            this.renderSlot(p_230430_1_, slot);
-         }
+
 
          if (this.isHovering(slot, (double)p_230430_2_, (double)p_230430_3_) && slot.isActive()) {
             this.hoveredSlot = slot;
@@ -127,6 +124,9 @@ public abstract class ContainerScreen<T extends Container> extends Screen implem
             this.fillGradient(p_230430_1_, j1, k1, j1 + 16, k1 + 16, -2130706433, -2130706433);
             RenderSystem.colorMask(true, true, true, true);
             RenderSystem.enableDepthTest();
+         }
+         if (slot.isActive()) {
+            this.renderSlot(p_230430_1_, slot);
          }
       }
 
@@ -169,9 +169,9 @@ public abstract class ContainerScreen<T extends Container> extends Screen implem
       RenderSystem.enableDepthTest();
    }
 
-   protected void renderTooltip(MatrixStack p_230459_1_, int p_230459_2_, int p_230459_3_) {
+   protected void renderTooltip(MatrixStack matrix, int n, int n2) {
       if (this.minecraft.player.inventory.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
-         this.renderTooltip(p_230459_1_, this.hoveredSlot.getItem(), p_230459_2_, p_230459_3_);
+         this.renderTooltip(matrix, this.hoveredSlot.getItem(), n, n2);
       }
 
    }

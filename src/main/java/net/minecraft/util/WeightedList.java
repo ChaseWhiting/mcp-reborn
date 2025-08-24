@@ -63,6 +63,7 @@ public class WeightedList<U> {
    public String toString() {
       return "WeightedList[" + this.entries + "]";
    }
+   
 
    public static class Entry<T> {
       private final T data;

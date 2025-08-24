@@ -5,6 +5,8 @@ import net.minecraft.util.registry.Registry;
 
 public class BlockStateProviderType<P extends BlockStateProvider> {
    public static final BlockStateProviderType<SimpleBlockStateProvider> SIMPLE_STATE_PROVIDER = register("simple_state_provider", SimpleBlockStateProvider.CODEC);
+   public static final BlockStateProviderType<RandomStateBlockStateProvider> RANDOM_STATE_PROVIDER = register("random_state_provider", RandomStateBlockStateProvider.CODEC);
+
    public static final BlockStateProviderType<WeightedBlockStateProvider> WEIGHTED_STATE_PROVIDER = register("weighted_state_provider", WeightedBlockStateProvider.CODEC);
    public static final BlockStateProviderType<PlainFlowerBlockStateProvider> PLAIN_FLOWER_PROVIDER = register("plain_flower_provider", PlainFlowerBlockStateProvider.CODEC);
    public static final BlockStateProviderType<ForestFlowerBlockStateProvider> FOREST_FLOWER_PROVIDER = register("forest_flower_provider", ForestFlowerBlockStateProvider.CODEC);

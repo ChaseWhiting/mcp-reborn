@@ -56,6 +56,49 @@ public class SoundType {
 
    public static final SoundType MOSS = new SoundType(1.0f, 1.0f, SoundEvents.MOSS_BREAK, SoundEvents.MOSS_STEP, SoundEvents.MOSS_PLACE, SoundEvents.MOSS_HIT, SoundEvents.MOSS_FALL);
 
+   public static final SoundType MUD = new SoundType(1.0f, 1.0f, SoundEvents.MUD_BREAK, SoundEvents.MUD_STEP, SoundEvents.MUD_PLACE, SoundEvents.MUD_HIT, SoundEvents.MUD_FALL);
+   public static final SoundType COPPER = new SoundType(1.0f, 1.0f, SoundEvents.COPPER_BREAK, SoundEvents.COPPER_STEP, SoundEvents.COPPER_PLACE, SoundEvents.COPPER_HIT, SoundEvents.COPPER_FALL);
+   public static final SoundType COPPER_BULB = new SoundType(1.0f, 1.0f, SoundEvents.COPPER_BULB_BREAK, SoundEvents.COPPER_BULB_STEP, SoundEvents.COPPER_BULB_PLACE, SoundEvents.COPPER_BULB_HIT, SoundEvents.COPPER_BULB_FALL);
+   public static final SoundType COPPER_GRATE = new SoundType(1.0f, 1.0f, SoundEvents.COPPER_GRATE_BREAK, SoundEvents.COPPER_GRATE_STEP, SoundEvents.COPPER_GRATE_PLACE, SoundEvents.COPPER_GRATE_HIT, SoundEvents.COPPER_GRATE_FALL);
+
+
+   public static final SoundType TUFF = new SoundType(1.0f, 1.0f, SoundEvents.TUFF_BREAK, SoundEvents.TUFF_STEP, SoundEvents.TUFF_PLACE, SoundEvents.TUFF_HIT, SoundEvents.TUFF_FALL);
+   public static final SoundType TUFF_BRICKS = new SoundType(1.0f, 1.0f, SoundEvents.TUFF_BRICKS_BREAK, SoundEvents.TUFF_BRICKS_STEP, SoundEvents.TUFF_BRICKS_PLACE, SoundEvents.TUFF_BRICKS_HIT, SoundEvents.TUFF_BRICKS_FALL);
+   public static final SoundType POLISHED_TUFF = new SoundType(1.0f, 1.0f, SoundEvents.POLISHED_TUFF_BREAK, SoundEvents.POLISHED_TUFF_STEP, SoundEvents.POLISHED_TUFF_PLACE, SoundEvents.POLISHED_TUFF_HIT, SoundEvents.POLISHED_TUFF_FALL);
+
+   public static final SoundType LEAF_LITTER = new SoundType(1.0f, 1.0f, SoundEvents.LEAF_LITTER_BREAK, SoundEvents.LEAF_LITTER_STEP, SoundEvents.LEAF_LITTER_PLACE, SoundEvents.LEAF_LITTER_HIT, SoundEvents.LEAF_LITTER_FALL);
+   public static final SoundType CACTUS_FLOWER = new SoundType(1.0f, 1.0f, SoundEvents.CACTUS_FLOWER_BREAK, SoundEvents.EMPTY, SoundEvents.CACTUS_FLOWER_PLACE, SoundEvents.EMPTY, SoundEvents.EMPTY);
+   public static final SoundType RESIN = new SoundType(1.0f, 1.0f, SoundEvents.RESIN_BREAK, SoundEvents.RESIN_STEP, SoundEvents.RESIN_PLACE, SoundEvents.EMPTY, SoundEvents.RESIN_FALL);
+   public static final SoundType FROGSPAWN = new SoundType(1.0f, 1.0f, SoundEvents.FROGSPAWN_BREAK, SoundEvents.FROGSPAWNSTEP, SoundEvents.FROGSPAWN_PLACE, SoundEvents.FROGSPAWN_HIT, SoundEvents.FROGSPAWN_FALL);
+
+   public static final SoundType SCULK_SENSOR = new SoundType(1.0f, 1.0f, SoundEvents.SCULK_SENSOR_BREAK, SoundEvents.SCULK_SENSOR_STEP, SoundEvents.SCULK_SENSOR_PLACE, SoundEvents.SCULK_SENSOR_HIT, SoundEvents.SCULK_SENSOR_FALL);
+
+   public static final SoundType SCULK = new SoundType(1.0f, 1.0f, SoundEvents.SCULK_BLOCK_BREAK, SoundEvents.SCULK_BLOCK_STEP, SoundEvents.SCULK_BLOCK_PLACE, SoundEvents.SCULK_BLOCK_HIT, SoundEvents.SCULK_BLOCK_FALL);
+   public static final SoundType SCULK_VEIN = new SoundType(1.0f, 1.0f, SoundEvents.SCULK_VEIN_BREAK, SoundEvents.SCULK_VEIN_STEP, SoundEvents.SCULK_VEIN_PLACE, SoundEvents.SCULK_VEIN_HIT, SoundEvents.SCULK_VEIN_FALL);
+   public static final SoundType SCULK_CATALYST = new SoundType(1.0f, 1.0f, SoundEvents.SCULK_CATALYST_BREAK, SoundEvents.SCULK_CATALYST_STEP, SoundEvents.SCULK_CATALYST_PLACE, SoundEvents.SCULK_CATALYST_HIT, SoundEvents.SCULK_CATALYST_FALL);
+
+   public static final SoundType SCULK_SHRIEKER = new SoundType(1.0f, 1.0f, SoundEvents.SCULK_SHRIEKER_BREAK, SoundEvents.SCULK_SHRIEKER_STEP, SoundEvents.SCULK_SHRIEKER_PLACE, SoundEvents.SCULK_SHRIEKER_HIT, SoundEvents.SCULK_SHRIEKER_FALL);
+
+
+   public static final SoundType DEEPSLATE = new SoundType(1.0f, 1.0f, SoundEvents.DEEPSLATE_BREAK, SoundEvents.DEEPSLATE_STEP, SoundEvents.DEEPSLATE_PLACE, SoundEvents.DEEPSLATE_HIT, SoundEvents.DEEPSLATE_FALL);
+   public static final SoundType DEEPSLATE_BRICKS = new SoundType(1.0f, 1.0f, SoundEvents.DEEPSLATE_BRICKS_BREAK, SoundEvents.DEEPSLATE_BRICKS_STEP, SoundEvents.DEEPSLATE_BRICKS_PLACE, SoundEvents.DEEPSLATE_BRICKS_HIT, SoundEvents.DEEPSLATE_BRICKS_FALL);
+   public static final SoundType DEEPSLATE_TILES = new SoundType(1.0f, 1.0f, SoundEvents.DEEPSLATE_TILES_BREAK, SoundEvents.DEEPSLATE_TILES_STEP, SoundEvents.DEEPSLATE_TILES_PLACE, SoundEvents.DEEPSLATE_TILES_HIT, SoundEvents.DEEPSLATE_TILES_FALL);
+   public static final SoundType POLISHED_DEEPSLATE = new SoundType(1.0f, 1.0f, SoundEvents.POLISHED_DEEPSLATE_BREAK, SoundEvents.POLISHED_DEEPSLATE_STEP, SoundEvents.POLISHED_DEEPSLATE_PLACE, SoundEvents.POLISHED_DEEPSLATE_HIT, SoundEvents.POLISHED_DEEPSLATE_FALL);
+
+   public static final SoundType SUSPICIOUS_SAND = new SoundType(1.0f, 1.0f, SoundEvents.SUSPICIOUS_SAND_BREAK, SoundEvents.SUSPICIOUS_SAND_STEP, SoundEvents.SUSPICIOUS_SAND_PLACE, SoundEvents.SUSPICIOUS_SAND_HIT, SoundEvents.SUSPICIOUS_SAND_FALL);
+   public static final SoundType SUSPICIOUS_GRAVEL = new SoundType(1.0f, 1.0f, SoundEvents.SUSPICIOUS_GRAVEL_BREAK, SoundEvents.SUSPICIOUS_GRAVEL_STEP, SoundEvents.SUSPICIOUS_GRAVEL_PLACE, SoundEvents.SUSPICIOUS_GRAVEL_HIT, SoundEvents.SUSPICIOUS_GRAVEL_FALL);
+   public static final SoundType CANDLE = new SoundType(1.0f, 1.0f, SoundEvents.CANDLE_BREAK, SoundEvents.CANDLE_STEP, SoundEvents.CANDLE_PLACE, SoundEvents.CANDLE_HIT, SoundEvents.CANDLE_FALL);
+
+   public static final SoundType MUD_BRICKS = new SoundType(1.0f, 1.0f, SoundEvents.MUD_BRICKS_BREAK, SoundEvents.MUD_BRICKS_STEP, SoundEvents.MUD_BRICKS_PLACE, SoundEvents.MUD_BRICKS_HIT, SoundEvents.MUD_BRICKS_FALL);
+   public static final SoundType PACKED_MUD = new SoundType(1.0f, 1.0f, SoundEvents.PACKED_MUD_BREAK, SoundEvents.PACKED_MUD_STEP, SoundEvents.PACKED_MUD_PLACE, SoundEvents.PACKED_MUD_HIT, SoundEvents.PACKED_MUD_FALL);
+   public static final SoundType MUDDY_MANGROVE_ROOTS = new SoundType(1.0f, 1.0f, SoundEvents.MUDDY_MANGROVE_ROOTS_BREAK, SoundEvents.MUDDY_MANGROVE_ROOTS_STEP, SoundEvents.MUDDY_MANGROVE_ROOTS_PLACE, SoundEvents.MUDDY_MANGROVE_ROOTS_HIT, SoundEvents.MUDDY_MANGROVE_ROOTS_FALL);
+
+   public static final SoundType SUSPICIOUS_SOUL_SOIL = new SoundType(1.0f, 1.0f, SoundEvents.SUSPICIOUS_SAND_BREAK, SoundEvents.SOUL_SOIL_STEP, SoundEvents.SOUL_SOIL_PLACE, SoundEvents.SOUL_SOIL_HIT, SoundEvents.SOUL_SOIL_FALL);
+
+   public static final SoundType DECORATED_POT = new SoundType(1.0f, 1.0f, SoundEvents.DECORATED_POT_BREAK, SoundEvents.DECORATED_POT_STEP, SoundEvents.DECORATED_POT_PLACE, SoundEvents.DECORATED_POT_HIT, SoundEvents.DECORATED_POT_FALL);
+   public static final SoundType DECORATED_POT_CRACKED = new SoundType(1.0f, 1.0f, SoundEvents.DECORATED_POT_SHATTER, SoundEvents.DECORATED_POT_STEP, SoundEvents.DECORATED_POT_PLACE, SoundEvents.DECORATED_POT_HIT, SoundEvents.DECORATED_POT_FALL);
+
+
    public final float volume;
    public final float pitch;
    private final SoundEvent breakSound;

@@ -181,9 +181,7 @@ public class MarauderEntity extends AbstractIllagerEntity{
       this.goalSelector.addGoal(2, new RaidOpenDoorGoal(this));
       this.goalSelector.addGoal(3, new FindTargetGoal(this, 10.0F));
       this.goalSelector.addGoal(4, new MarauderEntity.AttackGoal(this));
-//      this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, PlayerEntity.class, 6.0F, 0.4D, 0.4D, (entity) -> {
-//         return entity != null && this.shieldDisabled;
-//      }));
+
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, AbstractRaiderEntity.class)).setAlertOthers());
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, true));
@@ -290,10 +288,24 @@ public class MarauderEntity extends AbstractIllagerEntity{
          if (this.random.nextFloat() < chance) {
             this.disableShield();
          }
-         hurtCurrentlyUsedShield((float) shield.getDamageValue() / 1.49997F);
+         Item item = entity.getMainHandItem().getItem();;
+         float damage = 0f;
+         if (item instanceof TieredItem) {
+            TieredItem tieredItem = (TieredItem) item;
+            damage = tieredItem.getTier().getAttackDamageBonus();
+         }
+         hurtCurrentlyUsedShield((float) damage + random.nextInt(8) + random.nextInt(8));
       } else {
          ItemStack shield = this.getOffhandItem();
-         hurtCurrentlyUsedShield((float) shield.getDamageValue() / 2.99996F);
+         Item item = entity.getMainHandItem().getItem();;
+         float damage = 0f;
+         if (item instanceof TieredItem) {
+            TieredItem tieredItem = (TieredItem) item;
+            damage = tieredItem.getTier().getAttackDamageBonus();
+         }
+
+
+         hurtCurrentlyUsedShield((float) damage + random.nextInt(5));
       }
 
       if (shouldDropAxe(entity)) {
@@ -308,8 +320,12 @@ public class MarauderEntity extends AbstractIllagerEntity{
          return 0.9F;
       } else if (item == Items.IRON_AXE) {
          return 0.6F;
+      } else if (item == Items.STONE_AXE){
+         return 0.2F;
+      } else if (item == Items.WOODEN_AXE) {
+         return 0.1f;
       } else {
-         return 0.3F;
+         return 0.05f;
       }
    }
 
@@ -324,7 +340,6 @@ public class MarauderEntity extends AbstractIllagerEntity{
          this.push(entity);
          entity.hurtMarked = true;
       }
-      //this.stunnedTick = 50;
       droppedAxe = disable;
       this.setItemSlot(type, Items.AIR);
       this.spawnAtLocation(item);
@@ -449,48 +464,28 @@ public class MarauderEntity extends AbstractIllagerEntity{
    }
 
    private boolean facingTarget(Entity entity) {
-      // Get the direction the mob is facing in the horizontal plane
+
       float entityYaw = this.yBodyRot;
-      // Convert the yaw to a direction vector
       Vector3d lookVec = Vector3d.directionFromRotation(0, entityYaw);
 
-      // Get the direction vector to the target
       Vector3d vecToTarget = new Vector3d(entity.getX() - this.getX(), 0, entity.getZ() - this.getZ()).normalize();
 
-      // Calculate the dot product between the two vectors
       double dotProduct = lookVec.dot(vecToTarget);
 
-      // Define a threshold for the dot product to consider as "facing"
-      double threshold = Math.cos(Math.toRadians(50)); // 50 degrees field of view
+      double threshold = Math.cos(Math.toRadians(50));
 
-      // Return true if the dot product is greater than the threshold
       return dotProduct > threshold;
    }
 
    public boolean hurt(DamageSource source, float damage) {
-      // Always take damage if bypassing armor or invulnerability
       if (source.isBypassInvul() || source.isBypassArmor() || source.isBypassMagic() || source.isProjectile() || source.isFire() || source == DamageSource.FALL) {
          return super.hurt(source, damage);
       }
 
-      // Always take damage if holding an axe
       if (this.getMainHandItem().getItem() instanceof AxeItem) {
          return super.hurt(source, damage);
       }
 
-//      // Handle shield blocking logic
-//      if (source.getEntity() != null) {
-//         if (facingTarget(source.getEntity()) && this.getOffhandItem().getItem() instanceof ShieldItem) {
-//            if (!shieldDisabled) {
-//               if (this.getUseItem().getItem() instanceof ShieldItem) {
-//                  // Block the damage if shield is active and in use
-//                  return false;
-//               }
-//            }
-//         }
-//      }
-
-      // Default case: take damage
       return super.hurt(source, damage);
    }
 

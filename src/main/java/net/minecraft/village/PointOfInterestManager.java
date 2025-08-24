@@ -101,6 +101,10 @@ public class PointOfInterestManager extends RegionSectionCache<PointOfInterestDa
       }));
    }
 
+   public Optional<BlockPos> findClosest(Predicate<PointOfInterestType> predicate, Predicate<BlockPos> predicate2, BlockPos blockPos, int n, PointOfInterestManager.Status occupancy) {
+      return this.getInRange(predicate, blockPos, n, occupancy).map(PointOfInterest::getPos).filter(predicate2).min(Comparator.comparingDouble(blockPos2 -> blockPos2.distSqr(blockPos)));
+   }
+
    public Optional<BlockPos> take(Predicate<PointOfInterestType> p_219157_1_, Predicate<BlockPos> p_219157_2_, BlockPos p_219157_3_, int p_219157_4_) {
       return this.getInRange(p_219157_1_, p_219157_3_, p_219157_4_, PointOfInterestManager.Status.HAS_SPACE).filter((p_219129_1_) -> {
          return p_219157_2_.test(p_219129_1_.getPos());

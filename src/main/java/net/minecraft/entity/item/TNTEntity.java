@@ -11,6 +11,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -20,8 +21,12 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
+import java.util.Optional;
+
 public class TNTEntity extends Entity {
    private static final DataParameter<Integer> DATA_FUSE_ID = EntityDataManager.defineId(TNTEntity.class, DataSerializers.INT);
+   private static final DataParameter<Optional<BlockState>> BLOCKSTATE = EntityDataManager.defineId(TNTEntity.class, DataSerializers.BLOCK_STATE);
+
    @Nullable
    private LivingEntity owner;
    private int life = 80;
@@ -30,8 +35,6 @@ public class TNTEntity extends Entity {
       super(p_i50216_1_, p_i50216_2_);
       this.blocksBuilding = true;
    }
-
-   private BlockState blockState = Blocks.TNT.defaultBlockState(); // Default to TNT
 
    public TNTEntity(World p_i1730_1_, double p_i1730_2_, double p_i1730_4_, double p_i1730_6_, @Nullable LivingEntity p_i1730_8_) {
       this(EntityType.TNT, p_i1730_1_);
@@ -45,8 +48,14 @@ public class TNTEntity extends Entity {
       this.owner = p_i1730_8_;
    }
 
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.NONE;
+   }
+
    protected void defineSynchedData() {
       this.entityData.define(DATA_FUSE_ID, 80);
+      this.entityData.define(BLOCKSTATE, Optional.of(Blocks.TNT.defaultBlockState()));
    }
 
    protected boolean isMovementNoisy() {
@@ -58,13 +67,13 @@ public class TNTEntity extends Entity {
    }
 
    // Getter for BlockState
-   public BlockState getBlockState() {
-      return this.blockState;
+   public Optional<BlockState> getBlockState() {
+      return this.entityData.get(BLOCKSTATE);
    }
 
    // Setter for BlockState
    public void setBlockState(BlockState blockState) {
-      this.blockState = blockState;
+      this.entityData.set(BLOCKSTATE, Optional.of(blockState));
    }
 
    public void tick() {
@@ -100,10 +109,16 @@ public class TNTEntity extends Entity {
 
    protected void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       p_213281_1_.putShort("Fuse", (short)this.getLife());
+
+      CompoundNBT state = NBTUtil.writeBlockState(this.getBlockState().isPresent() ? getBlockState().get() : Blocks.TNT.defaultBlockState());
+
+      p_213281_1_.put("BlockState", state);
    }
 
    protected void readAdditionalSaveData(CompoundNBT p_70037_1_) {
       this.setFuse(p_70037_1_.getShort("Fuse"));
+
+      this.setBlockState(NBTUtil.readBlockState(p_70037_1_.getCompound("BlockState")));
    }
 
    @Nullable

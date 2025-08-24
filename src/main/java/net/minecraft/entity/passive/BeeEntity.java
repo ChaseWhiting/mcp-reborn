@@ -1,11 +1,8 @@
 package net.minecraft.entity.passive;
 
 import com.google.common.collect.Lists;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -118,11 +115,22 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
       return p_205022_2_.getBlockState(p_205022_1_).isAir() ? 10.0F : 0.0F;
    }
 
+   public ItemStack[] getIngredients() {
+      List<ItemStack> stacks = new ArrayList<>();
+      for (int i = 0; i < ItemTags.FLOWERS.getValues().size(); i++) {
+         stacks.add(ItemTags.FLOWERS.getValues().get(i).getDefaultInstance());
+
+      }
+      stacks.add(new ItemStack(Items.WILDFLOWERS));
+      return stacks.toArray(new ItemStack[]{});
+   }
+
+
    protected void registerGoals() {
       this.goalSelector.addGoal(0, new BeeEntity.StingGoal(this, (double)1.4F, true));
       this.goalSelector.addGoal(1, new BeeEntity.EnterBeehiveGoal());
       this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D));
-      this.goalSelector.addGoal(3, new TemptGoal(this, 1.25D, Ingredient.of(ItemTags.FLOWERS), false));
+      this.goalSelector.addGoal(3, new TemptGoal(this, 1.25D, Ingredient.of(getIngredients()), false));
       this.beePollinateGoal = new BeeEntity.PollinateGoal();
       this.goalSelector.addGoal(4, this.beePollinateGoal);
       this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.25D));
@@ -179,12 +187,12 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
       this.readPersistentAngerSaveData((ServerWorld)this.level, p_70037_1_);
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      boolean flag = p_70652_1_.hurt(DamageSource.sting(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
+   public boolean doHurtTarget(Entity target) {
+      boolean flag = target.hurt(DamageSource.sting(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
       if (flag) {
-         this.doEnchantDamageEffects(this, p_70652_1_);
-         if (p_70652_1_ instanceof LivingEntity) {
-            ((LivingEntity)p_70652_1_).setStingerCount(((LivingEntity)p_70652_1_).getStingerCount() + 1);
+         this.doEnchantDamageEffects(this, target);
+         if (target instanceof LivingEntity) {
+            ((LivingEntity) target).setStingerCount(((LivingEntity) target).getStingerCount() + 1);
             int i = 0;
             if (this.level.getDifficulty() == Difficulty.NORMAL) {
                i = 10;
@@ -193,7 +201,7 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
             }
 
             if (i > 0) {
-               ((LivingEntity)p_70652_1_).addEffect(new EffectInstance(Effects.POISON, i * 20, 0));
+               ((LivingEntity) target).addEffect(new EffectInstance(Effects.POISON, i * 20, 0));
             }
 
             if (this.nextFloat() < 0.136F) {
@@ -204,7 +212,7 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
                   x = 15;
                }
 
-               ((LivingEntity) p_70652_1_).addEffect(new EffectInstance(Effects.CONFUSED, x * 20, 0));
+               ((LivingEntity) target).addEffect(new EffectInstance(Effects.CONFUSED, x * 20, 0));
             }
          }
 
@@ -520,11 +528,11 @@ public class BeeEntity extends Animal implements IAngerable, IFlyingAnimal, IBee
    }
 
    public boolean isFood(ItemStack p_70877_1_) {
-      return p_70877_1_.getItem().is(ItemTags.FLOWERS);
+      return p_70877_1_.getItem().is(ItemTags.FLOWERS) || p_70877_1_.getItem() ==(Items.WILDFLOWERS);
    }
 
    public boolean isFlowerValid(BlockPos p_226439_1_) {
-      return this.level.isLoaded(p_226439_1_) && this.level.getBlockState(p_226439_1_).getBlock().is(BlockTags.FLOWERS);
+      return this.level.isLoaded(p_226439_1_) && (this.level.getBlockState(p_226439_1_).getBlock().is(BlockTags.FLOWERS) || this.level.getBlockState(p_226439_1_).getBlock().is(Blocks.WILDFLOWERS));
    }
 
    protected void playStepSound(BlockPos p_180429_1_, BlockState p_180429_2_) {

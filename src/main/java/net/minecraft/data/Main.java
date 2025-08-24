@@ -8,11 +8,9 @@ import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import net.minecraft.bundle.BundleRecipeProvider;
-import net.minecraft.util.datafix.fixes.AbstractUUIDFix;
 
 public class Main {
-   public static void main(String[] p_main_0_) throws IOException {
+   public static void main(String[] array) throws IOException {
       OptionParser optionparser = new OptionParser();
       OptionSpec<Void> optionspec = optionparser.accepts("help", "Show the help menu").forHelp();
       OptionSpec<Void> optionspec1 = optionparser.accepts("server", "Include server generators");
@@ -23,7 +21,7 @@ public class Main {
       OptionSpec<Void> optionspec6 = optionparser.accepts("all", "Include all generators");
       OptionSpec<String> optionspec7 = optionparser.accepts("output", "Output folder").withRequiredArg().defaultsTo("generated");
       OptionSpec<String> optionspec8 = optionparser.accepts("input", "Input folder").withRequiredArg();
-      OptionSet optionset = optionparser.parse(p_main_0_);
+      OptionSet optionset = optionparser.parse(array);
       if (!optionset.has(optionspec) && optionset.hasOptions()) {
          Path path = Paths.get(optionspec7.value(optionset));
          boolean flag = optionset.has(optionspec6);
@@ -48,7 +46,7 @@ public class Main {
       }
 
       if (p_200264_2_) {
-         datagenerator.addProvider(new BlockStateProvider(datagenerator));
+         //datagenerator.addProvider(new BlockStateProvider(datagenerator));
       }
 
       if (p_200264_3_) {
@@ -59,8 +57,6 @@ public class Main {
          datagenerator.addProvider(new EntityTypeTagsProvider(datagenerator));
          datagenerator.addProvider(new RecipeProvider(datagenerator));
          datagenerator.addProvider(new AdvancementProvider(datagenerator));
-         BundleRecipeProvider bundleRecipeProvider = new BundleRecipeProvider(datagenerator);
-         datagenerator.addProvider(bundleRecipeProvider);
          datagenerator.addProvider(new LootTableProvider(datagenerator));
       }
 

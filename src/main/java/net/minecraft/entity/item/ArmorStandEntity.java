@@ -3,6 +3,8 @@ package net.minecraft.entity.item;
 import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+
+import com.clearspring.analytics.util.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.PushReaction;
@@ -16,9 +18,10 @@ import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
+import net.minecraft.item.dyeable.IDyeSource;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.datasync.DataParameter;
@@ -26,13 +29,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Rotations;
@@ -53,6 +50,7 @@ public class ArmorStandEntity extends LivingEntity {
    private static final EntitySize MARKER_DIMENSIONS = new EntitySize(0.0F, 0.0F, true);
    private static final EntitySize BABY_DIMENSIONS = EntityType.ARMOR_STAND.getDimensions().scale(0.5F);
    public static final DataParameter<Byte> DATA_CLIENT_FLAGS = EntityDataManager.defineId(ArmorStandEntity.class, DataSerializers.BYTE);
+   public static final DataParameter<Boolean> DATA_ALL_LIGHT = EntityDataManager.defineId(ArmorStandEntity.class, DataSerializers.BOOLEAN);
    public static final DataParameter<Rotations> DATA_HEAD_POSE = EntityDataManager.defineId(ArmorStandEntity.class, DataSerializers.ROTATIONS);
    public static final DataParameter<Rotations> DATA_BODY_POSE = EntityDataManager.defineId(ArmorStandEntity.class, DataSerializers.ROTATIONS);
    public static final DataParameter<Rotations> DATA_LEFT_ARM_POSE = EntityDataManager.defineId(ArmorStandEntity.class, DataSerializers.ROTATIONS);
@@ -108,6 +106,7 @@ public class ArmorStandEntity extends LivingEntity {
       this.entityData.define(DATA_LEFT_ARM_POSE, DEFAULT_LEFT_ARM_POSE);
       this.entityData.define(DATA_RIGHT_ARM_POSE, DEFAULT_RIGHT_ARM_POSE);
       this.entityData.define(DATA_LEFT_LEG_POSE, DEFAULT_LEFT_LEG_POSE);
+      this.entityData.define(DATA_ALL_LIGHT, false);
       this.entityData.define(DATA_RIGHT_LEG_POSE, DEFAULT_RIGHT_LEG_POSE);
    }
 
@@ -117,6 +116,14 @@ public class ArmorStandEntity extends LivingEntity {
 
    public Iterable<ItemStack> getArmorSlots() {
       return this.armorItems;
+   }
+
+   public Iterable<ItemStack> getArmorAndHandSlots() {
+      List<ItemStack> l = Lists.newArrayList();
+      l.addAll(this.armorItems);
+      l.addAll(this.handItems);
+
+      return l;
    }
 
    public ItemStack getItemBySlot(EquipmentSlotType p_184582_1_) {
@@ -130,6 +137,10 @@ public class ArmorStandEntity extends LivingEntity {
       }
    }
 
+   public void setAllLight(boolean b) {
+      this.entityData.set(DATA_ALL_LIGHT, b);
+   }
+
    public void setItemSlot(EquipmentSlotType p_184201_1_, ItemStack p_184201_2_) {
       switch(p_184201_1_.getType()) {
       case HAND:
@@ -139,6 +150,17 @@ public class ArmorStandEntity extends LivingEntity {
       case ARMOR:
          this.playEquipSound(p_184201_2_);
          this.armorItems.set(p_184201_1_.getIndex(), p_184201_2_);
+      }
+
+   }
+
+   public void setItemSlotNoEquipSound(EquipmentSlotType p_184201_1_, ItemStack p_184201_2_) {
+      switch(p_184201_1_.getType()) {
+         case HAND:
+            this.handItems.set(p_184201_1_.getIndex(), p_184201_2_);
+            break;
+         case ARMOR:
+            this.armorItems.set(p_184201_1_.getIndex(), p_184201_2_);
       }
 
    }
@@ -207,6 +229,7 @@ public class ArmorStandEntity extends LivingEntity {
       p_213281_1_.putBoolean("ShowArms", this.isShowArms());
       p_213281_1_.putInt("DisabledSlots", this.disabledSlots);
       p_213281_1_.putBoolean("NoBasePlate", this.isNoBasePlate());
+      p_213281_1_.putBoolean("AllLight", entityData.get(DATA_ALL_LIGHT));
       if (this.isMarker()) {
          p_213281_1_.putBoolean("Marker", this.isMarker());
       }
@@ -238,6 +261,7 @@ public class ArmorStandEntity extends LivingEntity {
       this.disabledSlots = p_70037_1_.getInt("DisabledSlots");
       this.setNoBasePlate(p_70037_1_.getBoolean("NoBasePlate"));
       this.setMarker(p_70037_1_.getBoolean("Marker"));
+      entityData.set(DATA_ALL_LIGHT, p_70037_1_.getBoolean("AllLight"));
       this.noPhysics = !this.hasPhysics();
       CompoundNBT compoundnbt = p_70037_1_.getCompound("Pose");
       this.readPose(compoundnbt);
@@ -306,19 +330,45 @@ public class ArmorStandEntity extends LivingEntity {
 
    }
 
-   public ActionResultType interactAt(PlayerEntity p_184199_1_, Vector3d p_184199_2_, Hand p_184199_3_) {
-      ItemStack itemstack = p_184199_1_.getItemInHand(p_184199_3_);
+   public ActionResultType interactAt(PlayerEntity player, Vector3d position, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+
+      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
+
+      EquipmentSlotType equipmentslottype1 = this.getClickedSlot(position);
+      EquipmentSlotType equipmentslottype2 = this.isDisabled(equipmentslottype1) ? equipmentslottype : equipmentslottype1;
+
+      if (player.getItemInHand(hand).getItem() instanceof IDyeSource && this.hasItemInSlot(equipmentslottype2)) {
+         Item item = this.getItemBySlot(equipmentslottype2).Item();
+
+         if (item instanceof IDyeableArmorItem) {
+            this.setItemSlotNoEquipSound(equipmentslottype2, (IDyeableArmorItem.dyeArmor(this.getItemBySlot(equipmentslottype2), List.of(((IDyeSource) itemstack.getItem()).dye()))));
+            player.level.playSound(player, this, SoundEvents.DYE_USE, SoundCategory.PLAYERS, 1F, 1F);
+
+            if (!level.isClientSide) {
+                if (!((IDyeSource)itemstack.get()).consumesDurability()) {
+                    itemstack.shrink(1);
+                } else {
+                   itemstack.hurt(1, player);
+                }
+
+                return ActionResultType.SUCCESS;
+            }
+         }
+      }
+
+
       if (!this.isMarker() && itemstack.getItem() != Items.NAME_TAG) {
-         if (p_184199_1_.isSpectator()) {
+         if (player.isSpectator()) {
             return ActionResultType.SUCCESS;
-         } else if (p_184199_1_.level.isClientSide) {
+         } else if (player.level.isClientSide) {
             return ActionResultType.CONSUME;
          } else {
-            EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
             if (itemstack.isEmpty()) {
-               EquipmentSlotType equipmentslottype1 = this.getClickedSlot(p_184199_2_);
-               EquipmentSlotType equipmentslottype2 = this.isDisabled(equipmentslottype1) ? equipmentslottype : equipmentslottype1;
-               if (this.hasItemInSlot(equipmentslottype2) && this.swapItem(p_184199_1_, equipmentslottype2, itemstack, p_184199_3_)) {
+
+
+
+               if (this.hasItemInSlot(equipmentslottype2) && this.swapItem(player, equipmentslottype2, itemstack, hand)) {
                   return ActionResultType.SUCCESS;
                }
             } else {
@@ -330,7 +380,7 @@ public class ArmorStandEntity extends LivingEntity {
                   return ActionResultType.FAIL;
                }
 
-               if (this.swapItem(p_184199_1_, equipmentslottype, itemstack, p_184199_3_)) {
+               if (this.swapItem(player, equipmentslottype, itemstack, hand)) {
                   return ActionResultType.SUCCESS;
                }
             }
@@ -432,6 +482,7 @@ public class ArmorStandEntity extends LivingEntity {
                   long i = this.level.getGameTime();
                   if (i - this.lastHit > 5L && !flag) {
                      this.level.broadcastEntityEvent(this, (byte)32);
+                     this.gameEvent(GameEvent.ENTITY_DAMAGE, p_70097_1_.getEntity());
                      this.lastHit = i;
                   } else {
                      this.brokenByPlayer(p_70097_1_);
@@ -489,6 +540,7 @@ public class ArmorStandEntity extends LivingEntity {
          this.remove();
       } else {
          this.setHealth(f);
+         this.gameEvent(GameEvent.ENTITY_DAMAGE, p_213817_1_.getEntity());
       }
 
    }
@@ -603,6 +655,7 @@ public class ArmorStandEntity extends LivingEntity {
 
    public void kill() {
       this.remove();
+      this.gameEvent(GameEvent.ENTITY_DIE);
    }
 
    public boolean ignoreExplosion() {
@@ -631,6 +684,14 @@ public class ArmorStandEntity extends LivingEntity {
 
    private void setNoBasePlate(boolean p_175426_1_) {
       this.entityData.set(DATA_CLIENT_FLAGS, this.setBit(this.entityData.get(DATA_CLIENT_FLAGS), 8, p_175426_1_));
+   }
+
+   public void showBasePlate(boolean b) {
+      this.setNoBasePlate(!b);
+   }
+
+   public void showArms(boolean b) {
+      this.setShowArms(b);
    }
 
    public boolean isNoBasePlate() {
@@ -740,6 +801,14 @@ public class ArmorStandEntity extends LivingEntity {
    }
 
    public void thunderHit(ServerWorld p_241841_1_, LightningBoltEntity p_241841_2_) {
+      for (ItemStack stack : this.getArmorSlots()) {
+         if (stack.getItem() instanceof ArmorItem) {
+            ArmorItem armorItem = (ArmorItem) stack.get();
+            if (armorItem.getMaterial() == ArmorMaterial.TURTLE && level.random.nextFloat() < 0.45) {
+               this.setItemSlot(armorItem.getSlot(), this.getBurntTurtleEquivalent(stack, armorItem.getSlot()));
+            }
+         }
+      }
    }
 
    public boolean isAffectedByPotions() {

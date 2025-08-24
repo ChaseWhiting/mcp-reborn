@@ -27,7 +27,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
 import oshi.SystemInfo;
-import oshi.hardware.Processor;
+import oshi.hardware.CentralProcessor;
 
 @OnlyIn(Dist.CLIENT)
 public class GLX {
@@ -119,10 +119,19 @@ public class GLX {
       capsString = "Using framebuffer using " + GlStateManager._init_fbo(glcapabilities);
 
       try {
-         //Processor[] aprocessor = (new SystemInfo()).getHardware().getProcessors();
-        // cpuInfo = String.format("%dx %s", aprocessor.length, aprocessor[0]).replaceAll("\\s+", " ");
+         SystemInfo systemInfo = new SystemInfo();
+         CentralProcessor processor = systemInfo.getHardware().getProcessor();
+
+         int physicalCores = processor.getPhysicalProcessorCount();
+         String processorName = processor.getName();  // e.g., "Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz"
+
+         cpuInfo = String.format("%dx %s", physicalCores, processorName)
+                 .replaceAll("\\s+", " ");  // optional whitespace cleanup
       } catch (Throwable throwable) {
+         cpuInfo = "Unknown CPU";
       }
+
+
 
       GlDebugTextUtils.enableDebugCallback(p__init_0_, p__init_1_);
    }

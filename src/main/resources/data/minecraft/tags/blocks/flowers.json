@@ -1,0 +1,13 @@
+{
+  "replace": true,
+  "values": [
+    "#minecraft:small_flowers",
+    "minecraft:sunflower",
+    "minecraft:lilac",
+    "minecraft:peony",
+    "minecraft:rose_bush",
+    "minecraft:pink_petals",
+    "minecraft:wildflowers",
+    "minecraft:chorus_flower"
+  ]
+}

@@ -1,6 +1,7 @@
 package net.minecraft.command.impl;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
@@ -36,49 +37,63 @@ public class EnchantCommand {
    public static void register(CommandDispatcher<CommandSource> p_202649_0_) {
       p_202649_0_.register(Commands.literal("enchant").requires((p_203630_0_) -> {
          return p_203630_0_.hasPermission(2);
-      }).then(Commands.argument("targets", EntityArgument.entities()).then(Commands.argument("enchantment", EnchantmentArgument.enchantment()).executes((p_202648_0_) -> {
-         return enchant(p_202648_0_.getSource(), EntityArgument.getEntities(p_202648_0_, "targets"), EnchantmentArgument.getEnchantment(p_202648_0_, "enchantment"), 1);
-      }).then(Commands.argument("level", IntegerArgumentType.integer(0)).executes((p_202650_0_) -> {
-         return enchant(p_202650_0_.getSource(), EntityArgument.getEntities(p_202650_0_, "targets"), EnchantmentArgument.getEnchantment(p_202650_0_, "enchantment"), IntegerArgumentType.getInteger(p_202650_0_, "level"));
-      })))));
+      }).then(Commands.argument("targets", EntityArgument.entities())
+              .then(Commands.argument("enchantment", EnchantmentArgument.enchantment())
+                      .executes((p_202648_0_) -> {
+                         return enchant(p_202648_0_.getSource(), EntityArgument.getEntities(p_202648_0_, "targets"), EnchantmentArgument.getEnchantment(p_202648_0_, "enchantment"), 1, false);
+                      })
+                      .then(Commands.argument("level", IntegerArgumentType.integer(0))
+                              .executes((p_202650_0_) -> {
+                                 return enchant(p_202650_0_.getSource(), EntityArgument.getEntities(p_202650_0_, "targets"), EnchantmentArgument.getEnchantment(p_202650_0_, "enchantment"), IntegerArgumentType.getInteger(p_202650_0_, "level"), false);
+                              })
+                              .then(Commands.argument("override", BoolArgumentType.bool())
+                                      .executes((p_202651_0_) -> {
+                                         return enchant(
+                                                 p_202651_0_.getSource(),
+                                                 EntityArgument.getEntities(p_202651_0_, "targets"),
+                                                 EnchantmentArgument.getEnchantment(p_202651_0_, "enchantment"),
+                                                 IntegerArgumentType.getInteger(p_202651_0_, "level"),
+                                                 BoolArgumentType.getBool(p_202651_0_, "override")
+                                         );
+                                      }))))));
    }
 
-   private static int enchant(CommandSource p_202651_0_, Collection<? extends Entity> p_202651_1_, Enchantment p_202651_2_, int p_202651_3_) throws CommandSyntaxException {
-      if (p_202651_3_ > p_202651_2_.getMaxLevel()) {
+   private static int enchant(CommandSource p_202651_0_, Collection<? extends Entity> p_202651_1_, Enchantment p_202651_2_, int p_202651_3_, boolean override) throws CommandSyntaxException {
+      if (!override && p_202651_3_ > p_202651_2_.getMaxLevel()) {
          throw ERROR_LEVEL_TOO_HIGH.create(p_202651_3_, p_202651_2_.getMaxLevel());
-      } else {
-         int i = 0;
+      }
 
-         for(Entity entity : p_202651_1_) {
-            if (entity instanceof LivingEntity) {
-               LivingEntity livingentity = (LivingEntity)entity;
-               ItemStack itemstack = livingentity.getMainHandItem();
-               if (!itemstack.isEmpty()) {
-                  if (p_202651_2_.canEnchant(itemstack) && EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(itemstack).keySet(), p_202651_2_)) {
-                     itemstack.enchant(p_202651_2_, p_202651_3_);
-                     ++i;
-                  } else if (p_202651_1_.size() == 1) {
-                     throw ERROR_INCOMPATIBLE.create(itemstack.getItem().getName(itemstack).getString());
-                  }
+      int i = 0;
+
+      for (Entity entity : p_202651_1_) {
+         if (entity instanceof LivingEntity) {
+            LivingEntity livingentity = (LivingEntity) entity;
+            ItemStack itemstack = livingentity.getMainHandItem();
+            if (!itemstack.isEmpty()) {
+               if (p_202651_2_.canEnchant(itemstack) && EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(itemstack).keySet(), p_202651_2_)) {
+                  itemstack.enchant(p_202651_2_, p_202651_3_);
+                  ++i;
                } else if (p_202651_1_.size() == 1) {
-                  throw ERROR_NO_ITEM.create(livingentity.getName().getString());
+                  throw ERROR_INCOMPATIBLE.create(itemstack.getItem().getName(itemstack).getString());
                }
             } else if (p_202651_1_.size() == 1) {
-               throw ERROR_NOT_LIVING_ENTITY.create(entity.getName().getString());
+               throw ERROR_NO_ITEM.create(livingentity.getName().getString());
             }
+         } else if (p_202651_1_.size() == 1) {
+            throw ERROR_NOT_LIVING_ENTITY.create(entity.getName().getString());
          }
+      }
 
-         if (i == 0) {
-            throw ERROR_NOTHING_HAPPENED.create();
+      if (i == 0) {
+         throw ERROR_NOTHING_HAPPENED.create();
+      } else {
+         if (p_202651_1_.size() == 1) {
+            p_202651_0_.sendSuccess(new TranslationTextComponent("commands.enchant.success.single", p_202651_2_.getFullname(p_202651_3_), p_202651_1_.iterator().next().getDisplayName()), true);
          } else {
-            if (p_202651_1_.size() == 1) {
-               p_202651_0_.sendSuccess(new TranslationTextComponent("commands.enchant.success.single", p_202651_2_.getFullname(p_202651_3_), p_202651_1_.iterator().next().getDisplayName()), true);
-            } else {
-               p_202651_0_.sendSuccess(new TranslationTextComponent("commands.enchant.success.multiple", p_202651_2_.getFullname(p_202651_3_), p_202651_1_.size()), true);
-            }
-
-            return i;
+            p_202651_0_.sendSuccess(new TranslationTextComponent("commands.enchant.success.multiple", p_202651_2_.getFullname(p_202651_3_), p_202651_1_.size()), true);
          }
+
+         return i;
       }
    }
 }

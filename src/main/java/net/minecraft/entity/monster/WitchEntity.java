@@ -196,21 +196,21 @@ public class WitchEntity extends AbstractRaiderEntity implements IRangedAttackMo
          double d1 = p_82196_1_.getEyeY() - (double)1.1F - this.getY();
          double d2 = p_82196_1_.getZ() + vector3d.z - this.getZ();
          float f = MathHelper.sqrt(d0 * d0 + d2 * d2);
-         Potion potion = Potions.HARMING;
+         Potion potion = veryHardmode() ? Potions.STRONG_HARMING : Potions.HARMING;
          if (p_82196_1_ instanceof AbstractRaiderEntity) {
             if (p_82196_1_.getHealth() <= 4.0F) {
-               potion = Potions.HEALING;
+               potion = veryHardmode() ? Potions.STRONG_HEALING : Potions.HEALING;
             } else {
-               potion = Potions.REGENERATION;
+               potion = veryHardmode() ? Potions.VERY_STRONG_REGENERATION : Potions.REGENERATION;
             }
 
             this.setTarget((LivingEntity)null);
          } else if (f >= 8.0F && !p_82196_1_.hasEffect(Effects.MOVEMENT_SLOWDOWN)) {
-            potion = Potions.SLOWNESS;
+            potion = veryHardmode() ? Potions.STRONG_SLOWNESS : Potions.SLOWNESS;
          } else if (p_82196_1_.getHealth() >= 8.0F && !p_82196_1_.hasEffect(Effects.POISON)) {
-            potion = Potions.POISON;
+            potion = veryHardmode() ? Potions.STRONG_POISON : Potions.POISON;
          } else if (f <= 3.0F && !p_82196_1_.hasEffect(Effects.WEAKNESS) && this.random.nextFloat() < 0.25F) {
-            potion = Potions.WEAKNESS;
+            potion = veryHardmode() ? Potions.LONG_WEAKNESS : Potions.WEAKNESS;
          } else if (f >= 8F && !p_82196_1_.hasEffect(Effects.BLINDNESS) && this.random.nextFloat() > 0.75) {
             potion = Potions.SHORT_BLINDNESS;
          }

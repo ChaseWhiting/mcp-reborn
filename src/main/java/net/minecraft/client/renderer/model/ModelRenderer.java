@@ -5,11 +5,14 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import net.minecraft.client.animation.HierarchicalModel;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Matrix3f;
 import net.minecraft.util.math.vector.Matrix4f;
@@ -30,10 +33,13 @@ public class ModelRenderer {
    public float xRot;
    public float yRot;
    public float zRot;
+   public boolean override;
 
    public float temporaryX = 0f;
    public float temporaryY = 0f;
    public float temporaryZ = 0f;
+   private PartPose initialPose = PartPose.ZERO;
+
 
 
    public boolean mirror;
@@ -42,6 +48,10 @@ public class ModelRenderer {
    private final ObjectList<ModelRenderer.ModelBox> cubes = new ObjectArrayList<>();
    public final ObjectList<ModelRenderer> children = new ObjectArrayList<>();
    private float tempXScale = 0F, tempYScale = 0F, tempZScale = 0F;
+
+   public Stream<ModelRenderer> getAllParts() {
+      return Stream.concat(Stream.of(this), new ArrayList<>(this.children).stream().flatMap(ModelRenderer::getAllParts));
+   }
 
    public ModelRenderer(Model p_i1173_1_) {
       p_i1173_1_.accept(this);
@@ -53,7 +63,7 @@ public class ModelRenderer {
       p_i46358_1_.accept(this);
    }
 
-   public void reset() {
+   public void resetPose() {
       this.xRot = 0;
       this.yRot = 0;
       this.zRot = 0;
@@ -61,6 +71,18 @@ public class ModelRenderer {
       temporaryX = 0f;
       temporaryY = 0f;
       temporaryZ = 0f;
+      if (override) {
+         this.x = initialPose.x();
+         this.y = initialPose.y();
+         this.z = initialPose.z();
+
+      }
+   }
+
+   public void setRotationAngle(float x, float y, float z) {
+      xRot = x;
+      yRot = y;
+      zRot = z;
    }
 
    public ModelRenderer(int p_i225949_1_, int p_i225949_2_, int p_i225949_3_, int p_i225949_4_) {
@@ -133,11 +155,40 @@ public class ModelRenderer {
    public ModelRenderer addBox(String name, float x, float y, float z, int width, int height, int depth, float delta, int textureOffsetX, int textureOffsetY) {
       this.texOffs(textureOffsetX, textureOffsetY);
       this.addBox(this.xTexOffs, this.yTexOffs, x, y, z, (float) width, (float) height, (float) depth, delta, delta, delta, this.mirror, false);
+      this.name = name;
+      return this;
+   }
+
+   public ModelRenderer mirror() {
+      return this.mirror(true);
+   }
+
+   public ModelRenderer mirror(boolean bl) {
+      this.mirror = bl;
       return this;
    }
 
    public ModelRenderer addBox(float x, float y, float z, float width, float height, float depth) {
       this.addBox(this.xTexOffs, this.yTexOffs, x, y, z, width, height, depth, 0.0F, 0.0F, 0.0F, this.mirror, false);
+      return this;
+   }
+
+   public ModelRenderer addBox(float x, float y, float z, float width, float height, float depth, PartPose partPose) {
+      this.addBox(this.xTexOffs, this.yTexOffs, x, y, z, width, height, depth, 0.0F, 0.0F, 0.0F, this.mirror, false);
+      this.initialPose = partPose;
+      this.setPos(partPose.x(), partPose.y(), partPose.z());
+      return this;
+   }
+
+   public ModelRenderer addBox(String name, float x, float y, float z, float width, float height, float depth) {
+      this.addBox(this.xTexOffs, this.yTexOffs, x, y, z, width, height, depth, 0.0F, 0.0F, 0.0F, this.mirror, false);
+      this.name = name;
+      return this;
+   }
+
+   public ModelRenderer addBox(String name, float x, float y, float z, float width, float height, float depth, float delta) {
+      this.addBox(this.xTexOffs, this.yTexOffs, x, y, z, width, height, depth, delta, delta, delta, this.mirror, false);
+      this.name = name;
       return this;
    }
 
@@ -212,7 +263,7 @@ public class ModelRenderer {
       }
    }
 
-   private void compile(MatrixStack.Entry p_228306_1_, IVertexBuilder p_228306_2_, int p_228306_3_, int p_228306_4_, float p_228306_5_, float p_228306_6_, float p_228306_7_, float p_228306_8_) {
+   private void compile(MatrixStack.Entry p_228306_1_, IVertexBuilder p_228306_2_, int packedLight, int p_228306_4_, float p_228306_5_, float p_228306_6_, float p_228306_7_, float p_228306_8_) {
       Matrix4f matrix4f = p_228306_1_.pose();
       Matrix3f matrix3f = p_228306_1_.normal();
 
@@ -231,7 +282,7 @@ public class ModelRenderer {
                float f5 = modelrenderer$positiontexturevertex.pos.z() / 16.0F;
                Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
                vector4f.transform(matrix4f);
-               p_228306_2_.vertex(vector4f.x(), vector4f.y(), vector4f.z(), p_228306_5_, p_228306_6_, p_228306_7_, p_228306_8_, modelrenderer$positiontexturevertex.u, modelrenderer$positiontexturevertex.v, p_228306_4_, p_228306_3_, f, f1, f2);
+               p_228306_2_.vertex(vector4f.x(), vector4f.y(), vector4f.z(), p_228306_5_, p_228306_6_, p_228306_7_, p_228306_8_, modelrenderer$positiontexturevertex.u, modelrenderer$positiontexturevertex.v, p_228306_4_, packedLight, f, f1, f2);
             }
          }
       }

@@ -13,7 +13,7 @@ public class SkeletonRenderer extends BipedRenderer<AbstractSkeletonEntity, Skel
 
    public SkeletonRenderer(EntityRendererManager p_i46143_1_) {
       super(p_i46143_1_, new SkeletonModel<>(), 0.5F);
-      this.addLayer(new BipedArmorLayer<>(this, new SkeletonModel(0.5F, true), new SkeletonModel(1.0F, true)));
+      this.addLayer(new BipedArmorLayer<>(this, new SkeletonModel<>(0.5F, true), new SkeletonModel<>(1.0F, true)));
    }
 
    public ResourceLocation getTextureLocation(AbstractSkeletonEntity p_110775_1_) {

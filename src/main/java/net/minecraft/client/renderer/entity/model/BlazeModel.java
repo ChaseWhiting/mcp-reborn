@@ -6,9 +6,7 @@ import java.util.Arrays;
 
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.animation.HierarchicalModel;
-import net.minecraft.client.animation.definitions.CreakingAnimation;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.BlazeEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -74,11 +72,10 @@ public class BlazeModel<T extends BlazeEntity> extends HierarchicalModel<T> {
          this.animateWalk(BlazeAnimation.WALKING, p_225597_2_, p_225597_3_, 1.7f, 1.7f);//
 
       }
+      this.animate(p_225597_1_.chargeState, BlazeAnimation.CHARGE, ageInTicks);
+      this.animate(p_225597_1_.deathAnimationState, BlazeAnimation.DEATH, ageInTicks);
       this.head.yRot = p_225597_5_ * ((float)Math.PI / 180F);
       this.head.xRot = p_225597_6_ * ((float)Math.PI / 180F);
-      float scaledTime = Math.min(ageInTicks * 1.25f, 20);
-
-      this.animate(p_225597_1_.deathAnimationState, BlazeAnimation.DEATH, ageInTicks);
    }
 
    @Override

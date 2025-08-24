@@ -96,7 +96,7 @@ public class GlDebugTextUtils {
    }
 
    private static void printDebugLog(int p_209244_0_, int p_209244_1_, int p_209244_2_, int p_209244_3_, int p_209244_4_, long p_209244_5_, long p_209244_7_) {
-      LOGGER.info("OpenGL debug message, id={}, source={}, type={}, severity={}, message={}", p_209244_2_, sourceToString(p_209244_0_), typeToString(p_209244_1_), severityToString(p_209244_3_), GLDebugMessageCallback.getMessage(p_209244_4_, p_209244_5_));
+      //LOGGER.info("OpenGL debug message, id={}, source={}, type={}, severity={}, message={}", p_209244_2_, sourceToString(p_209244_0_), typeToString(p_209244_1_), severityToString(p_209244_3_), GLDebugMessageCallback.getMessage(p_209244_4_, p_209244_5_));
    }
 
    private static void setup(int p_209243_0_, String p_209243_1_) {

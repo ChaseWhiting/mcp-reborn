@@ -25,6 +25,8 @@ public abstract class Animation {
 
     public static AnimationChannel.Interpolation CATMULLROM = Interpolations.CATMULLROM;
     public static AnimationChannel.Interpolation LINEAR = Interpolations.LINEAR;
+    public static AnimationChannel.Interpolation BOUNCE = Interpolations.BOUNCE;
+    public static AnimationChannel.Interpolation WEIRD = Interpolations.WEIRD;
 
     public static AnimationChannel.Target ROTATION = Targets.ROTATION;
 }

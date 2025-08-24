@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.Hash.Strategy;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import java.util.List;
@@ -14,6 +16,8 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL11C;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class RenderType extends RenderState {
@@ -23,7 +27,11 @@ public abstract class RenderType extends RenderState {
    private static final RenderType TRANSLUCENT = create("translucent", DefaultVertexFormats.BLOCK, 7, 262144, true, true, translucentState());
    private static final RenderType TRANSLUCENT_MOVING_BLOCK = create("translucent_moving_block", DefaultVertexFormats.BLOCK, 7, 262144, false, true, translucentMovingBlockState());
    private static final RenderType TRANSLUCENT_NO_CRUMBLING = create("translucent_no_crumbling", DefaultVertexFormats.BLOCK, 7, 262144, false, true, translucentState());
-   private static final RenderType LEASH = create("leash", DefaultVertexFormats.POSITION_COLOR_LIGHTMAP, 7, 256, RenderType.State.builder().setTextureState(NO_TEXTURE).setCullState(NO_CULL).setLightmapState(LIGHTMAP).createCompositeState(false));
+
+
+   private static final RenderType LEASH = create("leash", DefaultVertexFormats.POSITION_COLOR_LIGHTMAP, GL11C.GL_TRIANGLES, 256, RenderType.State.builder().setTextureState(NO_TEXTURE).setCullState(NO_CULL).setLightmapState(LIGHTMAP).createCompositeState(false));
+
+
    private static final RenderType WATER_MASK = create("water_mask", DefaultVertexFormats.POSITION, 7, 256, RenderType.State.builder().setTextureState(NO_TEXTURE).setWriteMaskState(DEPTH_WRITE).createCompositeState(false));
    private static final RenderType ARMOR_GLINT = create("armor_glint", DefaultVertexFormats.POSITION_TEX, 7, 256, RenderType.State.builder().setTextureState(new RenderState.TextureState(ItemRenderer.ENCHANT_GLINT_LOCATION, true, false)).setWriteMaskState(COLOR_WRITE).setCullState(NO_CULL).setDepthTestState(EQUAL_DEPTH_TEST).setTransparencyState(GLINT_TRANSPARENCY).setTexturingState(GLINT_TEXTURING).setLayeringState(VIEW_OFFSET_Z_LAYERING).createCompositeState(false));
    private static final RenderType ARMOR_ENTITY_GLINT = create("armor_entity_glint", DefaultVertexFormats.POSITION_TEX, 7, 256, RenderType.State.builder().setTextureState(new RenderState.TextureState(ItemRenderer.ENCHANT_GLINT_LOCATION, true, false)).setWriteMaskState(COLOR_WRITE).setCullState(NO_CULL).setDepthTestState(EQUAL_DEPTH_TEST).setTransparencyState(GLINT_TRANSPARENCY).setTexturingState(ENTITY_GLINT_TEXTURING).setLayeringState(VIEW_OFFSET_Z_LAYERING).createCompositeState(false));
@@ -42,6 +50,22 @@ public abstract class RenderType extends RenderState {
    private final boolean sortOnUpload;
    private final Optional<RenderType> asOptional;
 
+
+   public static final RenderState.TexturingState CUSTOM_RAINBOW_GLINT_TEXTURING = new RenderState.TexturingState("rainbow_glint_texturing", () -> {
+      RenderSystem.matrixMode(GL11.GL_TEXTURE);
+      RenderSystem.pushMatrix();
+      float time = (float)(System.currentTimeMillis() % 3000L) / 3000.0F;
+      float scale = 0.55F; // <--- scale factor (larger = more zoomed in)
+      RenderSystem.translatef(time, 0.0F, 0.0F);
+      RenderSystem.scalef(scale, scale, scale); // Scale UVs
+      RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+   }, () -> {
+      RenderSystem.matrixMode(GL11.GL_TEXTURE);
+      RenderSystem.popMatrix();
+      RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+   });
+
+
    public static RenderType solid() {
       return SOLID;
    }
@@ -53,6 +77,60 @@ public abstract class RenderType extends RenderState {
    public static RenderType cutout() {
       return CUTOUT;
    }
+
+
+
+   private static final ResourceLocation RAINBOW_GLINT_TEXTURE = new ResourceLocation("minecraft", "textures/misc/rainbow_glint.png");
+
+   public static RenderType rainbowGlint() {
+      return RenderType.create("rainbow_glint",
+              DefaultVertexFormats.POSITION_TEX,
+              GL11.GL_QUADS,
+              256,
+              false,
+              true,
+              RenderType.State.builder()
+                      .setTextureState(new RenderState.TextureState(RAINBOW_GLINT_TEXTURE, false, false))
+                      .setTransparencyState(RenderState.GLINT_TRANSPARENCY)
+                      .setTexturingState(CUSTOM_RAINBOW_GLINT_TEXTURING)
+                      .setLayeringState(RenderState.VIEW_OFFSET_Z_LAYERING)
+                      .setCullState(RenderState.NO_CULL)
+                      .setDepthTestState(RenderState.EQUAL_DEPTH_TEST)
+                      .setWriteMaskState(RenderState.COLOR_WRITE)
+                      .createCompositeState(false)
+      );
+   }
+
+   public static final RenderType flatRainbowGlint = RenderType.create(
+           "flat_rainbow_glint",
+           DefaultVertexFormats.POSITION_TEX,
+           GL11.GL_QUADS,
+           256,
+           false,
+           true,
+           RenderType.State.builder()
+                   .setTextureState(new RenderState.TextureState(RAINBOW_GLINT_TEXTURE, false, false))
+                   .setTransparencyState(RenderState.ADDITIVE_TRANSPARENCY)
+                   .setTexturingState(new RenderState.TexturingState("scroll", () -> {
+                      RenderSystem.matrixMode(GL11.GL_TEXTURE);
+                      RenderSystem.pushMatrix();
+                      float time = (System.currentTimeMillis() % 5000L) / 5000.0F;
+                      RenderSystem.translatef(time * 1.5F, 0.0F, 0.0F); // Scroll horizontally
+                      RenderSystem.scalef(1.5F, 1.5F, 1.5F); // Zoom in texture
+                      RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+                   }, () -> {
+                      RenderSystem.matrixMode(GL11.GL_TEXTURE);
+                      RenderSystem.popMatrix();
+                      RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+                   }))
+                   .setCullState(RenderState.NO_CULL)
+                   .setDepthTestState(RenderState.EQUAL_DEPTH_TEST)
+                   .setWriteMaskState(RenderState.COLOR_WRITE)
+                   .setOverlayState(RenderState.NO_OVERLAY)
+                   .createCompositeState(false)
+   );
+
+
 
    private static RenderType.State translucentState() {
       return RenderType.State.builder().setShadeModelState(SMOOTH_SHADE).setLightmapState(LIGHTMAP).setTextureState(BLOCK_SHEET_MIPPED).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setOutputState(TRANSLUCENT_TARGET).createCompositeState(true);
@@ -82,6 +160,53 @@ public abstract class RenderType extends RenderState {
    public static RenderType entitySolid(ResourceLocation p_228634_0_) {
       RenderType.State rendertype$state = RenderType.State.builder().setTextureState(new RenderState.TextureState(p_228634_0_, false, false)).setTransparencyState(NO_TRANSPARENCY).setDiffuseLightingState(DIFFUSE_LIGHTING).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(true);
       return create("entity_solid", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, false, rendertype$state);
+   }
+
+   public static RenderType entityTranslucentEmissive(ResourceLocation texture) {
+      RenderType.State renderState = RenderType.State.builder()
+              .setTextureState(new RenderState.TextureState(texture, false, false))
+              .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+              .setCullState(NO_CULL)
+              .setWriteMaskState(COLOR_WRITE)
+              .setOverlayState(OVERLAY)
+              .createCompositeState(true);
+
+      return create("entity_translucent_emissive", DefaultVertexFormats.NEW_ENTITY, GL11.GL_QUADS, 256, true, true, renderState);
+   }
+
+   protected static final RenderState.TransparencyState GHOST_TRANSPARANCY = new RenderState.TransparencyState("translucent_ghost_transparency", () -> {
+      RenderSystem.enableBlend();
+      RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+   }, () -> {
+      RenderSystem.disableBlend();
+      RenderSystem.defaultBlendFunc();
+   });
+
+   protected static final RenderState.TransparencyState EYES_ALPHA_TRANSPARENCY = new RenderState.TransparencyState("eyes_alpha_transparency", () -> {
+      RenderSystem.enableBlend();
+      RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+   }, () -> {
+      RenderSystem.disableBlend();
+      RenderSystem.defaultBlendFunc();
+   });
+
+
+   public static RenderType getGhost(ResourceLocation p_228652_0_) {
+      TextureState lvt_1_1_ = new TextureState(p_228652_0_, false, false);
+      return create("ghost_am", DefaultVertexFormats.NEW_ENTITY, 7, 262144, false, true, RenderType.State.builder().setTextureState(lvt_1_1_).setWriteMaskState(COLOR_DEPTH_WRITE).setDepthTestState(RenderState.LEQUAL_DEPTH_TEST).setAlphaState(DEFAULT_ALPHA).setDiffuseLightingState(RenderState.NO_DIFFUSE_LIGHTING).setLightmapState(RenderState.NO_LIGHTMAP).setOverlayState(RenderState.OVERLAY).setTransparencyState(GHOST_TRANSPARANCY).setFogState(FOG).setCullState(NO_CULL).createCompositeState(true));
+   }
+
+   public static RenderType getEyesAlphaEnabled(ResourceLocation locationIn) {
+      RenderType.State state = RenderType.State.builder()
+              .setTextureState(new RenderState.TextureState(locationIn, false, false))
+              .setTransparencyState(EYES_ALPHA_TRANSPARENCY)
+              .setCullState(NO_CULL)
+              .setLightmapState(LIGHTMAP)
+              .setOverlayState(OVERLAY)
+              .setDepthTestState(EQUAL_DEPTH_TEST)
+              .createCompositeState(true);
+
+      return create("eye_alpha", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, false, state);
    }
 
    public static RenderType entityCutout(ResourceLocation p_228638_0_) {
@@ -161,9 +286,40 @@ public abstract class RenderType extends RenderState {
       return create("eyes", DefaultVertexFormats.NEW_ENTITY, 7, 256, false, true, RenderType.State.builder().setTextureState(renderstate$texturestate).setTransparencyState(ADDITIVE_TRANSPARENCY).setWriteMaskState(COLOR_WRITE).setFogState(BLACK_FOG).createCompositeState(false));
    }
 
+   public static RenderType breezeEyes(ResourceLocation resourceLocation) {
+      RenderType.State rendertype$state = RenderType.State.builder()
+              .setTextureState(new RenderState.TextureState(resourceLocation, false, false))
+              .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+              .setCullState(NO_CULL)
+              .setWriteMaskState(COLOR_WRITE)
+              .setOverlayState(OVERLAY)
+              .createCompositeState(false);
+
+      return create("breeze_eyes", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, true, rendertype$state);
+   }
+
+
+
+
    public static RenderType energySwirl(ResourceLocation p_228636_0_, float p_228636_1_, float p_228636_2_) {
       return create("energy_swirl", DefaultVertexFormats.NEW_ENTITY, 7, 256, false, true, RenderType.State.builder().setTextureState(new RenderState.TextureState(p_228636_0_, false, false)).setTexturingState(new RenderState.OffsetTexturingState(p_228636_1_, p_228636_2_)).setFogState(BLACK_FOG).setTransparencyState(ADDITIVE_TRANSPARENCY).setDiffuseLightingState(DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setCullState(NO_CULL).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(false));
    }
+
+   public static RenderType breezeWind(ResourceLocation p_228636_0_, float p_228636_1_, float p_228636_2_) {
+      return create("breeze_wind", DefaultVertexFormats.NEW_ENTITY, 7, 256, false, true,
+              RenderType.State.builder()
+                      .setTextureState(new RenderState.TextureState(p_228636_0_, false, false))
+                      .setTexturingState(new RenderState.OffsetTexturingState(p_228636_1_, p_228636_2_))
+                      .setFogState(BLACK_FOG)
+                      .setTransparencyState(TRANSLUCENT_TRANSPARENCY) // Change from ADDITIVE_TRANSPARENCY
+                      .setAlphaState(DEFAULT_ALPHA)
+                      .setCullState(NO_CULL)
+                      .setLightmapState(NO_LIGHTMAP) // Try removing LIGHTMAP
+                      .setOverlayState(NO_OVERLAY)
+                      .createCompositeState(false)
+      );
+   }
+
 
    public static RenderType leash() {
       return LEASH;
@@ -355,26 +511,65 @@ public abstract class RenderType extends RenderState {
       private final RenderState.LineState lineState;
       private final RenderType.OutlineState outlineProperty;
       private final ImmutableList<RenderState> states;
+      private final RenderState.ShaderState shaderState;  // <--- ADD this
 
-      private State(RenderState.TextureState p_i230053_1_, RenderState.TransparencyState p_i230053_2_, RenderState.DiffuseLightingState p_i230053_3_, RenderState.ShadeModelState p_i230053_4_, RenderState.AlphaState p_i230053_5_, RenderState.DepthTestState p_i230053_6_, RenderState.CullState p_i230053_7_, RenderState.LightmapState p_i230053_8_, RenderState.OverlayState p_i230053_9_, RenderState.FogState p_i230053_10_, RenderState.LayerState p_i230053_11_, RenderState.TargetState p_i230053_12_, RenderState.TexturingState p_i230053_13_, RenderState.WriteMaskState p_i230053_14_, RenderState.LineState p_i230053_15_, RenderType.OutlineState p_i230053_16_) {
-         this.textureState = p_i230053_1_;
-         this.transparencyState = p_i230053_2_;
-         this.diffuseLightingState = p_i230053_3_;
-         this.shadeModelState = p_i230053_4_;
-         this.alphaState = p_i230053_5_;
-         this.depthTestState = p_i230053_6_;
-         this.cullState = p_i230053_7_;
-         this.lightmapState = p_i230053_8_;
-         this.overlayState = p_i230053_9_;
-         this.fogState = p_i230053_10_;
-         this.layeringState = p_i230053_11_;
-         this.outputState = p_i230053_12_;
-         this.texturingState = p_i230053_13_;
-         this.writeMaskState = p_i230053_14_;
-         this.lineState = p_i230053_15_;
-         this.outlineProperty = p_i230053_16_;
-         this.states = ImmutableList.of(this.textureState, this.transparencyState, this.diffuseLightingState, this.shadeModelState, this.alphaState, this.depthTestState, this.cullState, this.lightmapState, this.overlayState, this.fogState, this.layeringState, this.outputState, this.texturingState, this.writeMaskState, this.lineState);
+
+      private State(
+              RenderState.TextureState textureState,
+              RenderState.TransparencyState transparencyState,
+              RenderState.DiffuseLightingState diffuseLightingState,
+              RenderState.ShadeModelState shadeModelState,
+              RenderState.AlphaState alphaState,
+              RenderState.DepthTestState depthTestState,
+              RenderState.CullState cullState,
+              RenderState.LightmapState lightmapState,
+              RenderState.OverlayState overlayState,
+              RenderState.FogState fogState,
+              RenderState.LayerState layeringState,
+              RenderState.TargetState outputState,
+              RenderState.TexturingState texturingState,
+              RenderState.WriteMaskState writeMaskState,
+              RenderState.LineState lineState,
+              RenderType.OutlineState outlineState,
+              RenderState.ShaderState shaderState // <--- ADD THIS PARAMETER
+      ) {
+         this.textureState = textureState;
+         this.transparencyState = transparencyState;
+         this.diffuseLightingState = diffuseLightingState;
+         this.shadeModelState = shadeModelState;
+         this.alphaState = alphaState;
+         this.depthTestState = depthTestState;
+         this.cullState = cullState;
+         this.lightmapState = lightmapState;
+         this.overlayState = overlayState;
+         this.fogState = fogState;
+         this.layeringState = layeringState;
+         this.outputState = outputState;
+         this.texturingState = texturingState;
+         this.writeMaskState = writeMaskState;
+         this.lineState = lineState;
+         this.outlineProperty = outlineState;
+         this.shaderState = shaderState; // <--- Store it
+         this.states = ImmutableList.of(
+                 this.textureState,
+                 this.transparencyState,
+                 this.diffuseLightingState,
+                 this.shadeModelState,
+                 this.alphaState,
+                 this.depthTestState,
+                 this.cullState,
+                 this.lightmapState,
+                 this.overlayState,
+                 this.fogState,
+                 this.layeringState,
+                 this.outputState,
+                 this.texturingState,
+                 this.writeMaskState,
+                 this.lineState,
+                 this.shaderState  // <--- include shaderState in state list
+         );
       }
+
 
       public boolean equals(Object p_equals_1_) {
          if (this == p_equals_1_) {
@@ -416,6 +611,8 @@ public abstract class RenderType extends RenderState {
          private RenderState.TexturingState texturingState = RenderState.DEFAULT_TEXTURING;
          private RenderState.WriteMaskState writeMaskState = RenderState.COLOR_DEPTH_WRITE;
          private RenderState.LineState lineState = RenderState.DEFAULT_LINE;
+         private RenderState.ShaderState shaderState = new RenderState.ShaderState(0); // default shader = none
+
 
          private Builder() {
          }
@@ -424,6 +621,12 @@ public abstract class RenderType extends RenderState {
             this.textureState = p_228724_1_;
             return this;
          }
+
+         public RenderType.State.Builder setShaderState(RenderState.ShaderState shaderState) {
+            this.shaderState = shaderState;
+            return this;
+         }
+
 
          public RenderType.State.Builder setTransparencyState(RenderState.TransparencyState p_228726_1_) {
             this.transparencyState = p_228726_1_;
@@ -500,7 +703,7 @@ public abstract class RenderType extends RenderState {
          }
 
          public RenderType.State createCompositeState(RenderType.OutlineState p_230173_1_) {
-            return new RenderType.State(this.textureState, this.transparencyState, this.diffuseLightingState, this.shadeModelState, this.alphaState, this.depthTestState, this.cullState, this.lightmapState, this.overlayState, this.fogState, this.layeringState, this.outputState, this.texturingState, this.writeMaskState, this.lineState, p_230173_1_);
+            return new RenderType.State(this.textureState, this.transparencyState, this.diffuseLightingState, this.shadeModelState, this.alphaState, this.depthTestState, this.cullState, this.lightmapState, this.overlayState, this.fogState, this.layeringState, this.outputState, this.texturingState, this.writeMaskState, this.lineState, p_230173_1_, this.shaderState);
          }
       }
    }

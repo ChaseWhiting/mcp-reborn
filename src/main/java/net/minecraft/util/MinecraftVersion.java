@@ -1,11 +1,8 @@
 package net.minecraft.util;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.mojang.bridge.game.GameVersion;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
@@ -23,16 +20,17 @@ public class MinecraftVersion implements GameVersion {
    private final int packVersion;
    private final Date buildTime;
    private final String releaseTarget;
+   public static final String VERSION = "1.16.5";
 
    private MinecraftVersion() {
       this.id = UUID.randomUUID().toString().replaceAll("-", "");
-      this.name = "2.3.1";
+      this.name = VERSION;
       this.stable = true;
-      this.worldVersion = 3000;
+      this.worldVersion = 2586;
       this.protocolVersion = SharedConstants.getProtocolVersion();
       this.packVersion = 6;
       this.buildTime = new Date();
-      this.releaseTarget = "2.3.1";
+      this.releaseTarget = VERSION;
    }
 
    private MinecraftVersion(JsonObject p_i51407_1_) {

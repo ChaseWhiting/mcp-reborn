@@ -27,8 +27,8 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.ResetAngerGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
-import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
@@ -344,6 +344,7 @@ public class EndermanEntity extends Monster implements IAngerable {
       boolean flag1 = blockstate.getFluidState().is(FluidTags.WATER);
       if (flag && !flag1) {
          boolean flag2 = this.randomTeleport(p_70825_1_, p_70825_3_, p_70825_5_, true);
+         this.level.gameEvent(GameEvent.TELEPORT, this.position(), GameEvent.Context.of(this));
          if (flag2 && !this.isSilent()) {
             this.level.playSound((PlayerEntity)null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
             this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
@@ -542,6 +543,7 @@ public class EndermanEntity extends Monster implements IAngerable {
             blockstate2 = Block.updateFromNeighbourShapes(blockstate2, this.enderman.level, blockpos);
             if (this.canPlaceBlock(world, blockpos, blockstate2, blockstate, blockstate1, blockpos1)) {
                world.setBlock(blockpos, blockstate2, 3);
+               world.gameEvent(GameEvent.BLOCK_PLACE, blockpos, GameEvent.Context.of(enderman, blockstate2));
                this.enderman.setCarriedBlock((BlockState)null);
             }
 
@@ -613,6 +615,7 @@ public class EndermanEntity extends Monster implements IAngerable {
          boolean flag = blockraytraceresult.getBlockPos().equals(blockpos);
          if (block.is(BlockTags.ENDERMAN_HOLDABLE) && flag) {
             world.removeBlock(blockpos, false);
+            world.gameEvent(GameEvent.BLOCK_DESTROY, blockpos, GameEvent.Context.of(enderman, blockstate));
             this.enderman.setCarriedBlock(blockstate.getBlock().defaultBlockState());
          }
 
@@ -639,8 +642,8 @@ public class EndermanEntity extends Monster implements IAngerable {
       this.hurtState.animateWhen(this.getHurtTicks() > 0, this.tickCount);
    }
 
-   public boolean doHurtTarget(Entity entity) {
+   public boolean doHurtTarget(Entity target) {
       this.setAttackTicks(8);
-      return super.doHurtTarget(entity);
+      return super.doHurtTarget(target);
    }
 }

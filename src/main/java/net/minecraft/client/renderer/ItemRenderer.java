@@ -7,9 +7,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
 import com.mojang.blaze3d.vertex.VertexBuilderUtils;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+
+import java.util.*;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -27,7 +26,6 @@ import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -40,12 +38,15 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.equipment.trim.PalettedPermutations;
+import net.minecraft.item.equipment.trim.ToolTrim;
+import net.minecraft.item.equipment.trim.TrimMaterial;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -59,6 +60,19 @@ public class ItemRenderer implements IResourceManagerReloadListener {
    private final ItemModelMesher itemModelShaper;
    private final TextureManager textureManager;
    private final ItemColors itemColors;
+   private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation.vanilla("spyglass", "inventory");
+   public static final ModelResourceLocation SPYGLASS_IN_HAND_MODEL = ModelResourceLocation.vanilla("spyglass_in_hand", "inventory");
+
+   public static final Map<String, ModelResourceLocation> SPYGLASS_TRIMMED_MODELS = Util.make(new HashMap<>(), map -> {
+
+      for (String id : PalettedPermutations.TRIM_MATERIAL_IDS) {
+         if (id.contains("darker")) continue;
+
+         map.put(id, ModelResourceLocation.vanilla("trim/spyglass/spyglass_" + id, "inventory"));
+      }
+
+   });
+
 
    public ItemRenderer(TextureManager p_i46552_1_, ModelManager p_i46552_2_, ItemColors p_i46552_3_) {
       this.textureManager = p_i46552_1_;
@@ -90,12 +104,21 @@ public class ItemRenderer implements IResourceManagerReloadListener {
       this.renderQuadList(p_229114_5_, p_229114_6_, p_229114_1_.getQuads((BlockState)null, (Direction)null, random), p_229114_2_, p_229114_3_, p_229114_4_);
    }
 
+   public ModelResourceLocation loadSpyglassFromTrim(ItemStack spyglass) {
+
+      Optional<TrimMaterial> trimMaterial = ToolTrim.getToolTrim(null, spyglass).map(ToolTrim::getMaterial);
+
+       return SPYGLASS_TRIMMED_MODELS.getOrDefault(trimMaterial.isPresent() ? trimMaterial.get().getAssetName() : "", SPYGLASS_MODEL);
+   }
+
    public void render(ItemStack p_229111_1_, ItemCameraTransforms.TransformType p_229111_2_, boolean p_229111_3_, MatrixStack p_229111_4_, IRenderTypeBuffer p_229111_5_, int p_229111_6_, int p_229111_7_, IBakedModel p_229111_8_) {
       if (!p_229111_1_.isEmpty()) {
          p_229111_4_.pushPose();
          boolean flag = p_229111_2_ == ItemCameraTransforms.TransformType.GUI || p_229111_2_ == ItemCameraTransforms.TransformType.GROUND || p_229111_2_ == ItemCameraTransforms.TransformType.FIXED;
          if (p_229111_1_.getItem() == Items.TRIDENT && flag) {
             p_229111_8_ = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:trident#inventory"));
+         } else if (p_229111_1_.getItem() == Items.SPYGLASS && flag) {
+            p_229111_8_ = this.itemModelShaper.getModelManager().getModel(loadSpyglassFromTrim(p_229111_1_));
          }
 
          p_229111_8_.getTransforms().getTransform(p_229111_2_).apply(p_229111_3_, p_229111_4_);
@@ -166,6 +189,14 @@ public class ItemRenderer implements IResourceManagerReloadListener {
       return p_239391_3_ ? VertexBuilderUtils.create(p_239391_0_.getBuffer(p_239391_2_ ? RenderType.glintDirect() : RenderType.entityGlintDirect()), p_239391_0_.getBuffer(p_239391_1_)) : p_239391_0_.getBuffer(p_239391_1_);
    }
 
+   public static IVertexBuilder getRainbowFoilBuffer(IRenderTypeBuffer bufferSource, RenderType baseRenderType) {
+      return VertexBuilderUtils.create(
+              bufferSource.getBuffer(RenderType.rainbowGlint()), // Glint render type
+              bufferSource.getBuffer(baseRenderType)               // Normal render type
+      );
+   }
+
+
    private void renderQuadList(MatrixStack p_229112_1_, IVertexBuilder p_229112_2_, List<BakedQuad> p_229112_3_, ItemStack p_229112_4_, int p_229112_5_, int p_229112_6_) {
       boolean flag = !p_229112_4_.isEmpty();
       MatrixStack.Entry matrixstack$entry = p_229112_1_.last();
@@ -184,13 +215,30 @@ public class ItemRenderer implements IResourceManagerReloadListener {
 
    }
 
+   private BakedQuad offsetQuadZ(BakedQuad quad, float zOffset) {
+      int[] data = quad.getVertices().clone(); // Clone the quad data
+
+      for (int i = 0; i < 4; i++) {
+         int baseIndex = i * 8;
+         float z = Float.intBitsToFloat(data[baseIndex + 2]);
+         z += zOffset;
+         data[baseIndex + 2] = Float.floatToRawIntBits(z);
+      }
+
+      return new BakedQuad(data, quad.getTintIndex(), quad.getDirection(), quad.getSprite(), quad.isShade());
+   }
+
+
    public IBakedModel getModel(ItemStack p_184393_1_, @Nullable World p_184393_2_, @Nullable LivingEntity p_184393_3_) {
       Item item = p_184393_1_.getItem();
       IBakedModel ibakedmodel;
       if (item == Items.TRIDENT) {
          ibakedmodel = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:trident_in_hand#inventory"));
+      } else if (item == Items.SPYGLASS){
+         ibakedmodel = this.itemModelShaper.getModelManager().getModel(SPYGLASS_IN_HAND_MODEL);
       } else {
          ibakedmodel = this.itemModelShaper.getItemModel(p_184393_1_);
+
       }
 
       ClientWorld clientworld = p_184393_2_ instanceof ClientWorld ? (ClientWorld)p_184393_2_ : null;
@@ -207,6 +255,18 @@ public class ItemRenderer implements IResourceManagerReloadListener {
          IBakedModel ibakedmodel = this.getModel(p_229109_2_, p_229109_7_, p_229109_1_);
          this.render(p_229109_2_, p_229109_3_, p_229109_4_, p_229109_5_, p_229109_6_, p_229109_8_, p_229109_9_, ibakedmodel);
       }
+   }
+
+   public void renderStatic(ItemStack itemStack, ItemCameraTransforms.TransformType itemDisplayContext, int n, int n2, MatrixStack poseStack, IRenderTypeBuffer multiBufferSource, @Nullable World level, int n3) {
+      this.renderStatic(null, itemStack, itemDisplayContext, false, poseStack, multiBufferSource, level, n, n2, n3);
+   }
+
+   public void renderStatic(@Nullable LivingEntity livingEntity, ItemStack itemStack, ItemCameraTransforms.TransformType itemDisplayContext, boolean bl, MatrixStack poseStack, IRenderTypeBuffer multiBufferSource, @Nullable World level, int n, int n2, int n3) {
+      if (itemStack.isEmpty()) {
+         return;
+      }
+      IBakedModel bakedModel = this.getModel(itemStack, level, livingEntity);
+      this.render(itemStack, itemDisplayContext, bl, poseStack, multiBufferSource, n, n2, bakedModel);
    }
 
    public void renderGuiItem(ItemStack p_175042_1_, int p_175042_2_, int p_175042_3_) {
@@ -287,8 +347,8 @@ public class ItemRenderer implements IResourceManagerReloadListener {
       }
    }
 
-   public void renderGuiItemDecorations(FontRenderer p_175030_1_, ItemStack p_175030_2_, int p_175030_3_, int p_175030_4_) {
-      this.renderGuiItemDecorations(p_175030_1_, p_175030_2_, p_175030_3_, p_175030_4_, (String)null);
+   public void renderGuiItemDecorations(FontRenderer p_175030_1_, ItemStack itemStack, int p_175030_3_, int p_175030_4_) {
+      this.renderGuiItemDecorations(p_175030_1_, itemStack, p_175030_3_, p_175030_4_, (String)null);
    }
 
    public void renderGuiItemDecorations(FontRenderer p_180453_1_, ItemStack item, int p_180453_3_, int p_180453_4_, @Nullable String p_180453_5_) {

@@ -195,10 +195,10 @@ public class PolarBearEntity extends Animal implements IAngerable {
       }
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      boolean flag = p_70652_1_.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
+   public boolean doHurtTarget(Entity target) {
+      boolean flag = target.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
       if (flag) {
-         this.doEnchantDamageEffects(this, p_70652_1_);
+         this.doEnchantDamageEffects(this, target);
       }
 
       return flag;

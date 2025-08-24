@@ -69,6 +69,11 @@ public class FishingBobberEntity extends ProjectileEntity {
    private final int luck;
    private final int lureSpeed;
 
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.NONE;
+   }
+
    private FishingBobberEntity(World p_i50219_1_, PlayerEntity p_i50219_2_, int p_i50219_3_, int p_i50219_4_) {
       super(EntityType.FISHING_BOBBER, p_i50219_1_);
       this.noCulling = true;
@@ -421,8 +426,7 @@ public class FishingBobberEntity extends ProjectileEntity {
             this.level.broadcastEntityEvent(this, (byte)31);
             i = this.hookedIn instanceof ItemEntity ? 3 : 5;
          } else if (this.nibble > 0) {
-            if (this.random.nextFloat() < 0.75) {
-               // 30% chance to spawn a mob instead of giving items
+            if (this.random.nextFloat() < 0.5 && this.veryHardmode()) {
                float spawnChance = this.random.nextFloat();
 
                Entity entityToSpawn = null;
@@ -470,10 +474,10 @@ public class FishingBobberEntity extends ProjectileEntity {
                   this.level.addFreshEntity(entityToSpawn);
                   playerentity.awardStat(Stats.FISH_CAUGHT, 1);
                } else {
-                  this.doItem(item, i);
+                  i = this.doItem(item, i);
                }
             } else {
-               this.doItem(item, i);
+               i = this.doItem(item, i);
             }
          }
 
@@ -489,7 +493,7 @@ public class FishingBobberEntity extends ProjectileEntity {
    }
 
 
-public void doItem(ItemStack itemstack, int i) {
+public int doItem(ItemStack itemstack, int i) {
    PlayerEntity playerentity = this.getPlayerOwner();
 
    // Normal item retrieval
@@ -517,7 +521,7 @@ public void doItem(ItemStack itemstack, int i) {
       }
    }
 
-   i = 1;
+   return 1;
 
 }
 

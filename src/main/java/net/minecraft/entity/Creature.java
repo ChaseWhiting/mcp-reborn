@@ -1,12 +1,11 @@
 package net.minecraft.entity;
 
-import net.minecraft.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
@@ -14,12 +13,13 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
 public abstract class Creature extends Mob {
-   protected Creature(EntityType<? extends Creature> p_i48575_1_, World p_i48575_2_) {
-      super(p_i48575_1_, p_i48575_2_);
+   protected Creature(EntityType<? extends Creature> entity, World world) {
+      super(entity, world);
    }
    private AvoidEntityGoal creeperAvoidGoal = new AvoidEntityGoal<>(this, CreeperEntity.class, (creeper) -> {
       return ((CreeperEntity) creeper).getSwell() > 0;
    }, 7.6F, this instanceof IronGolemEntity ? 0.85D : 1.34D, this instanceof IronGolemEntity ? 0.85D : 1.34D, (creeper) -> !(this instanceof CreeperEntity) && this.veryHardmode());
+   public WaterSaveGoal waterSaveGoal = new WaterSaveGoal(this);
 
    public float getWalkTargetValue(BlockPos p_180484_1_) {
       return this.getWalkTargetValue(p_180484_1_, this.level);
@@ -43,47 +43,68 @@ public abstract class Creature extends Mob {
 
       if (!this.goalSelector.getAvailableGoals().anyMatch((goal) -> goal.getGoal() == creeperAvoidGoal) && creeperAvoidGoal != null && !(this instanceof VillagerEntity)) {
          this.goalSelector.addGoal(0, creeperAvoidGoal);
+          if (this.canHaveLadderGoal()) {
+              this.goalSelector.addGoal(6, new LadderClimbGoal(this));
+          }
+          this.goalSelector.addGoal(0, waterSaveGoal);
       }
    }
 
-   protected void tickLeash() {
-      super.tickLeash();
-      Entity entity = this.getLeashHolder();
-      if (entity != null && entity.level == this.level) {
-         this.restrictTo(entity.blockPosition(), 5);
-         float f = this.distanceTo(entity);
-         if (this instanceof TameableEntity && ((TameableEntity)this).isInSittingPose()) {
-            if (f > 10.0F) {
-               this.dropLeash(true, true);
-            }
-
-            return;
-         }
-
-         this.onLeashDistance(f);
-         if (f > 10.0F) {
-            this.dropLeash(true, true);
-            this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
-         } else if (f > 6.0F) {
-            double d0 = (entity.getX() - this.getX()) / (double)f;
-            double d1 = (entity.getY() - this.getY()) / (double)f;
-            double d2 = (entity.getZ() - this.getZ()) / (double)f;
-            this.setDeltaMovement(this.getDeltaMovement().add(Math.copySign(d0 * d0 * 0.4D, d0), Math.copySign(d1 * d1 * 0.4D, d1), Math.copySign(d2 * d2 * 0.4D, d2)));
-         } else {
-            this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
-            float f1 = 2.0F;
-            Vector3d vector3d = (new Vector3d(entity.getX() - this.getX(), entity.getY() - this.getY(), entity.getZ() - this.getZ())).normalize().scale((double)Math.max(f - 2.0F, 0.0F));
-            this.getNavigation().moveTo(this.getX() + vector3d.x, this.getY() + vector3d.y, this.getZ() + vector3d.z, this.followLeashSpeed());
-         }
+   public int getMaxFallDistance() {
+      if (this.getGoalSelector().getAvailableGoals().anyMatch(goal -> goal.getGoal() == waterSaveGoal)) {
+         return (int) ( 3 + (this.getHealth() - 1));
       }
-
+      return super.getMaxFallDistance();
    }
+
+   public boolean canHaveLadderGoal() {
+      return true;
+   }
+
+
+
+   protected boolean shouldStayCloseToLeashHolder() {
+      return true;
+   }
+
+
+   protected void onLeashDistance(float p_142017_1_) {
+   }
+
+
+
+   @Override
+   public void closeRangeLeashBehaviour(Entity entity) {
+      super.closeRangeLeashBehaviour(entity);
+      if (this.shouldStayCloseToLeashHolder() && !this.isPanicking()) {
+         this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
+         float f = 2.0f;
+         float f2 = this.distanceTo(entity);
+         Vector3d vec3 = new Vector3d(entity.getX() - this.getX(), entity.getY() - this.getY(), entity.getZ() - this.getZ()).normalize().scale(Math.max(f2 - 2.0f, 0.0f));
+         this.getNavigation().moveTo(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z, this.followLeashSpeed());
+      }
+   }
+
+   @Override
+   public void whenLeashedTo(Entity entity) {
+      this.setHomeTo(entity.blockPosition(), (int)this.leashElasticDistance() - 1);
+      super.whenLeashedTo(entity);
+   }
+
+   public boolean isPanicking() {
+      if (this.brain.hasMemoryValue(MemoryModuleType.IS_PANICKING)) {
+         return this.brain.getMemory(MemoryModuleType.IS_PANICKING).isPresent();
+      }
+      for (PrioritizedGoal wrappedGoal : this.goalSelector.getAvailableGoals().toList()) {
+         if (!wrappedGoal.isRunning() || !(wrappedGoal.getGoal() instanceof PanicGoal)) continue;
+         return true;
+      }
+      return false;
+   }
+
 
 
    protected double followLeashSpeed() {
-      return 1.0D;
-   }
-
-   protected void onLeashDistance(float p_142017_1_) {
+      return 1.0;
    }
 }

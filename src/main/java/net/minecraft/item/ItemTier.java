@@ -9,6 +9,9 @@ public enum ItemTier implements IItemTier {
    WOOD(0, 59, 2.0F, 0.0F, 15, () -> {
       return Ingredient.of(ItemTags.PLANKS);
    }),
+   BAT(2, 240, 4.0F, 7.5F, 0, () -> {
+      return Ingredient.of(ItemTags.PLANKS);
+   }),
    STONE(1, 131, 4.0F, 1.0F, 5, () -> {
       return Ingredient.of(ItemTags.STONE_TOOL_MATERIALS);
    }),
@@ -21,8 +24,14 @@ public enum ItemTier implements IItemTier {
    GOLD(0, 32, 12.0F, 0.0F, 22, () -> {
       return Ingredient.of(Items.GOLD_INGOT);
    }),
+   ROSE_GOLD(1, 350, 10.5F, 1F, 18, () -> {
+      return Ingredient.of(Items.ROSE_GOLD_INGOT);
+   }),
    NETHERITE(4, 2031, 9.0F, 4.0F, 15, () -> {
       return Ingredient.of(Items.NETHERITE_INGOT);
+   }),
+   WITHER_BONE(3, 855, 6.0F, 3.5F, 13, () -> {
+      return Ingredient.of(Items.WITHER_BONE);
    }),
    BEEKEEPER(5, 1836, 6.0F, 0, 13, () -> {
       return Ingredient.of(Items.BEE_POLLEN);
@@ -41,13 +50,13 @@ public enum ItemTier implements IItemTier {
    private final int enchantmentValue;
    private final LazyValue<Ingredient> repairIngredient;
 
-   private ItemTier(int p_i48458_3_, int p_i48458_4_, float p_i48458_5_, float p_i48458_6_, int p_i48458_7_, Supplier<Ingredient> p_i48458_8_) {
-      this.level = p_i48458_3_;
-      this.uses = p_i48458_4_;
-      this.speed = p_i48458_5_;
-      this.damage = p_i48458_6_;
-      this.enchantmentValue = p_i48458_7_;
-      this.repairIngredient = new LazyValue<>(p_i48458_8_);
+   private ItemTier(int toolLevel, int durability, float speed, float damage, int enchantmentValue, Supplier<Ingredient> repair) {
+      this.level = toolLevel;
+      this.uses = durability;
+      this.speed = speed;
+      this.damage = damage;
+      this.enchantmentValue = enchantmentValue;
+      this.repairIngredient = new LazyValue<>(repair);
    }
 
    public int getUses() {

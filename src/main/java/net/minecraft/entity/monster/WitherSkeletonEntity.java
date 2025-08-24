@@ -97,12 +97,12 @@ public class WitherSkeletonEntity extends AbstractSkeletonEntity implements IWit
       return 2.1F;
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      if (!super.doHurtTarget(p_70652_1_)) {
+   public boolean doHurtTarget(Entity target) {
+      if (!super.doHurtTarget(target)) {
          return false;
       } else {
-         if (p_70652_1_ instanceof LivingEntity) {
-            ((LivingEntity)p_70652_1_).addEffect(new EffectInstance(Effects.WITHER, 200));
+         if (target instanceof LivingEntity) {
+            ((LivingEntity) target).addEffect(new EffectInstance(Effects.WITHER, 200));
          }
 
          return true;

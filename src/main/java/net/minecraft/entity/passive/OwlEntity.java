@@ -192,7 +192,7 @@ public class OwlEntity extends Animal implements IFlyingAnimal {
 
         @Override
         public boolean canUse() {
-            return !owl.isPerching() && owl.getRandom().nextInt(100) == 0;
+            return !owl.isPerching() && owl.getRandom().nextInt(10) == 0 && !owl.isHunting();
         }
 
         @Override
@@ -223,7 +223,7 @@ public class OwlEntity extends Animal implements IFlyingAnimal {
 
     class HuntFishGoal extends TargetGoal {
         private final OwlEntity owl;
-
+        private AbstractFishEntity fish;
         public HuntFishGoal(OwlEntity owl) {
             super(owl, false, true);
             this.owl = owl;
@@ -247,19 +247,20 @@ public class OwlEntity extends Animal implements IFlyingAnimal {
         @Override
         public void stop() {
             owl.setHunting(false);
+            this.fish = null;
         }
 
         @Override
         public void tick() {
-            List<AbstractFishEntity> fishEntities = owl.level.getEntitiesOfClass(AbstractFishEntity.class, owl.getBoundingBox().inflate(5.0D, 5.0D, 5.0D));
-            if (!fishEntities.isEmpty()) {
-                AbstractFishEntity targetFish = fishEntities.get(0);
-                owl.getNavigation().moveTo(targetFish, 1.5D);
-                if (owl.getBoundingBox().intersects(targetFish.getBoundingBox())) {
-                    owl.doHurtTarget(targetFish);
+            List<AbstractFishEntity> fishEntities = owl.level.getEntitiesOfClass(AbstractFishEntity.class, owl.getBoundingBox().inflate(15.0D, 15.0D, 15.0D));
+            if (!fishEntities.isEmpty() && fish == null) {
+                this.fish = fishEntities.get(0);
+
+            } else if (fish != null) {
+                owl.getNavigation().moveTo(fish, 1.5D);
+                if (owl.getBoundingBox().intersects(fish.getBoundingBox())) {
+                    owl.doHurtTarget(fish);
                 }
-            } else {
-                owl.setHunting(false);
             }
         }
     }

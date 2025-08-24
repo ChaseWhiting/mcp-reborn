@@ -9,9 +9,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
 public class BreedGoal extends Goal {
-   private static final EntityPredicate PARTNER_TARGETING = (new EntityPredicate()).range(8.0D).allowInvulnerable().allowSameTeam().allowUnseeable();
+   protected static final EntityPredicate PARTNER_TARGETING = (new EntityPredicate()).range(8.0D).allowInvulnerable().allowSameTeam().allowUnseeable();
    protected final Animal animal;
-   private final Class<? extends Animal> partnerClass;
+   protected final Class<? extends Animal> partnerClass;
    protected final World level;
    protected Animal partner;
    private int loveTime;

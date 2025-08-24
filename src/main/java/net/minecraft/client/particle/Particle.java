@@ -46,6 +46,8 @@ public abstract class Particle {
    protected float alpha = 1.0F;
    protected float roll;
    protected float oRoll;
+   protected float friction = 0.98f;
+   protected boolean speedUpWhenYMotionIsBlocked = false;
 
    protected Particle(ClientWorld p_i232411_1_, double p_i232411_2_, double p_i232411_4_, double p_i232411_6_) {
       this.level = p_i232411_1_;
@@ -55,6 +57,12 @@ public abstract class Particle {
       this.yo = p_i232411_4_;
       this.zo = p_i232411_6_;
       this.lifetime = (int)(4.0F / (this.random.nextFloat() * 0.9F + 0.1F));
+   }
+
+   public void setParticleSpeed(double b, double y, double z) {
+      this.xd = b;
+      this.yd = y;
+      this.zd = z;
    }
 
    public Particle(ClientWorld p_i232412_1_, double p_i232412_2_, double p_i232412_4_, double p_i232412_6_, double p_i232412_8_, double p_i232412_10_, double p_i232412_12_) {
@@ -108,9 +116,13 @@ public abstract class Particle {
       } else {
          this.yd -= 0.04D * (double)this.gravity;
          this.move(this.xd, this.yd, this.zd);
-         this.xd *= (double)0.98F;
-         this.yd *= (double)0.98F;
-         this.zd *= (double)0.98F;
+         if (this.speedUpWhenYMotionIsBlocked && this.y == this.yo) {
+            this.xd *= 1.1;
+            this.zd *= 1.1;
+         }
+         this.xd *= (double)friction;
+         this.yd *= (double)friction;
+         this.zd *= (double)friction;
          if (this.onGround) {
             this.xd *= (double)0.7F;
             this.zd *= (double)0.7F;

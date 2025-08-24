@@ -2,15 +2,7 @@ package net.minecraft.entity.passive;
 
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.BoostHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IEquipable;
-import net.minecraft.entity.IRideable;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
-import net.minecraft.entity.Pose;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.*;
@@ -25,14 +17,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.TransportationHelper;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -42,13 +27,13 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.Random;
-
-public class PigEntity extends Animal implements IRideable, IEquipable {
+public class PigEntity extends Animal implements IRideable, IEquipable, WarmColdVariantHolder {
    private static final DataParameter<Boolean> DATA_SADDLE_ID = EntityDataManager.defineId(PigEntity.class, DataSerializers.BOOLEAN);
    private static final DataParameter<Integer> DATA_BOOST_TIME = EntityDataManager.defineId(PigEntity.class, DataSerializers.INT);
    private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.CARROT, Items.POTATO, Items.BEETROOT);
    private final BoostHelper steering = new BoostHelper(this.entityData, DATA_BOOST_TIME, DATA_SADDLE_ID);
+   private static final DataParameter<Integer> DATA_TYPE_ID = EntityDataManager.defineId(PigEntity.class, DataSerializers.INT);
+
 
    public PigEntity(EntityType<? extends PigEntity> p_i50250_1_, World p_i50250_2_) {
       super(p_i50250_1_, p_i50250_2_);
@@ -64,6 +49,16 @@ public class PigEntity extends Animal implements IRideable, IEquipable {
       this.goalSelector.addGoal(6, new WaterAvoidingRandomWalkingGoal(this, 1.0D));
       this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
       this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
+   }
+
+   @Override
+   public void setVariant(WarmColdVariant variant) {
+      this.entityData.set(DATA_TYPE_ID, variant.getId());
+   }
+
+   @Override
+   public WarmColdVariant getVariant() {
+      return WarmColdVariant.byId(this.entityData.get(DATA_TYPE_ID));
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
@@ -97,16 +92,19 @@ public class PigEntity extends Animal implements IRideable, IEquipable {
       super.defineSynchedData();
       this.entityData.define(DATA_SADDLE_ID, false);
       this.entityData.define(DATA_BOOST_TIME, 0);
+      this.entityData.define(DATA_TYPE_ID, 0);
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
       this.steering.addAdditionalSaveData(p_213281_1_);
+      p_213281_1_.putString("Type", this.getVariant().getName());
    }
 
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
       super.readAdditionalSaveData(p_70037_1_);
       this.steering.readAdditionalSaveData(p_70037_1_);
+      this.setVariant(WarmColdVariant.byName(p_70037_1_.getString("Type")));
    }
 
    protected SoundEvent getAmbientSound() {
@@ -131,6 +129,12 @@ public class PigEntity extends Animal implements IRideable, IEquipable {
          if (!this.level.isClientSide) {
             p_230254_1_.startRiding(this);
          }
+
+         return ActionResultType.sidedSuccess(this.level.isClientSide);
+      } else if (p_230254_1_.isSecondaryUseActive() && this.isSaddled() && !this.isVehicle()) {
+         this.spawnAtLocation(new ItemStack(Items.SADDLE), 0.6f);
+         this.steering.setSaddle(false);
+         this.level.playSound((PlayerEntity)null, this, SoundEvents.PIG_SADDLE, SoundCategory.NEUTRAL, 0.5F, 1.0F);
 
          return ActionResultType.sidedSuccess(this.level.isClientSide);
       } else {
@@ -234,11 +238,10 @@ public class PigEntity extends Animal implements IRideable, IEquipable {
       return this.steering.boost(this.getRandom());
    }
 
-   public AgeableEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
-      if (new Random().nextFloat() < 0.3F) {
-         return EntityType.SHEEP.create(p_241840_1_);
-      }
-      return EntityType.PIG.create(p_241840_1_);
+   public PigEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
+      PigEntity pig = EntityType.PIG.create(p_241840_1_);
+      pig.setVariant(this.random.nextBoolean() ? this.getVariant() : ((PigEntity)p_241840_2_).getVariant());
+      return pig;
    }
 
    public boolean isFood(ItemStack p_70877_1_) {

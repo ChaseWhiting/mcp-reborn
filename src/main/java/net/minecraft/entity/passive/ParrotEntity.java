@@ -294,8 +294,8 @@ public class ParrotEntity extends ShoulderRidingEntity implements IFlyingAnimal 
       return null;
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      return p_70652_1_.hurt(DamageSource.mobAttack(this), 3.0F);
+   public boolean doHurtTarget(Entity target) {
+      return target.hurt(DamageSource.mobAttack(this), 3.0F);
    }
 
    @Nullable

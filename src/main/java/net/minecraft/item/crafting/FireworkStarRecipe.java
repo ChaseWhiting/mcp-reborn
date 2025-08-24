@@ -13,6 +13,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -98,7 +99,7 @@ public class FireworkStarRecipe extends SpecialRecipe {
       return flag && flag1;
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       ItemStack itemstack = new ItemStack(Items.FIREWORK_STAR);
       CompoundNBT compoundnbt = itemstack.getOrCreateTagElement("Explosion");
       FireworkRocketItem.Shape fireworkrocketitem$shape = FireworkRocketItem.Shape.SMALL_BALL;
@@ -120,7 +121,7 @@ public class FireworkStarRecipe extends SpecialRecipe {
       }
 
       compoundnbt.putIntArray("Colors", list);
-      compoundnbt.putByte("BoggedType", (byte)fireworkrocketitem$shape.getId());
+      compoundnbt.putByte("Type", (byte)fireworkrocketitem$shape.getId());
       return itemstack;
    }
 

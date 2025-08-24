@@ -6,11 +6,9 @@ import com.google.common.collect.ImmutableMultimap.Builder;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.block.DispenserBlock;
-import net.minecraft.bundle.BundleItem;
 import net.minecraft.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.dispenser.IDispenseItemBehavior;
-import net.minecraft.enchantment.IArmorVanishable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -21,11 +19,12 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.Hand;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ArmorItem extends Item implements IArmorVanishable {
+public class ArmorItem extends Item implements Equipable {
    private static final UUID[] ARMOR_MODIFIER_UUID_PER_SLOT = new UUID[]{UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B"), UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"), UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"), UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150")};
    public static final IDispenseItemBehavior DISPENSE_ITEM_BEHAVIOR = new DefaultDispenseItemBehavior() {
       protected ItemStack execute(IBlockSource p_82487_1_, ItemStack p_82487_2_) {
@@ -33,11 +32,12 @@ public class ArmorItem extends Item implements IArmorVanishable {
       }
    };
    protected final EquipmentSlotType slot;
+   public final Type type;
    private final int defense;
    private final float toughness;
    protected final float knockbackResistance;
    protected final IArmorMaterial material;
-   protected final ArmorMaterial material1;
+   public final ArmorMaterial material1;
    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
    public static boolean dispenseArmor(IBlockSource p_226626_0_, ItemStack p_226626_1_) {
@@ -64,16 +64,32 @@ public class ArmorItem extends Item implements IArmorVanishable {
       this.material = p_i48534_1_;
       this.material1 = (ArmorMaterial) material; 
       this.slot = p_i48534_2_;
+      this.type = switch (p_i48534_2_) {
+          case MAINHAND, OFFHAND -> null;
+          case FEET -> Type.BOOTS;
+          case LEGS -> Type.LEGGINGS;
+          case CHEST -> Type.CHESTPLATE;
+          case HEAD -> Type.HELMET;
+      };
+
       this.defense = p_i48534_1_.getDefenseForSlot(p_i48534_2_);
-      this.toughness = p_i48534_1_.getToughness();
-      this.knockbackResistance = p_i48534_1_.getKnockbackResistance();
+      this.toughness = p_i48534_1_.getToughnessForSlot(p_i48534_2_);
+      this.knockbackResistance = p_i48534_1_.getKnockbackResistanceForSlot(p_i48534_2_);
       DispenserBlock.registerBehavior(this, DISPENSE_ITEM_BEHAVIOR);
       Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
       UUID uuid = ARMOR_MODIFIER_UUID_PER_SLOT[p_i48534_2_.getIndex()];
       builder.put(Attributes.ARMOR, new AttributeModifier(uuid, "Armor modifier", (double)this.defense, AttributeModifier.Operation.ADDITION));
       builder.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(uuid, "Armor toughness", (double)this.toughness, AttributeModifier.Operation.ADDITION));
-      if (p_i48534_1_ == ArmorMaterial.NETHERITE) {
+      if (p_i48534_1_ == ArmorMaterial.NETHERITE || p_i48534_1_ == ArmorMaterial.BURNT_TURTLE || p_i48534_1_ == ArmorMaterial.WITHERED) {
          builder.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(uuid, "Armor knockback resistance", (double)this.knockbackResistance, AttributeModifier.Operation.ADDITION));
+      }
+
+      if (p_i48534_1_ == ArmorMaterial.WITHERED) {
+         builder.put(Attributes.BLAST_RESISTANCE, new AttributeModifier(uuid, "Armor blast resistance", 0.05, AttributeModifier.Operation.ADDITION));
+      }
+
+      if (p_i48534_1_ == ArmorMaterial.NETHERITE) {
+         builder.put(Attributes.BLAST_RESISTANCE, new AttributeModifier(uuid, "Armor blast resistance", 0.1, AttributeModifier.Operation.ADDITION));
       }
 
       this.defaultModifiers = builder.build();
@@ -97,27 +113,21 @@ public class ArmorItem extends Item implements IArmorVanishable {
 
    public int getWeight(ItemStack bundle) {
       return switch (material1) {
+         case FLOWER_CROWN -> 1;
          case LEATHER -> 5;         // Leather: 4-6 units
          case CHAIN, GOLD -> 12;    // Chain & Gold: 10-16 units
+         case ROSE_GOLD, BEESWAX -> 10;
          case IRON -> 15;           // Iron: 15-20 units
          case DIAMOND -> 12;        // Diamond: 10-15 units
          case TURTLE -> 6;          // Turtle Shell: 5-7 units
-          case BEESWAX -> 10;
+          case BURNT_TURTLE -> 8;
           case NETHERITE -> 32;      // Netherite: 25-32 units
+          case WITHERED -> 24;
       };
    }
 
    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-      ItemStack itemstack = player.getItemInHand(hand);
-      EquipmentSlotType equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
-      ItemStack itemstack1 = player.getItemBySlot(equipmentslottype);
-      if (itemstack1.isEmpty()) {
-         player.setItemSlot(equipmentslottype, itemstack.copy());
-         itemstack.setCount(0);
-         return ActionResult.sidedSuccess(itemstack, world.isClientSide());
-      } else {
-         return ActionResult.fail(itemstack);
-      }
+      return this.swapWithEquipmentSlot(this, world, player, hand);
    }
 
    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlotType p_111205_1_) {
@@ -130,5 +140,39 @@ public class ArmorItem extends Item implements IArmorVanishable {
 
    public float getToughness() {
       return this.toughness;
+   }
+
+   @Override
+   public EquipmentSlotType getEquipmentSlot() {
+      return this.type.getSlot();
+   }
+
+   @Override
+   public SoundEvent getEquipSound() {
+      return this.material.getEquipSound();
+   }
+
+
+   public static enum Type {
+      HELMET(EquipmentSlotType.HEAD, "helmet"),
+      CHESTPLATE(EquipmentSlotType.CHEST, "chestplate"),
+      LEGGINGS(EquipmentSlotType.LEGS, "leggings"),
+      BOOTS(EquipmentSlotType.FEET, "boots");
+
+      private final EquipmentSlotType slot;
+      private final String name;
+
+      private Type(EquipmentSlotType equipmentSlot, String string2) {
+         this.slot = equipmentSlot;
+         this.name = string2;
+      }
+
+      public EquipmentSlotType getSlot() {
+         return this.slot;
+      }
+
+      public String getName() {
+         return this.name;
+      }
    }
 }

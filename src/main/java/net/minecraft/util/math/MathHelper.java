@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.function.IntPredicate;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.random.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -23,6 +24,32 @@ public class MathHelper {
    private static final double[] ASIN_TAB = new double[257];
    private static final double[] COS_TAB = new double[257];
 
+   public static final double DEG_TO_RAD = Math.PI / 180.0;
+   public static final double RAD_TO_DEG = 180.0 / Math.PI;
+
+   public static int positiveCeilDiv(int n, int n2) {
+      return -java.lang.Math.floorDiv(-n, n2);
+   }
+
+   public static double clampedMap(double d, double d2, double d3, double d4, double d5) {
+      return clampedLerp(d4, d5, inverseLerp(d, d2, d3));
+   }
+
+   public static float invSqrt(float f) {
+      return org.joml.Math.invsqrt((float)f);
+   }
+
+   public static double smoothstepDerivative(double d) {
+      return 30.0 * d * d * (d - 1.0) * (d - 1.0);
+   }
+
+   public static double lengthSquared(double d, double d2) {
+      return d * d + d2 * d2;
+   }
+
+   public static int lerpInt(float f, int n, int n2) {
+      return n + floor(f * (float)(n2 - n));
+   }
    public static float sin(float p_76126_0_) {
       return SIN[(int)(p_76126_0_ * 10430.378F) & '\uffff'];
    }
@@ -32,6 +59,10 @@ public class MathHelper {
    }
 
    public static int randomBetweenInclusive(Random $$0, int $$1, int $$2) {
+      return $$0.nextInt($$2 - $$1 + 1) + $$1;
+   }
+
+   public static int randomBetweenInclusive(RandomSource $$0, int $$1, int $$2) {
       return $$0.nextInt($$2 - $$1 + 1) + $$1;
    }
 
@@ -184,6 +215,14 @@ public class MathHelper {
       }
    }
 
+   public static float clampedLerp(float p_151238_0_, float p_151238_2_, float p_151238_4_) {
+      if (p_151238_4_ < 0.0F) {
+         return p_151238_0_;
+      } else {
+         return p_151238_4_ > 1.0F ? p_151238_2_ : lerp(p_151238_4_, p_151238_0_, p_151238_2_);
+      }
+   }
+
    public static double absMax(double p_76132_0_, double p_76132_2_) {
       if (p_76132_0_ < 0.0D) {
          p_76132_0_ = -p_76132_0_;
@@ -280,6 +319,19 @@ public class MathHelper {
 
       if (d0 < -180.0D) {
          d0 += 360.0D;
+      }
+
+      return d0;
+   }
+
+   public static float wrapFlDegrees(float p_76138_0_) {
+      float d0 = p_76138_0_ % 360.0F;
+      if (d0 >= 180.0F) {
+         d0 -= 360.0F;
+      }
+
+      if (d0 < -180.0D) {
+         d0 += 360.0F;
       }
 
       return d0;
@@ -634,6 +686,19 @@ public class MathHelper {
 
    public static float square(float p_233022_0_) {
       return p_233022_0_ * p_233022_0_;
+   }
+
+   public static int square(int p_233022_0_) {
+      return p_233022_0_ * p_233022_0_;
+   }
+
+   public static double square(double p_233022_0_) {
+      return p_233022_0_ * p_233022_0_;
+   }
+
+
+   public static float easeInOutSine(float f) {
+      return -(cos((float)java.lang.Math.PI * f) - 1.0f) / 2.0f;
    }
 
    static {

@@ -20,7 +20,6 @@ public class BlockEntityRenderer extends MobRenderer<AbstractFakeBlockEntity, Bl
         return TEXTURE;
     }
 
-
 }
 
 class BlockRenderer extends EntityModel<AbstractFakeBlockEntity> {

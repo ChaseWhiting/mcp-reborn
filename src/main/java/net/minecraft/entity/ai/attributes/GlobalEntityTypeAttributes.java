@@ -8,29 +8,43 @@ import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mob;
+import net.minecraft.entity.allay.AllayEntity;
+import net.minecraft.entity.axolotl.AxolotlEntity;
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.boss.sovereign.InfernalSovereignEntity;
+import net.minecraft.entity.camel.CamelEntity;
+import net.minecraft.entity.frog.FrogEntity;
+import net.minecraft.entity.frog.TadpoleEntity;
+import net.minecraft.entity.goat.GoatEntity;
+import net.minecraft.entity.gumbeeper.GumbeeperEntity;
+import net.minecraft.entity.happy_ghast.HappyGhastEntity;
 import net.minecraft.entity.herobrine.HerobrineEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.monster.bogged.BoggedEntity;
+import net.minecraft.entity.monster.breeze.BreezeEntity;
 import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.monster.creaking.CreakingTransient;
+import net.minecraft.entity.monster.crimson_mosquito.CrimsonMosquitoEntity;
+import net.minecraft.entity.monster.enderiophage.EntityEnderiophage;
 import net.minecraft.entity.monster.piglin.PiglinBruteEntity;
 import net.minecraft.entity.monster.piglin.PiglinEntity;
 import net.minecraft.entity.passive.*;
-import net.minecraft.entity.passive.allay.AllayEntity;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
+import net.minecraft.entity.passive.fish.RokfiskEntity;
 import net.minecraft.entity.passive.horse.AbstractChestedHorseEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.entity.passive.horse.SkeletonHorseEntity;
 import net.minecraft.entity.passive.horse.ZombieHorseEntity;
+import net.minecraft.entity.passive.roadrunner.RoadrunnerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
 import net.minecraft.entity.terraria.boss.twins.RetinazerEntity;
 import net.minecraft.entity.terraria.creature.WormEntity;
 import net.minecraft.entity.terraria.monster.demoneye.DemonEyeEntity;
+import net.minecraft.entity.warden.WardenEntity;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
@@ -46,15 +60,22 @@ public class GlobalEntityTypeAttributes {
             .put(EntityType.ENDSTONE_BLOCK, FakeEndstoneBlockEntity.createAttributes())
             .put(EntityType.BAT, BatEntity.createAttributes().build())
             .put(EntityType.PALE_GARDEN_BAT, PaleGardenBatEntity.createAttributes().build())
+            .put(EntityType.CRIMSON_MOSQUITO, CrimsonMosquitoEntity.createCrimsonMosquitoAttributes().build())
             .put(EntityType.OWL, OwlEntity.createAttributes().build())
             .put(EntityType.QUEEN_BEE, QueenBeeEntity.createAttributes().build())
             .put(EntityType.BEE, BeeEntity.createAttributes().build())
             .put(EntityType.BLAZE, BlazeEntity.createAttributes().build())
+            .put(EntityType.WILDFIRE, WildfireEntity.createAttributes().build())
+            .put(EntityType.GOAT, GoatEntity.createAttributes().build())
+            .put(EntityType.FROG, FrogEntity.createAttributes().build())
             .put(EntityType.CAT, CatEntity.createAttributes().build())
             .put(EntityType.CAVE_SPIDER, CaveSpiderEntity.createCaveSpider().build())
             .put(EntityType.CHICKEN, ChickenEntity.createAttributes().build())
             .put(EntityType.COD, AbstractFishEntity.createAttributes().build())
             .put(EntityType.COW, CowEntity.createAttributes().build())
+            .put(EntityType.CAMEL, CamelEntity.createAttributes().build())
+            .put(EntityType.COPPER_GOLEM, CopperGolemEntity.createAttributes().build())
+            .put(EntityType.BREEZE, BreezeEntity.createAttributes().build())
             .put(EntityType.CREEPER, CreeperEntity.createAttributes().build())
             .put(EntityType.DOLPHIN, DolphinEntity.createAttributes().build())
             .put(EntityType.DONKEY, AbstractChestedHorseEntity.createBaseChestedHorseAttributes().build())
@@ -64,6 +85,19 @@ public class GlobalEntityTypeAttributes {
             .put(EntityType.ENDERMITE, EndermiteEntity.createAttributes().build())
             .put(EntityType.ENDER_DRAGON, EnderDragonEntity.createAttributes().build())
             .put(EntityType.EVOKER, EvokerEntity.createAttributes().build())
+            .put(EntityType.TRICKSTER, TricksterEntity.createAttributes().build())
+
+            .put(EntityType.HAPPY_GHAST, HappyGhastEntity.createAttributes().build())
+
+            .put(EntityType.WARDEN, WardenEntity.createAttributes().build())
+
+            .put(EntityType.ROKFISK, RokfiskEntity.createAttributes().build())
+
+            .put(EntityType.ROADRUNNER, RoadrunnerEntity.createAttributes().build())
+            .put(EntityType.ENDERIOPHAGE, EntityEnderiophage.bakeAttributes().build())
+            .put(EntityType.GUMBEEPER, GumbeeperEntity.createAttributes().build())
+
+
             .put(EntityType.FOX, FoxEntity.createAttributes().build())
             .put(EntityType.RACCOON, RaccoonEntity.createAttributes().build())
             .put(EntityType.GHAST, GhastEntity.createAttributes().build())
@@ -81,6 +115,8 @@ public class GlobalEntityTypeAttributes {
             .put(EntityType.OCELOT, OcelotEntity.createAttributes().build())
             .put(EntityType.PANDA, PandaEntity.createAttributes().build())
             .put(EntityType.PARROT, ParrotEntity.createAttributes().build())
+            .put(EntityType.WOODPECKER, WoodpeckerEntity.createAttributes().build())
+
             .put(EntityType.PHANTOM, Monster.createMonsterAttributes().build())
             .put(EntityType.PIG, PigEntity.createAttributes().build())
             .put(EntityType.PIGLIN, PiglinEntity.createAttributes().build())
@@ -124,7 +160,10 @@ public class GlobalEntityTypeAttributes {
             .put(EntityType.ZOMBIE_HORSE, ZombieHorseEntity.createAttributes().build())
             .put(EntityType.ZOMBIE_VILLAGER, ZombieEntity.createAttributes().build())
             .put(EntityType.CREAKING, CreakingEntity.createAttributes().build())
+            .put(EntityType.AXOLOTL, AxolotlEntity.createAttributes().build())
+            .put(EntityType.TADPOLE, TadpoleEntity.createAttributes().build())
             .put(EntityType.CREAKING_TRANSIENT, CreakingTransient.createAttributes().build())
+            .put(EntityType.INFERNAL_SOVEREIGN, InfernalSovereignEntity.createMonsterAttributes().build())
             .put(EntityType.ALLAY, AllayEntity.createAttributes().build())
             .put(EntityType.DEMON_EYE, DemonEyeEntity.createAttributes().build())
             .put(EntityType.EYE_OF_CTHULHU, EyeOfCthulhuEntity.createAttributes().build())
@@ -132,6 +171,7 @@ public class GlobalEntityTypeAttributes {
             .put(EntityType.GIANT_WORM, WormEntity.createMobAttributes().build())
             .put(EntityType.EYE_OF_CTHULHU_SECOND_FORM, EyeOfCthulhuEntity.createAttributes().build())
             .put(EntityType.RAY_TRACING, RayTracing.createAttributes().build())
+            .put(EntityType.RATTATA, Monster.createMonsterAttributes().build())
             .put(EntityType.ZOMBIFIED_PIGLIN, ZombifiedPiglinEntity.createAttributes().build()).build();
 
     public static AttributeModifierMap getSupplier(EntityType<? extends LivingEntity> p_233835_0_) {

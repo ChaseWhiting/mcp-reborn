@@ -35,7 +35,7 @@ public class PlayerInventory implements IInventory, INameable {
    public final NonNullList<ItemStack> armor = NonNullList.withSize(4, ItemStack.EMPTY);
    public final NonNullList<ItemStack> offhand = NonNullList.withSize(1, ItemStack.EMPTY);
    private final NonNullList<ItemStack> cape = NonNullList.withSize(1, ItemStack.EMPTY);
-   private final List<NonNullList<ItemStack>> compartments = ImmutableList.of(this.items, this.armor, this.offhand);
+   final List<NonNullList<ItemStack>> compartments = ImmutableList.of(this.items, this.armor, this.offhand);
    public int selected;
    public final PlayerEntity player;
    private ItemStack carried = ItemStack.EMPTY;
@@ -298,7 +298,9 @@ public class PlayerInventory implements IInventory, INameable {
    }
 
    public boolean add(ItemStack p_70441_1_) {
-      return this.add(-1, p_70441_1_);
+      boolean add = this.add(-1, p_70441_1_);
+
+      return add;
    }
 
    public boolean add(int p_191971_1_, ItemStack p_191971_2_) {
@@ -583,6 +585,7 @@ public class PlayerInventory implements IInventory, INameable {
 
    public void setChanged() {
       ++this.timesChanged;
+
    }
 
    @OnlyIn(Dist.CLIENT)

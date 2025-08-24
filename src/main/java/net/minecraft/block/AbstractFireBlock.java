@@ -3,6 +3,7 @@ package net.minecraft.block;
 import java.util.Optional;
 import java.util.Random;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.FireSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.particles.ParticleTypes;
@@ -34,10 +35,13 @@ public abstract class AbstractFireBlock extends Block {
    public static BlockState getState(IBlockReader p_235326_0_, BlockPos p_235326_1_) {
       BlockPos blockpos = p_235326_1_.below();
       BlockState blockstate = p_235326_0_.getBlockState(blockpos);
+      if (blockstate.getBlock() == Blocks.HELLFIRE) {
+         return Blocks.HELLFIRE.defaultBlockState();
+      }
       return SoulFireBlock.canSurviveOnBlock(blockstate.getBlock()) ? Blocks.SOUL_FIRE.defaultBlockState() : ((FireBlock)Blocks.FIRE).getStateForPlacement(p_235326_0_, p_235326_1_);
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return DOWN_AABB;
    }
 
@@ -109,10 +113,11 @@ public abstract class AbstractFireBlock extends Block {
 
    public void entityInside(BlockState p_196262_1_, World p_196262_2_, BlockPos p_196262_3_, Entity p_196262_4_) {
       if (!p_196262_4_.fireImmune()) {
-         p_196262_4_.setRemainingFireTicks(p_196262_4_.getRemainingFireTicks() + 1);
+         p_196262_4_.setRemainingFireTicks(p_196262_4_.getRemainingFireTicks() + 1, this instanceof SoulFireBlock ? FireSource.SOUL_FIRE : FireSource.FIRE);
          if (p_196262_4_.getRemainingFireTicks() == 0) {
-            p_196262_4_.setSecondsOnFire(8);
+            p_196262_4_.setSecondsOnFire(8, this instanceof SoulFireBlock ? FireSource.SOUL_FIRE : FireSource.FIRE);
          }
+
 
          p_196262_4_.hurt(DamageSource.IN_FIRE, this.fireDamage);
       }
@@ -141,11 +146,11 @@ public abstract class AbstractFireBlock extends Block {
       return p_242649_0_.dimension() == World.OVERWORLD || p_242649_0_.dimension() == World.NETHER;
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       if (!p_176208_1_.isClientSide()) {
          p_176208_1_.levelEvent((PlayerEntity)null, 1009, p_176208_2_, 0);
       }
-
+      return p_176208_3_;
    }
 
    public static boolean canBePlacedAt(World p_241465_0_, BlockPos p_241465_1_, Direction p_241465_2_) {

@@ -2,10 +2,8 @@ package net.minecraft.block;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -89,17 +87,17 @@ public abstract class AbstractBlock {
       this.properties = p_i241196_1_;
    }
 
-   @Deprecated
    public void updateIndirectNeighbourShapes(BlockState p_196248_1_, IWorld p_196248_2_, BlockPos p_196248_3_, int p_196248_4_, int p_196248_5_) {
    }
 
-   @Deprecated
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {
       switch(p_196266_4_) {
       case LAND:
          return !p_196266_1_.isCollisionShapeFullBlock(p_196266_2_, p_196266_3_);
       case WATER:
          return p_196266_2_.getFluidState(p_196266_3_).is(FluidTags.WATER);
+         case LAVA:
+            return p_196266_2_.getFluidState(p_196266_3_).is(FluidTags.LAVA);
       case AIR:
          return !p_196266_1_.isCollisionShapeFullBlock(p_196266_2_, p_196266_3_);
       default:
@@ -107,27 +105,22 @@ public abstract class AbstractBlock {
       }
    }
 
-   @Deprecated
-   public BlockState updateShape(BlockState p_196271_1_, Direction p_196271_2_, BlockState p_196271_3_, IWorld p_196271_4_, BlockPos p_196271_5_, BlockPos p_196271_6_) {
-      return p_196271_1_;
+   public BlockState updateShape(BlockState state, Direction direction, BlockState state2, IWorld world, BlockPos pos, BlockPos pos2) {
+      return state;
    }
 
-   @Deprecated
    @OnlyIn(Dist.CLIENT)
    public boolean skipRendering(BlockState p_200122_1_, BlockState p_200122_2_, Direction p_200122_3_) {
       return false;
    }
 
-   @Deprecated
    public void neighborChanged(BlockState p_220069_1_, World p_220069_2_, BlockPos p_220069_3_, Block p_220069_4_, BlockPos p_220069_5_, boolean p_220069_6_) {
       DebugPacketSender.sendNeighborsUpdatePacket(p_220069_2_, p_220069_3_);
    }
 
-   @Deprecated
    public void onPlace(BlockState p_220082_1_, World p_220082_2_, BlockPos p_220082_3_, BlockState p_220082_4_, boolean p_220082_5_) {
    }
 
-   @Deprecated
    public void onRemove(BlockState p_196243_1_, World p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_, boolean p_196243_5_) {
       if (this.isEntityBlock() && !p_196243_1_.is(p_196243_4_.getBlock())) {
          p_196243_2_.removeBlockEntity(p_196243_3_);
@@ -135,42 +128,34 @@ public abstract class AbstractBlock {
 
    }
 
-   @Deprecated
    public ActionResultType use(BlockState p_225533_1_, World p_225533_2_, BlockPos p_225533_3_, PlayerEntity p_225533_4_, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
       return ActionResultType.PASS;
    }
 
-   @Deprecated
    public boolean triggerEvent(BlockState p_189539_1_, World p_189539_2_, BlockPos p_189539_3_, int p_189539_4_, int p_189539_5_) {
       return false;
    }
 
-   @Deprecated
    public BlockRenderType getRenderShape(BlockState p_149645_1_) {
       return BlockRenderType.MODEL;
    }
 
-   @Deprecated
    public boolean useShapeForLightOcclusion(BlockState p_220074_1_) {
       return false;
    }
 
-   @Deprecated
    public boolean isSignalSource(BlockState p_149744_1_) {
       return false;
    }
 
-   @Deprecated
    public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
       return this.material.getPushReaction();
    }
 
-   @Deprecated
    public FluidState getFluidState(BlockState p_204507_1_) {
       return Fluids.EMPTY.defaultFluidState();
    }
 
-   @Deprecated
    public boolean hasAnalogOutputSignal(BlockState p_149740_1_) {
       return false;
    }
@@ -179,27 +164,22 @@ public abstract class AbstractBlock {
       return AbstractBlock.OffsetType.NONE;
    }
 
-   @Deprecated
    public BlockState rotate(BlockState state, Rotation rotation) {
       return state;
    }
 
-   @Deprecated
    public BlockState mirror(BlockState state, Mirror mirroring) {
       return state;
    }
 
-   @Deprecated
    public boolean canBeReplaced(BlockState p_196253_1_, BlockItemUseContext p_196253_2_) {
       return this.material.isReplaceable() && (p_196253_2_.getItemInHand().isEmpty() || p_196253_2_.getItemInHand().getItem() != this.asItem());
    }
 
-   @Deprecated
    public boolean canBeReplaced(BlockState p_225541_1_, Fluid p_225541_2_) {
       return this.material.isReplaceable() || !this.material.isSolid();
    }
 
-   @Deprecated
    public List<ItemStack> getDrops(BlockState p_220076_1_, LootContext.Builder p_220076_2_) {
       ResourceLocation resourcelocation = this.getLootTable();
       if (resourcelocation == LootTables.EMPTY) {
@@ -212,28 +192,23 @@ public abstract class AbstractBlock {
       }
    }
 
-   @Deprecated
    @OnlyIn(Dist.CLIENT)
    public long getSeed(BlockState p_209900_1_, BlockPos p_209900_2_) {
       return MathHelper.getSeed(p_209900_2_);
    }
 
-   @Deprecated
    public VoxelShape getOcclusionShape(BlockState p_196247_1_, IBlockReader p_196247_2_, BlockPos p_196247_3_) {
       return p_196247_1_.getShape(p_196247_2_, p_196247_3_);
    }
 
-   @Deprecated
    public VoxelShape getBlockSupportShape(BlockState p_230335_1_, IBlockReader p_230335_2_, BlockPos p_230335_3_) {
       return this.getCollisionShape(p_230335_1_, p_230335_2_, p_230335_3_, ISelectionContext.empty());
    }
 
-   @Deprecated
    public VoxelShape getInteractionShape(BlockState p_199600_1_, IBlockReader p_199600_2_, BlockPos p_199600_3_) {
       return VoxelShapes.empty();
    }
 
-   @Deprecated
    public int getLightBlock(BlockState p_200011_1_, IBlockReader p_200011_2_, BlockPos p_200011_3_) {
       if (p_200011_1_.isSolidRender(p_200011_2_, p_200011_3_)) {
          return p_200011_2_.getMaxLightLevel();
@@ -243,29 +218,25 @@ public abstract class AbstractBlock {
    }
 
    @Nullable
-   @Deprecated
    public INamedContainerProvider getMenuProvider(BlockState p_220052_1_, World p_220052_2_, BlockPos p_220052_3_) {
       return null;
    }
 
-   @Deprecated
    public boolean canSurvive(BlockState p_196260_1_, IWorldReader p_196260_2_, BlockPos p_196260_3_) {
       return true;
    }
 
-   @Deprecated
    @OnlyIn(Dist.CLIENT)
    public float getShadeBrightness(BlockState p_220080_1_, IBlockReader p_220080_2_, BlockPos p_220080_3_) {
       return p_220080_1_.isCollisionShapeFullBlock(p_220080_2_, p_220080_3_) ? 0.2F : 1.0F;
    }
 
-   @Deprecated
    public int getAnalogOutputSignal(BlockState p_180641_1_, World p_180641_2_, BlockPos p_180641_3_) {
       return 0;
    }
 
    @Deprecated
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return VoxelShapes.block();
    }
 
@@ -355,6 +326,7 @@ public abstract class AbstractBlock {
       private final float destroySpeed;
       private final boolean requiresCorrectToolForDrops;
       private final boolean canOcclude;
+      private final boolean hasInsideStepSounds;
       private final AbstractBlock.IPositionPredicate isRedstoneConductor;
       private final AbstractBlock.IPositionPredicate isSuffocating;
       private final AbstractBlock.IPositionPredicate isViewBlocking;
@@ -377,6 +349,7 @@ public abstract class AbstractBlock {
          this.isRedstoneConductor = abstractblock$properties.isRedstoneConductor;
          this.isSuffocating = abstractblock$properties.isSuffocating;
          this.isViewBlocking = abstractblock$properties.isViewBlocking;
+         this.hasInsideStepSounds = abstractblock$properties.hasInsideStepSounds;
          this.hasPostProcess = abstractblock$properties.hasPostProcess;
          this.emissiveRendering = abstractblock$properties.emissiveRendering;
       }
@@ -391,6 +364,12 @@ public abstract class AbstractBlock {
       public Block getBlock() {
          return this.owner;
       }
+
+
+      public boolean hasInsideStepSounds() {
+         return this.is(Blocks.SNOW) || this.getBlock() instanceof PetalBlock || hasInsideStepSounds;
+      }
+
 
       public Material getMaterial() {
          return this.material;
@@ -414,6 +393,10 @@ public abstract class AbstractBlock {
 
       public VoxelShape getOcclusionShape(IBlockReader p_235754_1_, BlockPos p_235754_2_) {
          return this.getBlock().getOcclusionShape(this.asState(), p_235754_1_, p_235754_2_);
+      }
+
+      public boolean canBeReplaced() {
+         return this.getMaterial().isReplaceable();
       }
 
       public boolean hasLargeCollisionShape() {
@@ -673,7 +656,19 @@ public abstract class AbstractBlock {
          return this.getBlock().is(p_235714_1_);
       }
 
+      public boolean is(List<Block> list) {
+         return this.getBlock().is(list);
+      }
+
+      public boolean is(Set<Block> list) {
+         return this.getBlock().is(list);
+      }
+
       public boolean is(ITag<Block> p_235715_1_, Predicate<AbstractBlock.AbstractBlockState> p_235715_2_) {
+         return this.getBlock().is(p_235715_1_) && p_235715_2_.test(this);
+      }
+
+      public boolean is(List<Block> p_235715_1_, Predicate<AbstractBlock.AbstractBlockState> p_235715_2_) {
          return this.getBlock().is(p_235715_1_) && p_235715_2_.test(this);
       }
 
@@ -800,6 +795,7 @@ public abstract class AbstractBlock {
       private float destroyTime;
       private boolean requiresCorrectToolForDrops;
       private boolean isRandomlyTicking;
+      private boolean hasInsideStepSounds = false;
       private float friction = 0.6F;
       private float speedFactor = 1.0F;
       private float jumpFactor = 1.0F;
@@ -839,6 +835,8 @@ public abstract class AbstractBlock {
          return of(p_200945_0_, p_200945_0_.getColor());
       }
 
+
+
       public static AbstractBlock.Properties of(Material p_200952_0_, DyeColor p_200952_1_) {
          return of(p_200952_0_, p_200952_1_.getMaterialColor());
       }
@@ -870,9 +868,18 @@ public abstract class AbstractBlock {
          return abstractblock$properties;
       }
 
+      public static AbstractBlock.Properties fullCopy(AbstractBlock abstractBlock) {
+         return abstractBlock.properties;
+      }
+
       public AbstractBlock.Properties noCollission() {
          this.hasCollision = false;
          this.canOcclude = false;
+         return this;
+      }
+
+      public AbstractBlock.Properties hasInsideStepSounds() {
+         this.hasInsideStepSounds = true;
          return this;
       }
 

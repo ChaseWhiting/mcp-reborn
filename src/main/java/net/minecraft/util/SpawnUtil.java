@@ -3,9 +3,7 @@ package net.minecraft.util;
 import java.util.Optional;
 
 import net.minecraft.block.*;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Mob;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -59,6 +57,37 @@ public class SpawnUtil {
         return Optional.empty();
     }
 
+
+    public static Optional<BlockPos> getTeleportingPosition(EntityType<?> entityType, SpawnReason spawnReason, ServerWorld world, BlockPos centerPos, int attempts, int range, int verticalOffset, Strategy strategy, boolean checkCollision) {
+        BlockPos.Mutable mutablePos = centerPos.mutable();
+
+        for (int i = 0; i < attempts; ++i) {
+            int offsetX = MathHelper.randomBetweenInclusive(world.random, -range, range);
+            int offsetZ = MathHelper.randomBetweenInclusive(world.random, -range, range);
+            mutablePos.setWithOffset(centerPos, offsetX, verticalOffset, offsetZ);
+
+            if (!world.getWorldBorder().isWithinBounds(mutablePos)) continue;
+
+            if (!moveToPossibleSpawnPosition(world, verticalOffset, mutablePos, strategy)) continue;
+
+            if (checkCollision && !world.noCollision(entityType.getSpawnAABB((double) mutablePos.getX() + 0.5, mutablePos.getY(), (double) mutablePos.getZ() + 0.5))) {
+                continue;
+            }
+
+            Creature mob = (Creature) entityType.create(world);
+
+            if (mob != null && mob.checkSpawnRules(world, spawnReason) && mob.checkSpawnObstruction(world)) {
+                return Optional.of(mutablePos.immutable());
+            }
+
+            if (mob != null) {
+                mob.discard();
+            }
+        }
+
+        return Optional.empty();
+    }
+
     /**
      * Adjusts a mutable position to a valid spawn position based on the given strategy.
      *
@@ -99,7 +128,7 @@ public class SpawnUtil {
                     currentBlock.getBlock() instanceof LeavesBlock || currentBlock.is(Blocks.CONDUIT) || currentBlock.is(Blocks.ICE) ||
                     currentBlock.is(Blocks.TNT) || currentBlock.is(Blocks.GLOWSTONE) || currentBlock.is(Blocks.BEACON) ||
                     currentBlock.is(Blocks.SEA_LANTERN) || currentBlock.is(Blocks.FROSTED_ICE) ||
-                    currentBlock.is(Blocks.GLASS)) {
+                    currentBlock.is(Blocks.GLASS) || currentBlock.is(Blocks.TINTED_GLASS)) {
                 return false;
             }
             return aboveBlock.isAir() || !aboveBlock.getFluidState().isEmpty() || currentBlock.isSolidRender(world, pos);

@@ -12,11 +12,20 @@ public class Foods {
    public static final Food BEETROOT_SOUP = stew(6);
    public static final Food BREAD = (new Food.Builder()).nutrition(5).saturationMod(0.6F).build();
    public static final Food CARROT = (new Food.Builder()).nutrition(3).saturationMod(0.6F).build();
-   public static final Food CHICKEN = (new Food.Builder()).nutrition(2).saturationMod(0.3F).effect(new EffectInstance(Effects.HUNGER, 600, 0), 0.3F).meat().build();
    public static final Food CHORUS_FRUIT = (new Food.Builder()).nutrition(4).saturationMod(0.3F).alwaysEat().build();
    public static final Food COD = (new Food.Builder()).nutrition(2).saturationMod(0.1F).build();
    public static final Food COOKED_BEEF = (new Food.Builder()).nutrition(8).saturationMod(0.8F).meat().build();
+   public static final Food CHICKEN = (new Food.Builder()).nutrition(2).saturationMod(0.3F).effect(new EffectInstance(Effects.HUNGER, 600, 0), 0.3F).meat().build();
    public static final Food COOKED_CHICKEN = (new Food.Builder()).nutrition(6).saturationMod(0.6F).meat().build();
+
+   public static final Food DRUMSTICK = (new Food.Builder()).nutrition(1).saturationMod(0.1F).fast().effect(new EffectInstance(Effects.HUNGER, 30 * 20, 2), 0.65F).meat().build();
+   public static final Food COOKED_DRUMSTICK = (new Food.Builder()).nutrition(3).saturationMod(0.7F).meat().build();
+
+   public static final Food FRIED_EGG = (new Food.Builder()).nutrition(3).saturationMod(0.35F).build();
+   public static final Food FRIED_EGGS_DOUBLE = (new Food.Builder()).nutrition(6).saturationMod(0.55F).build();
+   public static final Food FRIED_EGGS_TRIPLE = (new Food.Builder()).nutrition(9).saturationMod(0.83F).build();
+
+
    public static final Food COOKED_COD = (new Food.Builder()).nutrition(5).saturationMod(0.6F).build();
    public static final Food COOKED_MUTTON = (new Food.Builder()).nutrition(6).saturationMod(0.8F).meat().build();
    public static final Food COOKED_PORKCHOP = (new Food.Builder()).nutrition(8).saturationMod(0.8F).meat().build();
@@ -30,6 +39,8 @@ public class Foods {
    public static final Food GOLDEN_APPLE = (new Food.Builder()).nutrition(4).saturationMod(1.2F).effect(new EffectInstance(Effects.REGENERATION, 100, 1), 1.0F).effect(new EffectInstance(Effects.ABSORPTION, 2400, 0), 1.0F).alwaysEat().build();
    public static final Food GOLDEN_CARROT = (new Food.Builder()).nutrition(6).saturationMod(1.2F).build();
    public static final Food HONEY_BOTTLE = (new Food.Builder()).nutrition(6).saturationMod(0.1F).effect(new EffectInstance(Effects.HONEY, 5 * 20, 0), 1.0F).build();
+   public static final Food LIGHTNING = (new Food.Builder()).nutrition(0).saturationMod(0).build();
+
    public static final Food ROYAL_JELLY = (new Food.Builder()).nutrition(8).saturationMod(0.55F).effect(new EffectInstance(Effects.HONEY, 20 * 20, 0), 1.0F).build();
    public static final Food MELON_SLICE = (new Food.Builder()).nutrition(2).saturationMod(0.3F).build();
    public static final Food MUSHROOM_STEW = stew(6);

@@ -1,14 +1,12 @@
 
 package net.minecraft.block;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -21,7 +19,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
-import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.function.BiFunction;
 
@@ -65,16 +62,8 @@ extends BushBlock implements IGrowable{
     }
 
     @Override
-    public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-        return SHAPE_BY_PROPERTIES.apply(p_220053_1_.getValue(FACING), p_220053_1_.getValue(AMOUNT));
-    }
-
-    @Override
-    public void playerDestroy(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
-        super.playerDestroy(worldIn, player, pos, state, te, stack);
-        if (!player.isCreative()) {
-            popResource(worldIn, pos, new ItemStack(this, state.getValue(AMOUNT)));
-        }
+    public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+        return SHAPE_BY_PROPERTIES.apply(state.getValue(FACING), state.getValue(AMOUNT));
     }
 
     @Override
@@ -87,8 +76,8 @@ extends BushBlock implements IGrowable{
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> containerBlockBuilder) {
-        containerBlockBuilder.add(FACING, AMOUNT);
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+        builder.add(FACING, AMOUNT);
     }
 
     @Override

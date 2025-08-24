@@ -22,7 +22,6 @@ import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.bundle.BundleRecipeProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.CookingRecipeSerializer;
@@ -95,10 +94,12 @@ public class RecipeProvider implements IDataProvider {
          }
 
          p_208310_0_.putNew(p_208310_2_, s1);
+
+         System.out.println("Advancement saved at: " + p_208310_2_.toAbsolutePath());
+
       } catch (IOException ioexception) {
          LOGGER.error("Couldn't save recipe advancement {}", p_208310_2_, ioexception);
       }
-
    }
 
    private static void buildShapelessRecipes(Consumer<IFinishedRecipe> p_200404_0_) {
@@ -487,7 +488,7 @@ public class RecipeProvider implements IDataProvider {
       ShapedRecipeBuilder.shaped(Items.GOLDEN_HOE).define('#', Items.STICK).define('X', Items.GOLD_INGOT).pattern("XX").pattern(" #").pattern(" #").unlockedBy("has_gold_ingot", has(Items.GOLD_INGOT)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Items.GOLDEN_LEGGINGS).define('X', Items.GOLD_INGOT).pattern("XXX").pattern("X X").pattern("X X").unlockedBy("has_gold_ingot", has(Items.GOLD_INGOT)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Items.GOLDEN_PICKAXE).define('#', Items.STICK).define('X', Items.GOLD_INGOT).pattern("XXX").pattern(" # ").pattern(" # ").unlockedBy("has_gold_ingot", has(Items.GOLD_INGOT)).save(p_200404_0_);
-      ShapedRecipeBuilder.shaped(Blocks.POWERED_RAIL, 6).define('R', Items.REDSTONE).define('#', Items.STICK).define('X', Items.GOLD_INGOT).pattern("X X").pattern("X#X").pattern("XRX").unlockedBy("has_rail", has(Blocks.RAIL)).save(p_200404_0_);
+      ShapedRecipeBuilder.shaped(Blocks.GOLDEN_POWERED_RAIL, 6).define('R', Items.REDSTONE).define('#', Items.STICK).define('X', Items.GOLD_INGOT).pattern("X X").pattern("X#X").pattern("XRX").unlockedBy("has_rail", has(Blocks.RAIL)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Items.GOLDEN_SHOVEL).define('#', Items.STICK).define('X', Items.GOLD_INGOT).pattern("X").pattern("#").pattern("#").unlockedBy("has_gold_ingot", has(Items.GOLD_INGOT)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Items.GOLDEN_SWORD).define('#', Items.STICK).define('X', Items.GOLD_INGOT).pattern("X").pattern("X").pattern("#").unlockedBy("has_gold_ingot", has(Items.GOLD_INGOT)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Blocks.GOLD_BLOCK).define('#', Items.GOLD_INGOT).pattern("###").pattern("###").pattern("###").unlockedBy("has_gold_ingot", has(Items.GOLD_INGOT)).save(p_200404_0_);
@@ -566,6 +567,7 @@ public class RecipeProvider implements IDataProvider {
       ShapedRecipeBuilder.shaped(Blocks.NOTE_BLOCK).define('#', ItemTags.PLANKS).define('X', Items.REDSTONE).pattern("###").pattern("#X#").pattern("###").unlockedBy("has_redstone", has(Items.REDSTONE)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Blocks.OBSERVER).define('Q', Items.QUARTZ).define('R', Items.REDSTONE).define('#', Blocks.COBBLESTONE).pattern("###").pattern("RRQ").pattern("###").unlockedBy("has_quartz", has(Items.QUARTZ)).save(p_200404_0_);
       ShapelessRecipeBuilder.shapeless(Items.ORANGE_DYE).requires(Blocks.ORANGE_TULIP).group("orange_dye").unlockedBy("has_red_flower", has(Blocks.ORANGE_TULIP)).save(p_200404_0_, "orange_dye_from_orange_tulip");
+      ShapelessRecipeBuilder.shapeless(Items.ORANGE_DYE).requires(Blocks.WILDFLOWERS).group("orange_dye").unlockedBy("has_wildflowers", has(Blocks.WILDFLOWERS)).save(p_200404_0_, "orange_dye_from_wildflowers");
       ShapelessRecipeBuilder.shapeless(Items.ORANGE_DYE, 2).requires(Items.RED_DYE).requires(Items.YELLOW_DYE).group("orange_dye").unlockedBy("has_red_dye", has(Items.RED_DYE)).unlockedBy("has_yellow_dye", has(Items.YELLOW_DYE)).save(p_200404_0_, "orange_dye_from_red_yellow");
       ShapedRecipeBuilder.shaped(Items.PAINTING).define('#', Items.STICK).define('X', Ingredient.of(ItemTags.WOOL)).pattern("###").pattern("#X#").pattern("###").unlockedBy("has_wool", has(ItemTags.WOOL)).save(p_200404_0_);
       ShapedRecipeBuilder.shaped(Items.PAPER, 3).define('#', Blocks.SUGAR_CANE).pattern("###").unlockedBy("has_reeds", has(Blocks.SUGAR_CANE)).save(p_200404_0_);

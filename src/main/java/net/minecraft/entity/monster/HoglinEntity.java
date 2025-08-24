@@ -66,15 +66,15 @@ public class HoglinEntity extends Animal implements IMob, IFlinging {
       return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 40.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.KNOCKBACK_RESISTANCE, (double)0.6F).add(Attributes.ATTACK_KNOCKBACK, 1.0D).add(Attributes.ATTACK_DAMAGE, 6.0D);
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      if (!(p_70652_1_ instanceof LivingEntity)) {
+   public boolean doHurtTarget(Entity target) {
+      if (!(target instanceof LivingEntity)) {
          return false;
       } else {
          this.attackAnimationRemainingTicks = 10;
          this.level.broadcastEntityEvent(this, (byte)4);
          this.playSound(SoundEvents.HOGLIN_ATTACK, 1.0F, this.getVoicePitch());
-         HoglinTasks.onHitTarget(this, (LivingEntity)p_70652_1_);
-         return IFlinging.hurtAndThrowTarget(this, (LivingEntity)p_70652_1_);
+         HoglinTasks.onHitTarget(this, (LivingEntity) target);
+         return IFlinging.hurtAndThrowTarget(this, (LivingEntity) target);
       }
    }
 

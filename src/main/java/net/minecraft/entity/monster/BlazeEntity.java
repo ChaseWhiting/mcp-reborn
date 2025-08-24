@@ -39,6 +39,8 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
    private static final DataParameter<Boolean> IS_DYING = EntityDataManager.defineId(BlazeEntity.class, DataSerializers.BOOLEAN);
 
    public final AnimationState deathAnimationState = new AnimationState();
+   public final AnimationState chargeState = new AnimationState();
+
 
    public BlazeEntity(EntityType<? extends BlazeEntity> p_i50215_1_, World p_i50215_2_) {
       super(p_i50215_1_, p_i50215_2_);
@@ -102,7 +104,9 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
    public void tick() {
       super.tick();
 
-
+      if (level.isClientSide) {
+         this.chargeState.animateWhen(this.isCharged(), this.tickCount);
+      }
       this.entityData.set(IS_DYING, this.deathTime > 0);
 
    }
@@ -181,7 +185,7 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
       return this.isCharged();
    }
 
-   private boolean isCharged() {
+   public boolean isCharged() {
       return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
    }
 
@@ -277,7 +281,8 @@ public class BlazeEntity extends AbstractNetherInvaderEntity {
                   }
 
                   if (this.attackStep > 1) {
-                     float f = MathHelper.sqrt(MathHelper.sqrt(d0)) * 0.5F;
+
+                     float f = hard ? MathHelper.sqrt(MathHelper.sqrt(d0)) * 0.3F : MathHelper.sqrt(MathHelper.sqrt(d0)) * 0.5F;
                      if (!this.blaze.isSilent()) {
                         this.blaze.level.levelEvent((PlayerEntity)null, 1018, this.blaze.blockPosition(), 0);
                      }

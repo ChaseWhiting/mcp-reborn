@@ -19,9 +19,11 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.entity.leashable.Leashable;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
@@ -70,6 +72,36 @@ public class RavagerEntity extends AbstractRaiderEntity {
       this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, true));
       this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, true));
    }
+
+
+    @Override public boolean canBeLeashed() {
+      return !this.isAggressive() || this.isLeashed();
+    }
+
+   @Override
+   public void closeRangeLeashBehaviour(Entity entity) {
+       if (!this.isAggressive()) {
+           super.closeRangeLeashBehaviour(entity);
+       }
+   }
+
+   @Override
+   public void whenLeashedTo(Entity entity) {
+      if (!this.isAggressive()) {
+         super.whenLeashedTo(entity);
+      }
+   }
+
+   @Override
+   public boolean supportQuadLeash() {
+      return true;
+   }
+
+   @Override
+   public Vector3d[] getQuadLeashOffsets() {
+      return Leashable.createQuadLeashOffsets(this, 0.04, 0.52, 0.23, 0.87);
+   }
+
 
    protected void updateControlFlags() {
       boolean flag = !(this.getControllingPassenger() instanceof Mob) || this.getControllingPassenger().getType().is(EntityTypeTags.RAIDERS);
@@ -232,6 +264,7 @@ public class RavagerEntity extends AbstractRaiderEntity {
             double d2 = this.random.nextGaussian() * 0.2D;
             this.level.addParticle(ParticleTypes.POOF, vector3d.x, vector3d.y, vector3d.z, d0, d1, d2);
          }
+         this.gameEvent(GameEvent.ENTITY_ROAR);
       }
 
    }
@@ -270,11 +303,11 @@ public class RavagerEntity extends AbstractRaiderEntity {
       return this.roarTick;
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
+   public boolean doHurtTarget(Entity target) {
       this.attackTick = 10;
       this.level.broadcastEntityEvent(this, (byte)4);
       this.playSound(SoundEvents.RAVAGER_ATTACK, 1.0F, 1.0F);
-      return super.doHurtTarget(p_70652_1_);
+      return super.doHurtTarget(target);
    }
 
    @Nullable

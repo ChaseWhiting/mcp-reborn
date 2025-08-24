@@ -3,31 +3,25 @@ package net.minecraft.block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.passive.BeeEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.ParticleTypes;
+import net.minecraft.particles.TrailParticleOption;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
-import net.minecraft.stats.Stats;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.IServerWorld;
+import net.minecraft.world.TickPriority;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Random;
-
+@SuppressWarnings("all")
 public class EyeblossomBlock extends FlowerBlock {
    private final Type type;
 
@@ -87,10 +81,10 @@ public class EyeblossomBlock extends FlowerBlock {
 
       BlockPos.betweenClosed(pos.offset(-3, -2, -3), pos.offset(3, 2, 3)).forEach(neighborPos -> {
          BlockState neighborState = world.getBlockState(neighborPos);
-         if (neighborState == state) {
+         if (neighborState.getBlock() == state.getBlock()) {
             double distance = Math.sqrt(pos.distSqr(neighborPos));
             int delay = nextIntBetweenInclusive((int) (distance * 5.0), (int) (distance * 10.0), random);
-            world.getBlockTicks().scheduleTick(pos, this, delay);
+            world.getBlockTicks().scheduleTick(neighborPos, this, delay, TickPriority.HIGH);
          }
       });
 
@@ -185,30 +179,13 @@ public class EyeblossomBlock extends FlowerBlock {
       }
 
       public void spawnTransformParticle(ServerWorld world, BlockPos pos, Random random) {
-         BlockState state = world.getBlockState(pos);
-         VoxelShape voxelshape = state.getShape(world, pos, ISelectionContext.empty());
-         Vector3d vector3d = voxelshape.bounds().getCenter();
-         int color = this == OPEN ? 0xec7214 : 0x726669;
-         double red = (double) (color >> 16 & 255) / 255.0D;
-         double green = (double) (color >> 8 & 255) / 255.0D;
-         double blue = (double) (color & 255) / 255.0D;
-         double d0 = (double)pos.getX() + vector3d.x;
-         double d1 = (double)pos.getZ() + vector3d.z;
-
-         for(int i = 0; i < 3; ++i) {
-            if (random.nextBoolean()) {
-               world.addParticle(ParticleTypes.SMOKE, d0 + random.nextDouble() / 5.0D, (double)pos.getY() + (0.5D - random.nextDouble()), d1 + random.nextDouble() / 5.0D, red, green, blue);
-            }
-         }
+         Vector3d vector3d = pos.getCenter();
+         double d = 0.5 + random.nextDouble();
+         Vector3d vector3d1 = new Vector3d(random.nextDouble() - 0.5, random.nextDouble() + 1.0, random.nextDouble() - 0.5);
+         Vector3d vector3d2 = vector3d.add(vector3d1.scale(d));
+         TrailParticleOption trailParticleOption = new TrailParticleOption(vector3d2, this.particleColor, (int)(20.0 * d));
+         world.sendParticles(trailParticleOption, vector3d.x, vector3d.y, vector3d.z, 1, 0.0, 0.0, 0.0, 0.0);
       }
 
-   }
-
-   @Override
-   public void playerDestroy(World p_180657_1_, PlayerEntity p_180657_2_, BlockPos p_180657_3_, BlockState p_180657_4_, @Nullable TileEntity p_180657_5_, ItemStack p_180657_6_) {
-      p_180657_2_.awardStat(Stats.BLOCK_MINED.get(this));
-      p_180657_2_.causeFoodExhaustion(0.005F);
-
-      popResource(p_180657_1_, p_180657_3_, new ItemStack(this.type.block()));
    }
 }

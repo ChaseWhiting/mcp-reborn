@@ -2,27 +2,17 @@ package net.minecraft.entity.monster;
 
 import java.util.*;
 
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IChargeableMob;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.entity.ai.goal.CreeperSwellGoal;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -37,13 +27,12 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @OnlyIn(
    value = Dist.CLIENT,
@@ -61,14 +50,19 @@ public class CreeperEntity extends Monster implements IChargeableMob {
 
    public CreeperEntity(EntityType<? extends CreeperEntity> p_i50213_1_, World p_i50213_2_) {
       super(p_i50213_1_, p_i50213_2_);
+
+      if (veryHardmode()) {
+         this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(24D);
+      }
    }
 
    protected void registerGoals() {
       this.goalSelector.addGoal(1, new SwimGoal(this));
+      //this.goalSelector.addGoal(1, new AdvancedCreeperSwellGoal(this));
       this.goalSelector.addGoal(2, new CreeperSwellGoal(this));
       this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, OcelotEntity.class, 6.0F, 1.0D, 1.2D));
       this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, CatEntity.class, 6.0F, 1.0D, 1.2D));
-      this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0D, false));
+      this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0D, this.veryHardmode()));
       this.goalSelector.addGoal(5, new WaterAvoidingRandomWalkingGoal(this, 0.8D));
       this.goalSelector.addGoal(6, new LookAtGoal(this, PlayerEntity.class, 8.0F));
       this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
@@ -79,7 +73,7 @@ public class CreeperEntity extends Monster implements IChargeableMob {
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
-      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.FOLLOW_RANGE, 23);
+      return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.FOLLOW_RANGE, 16D);
    }
 
    public int getMaxFallDistance() {
@@ -145,6 +139,7 @@ public class CreeperEntity extends Monster implements IChargeableMob {
          int i = this.getSwellDir();
          if (i > 0 && this.swell == 0) {
             this.playSound(SoundEvents.CREEPER_PRIMED, 1.0F, 0.5F);
+            this.gameEvent(GameEvent.PRIME_FUSE);
          }
 
          this.swell += i;
@@ -182,7 +177,14 @@ public class CreeperEntity extends Monster implements IChargeableMob {
 
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
+   @Override
+   public @Nullable ILivingEntityData finalizeSpawn(IServerWorld p_213386_1_, DifficultyInstance p_213386_2_, SpawnReason p_213386_3_, @Nullable ILivingEntityData p_213386_4_, @Nullable CompoundNBT p_213386_5_) {
+      if (this.veryHardmode() && random.nextFloat() < 0.15) this.entityData.set(DATA_IS_POWERED, true);
+
+      return super.finalizeSpawn(p_213386_1_, p_213386_2_, p_213386_3_, p_213386_4_, p_213386_5_);
+   }
+
+   public boolean doHurtTarget(Entity target) {
       return true;
    }
 

@@ -12,6 +12,7 @@ import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.*;
@@ -232,6 +233,7 @@ public class GildedRavagerEntity extends AbstractRaiderEntity {
             double d2 = this.random.nextGaussian() * 0.2D;
             this.level.addParticle(ParticleTypes.POOF, vector3d.x, vector3d.y, vector3d.z, d0, d1, d2);
          }
+         this.gameEvent(GameEvent.ENTITY_ROAR);
          List<LivingEntity> entities = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(8.0D), entity -> entity != this);
          if(!entities.isEmpty()) {
             for (Entity entity : entities) {
@@ -330,11 +332,11 @@ public class GildedRavagerEntity extends AbstractRaiderEntity {
       return this.roarTick;
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
+   public boolean doHurtTarget(Entity target) {
       this.attackTick = 25;
       this.level.broadcastEntityEvent(this, ATTACK_BYTE);
       this.playSound(SoundEvents.RAVAGER_ATTACK, 1.0F, 1.0F);
-      return super.doHurtTarget(p_70652_1_);
+      return super.doHurtTarget(target);
    }
 
    @Nullable

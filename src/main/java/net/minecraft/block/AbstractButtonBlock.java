@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.AttachFace;
@@ -44,20 +45,30 @@ public abstract class AbstractButtonBlock extends HorizontalFaceBlock {
    protected static final VoxelShape PRESSED_EAST_AABB = Block.box(0.0D, 6.0D, 5.0D, 1.0D, 10.0D, 11.0D);
    private final boolean sensitive;
 
-   protected AbstractButtonBlock(boolean p_i48436_1_, AbstractBlock.Properties p_i48436_2_) {
+   protected AbstractButtonBlock(boolean p_i48436_1_, Properties p_i48436_2_) {
       super(p_i48436_2_);
       this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(FACE, AttachFace.WALL));
       this.sensitive = p_i48436_1_;
    }
 
-   private int getPressDuration() {
+   public int getPressDuration() {
+      if (this.isCopper()) {
+         CopperButtonBlock block = (CopperButtonBlock) this;
+         return switch(block.getAge()) {
+             case UNAFFECTED -> 15;
+             case EXPOSED -> 30;
+             case WEATHERED -> 45;
+             case OXIDIZED -> 75;
+         };
+      }
+
       return this.sensitive ? 30 : 20;
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      Direction direction = p_220053_1_.getValue(FACING);
-      boolean flag = p_220053_1_.getValue(POWERED);
-      switch((AttachFace)p_220053_1_.getValue(FACE)) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      Direction direction = state.getValue(FACING);
+      boolean flag = state.getValue(POWERED);
+      switch((AttachFace) state.getValue(FACE)) {
       case FLOOR:
          if (direction.getAxis() == Direction.Axis.X) {
             return flag ? PRESSED_FLOOR_AABB_X : FLOOR_AABB_X;
@@ -92,6 +103,7 @@ public abstract class AbstractButtonBlock extends HorizontalFaceBlock {
       } else {
          this.press(p_225533_1_, p_225533_2_, p_225533_3_);
          this.playSound(p_225533_4_, p_225533_2_, p_225533_3_, true);
+         p_225533_2_.gameEvent(p_225533_4_, GameEvent.BLOCK_ACTIVATE, p_225533_3_);
          return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);
       }
    }
@@ -103,7 +115,11 @@ public abstract class AbstractButtonBlock extends HorizontalFaceBlock {
    }
 
    protected void playSound(@Nullable PlayerEntity p_196367_1_, IWorld p_196367_2_, BlockPos p_196367_3_, boolean p_196367_4_) {
-      p_196367_2_.playSound(p_196367_4_ ? p_196367_1_ : null, p_196367_3_, this.getSound(p_196367_4_), SoundCategory.BLOCKS, 0.3F, p_196367_4_ ? 0.6F : 0.5F);
+      p_196367_2_.playSound(p_196367_4_ ? p_196367_1_ : null, p_196367_3_, this.getSound(p_196367_4_), SoundCategory.BLOCKS, this.isCopper() ? 1.2F : 0.3F, p_196367_4_ ? 0.6F : this.isCopper() ? 1.0F : 0.5F);
+   }
+
+   public boolean isCopper() {
+      return this instanceof CopperButtonBlock;
    }
 
    protected abstract SoundEvent getSound(boolean p_196369_1_);
@@ -149,28 +165,30 @@ public abstract class AbstractButtonBlock extends HorizontalFaceBlock {
       }
    }
 
-   private void checkPressed(BlockState p_185616_1_, World p_185616_2_, BlockPos p_185616_3_) {
-      List<? extends Entity> list = p_185616_2_.getEntitiesOfClass(AbstractArrowEntity.class, p_185616_1_.getShape(p_185616_2_, p_185616_3_).bounds().move(p_185616_3_));
+   private void checkPressed(BlockState p_185616_1_, World level, BlockPos blockPos) {
+      List<? extends Entity> list = level.getEntitiesOfClass(AbstractArrowEntity.class, p_185616_1_.getShape(level, blockPos).bounds().move(blockPos));
       boolean flag = !list.isEmpty();
       boolean flag1 = p_185616_1_.getValue(POWERED);
       if (flag != flag1) {
-         p_185616_2_.setBlock(p_185616_3_, p_185616_1_.setValue(POWERED, Boolean.valueOf(flag)), 3);
-         this.updateNeighbours(p_185616_1_, p_185616_2_, p_185616_3_);
-         this.playSound((PlayerEntity)null, p_185616_2_, p_185616_3_, flag);
+         level.setBlock(blockPos, p_185616_1_.setValue(POWERED, Boolean.valueOf(flag)), 3);
+         this.updateNeighbours(p_185616_1_, level, blockPos);
+         this.playSound((PlayerEntity)null, level, blockPos, flag);
+         level.gameEvent((Entity)list.stream().findFirst().orElse(null), flag1 ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, blockPos);
+
       }
 
       if (flag) {
-         p_185616_2_.getBlockTicks().scheduleTick(new BlockPos(p_185616_3_), this, this.getPressDuration());
+         level.getBlockTicks().scheduleTick(new BlockPos(blockPos), this, this.getPressDuration());
       }
 
    }
 
-   private void updateNeighbours(BlockState p_196368_1_, World p_196368_2_, BlockPos p_196368_3_) {
+   public void updateNeighbours(BlockState p_196368_1_, World p_196368_2_, BlockPos p_196368_3_) {
       p_196368_2_.updateNeighborsAt(p_196368_3_, this);
       p_196368_2_.updateNeighborsAt(p_196368_3_.relative(getConnectedDirection(p_196368_1_).getOpposite()), this);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, POWERED, FACE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, POWERED, FACE);
    }
 }

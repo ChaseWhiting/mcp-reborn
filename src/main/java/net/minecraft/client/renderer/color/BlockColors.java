@@ -45,9 +45,19 @@ public class BlockColors {
       blockcolors.register((p_228062_0_, p_228062_1_, p_228062_2_, p_228062_3_) -> {
          return FoliageColors.getBirchColor();
       }, Blocks.BIRCH_LEAVES);
-      blockcolors.register((p_228061_0_, p_228061_1_, p_228061_2_, p_228061_3_) -> {
-         return p_228061_1_ != null && p_228061_2_ != null ? BiomeColors.getAverageFoliageColor(p_228061_1_, p_228061_2_) : FoliageColors.getDefaultColor();
+      blockcolors.register((blockState, blockAndTintGetter, blockPos, n) -> {
+         if (n != 0) {
+            if (blockAndTintGetter == null || blockPos == null) {
+               return FoliageColors.getDefaultColor();
+            }
+            return BiomeColors.getAverageGrassColor(blockAndTintGetter, blockPos);
+         }
+         return -1;
+      }, Blocks.PINK_PETALS, Blocks.WILDFLOWERS);
+      blockcolors.register((state, iBlockDisplayReader, pos, i) -> {
+         return iBlockDisplayReader != null && pos != null ? BiomeColors.getAverageFoliageColor(iBlockDisplayReader, pos) : FoliageColors.getDefaultColor();
       }, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.VINE);
+
       blockcolors.register((p_228060_0_, p_228060_1_, p_228060_2_, p_228060_3_) -> {
          return p_228060_1_ != null && p_228060_2_ != null ? BiomeColors.getAverageWaterColor(p_228060_1_, p_228060_2_) : -1;
       }, Blocks.WATER, Blocks.BUBBLE_COLUMN, Blocks.CAULDRON);

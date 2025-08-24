@@ -6,22 +6,35 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.block.*;
+import net.minecraft.entity.allay.AllayEntity;
+import net.minecraft.entity.axolotl.AxolotlEntity;
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.boss.sovereign.InfernalSovereignEntity;
+import net.minecraft.entity.camel.CamelEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
+import net.minecraft.entity.frog.FrogEntity;
+import net.minecraft.entity.frog.TadpoleEntity;
+import net.minecraft.entity.goat.GoatEntity;
+import net.minecraft.entity.gumbeeper.GumballEntity;
+import net.minecraft.entity.gumbeeper.GumbeeperEntity;
+import net.minecraft.entity.happy_ghast.HappyGhastEntity;
 import net.minecraft.entity.herobrine.HerobrineEntity;
 import net.minecraft.entity.item.*;
 import net.minecraft.entity.item.minecart.*;
 import net.minecraft.entity.merchant.villager.*;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.monster.bogged.BoggedEntity;
+import net.minecraft.entity.monster.breeze.BreezeEntity;
 import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.monster.creaking.CreakingTransient;
+import net.minecraft.entity.monster.crimson_mosquito.CrimsonMosquitoEntity;
+import net.minecraft.entity.monster.enderiophage.EntityEnderiophage;
 import net.minecraft.entity.monster.piglin.*;
 import net.minecraft.entity.passive.*;
-import net.minecraft.entity.passive.allay.AllayEntity;
 import net.minecraft.entity.passive.fish.*;
 import net.minecraft.entity.passive.horse.*;
+import net.minecraft.entity.passive.roadrunner.RoadrunnerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.*;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowEntity;
@@ -30,14 +43,18 @@ import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuSecondFormEnt
 import net.minecraft.entity.terraria.boss.twins.RetinazerEntity;
 import net.minecraft.entity.terraria.creature.WormEntity;
 import net.minecraft.entity.terraria.monster.demoneye.DemonEyeEntity;
+import net.minecraft.entity.warden.WardenEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.dagger.DesolateDaggerEntity;
 import net.minecraft.nbt.*;
+import net.minecraft.pokemon.entity.RattataEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.*;
 import net.minecraft.util.*;
 import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.*;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.*;
 import net.minecraft.world.*;
@@ -51,6 +68,9 @@ public class EntityType<T extends Entity> {
 
     private static final Logger LOGGER = LogManager.getLogger();
    public static final EntityType<AllayEntity> ALLAY = register("allay", EntityType.Builder.of(AllayEntity::new, CREATURE).sized(0.35F, 0.6F).clientTrackingRange(8).updateInterval(2));
+   public static final EntityType<RoadrunnerEntity> ROADRUNNER = register("roadrunner", EntityType.Builder.of(RoadrunnerEntity::new, CREATURE).sized(0.45F, 0.75F).clientTrackingRange(10));
+   public static final EntityType<EntityEnderiophage> ENDERIOPHAGE = register("enderiophage", EntityType.Builder.of(EntityEnderiophage::new, CREATURE).sized(0.85F, 1.95F).clientTrackingRange(8).updateInterval(1));
+
 
    public static final EntityType<AreaEffectCloudEntity> AREA_EFFECT_CLOUD = register("area_effect_cloud", EntityType.Builder.<AreaEffectCloudEntity>of(AreaEffectCloudEntity::new, EntityClassification.MISC).fireImmune().sized(6.0F, 0.5F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
    public static final EntityType<ArmorStandEntity> ARMOR_STAND = register("armor_stand", EntityType.Builder.<ArmorStandEntity>of(ArmorStandEntity::new, EntityClassification.MISC).sized(0.5F, 1.975F).clientTrackingRange(10));
@@ -60,27 +80,53 @@ public class EntityType<T extends Entity> {
    public static final EntityType<BatEntity> BAT = register("bat", EntityType.Builder.<BatEntity>of(BatEntity::new, EntityClassification.AMBIENT).sized(0.5F, 0.95F).clientTrackingRange(5));
    public static final EntityType<PaleGardenBatEntity> PALE_GARDEN_BAT = register("pale_garden_bat", EntityType.Builder.<PaleGardenBatEntity>of(PaleGardenBatEntity::new, EntityClassification.MONSTER).sized(0.5F, 0.9F).clientTrackingRange(5));
 
+   public static final EntityType<CrimsonMosquitoEntity> CRIMSON_MOSQUITO = register("crimson_mosquito", EntityType.Builder.<CrimsonMosquitoEntity>of(CrimsonMosquitoEntity::new, EntityClassification.MONSTER).sized(1.25F, 1.15f).fireImmune());
+
    public static final EntityType<OwlEntity> OWL = register("owl", Builder.<OwlEntity>of(OwlEntity::new, CREATURE).sized(0.7F, 0.8F).clientTrackingRange(12));
    public static final EntityType<QueenBeeEntity> QUEEN_BEE = register("queen_bee", EntityType.Builder.<QueenBeeEntity>of(QueenBeeEntity::new, CREATURE).sized(0.9F, 0.79F).clientTrackingRange(10));
    public static final EntityType<FakeEndstoneBlockEntity> ENDSTONE_BLOCK = register("endstone_block", EntityType.Builder.<FakeEndstoneBlockEntity>of(FakeEndstoneBlockEntity::new, EntityClassification.MONSTER).sized(1,1).clientTrackingRange(12));
+   public static final EntityType<AxolotlEntity> AXOLOTL = EntityType.register("axolotl", Builder.of(AxolotlEntity::new, EntityClassification.WATER_AMBIENT).sized(0.75f, 0.42f).clientTrackingRange(10));
 
+   public static final EntityType<CamelEntity> CAMEL = EntityType.register("camel", Builder.of(CamelEntity::new, EntityClassification.CREATURE).sized(1.7f, 2.375f).clientTrackingRange(10));
+   public static final EntityType<TadpoleEntity> TADPOLE = EntityType.register("tadpole", Builder.of(TadpoleEntity::new, EntityClassification.CREATURE).sized(TadpoleEntity.HITBOX_WIDTH, TadpoleEntity.HITBOX_HEIGHT).clientTrackingRange(10));
+   public static final EntityType<WardenEntity> WARDEN = EntityType.register("warden", Builder.of(WardenEntity::new, EntityClassification.MONSTER).sized(0.9f, 2.9f).clientTrackingRange(16).fireImmune());
+
+   public static final EntityType<HappyGhastEntity> HAPPY_GHAST = EntityType.register("happy_ghast", Builder.of(HappyGhastEntity::new, EntityClassification.CREATURE).sized(4.0f, 4.0f).eyeHeight(2.6f).passengerAttachments(new Vector3d(0.0, 4.0, 1.7), new Vector3d(-1.7, 4.0, 0.0), new Vector3d(0.0, 4.0, -1.7), new Vector3d(1.7, 4.0, 0.0)).ridingOffset(0.5f).clientTrackingRange(10));
+
+
+   public static final EntityType<FrogEntity> FROG = EntityType.register("frog", Builder.of(FrogEntity::new, EntityClassification.CREATURE).sized(0.5f, 0.5f).clientTrackingRange(10));
+
+
+   public static final EntityType<GoatEntity> GOAT = EntityType.register("goat", Builder.of(GoatEntity::new, EntityClassification.CREATURE).sized(0.9f, 1.3f).clientTrackingRange(10));
 
    public static final EntityType<GreatHungerEntity> GREAT_HUNGER = register("great_hunger", EntityType.Builder.<GreatHungerEntity>of(GreatHungerEntity::new, EntityClassification.MONSTER).sized(0.65F,0.62F).clientTrackingRange(12));
    public static final EntityType<CreakingEntity> CREAKING = register("creaking", EntityType.Builder.<CreakingEntity>of(CreakingEntity::new, EntityClassification.MONSTER).fireImmune().canSpawnFarFromPlayer().sized(0.9F,2.7F).clientTrackingRange(12));
    public static final EntityType<CreakingTransient> CREAKING_TRANSIENT = register("creaking_transient", EntityType.Builder.<CreakingTransient>of(CreakingTransient::new, EntityClassification.MONSTER).fireImmune().sized(0.9F,2.7F).clientTrackingRange(12));
+   public static final EntityType<InfernalSovereignEntity> INFERNAL_SOVEREIGN = register("infernal_sovereign", EntityType.Builder.<InfernalSovereignEntity>of(InfernalSovereignEntity::new, EntityClassification.MONSTER).fireImmune().sized(0.9F,2.6F).clientTrackingRange(12));
 
 
    public static final EntityType<RayTracing> RAY_TRACING = EntityType.register("ray_tracing", Builder.of(RayTracing::new, EntityClassification.AMBIENT).noSave().sized(0.6f, 1.8f).clientTrackingRange(8));
 
    public static final EntityType<BeeEntity> BEE = register("bee", EntityType.Builder.<BeeEntity>of(BeeEntity::new, CREATURE).sized(0.7F, 0.6F).clientTrackingRange(8));
    public static final EntityType<BlazeEntity> BLAZE = register("blaze", EntityType.Builder.<BlazeEntity>of(BlazeEntity::new, EntityClassification.MONSTER).fireImmune().sized(0.6F, 1.8F).clientTrackingRange(8));
+   public static final EntityType<WildfireEntity> WILDFIRE = register("wildfire", EntityType.Builder.<WildfireEntity>of(WildfireEntity::new, EntityClassification.MONSTER).fireImmune().sized(0.6F, 1.8F).clientTrackingRange(8));
+
    public static final EntityType<BoatEntity> BOAT = register("boat", EntityType.Builder.<BoatEntity>of(BoatEntity::new, EntityClassification.MISC).sized(1.375F, 0.5625F).clientTrackingRange(10));
    public static final EntityType<CatEntity> CAT = register("cat", EntityType.Builder.<CatEntity>of(CatEntity::new, CREATURE).sized(0.6F, 0.7F).clientTrackingRange(8));
    public static final EntityType<CaveSpiderEntity> CAVE_SPIDER = register("cave_spider", EntityType.Builder.<CaveSpiderEntity>of(CaveSpiderEntity::new, EntityClassification.MONSTER).sized(0.7F, 0.5F).clientTrackingRange(8));
    public static final EntityType<ChickenEntity> CHICKEN = register("chicken", EntityType.Builder.<ChickenEntity>of(ChickenEntity::new, CREATURE).sized(0.4F, 0.7F).clientTrackingRange(10));
    public static final EntityType<CodEntity> COD = register("cod", EntityType.Builder.<CodEntity>of(CodEntity::new, EntityClassification.WATER_AMBIENT).sized(0.5F, 0.3F).clientTrackingRange(4));
    public static final EntityType<CowEntity> COW = register("cow", EntityType.Builder.<CowEntity>of(CowEntity::new, CREATURE).sized(0.9F, 1.4F).clientTrackingRange(10));
+
+   public static final EntityType<CopperGolemEntity> COPPER_GOLEM = register("copper_golem", EntityType.Builder.<CopperGolemEntity>of(CopperGolemEntity::new, CREATURE).sized(0.6F, 0.95F).clientTrackingRange(10));
+
+
+   public static final EntityType<BreezeEntity> BREEZE = EntityType.register("breeze", Builder.of(BreezeEntity::new, EntityClassification.MONSTER).sized(0.6f, 1.77f).clientTrackingRange(10));
+
    public static final EntityType<CreeperEntity> CREEPER = register("creeper", EntityType.Builder.<CreeperEntity>of(CreeperEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
+   public static final EntityType<GumbeeperEntity> GUMBEEPER = register("gumbeeper", EntityType.Builder.<GumbeeperEntity>of(GumbeeperEntity::new, EntityClassification.MONSTER).sized(0.8F, 1.6F));
+
+
    public static final EntityType<DolphinEntity> DOLPHIN = register("dolphin", EntityType.Builder.<DolphinEntity>of(DolphinEntity::new, EntityClassification.WATER_CREATURE).sized(0.9F, 0.6F));
    public static final EntityType<DragonFireballEntity> DRAGON_FIREBALL = register("dragon_fireball", EntityType.Builder.<DragonFireballEntity>of(DragonFireballEntity::new, EntityClassification.MISC).sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(10));
    public static final EntityType<DrownedEntity> DROWNED = register("drowned", EntityType.Builder.<DrownedEntity>of(DrownedEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
@@ -106,9 +152,12 @@ public class EntityType<T extends Entity> {
    public static final EntityType<IronGolemEntity> IRON_GOLEM = register("iron_golem", EntityType.Builder.<IronGolemEntity>of(IronGolemEntity::new, EntityClassification.MISC).sized(1.4F, 2.7F).clientTrackingRange(10));
    public static final EntityType<ItemEntity> ITEM = register("item", EntityType.Builder.<ItemEntity>of(ItemEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(6).updateInterval(20));
    public static final EntityType<ItemFrameEntity> ITEM_FRAME = register("item_frame", EntityType.Builder.<ItemFrameEntity>of(ItemFrameEntity::new, EntityClassification.MISC).sized(0.5F, 0.5F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
-   public static final EntityType<LeashKnotEntity> LEASH_KNOT = register("leash_knot", EntityType.Builder.<LeashKnotEntity>of(LeashKnotEntity::new, EntityClassification.MISC).noSave().sized(0.5F, 0.5F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
+   public static final EntityType<LeashKnotEntity> LEASH_KNOT = register("leash_knot", EntityType.Builder.<LeashKnotEntity>of(LeashKnotEntity::new, EntityClassification.MISC).noSave().sized(0.375F, 0.5F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
    public static final EntityType<LightningBoltEntity> LIGHTNING_BOLT = register("lightning_bolt", EntityType.Builder.<LightningBoltEntity>of(LightningBoltEntity::new, EntityClassification.MISC).noSave().sized(0.0F, 0.0F).clientTrackingRange(16).updateInterval(Integer.MAX_VALUE));
    public static final EntityType<LlamaSpitEntity> LLAMA_SPIT = register("llama_spit", EntityType.Builder.<LlamaSpitEntity>of(LlamaSpitEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
+   public static final EntityType<EntityMosquitoSpit> MOSQUITO_SPIT = register("mosquito_spit", EntityType.Builder.<EntityMosquitoSpit>of(EntityMosquitoSpit::new, EntityClassification.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(10).fireImmune());
+
+
    public static final EntityType<MagmaCubeEntity> MAGMA_CUBE = register("magma_cube", EntityType.Builder.<MagmaCubeEntity>of(MagmaCubeEntity::new, EntityClassification.MONSTER).fireImmune().sized(2.04F, 2.04F).clientTrackingRange(8));
    public static final EntityType<MinecartEntity> MINECART = register("minecart", EntityType.Builder.<MinecartEntity>of(MinecartEntity::new, EntityClassification.MISC).sized(0.98F, 0.7F).clientTrackingRange(8));
    public static final EntityType<ChestMinecartEntity> CHEST_MINECART = register("chest_minecart", EntityType.Builder.<ChestMinecartEntity>of(ChestMinecartEntity::new, EntityClassification.MISC).sized(0.98F, 0.7F).clientTrackingRange(8));
@@ -122,6 +171,9 @@ public class EntityType<T extends Entity> {
    public static final EntityType<PaintingEntity> PAINTING = register("painting", EntityType.Builder.<PaintingEntity>of(PaintingEntity::new, EntityClassification.MISC).sized(0.5F, 0.5F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
    public static final EntityType<PandaEntity> PANDA = register("panda", EntityType.Builder.<PandaEntity>of(PandaEntity::new, CREATURE).sized(1.3F, 1.25F).clientTrackingRange(10));
    public static final EntityType<ParrotEntity> PARROT = register("parrot", EntityType.Builder.<ParrotEntity>of(ParrotEntity::new, CREATURE).sized(0.5F, 0.9F).clientTrackingRange(8));
+   public static final EntityType<WoodpeckerEntity> WOODPECKER = register("woodpecker", EntityType.Builder.<WoodpeckerEntity>of(WoodpeckerEntity::new, CREATURE).sized(0.5F, 0.4F).clientTrackingRange(8));
+
+
    public static final EntityType<PhantomEntity> PHANTOM = register("phantom", EntityType.Builder.<PhantomEntity>of(PhantomEntity::new, EntityClassification.MONSTER).sized(0.9F, 0.5F).clientTrackingRange(8));
    public static final EntityType<PigEntity> PIG = register("pig", EntityType.Builder.<PigEntity>of(PigEntity::new, CREATURE).sized(0.9F, 0.9F).clientTrackingRange(10));
    public static final EntityType<PiglinEntity> PIGLIN = register("piglin", EntityType.Builder.<PiglinEntity>of(PiglinEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
@@ -131,6 +183,10 @@ public class EntityType<T extends Entity> {
    public static final EntityType<PufferfishEntity> PUFFERFISH = register("pufferfish", EntityType.Builder.<PufferfishEntity>of(PufferfishEntity::new, EntityClassification.WATER_AMBIENT).sized(0.7F, 0.7F).clientTrackingRange(4));
    public static final EntityType<RabbitEntity> RABBIT = register("rabbit", EntityType.Builder.<RabbitEntity>of(RabbitEntity::new, CREATURE).sized(0.4F, 0.5F).clientTrackingRange(8));
    public static final EntityType<SalmonEntity> SALMON = register("salmon", EntityType.Builder.<SalmonEntity>of(SalmonEntity::new, EntityClassification.WATER_AMBIENT).sized(0.7F, 0.4F).clientTrackingRange(4));
+
+   public static final EntityType<RokfiskEntity> ROKFISK = register("rokfisk", EntityType.Builder.<RokfiskEntity>of(RokfiskEntity::new, EntityClassification.AMBIENT).sized(0.9F, 0.6F).clientTrackingRange(12).fireImmune().immuneTo(Blocks.LAVA));
+
+
    public static final EntityType<SheepEntity> SHEEP = register("sheep", EntityType.Builder.<SheepEntity>of(SheepEntity::new, CREATURE).sized(0.9F, 1.3F).clientTrackingRange(10));
    public static final EntityType<ShulkerEntity> SHULKER = register("shulker", EntityType.Builder.<ShulkerEntity>of(ShulkerEntity::new, EntityClassification.MONSTER).fireImmune().canSpawnFarFromPlayer().sized(1.0F, 1.0F).clientTrackingRange(10));
    public static final EntityType<ShulkerBulletEntity> SHULKER_BULLET = register("shulker_bullet", EntityType.Builder.<ShulkerBulletEntity>of(ShulkerBulletEntity::new, EntityClassification.MISC).sized(0.3125F, 0.3125F).clientTrackingRange(8));
@@ -153,7 +209,7 @@ public class EntityType<T extends Entity> {
 
    public static final EntityType<ColetteEntity> COLETTE = register("colette", EntityType.Builder.<ColetteEntity>of(ColetteEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
 
-   public static final EntityType<PlayerEntity> PLAYER = register("player", EntityType.Builder.<PlayerEntity>createNothing(EntityClassification.MISC).noSave().noSummon().sized(0.6F, 1.8F).clientTrackingRange(32).updateInterval(2));
+   public static final EntityType<PlayerEntity> PLAYER = register("player", EntityType.Builder.<PlayerEntity>createNothing(EntityClassification.MISC).noSave().noSummon().sized(0.6F, 1.8F).clientTrackingRange(32).eyeHeight(1.62f).vehicleAttachment(PlayerEntity.DEFAULT_VEHICLE_ATTACHMENT).updateInterval(2));
    public static final EntityType<FishingBobberEntity> FISHING_BOBBER = register("fishing_bobber", EntityType.Builder.<FishingBobberEntity>createNothing(EntityClassification.MISC).noSave().noSummon().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(5));
    public static final EntityType<GrapplingHookEntity> GRAPPLING_HOOK_ENTITY = register("grappling_hook",
            EntityType.Builder.<GrapplingHookEntity>createNothing(EntityClassification.MISC)
@@ -196,9 +252,19 @@ public class EntityType<T extends Entity> {
 
    // Projectile Entities
    public static final EntityType<SnowballEntity> SNOWBALL = register("snowball", EntityType.Builder.<SnowballEntity>of(SnowballEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-   public static final EntityType<EggEntity> EGG = register("egg", EntityType.Builder.<EggEntity>of(EggEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
+   public static final EntityType<PokeballEntity> POKEBALL = register("pokeball", EntityType.Builder.<PokeballEntity>of(PokeballEntity::new, EntityClassification.MISC).sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(10));
+
+   public static final EntityType<TemperateEggEntity> EGG = register("egg", EntityType.Builder.<TemperateEggEntity>of(TemperateEggEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
+   public static final EntityType<WarmEggEntity> WARM_EGG = register("warm_egg", EntityType.Builder.<WarmEggEntity>of(WarmEggEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
+   public static final EntityType<ColdEggEntity> COLD_EGG = register("egg", EntityType.Builder.<ColdEggEntity>of(ColdEggEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
+
+
+
+
    public static final EntityType<StarfuryStarEntity> STARFURY_STAR = register("star", EntityType.Builder.<StarfuryStarEntity>of(StarfuryStarEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
    public static final EntityType<MeowmereProjectileEntity> CAT_PROJECTILE = register("cat_projectile", EntityType.Builder.<MeowmereProjectileEntity>of(MeowmereProjectileEntity::new, EntityClassification.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(10));
+   public static final EntityType<GumballEntity> GUMBALL = register("gumball", EntityType.Builder.<GumballEntity>of(GumballEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(1));
+   public static final EntityType<DesolateDaggerEntity> DESOLATE_DAGGER = register("desolate_dagger", EntityType.Builder.<DesolateDaggerEntity>of(DesolateDaggerEntity::new, EntityClassification.MISC).sized(0.6F, 0.6F).clientTrackingRange(4).updateInterval(1));
 
 
    public static final EntityType<EnderPearlEntity> ENDER_PEARL = register("ender_pearl", EntityType.Builder.<EnderPearlEntity>of(EnderPearlEntity::new, EntityClassification.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
@@ -207,14 +273,22 @@ public class EntityType<T extends Entity> {
    public static final EntityType<TridentEntity> TRIDENT = register("trident", EntityType.Builder.<TridentEntity>of(TridentEntity::new, EntityClassification.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20));
    public static final EntityType<SmallFireballEntity> SMALL_FIREBALL = register("small_fireball", EntityType.Builder.<SmallFireballEntity>of(SmallFireballEntity::new, EntityClassification.MISC).sized(0.3125F, 0.3125F).clientTrackingRange(4).updateInterval(10));
    public static final EntityType<FireballEntity> FIREBALL = register("fireball", EntityType.Builder.<FireballEntity>of(FireballEntity::new, EntityClassification.MISC).sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(10));
+   public static final EntityType<InfernalFireballEntity> INFERNAL_FIREBALL = register("infernal_fireball", EntityType.Builder.<InfernalFireballEntity>of(InfernalFireballEntity::new, EntityClassification.MISC).sized(0.3125F, 0.3125F).clientTrackingRange(4).updateInterval(10));
 
    // Villager Entities
    public static final EntityType<VillagerEntity> VILLAGER = register("villager", EntityType.Builder.<VillagerEntity>of(VillagerEntity::new, EntityClassification.MISC).sized(0.6F, 1.95F).clientTrackingRange(10));
    public static final EntityType<ZombieVillagerEntity> ZOMBIE_VILLAGER = register("zombie_villager", EntityType.Builder.<ZombieVillagerEntity>of(ZombieVillagerEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
    public static final EntityType<WanderingTraderEntity> WANDERING_TRADER = register("wandering_trader", EntityType.Builder.<WanderingTraderEntity>of(WanderingTraderEntity::new, CREATURE).sized(0.6F, 1.95F).clientTrackingRange(10));
 
+
+
+   public static final EntityType<RattataEntity> RATTATA = register("rattata", EntityType.Builder.<RattataEntity>of(RattataEntity::new, EntityClassification.MISC).sized(0.65F, 0.45F).clientTrackingRange(10));
+
+
    // Illager Entities
    public static final EntityType<EvokerEntity> EVOKER = register("evoker", EntityType.Builder.<EvokerEntity>of(EvokerEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
+   public static final EntityType<TricksterEntity> TRICKSTER = register("trickster", EntityType.Builder.<TricksterEntity>of(TricksterEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
+
    public static final EntityType<VindicatorEntity> VINDICATOR = register("vindicator", EntityType.Builder.<VindicatorEntity>of(VindicatorEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
    public static final EntityType<MarauderEntity> MARAUDER = register("marauder", EntityType.Builder.<MarauderEntity>of(MarauderEntity::new, EntityClassification.MONSTER).sized(0.6F, 2.1F).clientTrackingRange(8));
    public static final EntityType<IllusionerEntity> ILLUSIONER = register("illusioner", EntityType.Builder.<IllusionerEntity>of(IllusionerEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
@@ -227,6 +301,17 @@ public class EntityType<T extends Entity> {
    private final EntityType.IFactory<T> factory;
    private final EntityClassification category;
    private final ImmutableSet<Block> immuneTo;
+
+
+   public static boolean rollSpawn(int rolls, Random random, SpawnReason reason){
+      if(reason == SpawnReason.SPAWNER){
+         return true;
+      } else {
+         return rolls <= 0 || random.nextInt(rolls) == 0;
+      }
+   }
+
+
    private final boolean serialize;
    private final boolean summon;
    private final boolean fireImmune;
@@ -528,7 +613,8 @@ public class EntityType<T extends Entity> {
       private boolean canSpawnFarFromPlayer;
       private int clientTrackingRange = 5;
       private int updateInterval = 3;
-      private EntitySize dimensions = EntitySize.scalable(0.6F, 1.8F);
+       private EntityAttachments.Builder attachments = EntityAttachments.builder();
+       private EntitySize dimensions = EntitySize.scalable(0.6F, 1.8F);
 
       private Builder(EntityType.IFactory<T> p_i50479_1_, EntityClassification p_i50479_2_) {
          this.factory = p_i50479_1_;
@@ -553,9 +639,57 @@ public class EntityType<T extends Entity> {
          return this;
       }
 
+       public Builder<T> eyeHeight(float f) {
+          this.dimensions = this.dimensions.withEyeHeight(f);
+          return this;
+       }
+
+       public Builder<T> passengerAttachments(float ... fArray) {
+          for (float f : fArray) {
+             this.attachments = this.attachments.attach(EntityAttachment.PASSENGER, 0.0f, f, 0.0f);
+          }
+          return this;
+       }
+
+       public Builder<T> passengerAttachments(Vector3d ... vec3Array) {
+          for (Vector3d vec3 : vec3Array) {
+             this.attachments = this.attachments.attach(EntityAttachment.PASSENGER, vec3);
+          }
+          return this;
+       }
+
       public EntityType.Builder<T> sized(float size) {
          return sized(size, size);
       }
+
+
+       public Builder<T> vehicleAttachment(Vector3d vec3) {
+          return this.attach(EntityAttachment.VEHICLE, vec3);
+       }
+
+       public Builder<T> ridingOffset(float f) {
+          return this.attach(EntityAttachment.VEHICLE, 0.0f, -f, 0.0f);
+       }
+
+       public Builder<T> nameTagOffset(float f) {
+          return this.attach(EntityAttachment.NAME_TAG, 0.0f, f, 0.0f);
+       }
+
+       public Builder<T> attach(EntityAttachment entityAttachment, float f, float f2, float f3) {
+          //System.out.println("Attaching: " + entityAttachment.name() + " with value: " + (new Vector3d(f, f2, f3)));
+          this.attachments = this.attachments.attach(entityAttachment, f, f2, f3);
+          //System.out.println("Current attachments: " + this.attachments.toString());
+          return this;
+       }
+
+       public Builder<T> attach(EntityAttachment entityAttachment, Vector3d vec3) {
+         //System.out.println("Attaching: " + entityAttachment.name() + " with value: " + vec3.toString());
+          this.attachments = this.attachments.attach(entityAttachment, vec3);
+
+          //System.out.println("Current attachments: " + this.attachments.toString());
+          return this;
+       }
+
 
       public EntityType.Builder<T> noSummon() {
          this.summon = false;
@@ -596,8 +730,9 @@ public class EntityType<T extends Entity> {
          if (this.serialize) {
             Util.fetchChoiceType(TypeReferences.ENTITY_TREE, p_206830_1_);
          }
+         //System.out.println("Building EntityType with attachments: " + this.attachments.toString());
 
-         return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.clientTrackingRange, this.updateInterval);
+         return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions.withAttachments(attachments), this.clientTrackingRange, this.updateInterval);
       }
    }
 

@@ -1,6 +1,8 @@
 package net.minecraft.entity.projectile;
 
 import javax.annotation.Nullable;
+
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -18,6 +20,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -31,6 +34,7 @@ public class TridentEntity extends AbstractArrowEntity {
    private ItemStack tridentItem = new ItemStack(Items.TRIDENT);
    private boolean dealtDamage;
    public int clientSideReturnTridentTickCount;
+   public int lightningHitCooldown = 0;
 
    public TridentEntity(EntityType<? extends TridentEntity> p_i50148_1_, World p_i50148_2_) {
       super(p_i50148_1_, p_i50148_2_);
@@ -57,6 +61,9 @@ public class TridentEntity extends AbstractArrowEntity {
    public void tick() {
       if (this.inGroundTime > 4) {
          this.dealtDamage = true;
+      }
+      if (lightningHitCooldown > 0) {
+         lightningHitCooldown--;
       }
 
       Entity entity = this.getOwner();
@@ -155,6 +162,25 @@ public class TridentEntity extends AbstractArrowEntity {
       }
 
       this.playSound(soundevent, f1, 1.0F);
+   }
+
+   protected void onHitBlock(BlockRayTraceResult blockRayTraceResult) {
+      super.onHitBlock(blockRayTraceResult);
+      if (this.level instanceof ServerWorld && this.level.isThundering() && EnchantmentHelper.hasChanneling(this.tridentItem) && level.getBlockState(blockRayTraceResult.getBlockPos()).is(Blocks.LIGHTNING_ROD)) {
+         BlockPos blockpos = blockRayTraceResult.getBlockPos();
+         if (this.level.canSeeSky(blockpos)) {
+            this.setDeltaMovement(Vector3d.ZERO);
+             if (this.lightningHitCooldown <= 0) {
+                 LightningBoltEntity lightningboltentity = EntityType.LIGHTNING_BOLT.create(this.level);
+                 lightningboltentity.moveTo(Vector3d.atBottomCenterOf(blockpos.above()));
+                 lightningboltentity.setCause(this.getOwner() instanceof ServerPlayerEntity ? (ServerPlayerEntity)this.getOwner() : null);
+                 this.level.addFreshEntity(lightningboltentity);
+                 this.playSound(SoundEvents.TRIDENT_THUNDER, 5.0F, 1.0F);
+                 lightningHitCooldown = 10 * 20;
+             }
+
+         }
+      }
    }
 
    protected SoundEvent getDefaultHitGroundSoundEvent() {

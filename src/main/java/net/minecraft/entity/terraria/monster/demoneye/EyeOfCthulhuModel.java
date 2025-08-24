@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.animation.HierarchicalModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.monster.Monster;
-import net.minecraft.entity.terraria.boss.eyeofcthulhu.EyeOfCthulhuEntity;
+import org.jetbrains.annotations.NotNull;
 
 public class EyeOfCthulhuModel<T extends Monster> extends HierarchicalModel<T> {
 	protected final ModelRenderer root;
@@ -227,7 +227,7 @@ public class EyeOfCthulhuModel<T extends Monster> extends HierarchicalModel<T> {
 	}
 
 	@Override
-	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+	public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
 		super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 		this.animateWalk(EyeOfCthulhuModelAnimation.IDLE, limbSwing, limbSwingAmount, 4f, 6f);
 		this.headTurn(this.root, netHeadYaw, headPitch);

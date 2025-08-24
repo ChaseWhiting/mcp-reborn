@@ -42,6 +42,7 @@ public class BundleItem extends Item {
     }
 
     public boolean onScroll(PlayerEntity player, ItemStack bundleStack, int direction) {
+        if (player.level.isClientSide) return false;
         if (!player.inventory.contains(bundleStack)) return false;
 
         CompoundNBT nbt = bundleStack.getOrCreateTag();
@@ -49,15 +50,14 @@ public class BundleItem extends Item {
 
         if (!itemList.isEmpty()) {
             if (direction > 0) {
-                CompoundNBT firstItem = itemList.getCompound(0);
+                CompoundNBT firstItem = itemList.getCompound(0).copy();
                 itemList.remove(0);
                 itemList.add(firstItem);
             } else {
-                CompoundNBT lastItem = itemList.getCompound(itemList.size() - 1);
+                CompoundNBT lastItem = itemList.getCompound(itemList.size() - 1).copy();
                 itemList.remove(itemList.size() - 1);
                 itemList.add(0, lastItem);
             }
-
 
             nbt.put(TAG_ITEMS, itemList);
             bundleStack.setTag(nbt);
@@ -65,6 +65,7 @@ public class BundleItem extends Item {
 
         return true;
     }
+
 
     @Override
     public boolean hasCustomScrollBehaviour() {
@@ -83,6 +84,14 @@ public class BundleItem extends Item {
             }
         }
     }
+
+    public static int getColourId(ItemStack bundle) {
+        if (bundle.hasTag() && bundle.getOrCreateTag().contains("Colour")) {
+            return bundle.getTag().getInt("Colour");
+        }
+        return 0; // Default to "regular" (id 0) if no color is set
+    }
+
 
     public static void setWeight(ItemStack stack, int weight) {
         stack.getOrCreateTag().putInt("Weight", weight);
@@ -108,6 +117,68 @@ public class BundleItem extends Item {
     public static float getFullnessDisplay(ItemStack p_150767_) {
         return (float) getContentWeight(p_150767_) / (float) ((BundleItem) p_150767_.getItem()).getMaxWeight(p_150767_);
     }
+
+    public static void setItems(List<ItemStack> items, ItemStack bundle) {
+        CompoundNBT nbt = bundle.getOrCreateTag();
+
+        // Set default max weight if missing
+        if (!nbt.contains("Weight")) {
+            nbt.putInt("Weight", 64);
+        }
+        int maxWeight = nbt.getInt("Weight");
+
+        ListNBT itemList = new ListNBT();
+        float totalWeight = 0;
+
+        for (ItemStack stack : items) {
+            int count = stack.getCount();
+            while (count > 0) {
+                ItemStack partial = new ItemStack(stack.getItem(), count);
+                if (stack.hasTag()) partial.setTag(stack.getTag().copy());
+
+                float weight = partial.getWeight(partial, bundle);
+                if (totalWeight + weight <= maxWeight) {
+                    itemList.add(partial.save(new CompoundNBT()));
+                    totalWeight += weight;
+                    break;
+                }
+                count--;
+            }
+        }
+
+        nbt.put(TAG_ITEMS, itemList);
+    }
+
+
+
+
+    public static void setItemsAndAdjustWeightToFit(List<ItemStack> items, ItemStack bundle) {
+        CompoundNBT nbt = bundle.getOrCreateTag();
+        int currentMaxWeight = 64;
+        nbt.putInt(TAG_WEIGHT, currentMaxWeight);
+
+        if (!nbt.contains(TAG_ITEMS)) {
+            nbt.put(TAG_ITEMS, new ListNBT());
+        }
+
+        ListNBT itemList = nbt.getList(TAG_ITEMS, 10);
+
+        for (ItemStack itemStack : items) {
+            int itemWeight = itemStack.getWeight(itemStack, bundle);
+            int contentWeight = getContentWeight(bundle);
+            int maxWeight = nbt.getInt(TAG_WEIGHT);
+
+            if (contentWeight + itemWeight > maxWeight) {
+                int newMaxWeight = maxWeight + itemWeight;
+                nbt.putInt(TAG_WEIGHT, newMaxWeight);
+            }
+
+            itemList.add(itemStack.save(new CompoundNBT()));
+        }
+
+        bundle.getOrCreateTag().put(TAG_ITEMS, itemList);
+    }
+
 
     public boolean overrideStackedOnOther(ItemStack bundleStack, Slot slot, ClickAction clickAction, PlayerEntity player, ClickType clickType) {
         if (clickAction != ClickAction.SECONDARY) {
@@ -496,10 +567,11 @@ public class BundleItem extends Item {
         }
     }
 
-    public Optional<TooltipComponent> getTooltipImage(ItemStack p_150775_) {
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         NonNullList<ItemStack> nonnulllist = NonNullList.create();
-        getContents(p_150775_).forEach(nonnulllist::add);
-        return Optional.of(new BundleTooltip(nonnulllist, getContentWeight(p_150775_)));
+        getContents(stack).forEach(nonnulllist::add);
+        return Optional.of(new BundleTooltip(nonnulllist, getContentWeight(stack)));
     }
 
     public int getWeight(ItemStack bundle) {
@@ -599,6 +671,8 @@ public class BundleItem extends Item {
             p_150953_.getItem().removeTagKey(TAG_ITEMS);
         }
     }
+
+
 
 
     public String getDescriptionId(ItemStack p_77667_1_) {

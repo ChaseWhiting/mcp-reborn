@@ -1,21 +1,24 @@
 package net.minecraft.entity.effect;
 
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -39,6 +42,19 @@ public class LightningBoltEntity extends Entity {
       this.flashes = this.random.nextInt(3) + 1;
    }
 
+   private void powerLightningRod() {
+      BlockPos blockPos = this.getStrikePosition();
+      BlockState blockState = this.level().getBlockState(blockPos);
+      if (blockState.is(Blocks.LIGHTNING_ROD)) {
+         ((LightningRodBlock)blockState.getBlock()).onLightningStrike(blockState, this.level(), blockPos);
+      }
+   }
+
+   private BlockPos getStrikePosition() {
+      Vector3d vec3 = this.position();
+      return BlockPos.containing(vec3.x, vec3.y - 1.0E-6, vec3.z);
+   }
+
    public void setVisualOnly(boolean p_233623_1_) {
       this.visualOnly = p_233623_1_;
    }
@@ -58,7 +74,9 @@ public class LightningBoltEntity extends Entity {
          if (difficulty == Difficulty.NORMAL || difficulty == Difficulty.HARD) {
             this.spawnFire(4);
          }
-
+         this.powerLightningRod();
+         clearCopperOnLightningStrike(this.level(), this.getStrikePosition());
+         this.gameEvent(GameEvent.LIGHTNING_STRIKE);
          this.level.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundCategory.WEATHER, 10000.0F, 0.8F + this.random.nextFloat() * 0.2F);
          this.level.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, SoundCategory.WEATHER, 2.0F, 0.5F + this.random.nextFloat() * 0.2F);
       }
@@ -92,6 +110,47 @@ public class LightningBoltEntity extends Entity {
          }
       }
 
+   }
+
+   private static void clearCopperOnLightningStrike(World level, BlockPos blockPos) {
+      BlockState blockState;
+      BlockPos blockPos2;
+      BlockState blockState2 = level.getBlockState(blockPos);
+      if (blockState2.is(Blocks.LIGHTNING_ROD)) {
+         blockPos2 = blockPos.relative(((Direction)blockState2.getValue(LightningRodBlock.FACING)).getOpposite());
+         blockState = level.getBlockState(blockPos2);
+      } else {
+         blockPos2 = blockPos;
+         blockState = blockState2;
+      }
+      if (!(blockState.getBlock() instanceof WeatheringCopper)) {
+         return;
+      }
+      level.setBlockAndUpdate(blockPos2, WeatheringCopper.getFirst(level.getBlockState(blockPos2)));
+      BlockPos.Mutable mutableBlockPos = blockPos.mutable();
+      int n = level.random.nextInt(3) + 3;
+      for (int i = 0; i < n; ++i) {
+         int n2 = level.random.nextInt(8) + 1;
+         randomWalkCleaningCopper(level, blockPos2, mutableBlockPos, n2);
+      }
+   }
+
+   private static void randomWalkCleaningCopper(World level, BlockPos blockPos, BlockPos.Mutable mutableBlockPos, int n) {
+      Optional<BlockPos> optional;
+      mutableBlockPos.set(blockPos);
+      for (int i = 0; i < n && !(optional = randomStepCleaningCopper(level, mutableBlockPos)).isEmpty(); ++i) {
+         mutableBlockPos.set(optional.get());
+      }
+   }
+
+   private static Optional<BlockPos> randomStepCleaningCopper(World level, BlockPos blockPos) {
+      for (BlockPos blockPos2 : BlockPos.randomInCube(level.random, 10, blockPos, 1)) {
+         BlockState blockState2 = level.getBlockState(blockPos2);
+         if (!(blockState2.getBlock() instanceof WeatheringCopper)) continue;
+         WeatheringCopper.getPrevious(blockState2).ifPresent(blockState -> level.setBlockAndUpdate(blockPos2, (BlockState)blockState));
+         return Optional.of(blockPos2);
+      }
+      return Optional.empty();
    }
 
    private void spawnFire(int p_195053_1_) {

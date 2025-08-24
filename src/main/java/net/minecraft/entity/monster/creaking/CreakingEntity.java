@@ -3,9 +3,9 @@ package net.minecraft.entity.monster.creaking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.client.animation.AnimationState;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -18,12 +18,12 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractRaiderEntity;
 import net.minecraft.entity.monster.Monster;
-import net.minecraft.entity.monster.PillagerEntity;
 import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.creaking.block.CreakingHeartBlock;
-import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.CreakingHeartItem;
 import net.minecraft.item.tool.AxeItem;
 import net.minecraft.item.ItemStack;
@@ -33,17 +33,19 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.network.play.server.SSpawnParticlePacket;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.pathfinding.Path;
-import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.pathfinding.*;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
@@ -106,6 +108,7 @@ import java.util.function.Predicate;
  * The Creaking Heart can also be used, if the player is holding it in their main hand or off hand, and kills a villager, there is a 75% chance that
  * the villager's soul will be put into the heart, which can be used the same as said above.
  *
+ *
  * @since  Oct 5 2024
  * @author Chase W
  */
@@ -116,7 +119,6 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
     private static int ROOTED_EFFECT_MAX_SECONDS = 480;
 
 
-    // Entity Data Keys
     private static final UUID TREE_ARMOR_MODIFIER_UUID = UUID.fromString("7E0292F2-9434-48D5-A29F-9583AF7DF27F");
     private static final AttributeModifier COVERED_ARMOR_MODIFIER = new AttributeModifier(TREE_ARMOR_MODIFIER_UUID, "Covered armor bonus", 60.0D, AttributeModifier.Operation.ADDITION);
     private static final DataParameter<Boolean> CAN_MOVE = EntityDataManager.defineId(CreakingEntity.class, DataSerializers.BOOLEAN);
@@ -129,13 +131,13 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
     private static final DataParameter<Integer> ATTACKING_TICKS = EntityDataManager.defineId(CreakingEntity.class, DataSerializers.INT);
     private static final RangedInteger randomAttackTime = TickRangeConverter.rangeOfTicks(17, 40);
 
-    // Attack properties
 
     public PlayerEntity creakingTarget = null;
     public LivingEntity optionalTarget = null;
     private boolean canAlwaysMove = false;
     public static int MAX_INVUL_TIME = 8;
     private int nextFlickerTime;
+    private int timeBeingLookedAt = 0;
     public boolean eyesGlowing = false;
     public ItemStack creakingHeart = new ItemStack(Items.CREAKING_HEART_ITEM, 1);
 
@@ -226,7 +228,7 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
 
     public void die(DamageSource source) {
         this.creakingDeathEffects(source);
-        if (!this.removed && !this.dead) { //same as super.die(), just removed the death sound, as this will be handled when it tears down.
+        if (!this.removed && !this.dead) {
             Entity entity = source.getEntity();
             LivingEntity livingentity = this.getKillCredit();
             if (this.deathScore >= 0 && livingentity != null) {
@@ -305,7 +307,7 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
         if (currentBiome.isPresent() && currentBiome.get() == Biomes.PALE_GARDEN) {
             return checkMonsterSpawnRules(type, world, reason, pos, random)
                     && (reason == SpawnReason.SPAWNER || (pos.getY() > 84))
-                    && checkNearbyBlocks(world, pos);
+                    && checkNearbyBlocks(world, pos) && world.getEntitiesOfClass(CreakingEntity.class, new AxisAlignedBB(pos).inflate(30)).isEmpty();
         }
 
         return checkMonsterSpawnRules(type, world, reason, pos, random)
@@ -353,13 +355,36 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
                 && paleOakLeavesCount >= 12;
     }
 
+    static class WaterPathNavigator extends GroundPathNavigator {
+        WaterPathNavigator(CreakingEntity creaking, World world) {
+            super(creaking, world);
+        }
+
+        protected PathFinder createPathFinder(int p_179679_1_) {
+            this.nodeEvaluator = new WalkNodeProcessor();
+            return new PathFinder(this.nodeEvaluator, p_179679_1_);
+        }
+
+        protected boolean hasValidPathType(PathNodeType type) {
+            return (type != PathNodeType.WATER && type != PathNodeType.WATER_BORDER) || (type != PathNodeType.LAVA && type != PathNodeType.DAMAGE_FIRE && type != PathNodeType.DANGER_FIRE) ? super.hasValidPathType(type) : true;
+        }
+
+        public boolean isStableDestination(BlockPos p_188555_1_) {
+            return this.level.getBlockState(p_188555_1_).is(Blocks.WATER) || this.level.getBlockState(p_188555_1_).is(Blocks.LAVA) || super.isStableDestination(p_188555_1_);
+        }
+    }
+
+    protected PathNavigator createNavigation(World p_175447_1_) {
+        return new WaterPathNavigator(this, p_175447_1_);
+    }
+
 
     public CreakingEntity(EntityType<? extends Monster> type, World world) {
         super(type, world);
-        this.xpReward = 5;
+        this.xpReward = world.getGameRules().getBoolean(GameRules.RULE_VERYHARD) ? 32 : 12;
         this.maxUpStep = 1.2F;
-        this.setPathfindingMalus(PathNodeType.WATER, 30.0F);
-        this.setPathfindingMalus(PathNodeType.WATER_BORDER, 30.0F);
+        this.setPathfindingMalus(PathNodeType.WATER, 0.0F);
+        this.setPathfindingMalus(PathNodeType.WATER_BORDER, 0.0F);
         this.setPathfindingMalus(PathNodeType.LAVA, 0.0F);
         this.setPathfindingMalus(PathNodeType.DANGER_FIRE, 0.0F);
         this.setPathfindingMalus(PathNodeType.DAMAGE_CACTUS, 0.0F);
@@ -378,9 +403,62 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
         this.jumpControl = new CreakingJumpController(this);
     }
 
+    public boolean canStandOnFluid(Fluid fluid) {
+        boolean flag = fluid.is(FluidTags.LAVA);
+        FluidState fluidBelowCurrentFluid = this.level.getFluidState(this.blockPosition().offset(0, -0.5, 0));
+        return fluid.is(FluidTags.WATER) && this.canMove() && !(this.fluidHeight.getDouble(FluidTags.WATER) > 1.0D) && (hasTarget() || fluidBelowCurrentFluid.isEmpty()) || flag;
+    }
+
+
+
     @Override
     public void tick() {
         super.tick();
+        FluidState fluidBelowCurrentFluid = this.level.getFluidState(this.blockPosition().offset(0, -0.5, 0));
+        if (!this.firstTick && this.fluidHeight.getDouble(FluidTags.WATER) > 0.0D && (hasTarget() || fluidBelowCurrentFluid.isEmpty() && !(this.fluidHeight.getDouble(FluidTags.WATER) > 0.6D))) {
+            ISelectionContext iselectioncontext = ISelectionContext.of(this);
+            if (iselectioncontext.isAbove(FlowingFluidBlock.STABLE_SHAPE, this.blockPosition(), true) && !this.level.getFluidState(this.blockPosition().above()).is(FluidTags.WATER)) {
+                this.onGround = true;
+            } else {
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.5D).add(0.0D, 0.05D, 0.0D));
+            }
+        }
+        if (this.isInLava()) {
+            ISelectionContext iselectioncontext = ISelectionContext.of(this);
+            if (iselectioncontext.isAbove(FlowingFluidBlock.STABLE_SHAPE, this.blockPosition(), true) && !this.level.getFluidState(this.blockPosition().above()).is(FluidTags.LAVA)) {
+                this.onGround = true;
+            } else {
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.5D).add(0.0D, 0.1D, 0.0D));
+            }
+        }
+        if (!canMove() && !isTearingDown()) {
+            timeBeingLookedAt++;
+        } else if (timeBeingLookedAt > 0){
+            timeBeingLookedAt = timeBeingLookedAt - (nextIntBetweenInclusive(1, 5));
+        }
+
+        if (timeBeingLookedAt > 8.55 * 20 && this.level instanceof ServerWorld) {
+            ServerWorld serverWorld = (ServerWorld)level;
+            BlockPos targetPosition = this.blockPosition();
+            if (this.creakingTarget != null) {
+                targetPosition = creakingTarget.position().subtract(creakingTarget.getLookAngle().scale(9)).asBlockPos();
+            } else if (this.optionalTarget != null){
+                targetPosition = optionalTarget.position().subtract(optionalTarget.getLookAngle().scale(9)).asBlockPos();
+            }
+            Optional<BlockPos> teleportPos = SpawnUtil.getTeleportingPosition(this.getType(), SpawnReason.REINFORCEMENT, serverWorld, targetPosition, 12, 8, 12, SpawnUtil.Strategy.ON_TOP_OF_COLLIDER_NO_LEAVES, true);
+            if (teleportPos.isPresent()) {
+                for (ServerPlayerEntity player : serverWorld.players()) {
+                    player.connection.send(new SSpawnParticlePacket(ParticleTypes.PALE_OAK_LEAVES, false, this.getRandomX(0.5D), this.getRandomY() - 0.25D, this.getRandomZ(0.5D), (this.random.nextFloat() - 0.5f) * 2.f, -this.random.nextFloat(), (this.random.nextFloat() - 0.5f) * 2.0f, 0.4f, 6));
+                }
+                this.teleportTo(teleportPos.get());
+                this.playSound(SoundEvents.CREAKING_SPAWN, 1.5f, 1.0f);
+                for (ServerPlayerEntity player : serverWorld.players()) {
+                    player.connection.send(new SSpawnParticlePacket(ParticleTypes.PALE_OAK_LEAVES, false, this.getRandomX(0.5D), this.getRandomY() - 0.25D, this.getRandomZ(0.5D), (this.random.nextFloat() - 0.5f) * 2.f, -this.random.nextFloat(), (this.random.nextFloat() - 0.5f) * 2.0f, 0.4f, 6));
+                }
+                timeBeingLookedAt = 0;
+            }
+        }
+
         if (this.level().isClientSide) {
             this.setupAnimationStates();
 
@@ -446,9 +524,10 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(5, new HurtByTargetGoal(this));
+        //this.goalSelector.addGoal(5, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new LookAtEntitiesGoal(this, LivingEntity.class, 14f));
         this.goalSelector.addGoal(1, new CreakingAttackGoal(this, 1.3D));
+        this.goalSelector.addGoal(2, new CreakingTargetGoal(this, 1.3D));
         this.goalSelector.addGoal(2, new CreakingUniversalAttackGoal(this, 1.13F, entity -> entity instanceof VillagerEntity, false, true));
         this.goalSelector.addGoal(2, new CreakingUniversalAttackGoal(this, 1.2F, entity -> entity instanceof AbstractRaiderEntity, true, false));
         this.goalSelector.addGoal(3, new CreakingUniversalAttackGoal(this, 1.2F, entity -> entity instanceof VexEntity, true, false));
@@ -489,7 +568,7 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
     }
 
     protected float getWaterSlowDown() {
-        return 1F;
+        return 0.91F;
     }
 
     // Attribute definition for the entity
@@ -506,7 +585,6 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
     // Check if the entity can move
     public boolean canMove() {
         if (this.canAlwaysMove) return true;
-
         return this.entityData.get(CAN_MOVE);
     }
 
@@ -592,6 +670,9 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
 
         // Loop through each nearby entity
         for (LivingEntity entity : nearbyEntities) {
+            if (entity.isSleeping()) {
+                continue;
+            }
             if (entity instanceof PlayerEntity) {
                 PlayerEntity player = entity.asPlayer();
                 if (player.isCreative() || player.isSpectator()) {
@@ -778,8 +859,8 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
     public void knockback(float $$0, double $$1, double $$2) {
     }
 
-    public boolean canEntitySee(LivingEntity entity, double tolerance, boolean useDistance, boolean useVisualClip, Predicate<LivingEntity> visibilityPredicate, DoubleSupplier ... heightSuppliers) {
-        if (!visibilityPredicate.test(entity)) {
+    public boolean canEntitySee(LivingEntity entity, double tolerance, boolean useDistance, boolean useVisualClip, @Nullable Predicate<LivingEntity> visibilityPredicate, DoubleSupplier ... heightSuppliers) {
+        if (visibilityPredicate != null && !visibilityPredicate.test(entity)) {
             return false;
         }
 
@@ -814,12 +895,15 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
 
 
 
-    public boolean doHurtTarget(Entity entity) {
+    public boolean doHurtTarget(Entity target) {
+        if (!canSee(target)) {
+            return false;
+        }
         this.setAttackTicks(8);
         this.level.broadcastEntityEvent(this, (byte)4);
-        if (super.doHurtTarget(entity)) {
-            if (entity instanceof PlayerEntity && !entity.asPlayer().hasEffect(Effects.ROOTED)) {
-                entity.asPlayer().addEffect(new EffectInstance(Effects.ROOTED, TickRangeConverter.rangeOfSeconds(ROOTED_EFFECT_MIN_SECONDS, ROOTED_EFFECT_MAX_SECONDS).randomValue(this.random), switch(this.level.getDifficulty()) {
+        if (super.doHurtTarget(target)) {
+            if (target instanceof PlayerEntity && !target.asPlayer().hasEffect(Effects.ROOTED)) {
+                target.asPlayer().addEffect(new EffectInstance(Effects.ROOTED, TickRangeConverter.rangeOfSeconds(ROOTED_EFFECT_MIN_SECONDS, ROOTED_EFFECT_MAX_SECONDS).randomValue(this.random), switch(this.level.getDifficulty()) {
                     case PEACEFUL, EASY -> 0;
                     case NORMAL -> 1;
                     case HARD -> 2;
@@ -952,7 +1036,7 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
     }
 
     @Override
-    public void push(Entity entity) { // this mob is impossible to be pushed by anything
+    public void push(Entity entity) {
         // Only allow the push if the entity is of the same type (e.g., same class)
         if (entity.getClass() == this.getClass()) {
             // Directly use the provided logic to calculate the push effect
@@ -1133,6 +1217,133 @@ public class CreakingEntity extends Monster implements IDropsCustomLoot {
 
         private void resetAttackCooldown() {
             this.attackCooldown = mob.attackTime; // Reset cooldown to 20 ticks (matching MeleeAttackGoal)
+        }
+    }
+
+
+
+
+    // Creaking-specific AI for targeting and attacking
+    static class CreakingTargetGoal extends Goal {
+        private final CreakingEntity mob;
+        private final double speedModifier;
+        private int attackCooldown = 20;
+
+        public CreakingTargetGoal(CreakingEntity mob, double speedModifier) {
+            this.mob = mob;
+            this.speedModifier = mob.veryHardmode() || mob.level.getDifficulty() == Difficulty.HARD ? speedModifier + 0.1F : speedModifier;
+            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() {
+            if (this.mob.getTarget() != null && !this.mob.canSee(this.mob.getTarget())) return false;
+
+            if (this.mob.getTarget() == null) {
+                if (this.mob.hasTarget()) {
+                    this.mob.entityData.set(HAS_TARGET, false);
+                }
+                return false;  // No valid target found
+            } else {
+                if (!this.mob.hasTarget()) {
+                    this.mob.entityData.set(HAS_TARGET, true);
+                }
+            }
+
+            // If the player is within range, and the mob can see the player, proceed with the attack
+            if (this.mob.canSee(this.mob.getTarget()) && this.mob.getTarget().isAlive()) {
+                return true;
+            }
+
+            // If the mob cannot see the player, we should still check if it has a target from previous encounters
+            return this.mob.getTarget() != null;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            if (this.mob.getTarget() == null || !this.mob.getTarget().isAlive()) {
+                if (this.mob.hasTarget()) {
+                    this.mob.entityData.set(HAS_TARGET, false);
+                }
+                return false;  // No valid target found
+            } else {
+                if (!this.mob.hasTarget()) {
+                    this.mob.entityData.set(HAS_TARGET, true);
+                }
+            }
+
+            // Continue using the goal if the target is still nearby, even if the player is out of sight temporarily
+            if (this.mob.distanceTo(this.mob.getTarget()) < 88.0D && this.mob.getTarget() != null && this.mob.getTarget().isAlive()) {
+                return true;
+            }
+
+            // Lose the target if the player gets too far away
+            return this.mob.getTarget() != null && this.mob.getTarget().isAlive();
+        }
+
+        @Override
+        public void tick() {
+            if (this.mob.getTarget()!= null) {
+                super.tick();
+                if (!EntityPredicates.NO_CREATIVE_OR_SPECTATOR.test(this.mob.getTarget())) {
+                    this.mob.stopInPlace();
+                    this.mob.setTarget(null);
+                    this.stop();
+                    return;
+                }
+
+                // Calculate the player's current position and view direction
+                Vector3d playerPosition = this.mob.getTarget().position();
+                Vector3d playerLookDirection = this.mob.getTarget().getLookAngle();  // Get player's view direction
+
+
+
+                // Calculate a position behind the player (in the opposite direction of where they're looking)
+                double offsetDistance = 0.6;  // How far behind the player we want to go
+                Vector3d behindPlayerPosition = playerPosition.subtract(playerLookDirection.scale(offsetDistance));
+                // Check if the player is looking at the mob
+                if (!playerLookingAtMe(this.mob.getTarget(), mob)) {
+                    // Path towards the position behind the player if they're not looking at the mob
+                    this.mob.getNavigation().moveTo(behindPlayerPosition.x, behindPlayerPosition.y, behindPlayerPosition.z, speedModifier);
+                } else {
+                    // Recalculate a new position at an angle behind the player
+                    Vector3d strafeDirection = playerLookDirection.cross(Vector3d.UP).normalize().scale(0.5); // Move to the side slightly
+                    behindPlayerPosition = playerPosition.subtract(playerLookDirection.scale(offsetDistance)).add(strafeDirection);
+                    this.mob.getNavigation().moveTo(behindPlayerPosition.x, behindPlayerPosition.y, behindPlayerPosition.z, speedModifier);
+                }
+
+                // If close enough to the player, attack
+                double extendedReach = mob.getBbWidth() * 2.0D + 0.4D; // Add 0.4 blocks to the reach
+                if (mob.distanceToSqr(this.mob.getTarget()) < extendedReach * extendedReach  && this.attackCooldown <= 0 && !playerLookingAtMe(this.mob.getTarget(), mob)) {
+                    mob.doHurtTarget(this.mob.getTarget());
+                    resetAttackCooldown();
+                    mob.playSound(SoundEvents.CREAKING_ATTACK, 1.0F, 1.0F);
+                } else {
+                    --this.attackCooldown;
+                }
+            } else {
+                if (this.mob.getTarget() == null) {
+                    if (this.mob.hasTarget()) {
+                        this.mob.entityData.set(HAS_TARGET, false);
+                    }
+
+                }
+                // If no player, stop the mob in place
+                this.mob.stopInPlace();
+            }
+        }
+
+        private void resetAttackCooldown() {
+            this.attackCooldown = mob.attackTime; // Reset cooldown to 20 ticks (matching MeleeAttackGoal)
+        }
+
+
+        private boolean playerLookingAtMe(Entity player, Mob mob) {
+            boolean flag = !((CreakingEntity)mob).checkCanMove(null);
+            if (flag) {
+                ((CreakingEntity)mob).stopInPlace();
+            }
+            return flag;
         }
     }
 

@@ -136,6 +136,10 @@ public abstract class SpellcastingIllagerEntity extends AbstractIllagerEntity {
    public static enum SpellType {
       NONE(0, 0.0D, 0.0D, 0.0D),
       SUMMON_VEX(1, 0.7D, 0.7D, 0.8D),
+      FIREWORK(8, 0.7, 0D, 0.004d),
+      FIREWORK_LAUNCH(9, 0.7, 0.3D, 0.03d),
+      FIREWORK_CIRCLE(10, 1, 0.05D, 0.5d),
+
       FANGS(2, 0.4D, 0.3D, 0.35D),
       WOLOLO(3, 0.7D, 0.5D, 0.2D),
       DISAPPEAR(4, 0.3D, 0.3D, 0.8D),

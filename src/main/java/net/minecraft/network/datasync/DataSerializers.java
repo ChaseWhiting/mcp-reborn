@@ -7,10 +7,15 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.WeatheringCopper;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.FireSource;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.WarmColdVariant;
 import net.minecraft.entity.merchant.villager.VillagerData;
 import net.minecraft.entity.projectile.custom.arrow.CustomArrowType;
+import net.minecraft.entity.sniffer.Sniffer;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -54,6 +59,20 @@ public class DataSerializers {
       }
    };
 
+   public static final IDataSerializer<Long> LONG = new IDataSerializer<Long>() {
+      public void write(PacketBuffer buffer, Long value) {
+         buffer.writeLong(value);
+      }
+
+      public Long read(PacketBuffer buffer) {
+         return buffer.readLong();
+      }
+
+      public Long copy(Long value) {
+         return value;
+      }
+   };
+
    public static final IDataSerializer<EntityType<?>> ENTITY_TYPE = new IDataSerializer<EntityType<?>>() {
       public void write(PacketBuffer buffer, EntityType<?> value) {
          buffer.writeResourceLocation(Registry.ENTITY_TYPE.getKey(value));
@@ -67,6 +86,9 @@ public class DataSerializers {
          return value;
       }
    };
+
+
+
 
    public static final IDataSerializer<Float> FLOAT = new IDataSerializer<Float>() {
       public void write(PacketBuffer buffer, Float value) {
@@ -129,6 +151,25 @@ public class DataSerializers {
       }
    };
 
+   public static final IDataSerializer<Optional<DyeColor>> OPTIONAL_DYE_COLOR = new IDataSerializer<>() {
+      public void write(PacketBuffer buffer, Optional<DyeColor> value) {
+         if (value.isPresent()) {
+            buffer.writeBoolean(true);
+            buffer.writeEnum(value.get());
+         } else {
+            buffer.writeBoolean(false);
+         }
+      }
+
+      public Optional<DyeColor> read(PacketBuffer buffer) {
+         return buffer.readBoolean() ? Optional.of(buffer.readEnum(DyeColor.class)) : Optional.empty();
+      }
+
+      public Optional<DyeColor> copy(Optional<DyeColor> value) {
+         return value;
+      }
+   };
+
    public static final IDataSerializer<ItemStack> ITEM_STACK = new IDataSerializer<ItemStack>() {
       public void write(PacketBuffer buffer, ItemStack value) {
          buffer.writeItem(value);
@@ -158,6 +199,48 @@ public class DataSerializers {
       }
 
       public Optional<BlockState> copy(Optional<BlockState> value) {
+         return value;
+      }
+   };
+
+   public static final IDataSerializer<WeatheringCopper.WeatherState> WEATHER_STATE = new IDataSerializer<WeatheringCopper.WeatherState>() {
+      public void write(PacketBuffer buffer, WeatheringCopper.WeatherState value) {
+         buffer.writeEnum(value);
+      }
+
+      public WeatheringCopper.WeatherState read(PacketBuffer buffer) {
+         return buffer.readEnum(WeatheringCopper.WeatherState.class);
+      }
+
+      public WeatheringCopper.WeatherState copy(WeatheringCopper.WeatherState value) {
+         return value;
+      }
+   };
+
+   public static final IDataSerializer<Sniffer.State> SNIFFER_STATE = new IDataSerializer<>() {
+      public void write(PacketBuffer buffer, Sniffer.State  value) {
+         buffer.writeEnum(value);
+      }
+
+      public Sniffer.State read(PacketBuffer buffer) {
+         return buffer.readEnum(Sniffer.State.class);
+      }
+
+      public Sniffer.State copy(Sniffer.State value) {
+         return value;
+      }
+   };
+
+   public static final IDataSerializer<WarmColdVariant> WARM_COLD_VARIANT = new IDataSerializer<>() {
+      public void write(PacketBuffer buffer, WarmColdVariant value) {
+         buffer.writeEnum(value);
+      }
+
+      public WarmColdVariant read(PacketBuffer buffer) {
+         return buffer.readEnum(WarmColdVariant.class);
+      }
+
+      public WarmColdVariant copy(WarmColdVariant value) {
          return value;
       }
    };
@@ -267,6 +350,20 @@ public class DataSerializers {
       }
 
       public Direction copy(Direction value) {
+         return value;
+      }
+   };
+
+   public static final IDataSerializer<FireSource> FIRE_SOURCE = new IDataSerializer<FireSource>() {
+      public void write(PacketBuffer buffer, FireSource value) {
+         buffer.writeEnum(value);
+      }
+
+      public FireSource read(PacketBuffer buffer) {
+         return buffer.readEnum(FireSource.class);
+      }
+
+      public FireSource copy(FireSource value) {
          return value;
       }
    };
@@ -386,5 +483,11 @@ public class DataSerializers {
       registerSerializer(OPTIONAL_UNSIGNED_INT);
       registerSerializer(POSE);
       registerSerializer(ENTITY_TYPE);
+      registerSerializer(WEATHER_STATE);
+      registerSerializer(WARM_COLD_VARIANT);
+      registerSerializer(LONG);
+      registerSerializer(SNIFFER_STATE);
+      registerSerializer(FIRE_SOURCE);
+      registerSerializer(OPTIONAL_DYE_COLOR);
    }
 }

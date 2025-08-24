@@ -22,9 +22,9 @@ public class ForestSpiderEntity extends SpiderEntity {
       return SpiderEntity.createAttributes().add(Attributes.MAX_HEALTH, 12.0D);
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      if (super.doHurtTarget(p_70652_1_)) {
-         if (p_70652_1_ instanceof LivingEntity) {
+   public boolean doHurtTarget(Entity target) {
+      if (super.doHurtTarget(target)) {
+         if (target instanceof LivingEntity) {
             int i = 0;
             if (this.level.getDifficulty() == Difficulty.NORMAL) {
                i = 7;
@@ -33,7 +33,7 @@ public class ForestSpiderEntity extends SpiderEntity {
             }
 
             if (i > 0) {
-               ((LivingEntity)p_70652_1_).addEffect(new EffectInstance(Effects.POISON, i * 20, 0));
+               ((LivingEntity) target).addEffect(new EffectInstance(Effects.POISON, i * 20, 0));
             }
          }
 

@@ -3,6 +3,8 @@ package net.minecraft.client.animation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 
+import java.util.Random;
+
 public class Interpolations {
     public static final AnimationChannel.Interpolation LINEAR = (result, t, keyframes, start, end, scale) -> {
         Vector3f startPos = keyframes[start].getTarget();
@@ -38,6 +40,41 @@ public class Interpolations {
                 MathHelper.lerp(t, startVector.y(), endVector.y()) * factor,
                 MathHelper.lerp(t, startVector.z(), endVector.z()) * factor
         );
+        return result;
+    };
+
+    public static final AnimationChannel.Interpolation BOUNCE = (vector, progress, keyframes, startIndex, endIndex, factor) -> {
+        float t = (float) Math.abs(Math.sin(6.28 * progress * (1 - progress))); // Simplistic bounce effect
+        Vector3f startVector = keyframes[startIndex].getTarget();
+        Vector3f endVector = keyframes[endIndex].getTarget();
+
+        Vector3f result = new Vector3f(
+                MathHelper.lerp(t, startVector.x(), endVector.x()) * factor,
+                MathHelper.lerp(t, startVector.y(), endVector.y()) * factor,
+                MathHelper.lerp(t, startVector.z(), endVector.z()) * factor
+        );
+        return result;
+    };
+
+    public static final AnimationChannel.Interpolation WEIRD = (vector, progress, keyframes, startIndex, endIndex, factor) -> {
+        Random random = new Random((long) (progress * 10000)); // Seeded with progress for reproducibility
+        float t = progress;
+
+        Vector3f startVector = keyframes[startIndex].getTarget();
+        Vector3f endVector = keyframes[endIndex].getTarget();
+
+        // Random offset for weirdness
+        float xOffset = (random.nextFloat() - 0.5f) * 2 * (1 - progress); // Gets smaller as progress increases
+        float yOffset = (random.nextFloat() - 0.5f) * 2 * progress;       // Gets larger as progress increases
+        float zOffset = (random.nextFloat() - 0.5f) * 2;                  // Stays chaotic throughout
+
+        // Interpolated values with chaos added
+        Vector3f result = new Vector3f(
+                MathHelper.lerp(t, startVector.x(), endVector.x()) * factor + xOffset,
+                MathHelper.lerp(t, startVector.y(), endVector.y()) * factor + yOffset,
+                MathHelper.lerp(t, startVector.z(), endVector.z()) * factor + zOffset
+        );
+
         return result;
     };
 }

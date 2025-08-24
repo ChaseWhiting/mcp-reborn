@@ -4,9 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.item.TNTEntity;
@@ -27,7 +25,6 @@ public class TNTRenderer extends EntityRenderer<TNTEntity> {
       matrixStack.pushPose();
       matrixStack.translate(0.0D, 0.5D, 0.0D);
 
-      // Handle scaling animation as the TNT is about to explode
       if ((float)tntEntity.getLife() - partialTicks + 1.0F < 10.0F) {
          float scaleFactor = 1.0F - ((float)tntEntity.getLife() - partialTicks + 1.0F) / 10.0F;
          scaleFactor = MathHelper.clamp(scaleFactor, 0.0F, 1.0F);
@@ -41,10 +38,8 @@ public class TNTRenderer extends EntityRenderer<TNTEntity> {
       matrixStack.translate(-0.5D, -0.5D, 0.5D);
       matrixStack.mulPose(Vector3f.YP.rotationDegrees(90.0F));
 
-      // Get the BlockState from the TNTEntity
-      BlockState blockState = tntEntity.getBlockState();
+      BlockState blockState = tntEntity.getBlockState().isPresent() ? tntEntity.getBlockState().get() : Blocks.TNT.defaultBlockState();
 
-      // Render the block using the white solid block method
       renderWhiteSolidBlock(blockState, matrixStack, buffer, packedLight, tntEntity.getLife() / 5 % 2 == 0);
 
       matrixStack.popPose();

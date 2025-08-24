@@ -270,12 +270,12 @@ public class RabbitEntity extends Animal {
       return SoundEvents.RABBIT_DEATH;
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
+   public boolean doHurtTarget(Entity target) {
       if (this.getRabbitType() == 99) {
          this.playSound(SoundEvents.RABBIT_ATTACK, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-         return p_70652_1_.hurt(DamageSource.mobAttack(this), 8.0F);
+         return target.hurt(DamageSource.mobAttack(this), 8.0F);
       } else {
-         return p_70652_1_.hurt(DamageSource.mobAttack(this), 3.0F);
+         return target.hurt(DamageSource.mobAttack(this), 3.0F);
       }
    }
 

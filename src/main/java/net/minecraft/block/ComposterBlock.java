@@ -60,6 +60,10 @@ public class ComposterBlock extends Block implements ISidedInventoryProvider {
       add(0.3F, Items.JUNGLE_LEAVES);
       add(0.3F, Items.OAK_LEAVES);
       add(0.3F, Items.SPRUCE_LEAVES);
+      ComposterBlock.add(0.3f, Items.WILDFLOWERS);
+      ComposterBlock.add(0.3f, Items.LEAF_LITTER);
+      ComposterBlock.add(0.3f, Items.PINK_PETALS);
+
       add(0.3F, Items.DARK_OAK_LEAVES);
       add(0.3F, Items.ACACIA_LEAVES);
       add(0.3F, Items.BIRCH_LEAVES);
@@ -165,8 +169,8 @@ public class ComposterBlock extends Block implements ISidedInventoryProvider {
 
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return SHAPES[p_220053_1_.getValue(LEVEL)];
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return SHAPES[state.getValue(LEVEL)];
    }
 
    public VoxelShape getInteractionShape(BlockState p_199600_1_, IBlockReader p_199600_2_, BlockPos p_199600_3_) {
@@ -271,8 +275,8 @@ public class ComposterBlock extends Block implements ISidedInventoryProvider {
       return p_180641_1_.getValue(LEVEL);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(LEVEL);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(LEVEL);
    }
 
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {

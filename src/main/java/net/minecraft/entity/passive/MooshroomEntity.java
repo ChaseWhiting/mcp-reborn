@@ -7,13 +7,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FlowerBlock;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IShearable;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -41,7 +39,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class MooshroomEntity extends CowEntity implements IShearable {
+public class MooshroomEntity extends CowEntity implements IShearable, MooshroomVariantHolder {
    private static final DataParameter<String> DATA_TYPE = EntityDataManager.defineId(MooshroomEntity.class, DataSerializers.STRING);
    private Effect effect;
    private int effectDuration;
@@ -62,7 +60,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
    public void thunderHit(ServerWorld p_241841_1_, LightningBoltEntity p_241841_2_) {
       UUID uuid = p_241841_2_.getUUID();
       if (!uuid.equals(this.lastLightningBoltUUID)) {
-         this.setMushroomType(this.getMushroomType() == MooshroomEntity.Type.RED ? MooshroomEntity.Type.BROWN : MooshroomEntity.Type.RED);
+         this.setMooshroomVariant(this.getMooshroomVariant() == MooshroomEntity.Type.RED ? MooshroomEntity.Type.BROWN : MooshroomEntity.Type.RED);
          this.lastLightningBoltUUID = uuid;
          this.playSound(SoundEvents.MOOSHROOM_CONVERT, 2.0F, 1.0F);
       }
@@ -72,6 +70,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
    protected void defineSynchedData() {
       super.defineSynchedData();
       this.entityData.define(DATA_TYPE, MooshroomEntity.Type.RED.type);
+
    }
 
    public ActionResultType mobInteract(PlayerEntity p_230254_1_, Hand p_230254_2_) {
@@ -102,6 +101,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
          return ActionResultType.sidedSuccess(this.level.isClientSide);
       } else if (itemstack.getItem() == Items.SHEARS && this.readyForShearing()) {
          this.shear(SoundCategory.PLAYERS);
+         this.gameEvent(GameEvent.SHEAR, p_230254_1_);
          if (!this.level.isClientSide) {
             itemstack.hurtAndBreak(1, p_230254_1_, (p_213442_1_) -> {
                p_213442_1_.broadcastBreakEvent(p_230254_2_);
@@ -109,7 +109,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
          }
 
          return ActionResultType.sidedSuccess(this.level.isClientSide);
-      } else if (this.getMushroomType() == MooshroomEntity.Type.BROWN && (itemstack.getItem().is(ItemTags.SMALL_FLOWERS) || itemstack.getItem() == Items.OPEN_EYEBLOSSOM || itemstack.getItem() == Items.CLOSED_EYEBLOSSOM)) {
+      } else if (this.getMooshroomVariant() == MooshroomEntity.Type.BROWN && (itemstack.getItem().is(ItemTags.SMALL_FLOWERS) || itemstack.getItem() == Items.OPEN_EYEBLOSSOM || itemstack.getItem() == Items.CLOSED_EYEBLOSSOM)) {
          if (this.effect != null) {
             for(int i = 0; i < 2; ++i) {
                this.level.addParticle(ParticleTypes.SMOKE, this.getX() + this.random.nextDouble() / 2.0D, this.getY(0.5D), this.getZ() + this.random.nextDouble() / 2.0D, 0.0D, this.random.nextDouble() / 5.0D, 0.0D);
@@ -164,7 +164,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
          this.level.addFreshEntity(cowentity);
 
          for(int i = 0; i < 5; ++i) {
-            this.level.addFreshEntity(new ItemEntity(this.level, this.getX(), this.getY(1.0D), this.getZ(), new ItemStack(this.getMushroomType().blockState.getBlock())));
+            this.level.addFreshEntity(new ItemEntity(this.level, this.getX(), this.getY(1.0D), this.getZ(), new ItemStack(this.getMooshroomVariant().blockState.getBlock())));
          }
       }
 
@@ -176,7 +176,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
-      p_213281_1_.putString("BoggedType", this.getMushroomType().type);
+      p_213281_1_.putString("MooshroomType", this.getMooshroomVariant().type);
       if (this.effect != null) {
          p_213281_1_.putByte("EffectId", (byte)Effect.getId(this.effect));
          p_213281_1_.putInt("EffectDuration", this.effectDuration);
@@ -186,7 +186,7 @@ public class MooshroomEntity extends CowEntity implements IShearable {
 
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
       super.readAdditionalSaveData(p_70037_1_);
-      this.setMushroomType(MooshroomEntity.Type.byType(p_70037_1_.getString("BoggedType")));
+      this.setMooshroomVariant(MooshroomEntity.Type.byType(p_70037_1_.getString("MooshroomType")));
       if (p_70037_1_.contains("EffectId", 1)) {
          this.effect = Effect.byId(p_70037_1_.getByte("EffectId"));
       }
@@ -210,23 +210,25 @@ public class MooshroomEntity extends CowEntity implements IShearable {
       return Optional.empty();
    }
 
-   private void setMushroomType(MooshroomEntity.Type p_213446_1_) {
-      this.entityData.set(DATA_TYPE, p_213446_1_.type);
+   @Override
+   public void setMooshroomVariant(MooshroomEntity.Type variant) {
+      this.entityData.set(DATA_TYPE, variant.type);
    }
 
-   public MooshroomEntity.Type getMushroomType() {
+   @Override
+   public Type getMooshroomVariant() {
       return MooshroomEntity.Type.byType(this.entityData.get(DATA_TYPE));
    }
 
    public MooshroomEntity getBreedOffspring(ServerWorld p_241840_1_, AgeableEntity p_241840_2_) {
       MooshroomEntity mooshroomentity = EntityType.MOOSHROOM.create(p_241840_1_);
-      mooshroomentity.setMushroomType(this.getOffspringType((MooshroomEntity)p_241840_2_));
+      mooshroomentity.setMooshroomVariant(this.getOffspringType((MooshroomEntity)p_241840_2_));
       return mooshroomentity;
    }
 
    private MooshroomEntity.Type getOffspringType(MooshroomEntity p_213445_1_) {
-      MooshroomEntity.Type mooshroomentity$type = this.getMushroomType();
-      MooshroomEntity.Type mooshroomentity$type1 = p_213445_1_.getMushroomType();
+      MooshroomEntity.Type mooshroomentity$type = this.getMooshroomVariant();
+      MooshroomEntity.Type mooshroomentity$type1 = p_213445_1_.getMooshroomVariant();
       MooshroomEntity.Type mooshroomentity$type2;
       if (mooshroomentity$type == mooshroomentity$type1 && this.random.nextInt(1024) == 0) {
          mooshroomentity$type2 = mooshroomentity$type == MooshroomEntity.Type.BROWN ? MooshroomEntity.Type.RED : MooshroomEntity.Type.BROWN;
@@ -263,5 +265,16 @@ public class MooshroomEntity extends CowEntity implements IShearable {
 
          return RED;
       }
+   }
+
+
+   @Override
+   public void setVariant(WarmColdVariant variant) {
+
+   }
+
+   @Override
+   public WarmColdVariant getVariant() {
+      return WarmColdVariant.TEMPERATE;
    }
 }

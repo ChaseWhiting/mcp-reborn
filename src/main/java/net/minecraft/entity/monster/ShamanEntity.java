@@ -97,7 +97,6 @@ public class ShamanEntity extends SpellcastingIllagerEntity {
                 shieldTime = 240;
                 this.setCurrentShield(null);
             }
-            if(this.level.isClientSide)
                 spawnFireShield();
         }
     }
@@ -366,19 +365,17 @@ public class ShamanEntity extends SpellcastingIllagerEntity {
                 WolfEntity wolf = EntityType.WOLF.create((ServerWorld) world);
                 if (wolf != null) {
                     wolf.setPos(shaman.getX(), shaman.getY() + 1, shaman.getZ());
-                   //wolf.setOwnerUUID(this.shaman.getUUID());
 
                     if (this.shaman.getTarget() != null) {
+                        WolfEntity.WolfFollowShamanGoal followShamanGoal = new WolfEntity.WolfFollowShamanGoal(wolf);
+                        wolf.getGoalSelector().addGoal(2, followShamanGoal);
                         wolf.setTarget(this.shaman.getTarget());
                         wolf.setRemainingPersistentAngerTime(1200);
                         wolf.setPersistentAngerTarget(this.shaman.getTarget().getUUID());
                         wolf.setShaman(this.shaman);
                         wolf.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(5D);
-                       // wolf.setTame(true);
                         wolf.setFromShaman(true, 1200);
                         world.addFreshEntity(wolf);
-                        //wolf.setOrderedToSit(false);
-                       // wolf.setInSittingPose(false);
                     }
                 }
             }

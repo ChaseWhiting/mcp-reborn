@@ -16,6 +16,10 @@ public class WaterAvoidingRandomFlyingGoal extends WaterAvoidingRandomWalkingGoa
       super(p_i47413_1_, p_i47413_2_);
    }
 
+   public WaterAvoidingRandomFlyingGoal(Creature p_i47413_1_, double p_i47413_2_, float f) {
+      super(p_i47413_1_, p_i47413_2_, f);
+   }
+
    @Nullable
    protected Vector3d getPosition() {
       Vector3d vector3d = null;

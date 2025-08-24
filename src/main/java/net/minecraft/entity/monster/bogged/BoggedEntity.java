@@ -1,8 +1,6 @@
 package net.minecraft.entity.monster.bogged;
 
 import com.google.common.collect.Lists;
-import net.minecraft.block.BedBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
@@ -18,15 +16,10 @@ import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.loot.*;
-import net.minecraft.loot.RandomValueRange;
-import net.minecraft.loot.functions.LootingEnchantBonus;
-import net.minecraft.loot.functions.SetCount;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -36,14 +29,10 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.*;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.server.ServerWorld;
@@ -51,7 +40,6 @@ import net.minecraft.world.server.ServerWorld;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("all")
 public class BoggedEntity extends AbstractSkeletonEntity implements IShearable, IDropsCustomLoot {
@@ -191,19 +179,19 @@ public class BoggedEntity extends AbstractSkeletonEntity implements IShearable, 
         }
     }
 
-    public boolean doHurtTarget(Entity entity) {
+    public boolean doHurtTarget(Entity target) {
         if (this.getBoggedType() == BoggedType.WITHERED) {
-            if (!super.doHurtTarget(entity)) {
+            if (!super.doHurtTarget(target)) {
                 return false;
             } else {
-                if (entity instanceof LivingEntity) {
-                    entity.as(LivingEntity.class).addEffect(new EffectInstance(Effects.WITHER, 200));
+                if (target instanceof LivingEntity) {
+                    target.as(LivingEntity.class).addEffect(new EffectInstance(Effects.WITHER, 200));
                 }
                 return true;
             }
         }
 
-        return super.doHurtTarget(entity);
+        return super.doHurtTarget(target);
     }
 
     protected ITextComponent getTypeName() {

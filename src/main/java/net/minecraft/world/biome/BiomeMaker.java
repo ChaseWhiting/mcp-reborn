@@ -14,9 +14,14 @@ import net.minecraft.world.gen.feature.structure.StructureFeatures;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilders;
 import net.minecraft.world.gen.surfacebuilders.SurfaceBuilderConfig;
-import org.bytedeco.opencv.presets.opencv_core;
 
 public class BiomeMaker {
+
+   public static final int LEGACY_JUNGLE_WATER_COLOUR = 4159204;
+   public static final int LEGACY_JUNGLE_WATER_FOG_COLOUR = 329011;
+
+
+
    private static int calculateSkyColor(float p_244206_0_) {
       float lvt_1_1_ = p_244206_0_ / 3.0F;
       lvt_1_1_ = MathHelper.clamp(lvt_1_1_, -1.0F, 1.0F);
@@ -40,6 +45,7 @@ public class BiomeMaker {
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.GIANT_TREE_TAIGA);
       DefaultBiomeFeatures.addDefaultOverworldLandStructures(biomegenerationsettings$builder);
       biomegenerationsettings$builder.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
+      biomegenerationsettings$builder.addStructureStart(StructureFeatures.PILLAGER_OUTPOST);
       DefaultBiomeFeatures.addDefaultCarvers(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultLakes(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultMonsterRoom(biomegenerationsettings$builder);
@@ -72,9 +78,12 @@ public class BiomeMaker {
       DefaultBiomeFeatures.addForestFlowers(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultUndergroundVariety(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultOres(biomegenerationsettings$builder);
+      DefaultBiomeFeatures.addWildflowers(biomegenerationsettings$builder);
+
       DefaultBiomeFeatures.addDefaultSoftDisks(biomegenerationsettings$builder);
       if (p_244217_2_) {
          DefaultBiomeFeatures.addTallBirchTrees(biomegenerationsettings$builder);
+         biomegenerationsettings$builder.addStructureStart(StructureFeatures.TRAIL_RUINS);
       } else {
          DefaultBiomeFeatures.addBirchTrees(biomegenerationsettings$builder);
       }
@@ -128,6 +137,8 @@ public class BiomeMaker {
       DefaultBiomeFeatures.baseJungleSpawns(mobspawninfo$builder);
       mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.PARROT, p_244215_2_, 1, p_244215_3_)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.OCELOT, 2, 1, p_244215_4_)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.PANDA, 1, 1, 2));
       mobspawninfo$builder.setPlayerCanSpawn();
+
+
       return baseJungleBiome(p_244215_0_, p_244215_1_, 0.9F, false, false, false, mobspawninfo$builder);
    }
 
@@ -152,6 +163,9 @@ public class BiomeMaker {
       DefaultBiomeFeatures.addDefaultUndergroundVariety(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultOres(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultSoftDisks(biomegenerationsettings$builder);
+
+      biomegenerationsettings$builder.addStructureStart(StructureFeatures.TRAIL_RUINS);
+
       if (p_244213_3_) {
          DefaultBiomeFeatures.addBambooVegetation(biomegenerationsettings$builder);
       } else {
@@ -173,13 +187,15 @@ public class BiomeMaker {
       DefaultBiomeFeatures.addDefaultSprings(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addJungleExtraVegetation(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addSurfaceFreezing(biomegenerationsettings$builder);
-      return (new Biome.Builder()).precipitation(Biome.RainType.RAIN).biomeCategory(Biome.Category.JUNGLE).depth(p_244213_0_).scale(p_244213_1_).temperature(0.95F).downfall(p_244213_2_).specialEffects((new BiomeAmbience.Builder()).waterColor(4159204).waterFogColor(329011).fogColor(12638463).skyColor(calculateSkyColor(0.95F)).ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS).build()).mobSpawnSettings(p_244213_6_.build()).generationSettings(biomegenerationsettings$builder.build()).build();
+      return (new Biome.Builder()).precipitation(Biome.RainType.RAIN).biomeCategory(Biome.Category.JUNGLE).depth(p_244213_0_).scale(p_244213_1_).temperature(0.95F).downfall(p_244213_2_).specialEffects((new BiomeAmbience.Builder()).waterColor(0x44b3ad).waterFogColor(0x357370).fogColor(12638463).skyColor(calculateSkyColor(0.95F)).ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS).build()).mobSpawnSettings(p_244213_6_.build()).generationSettings(biomegenerationsettings$builder.build()).build();
    }
 
    public static Biome mountainBiome(float p_244216_0_, float p_244216_1_, ConfiguredSurfaceBuilder<SurfaceBuilderConfig> p_244216_2_, boolean p_244216_3_) {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.farmAnimals(mobspawninfo$builder);
       mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.LLAMA, 5, 4, 6));
+      mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.GOAT, 15, 1, 3));
+
       DefaultBiomeFeatures.commonSpawns(mobspawninfo$builder);
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(p_244216_2_);
       DefaultBiomeFeatures.addDefaultOverworldLandStructures(biomegenerationsettings$builder);
@@ -211,6 +227,7 @@ public class BiomeMaker {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.desertSpawns(mobspawninfo$builder);
       mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 75, 3, 4));
+
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.DESERT);
       if (p_244220_2_) {
          biomegenerationsettings$builder.addStructureStart(StructureFeatures.VILLAGE_DESERT);
@@ -290,6 +307,7 @@ public class BiomeMaker {
    private static Biome baseEndBiome(BiomeGenerationSettings.Builder p_244222_0_) {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.endSpawns(mobspawninfo$builder);
+      mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.ENDERIOPHAGE, 4, 2, 2));
       return (new Biome.Builder()).precipitation(Biome.RainType.NONE).biomeCategory(Biome.Category.THEEND).depth(0.1F).scale(0.2F).temperature(0.5F).downfall(0.5F).specialEffects((new BiomeAmbience.Builder()).waterColor(4159204).waterFogColor(329011).fogColor(10518688).skyColor(0).ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS).build()).mobSpawnSettings(mobspawninfo$builder.build()).generationSettings(p_244222_0_.build()).build();
    }
 
@@ -309,8 +327,11 @@ public class BiomeMaker {
    }
 
    public static Biome endHighlandsBiome() {
-      BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.END).addStructureStart(StructureFeatures.END_CITY).addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, Features.END_GATEWAY).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.CHORUS_PLANT);
-      return baseEndBiome(biomegenerationsettings$builder);
+      BiomeGenerationSettings.Builder p_244222_0_ = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.END).addStructureStart(StructureFeatures.END_CITY).addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, Features.END_GATEWAY).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.CHORUS_PLANT);
+      MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
+      DefaultBiomeFeatures.endSpawns(mobspawninfo$builder);
+      mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.ENDERIOPHAGE, 8, 4, 6));
+      return (new Biome.Builder()).precipitation(Biome.RainType.NONE).biomeCategory(Biome.Category.THEEND).depth(0.1F).scale(0.2F).temperature(0.5F).downfall(0.5F).specialEffects((new BiomeAmbience.Builder()).waterColor(4159204).waterFogColor(329011).fogColor(10518688).skyColor(0).ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS).build()).mobSpawnSettings(mobspawninfo$builder.build()).generationSettings(p_244222_0_.build()).build();
    }
 
    public static Biome smallEndIslandsBiome() {
@@ -400,7 +421,9 @@ public class BiomeMaker {
    private static Biome baseBadlandsBiome(ConfiguredSurfaceBuilder<SurfaceBuilderConfig> p_244224_0_, float p_244224_1_, float p_244224_2_, boolean p_244224_3_, boolean p_244224_4_) {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.commonSpawns(mobspawninfo$builder);
+      DefaultBiomeFeatures.farmAnimals(mobspawninfo$builder);
       mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.GREAT_HUNGER, 90, 2, 3));
+      mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.ROADRUNNER, 6, 2, 3));
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(p_244224_0_);
       DefaultBiomeFeatures.addDefaultOverworldLandMesaStructures(biomegenerationsettings$builder);
       biomegenerationsettings$builder.addStructureStart(p_244224_3_ ? StructureFeatures.RUINED_PORTAL_MOUNTAIN : StructureFeatures.RUINED_PORTAL_STANDARD);
@@ -636,6 +659,10 @@ public class BiomeMaker {
          biomegenerationsettings$builder.addStructureStart(StructureFeatures.PILLAGER_OUTPOST);
       }
 
+      biomegenerationsettings$builder.addStructureStart(StructureFeatures.TRAIL_RUINS);
+
+
+
       if (p_244221_5_) {
          biomegenerationsettings$builder.addStructureStart(StructureFeatures.IGLOO);
       }
@@ -705,6 +732,7 @@ public class BiomeMaker {
       biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_WHITE_PUMPKIN);
       biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.EYEBLOSSOM_FEATURE);
       DefaultBiomeFeatures.addDefaultMonsterRoom(biomegenerationsettings$builder);
+      biomegenerationsettings$builder.addStructureStart(StructureFeatures.WOODLAND_MANSION);
 
       DefaultBiomeFeatures.addDefaultUndergroundVariety(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultOres(biomegenerationsettings$builder);
@@ -732,16 +760,86 @@ public class BiomeMaker {
               .build();
    }
 
+
+   public static Biome sandyDrylands(float depth, float scale, boolean sculk) {
+      MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
+      BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.GRASS);
+      biomegenerationsettings$builder.addStructureStart(StructureFeatures.MINESHAFT);
+      DefaultBiomeFeatures.addDefaultCarvers(biomegenerationsettings$builder);
+      DefaultBiomeFeatures.addDefaultMonsterRoom(biomegenerationsettings$builder);
+      if (sculk) {
+           biomegenerationsettings$builder.addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.HUGE_CANYON);
+           biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SCULK_VEIN);
+           biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SCULK_PATCH_DEEP_DARK_FINAL);
+           biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.SCULK_PATCH_DEEP_DARK_TOP);
+           biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.FALLEN_SCULK_TREE);
+       } else {
+         biomegenerationsettings$builder.addStructureStart(StructureFeatures.STRONGHOLD);
+
+
+         mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.CHICKEN, 10, 4, 4));
+         mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.COW, 8, 4, 4));
+         mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.PIG, 8, 4, 4));
+
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SPIDER, 100, 4, 4));
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ZOMBIE, 19, 4, 4));
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ZOMBIE_VILLAGER, 1, 1, 1));
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SKELETON, 100, 4, 4));
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.CREEPER, 100, 4, 4));
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SLIME, 100, 4, 4));
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ENDERMAN, 10, 1, 4));
+         mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.WITCH, 5, 1, 1));
+      }
+
+
+       biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.COARSE_SAND);
+
+      biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.LEAF_LITTER_PATCH);
+
+      biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_CACTUS_BADLANDS);
+      biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_DEAD_BUSH_DRYLANDS);
+
+      biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_DRY_GRASS_DRYLANDS);
+
+      DefaultBiomeFeatures.addDefaultOres(biomegenerationsettings$builder);
+      DefaultBiomeFeatures.addDefaultUndergroundVariety(biomegenerationsettings$builder);
+
+      return (new Biome.Builder())
+              .precipitation(Biome.RainType.RAIN)
+              .biomeCategory(Biome.Category.PLAINS)
+              .depth(depth)
+              .scale(scale)
+              .temperature(3F)
+              .downfall(0F)
+              .specialEffects((new BiomeAmbience.Builder())
+                      .waterColor(0x617B64)
+                      .waterFogColor(0x4C6559)
+                      .fogColor(0x817770)
+                      .skyColor(calculateSkyColor(2.0F))
+                      .grassColorOverride(0x9a7d49)
+                      .foliageColorOverride(0xa49549)
+                      .ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS)
+                      .build())
+              .mobSpawnSettings(mobspawninfo$builder.build())
+              .generationSettings(biomegenerationsettings$builder.build())
+              .build();
+   }
+
    public static Biome swampBiome(float p_244236_0_, float p_244236_1_, boolean p_244236_2_) {
       MobSpawnInfo.Builder mobspawninfo$builder = new MobSpawnInfo.Builder();
       DefaultBiomeFeatures.farmAnimals(mobspawninfo$builder);
       DefaultBiomeFeatures.commonSpawns(mobspawninfo$builder);
       mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 45, 2, 4));
       mobspawninfo$builder.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SLIME, 1, 1, 1));
+      mobspawninfo$builder.addSpawn(EntityClassification.WATER_AMBIENT, new MobSpawnInfo.Spawners(EntityType.AXOLOTL, 7, 1, 2));
+      mobspawninfo$builder.addSpawn(EntityClassification.WATER_AMBIENT, new MobSpawnInfo.Spawners(EntityType.TROPICAL_FISH, 7, 3, 5));
+      mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.FROG, 10, 2, 5));
+
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.SWAMP);
       if (!p_244236_2_) {
          biomegenerationsettings$builder.addStructureStart(StructureFeatures.SWAMP_HUT);
       }
+      biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_FIREFLY_BUSH);
 
       biomegenerationsettings$builder.addStructureStart(StructureFeatures.MINESHAFT);
       biomegenerationsettings$builder.addStructureStart(StructureFeatures.RUINED_PORTAL_SWAMP);
@@ -787,6 +885,7 @@ public class BiomeMaker {
       DefaultBiomeFeatures.addDefaultLakes(biomegenerationsettings$builder);
       DefaultBiomeFeatures.addDefaultMonsterRoom(biomegenerationsettings$builder);
       if (p_244219_2_) {
+         mobspawninfo$builder.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.GOAT, 30, 3, 6));
          biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, Features.ICE_SPIKE);
          biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, Features.ICE_PATCH);
       }
@@ -825,6 +924,7 @@ public class BiomeMaker {
       DefaultBiomeFeatures.addDefaultSprings(biomegenerationsettings$builder);
       if (!p_244209_4_) {
          biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.SEAGRASS_RIVER);
+         biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_FIREFLY_BUSH_SPARSE);
       }
 
       DefaultBiomeFeatures.addSurfaceFreezing(biomegenerationsettings$builder);
@@ -882,7 +982,7 @@ public class BiomeMaker {
       double d0 = 0.7D;
       double d1 = 0.15D;
       MobSpawnInfo mobspawninfo = (new MobSpawnInfo.Builder()).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.SKELETON, 20, 5, 5)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.BOGGED, 1, 1, 1)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.GHAST, 50, 4, 4)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ENDERMAN, 1, 4, 4)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.STRIDER, 60, 1, 2)).addMobCharge(EntityType.SKELETON, 0.7D, 0.15D).addMobCharge(EntityType.GHAST, 0.7D, 0.15D).addMobCharge(EntityType.ENDERMAN, 0.7D, 0.15D).addMobCharge(EntityType.STRIDER, 0.7D, 0.15D).build();
-      BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.SOUL_SAND_VALLEY).addStructureStart(StructureFeatures.NETHER_BRIDGE).addStructureStart(StructureFeatures.NETHER_FOSSIL).addStructureStart(StructureFeatures.RUINED_PORTAL_NETHER).addStructureStart(StructureFeatures.BASTION_REMNANT).addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.NETHER_CAVE).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.SPRING_LAVA).addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.BASALT_PILLAR).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SPRING_OPEN).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.GLOWSTONE_EXTRA).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.GLOWSTONE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_CRIMSON_ROOTS).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_FIRE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_SOUL_FIRE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.ORE_MAGMA).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SPRING_CLOSED).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.ORE_SOUL_SAND);
+      BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.SOUL_SAND_VALLEY).addStructureStart(StructureFeatures.NETHER_BRIDGE).addStructureStart(StructureFeatures.NETHER_FOSSIL).addStructureStart(StructureFeatures.RUINED_PORTAL_NETHER).addStructureStart(StructureFeatures.BASTION_REMNANT).addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.NETHER_CAVE).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.SPRING_LAVA).addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.BASALT_PILLAR).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SPRING_OPEN).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.GLOWSTONE_EXTRA).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.GLOWSTONE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_CRIMSON_ROOTS).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_FIRE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_SOUL_FIRE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.ORE_MAGMA).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SPRING_CLOSED).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.ORE_SOUL_SAND).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.ORE_SUSPICIOUS_SOUL_SOIL);
       DefaultBiomeFeatures.addNetherDefaultOres(biomegenerationsettings$builder);
       return (new Biome.Builder()).precipitation(Biome.RainType.NONE).biomeCategory(Biome.Category.NETHER).depth(0.1F).scale(0.2F).temperature(2.0F).downfall(0.0F).specialEffects((new BiomeAmbience.Builder()).waterColor(4159204).waterFogColor(329011).fogColor(1787717).skyColor(calculateSkyColor(2.0F)).ambientParticle(new ParticleEffectAmbience(ParticleTypes.ASH, 0.00625F)).ambientLoopSound(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_LOOP).ambientMoodSound(new MoodSoundAmbience(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD, 6000, 8, 2.0D)).ambientAdditionsSound(new SoundAdditionsAmbience(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_ADDITIONS, 0.0111D)).backgroundMusic(BackgroundMusicTracks.createGameMusic(SoundEvents.MUSIC_BIOME_SOUL_SAND_VALLEY)).build()).mobSpawnSettings(mobspawninfo).generationSettings(biomegenerationsettings$builder.build()).build();
    }
@@ -895,7 +995,7 @@ public class BiomeMaker {
    }
 
    public static Biome crimsonForestBiome() {
-      MobSpawnInfo mobspawninfo = (new MobSpawnInfo.Builder()).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ZOMBIFIED_PIGLIN, 1, 2, 4)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.HOGLIN, 9, 3, 4)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.PIGLIN, 5, 3, 4)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.STRIDER, 60, 1, 2)).build();
+      MobSpawnInfo mobspawninfo = (new MobSpawnInfo.Builder()).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ZOMBIFIED_PIGLIN, 1, 2, 4)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.CRIMSON_MOSQUITO, 6, 1, 3)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.HOGLIN, 9, 3, 4)).addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.PIGLIN, 5, 3, 4)).addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.STRIDER, 60, 1, 2)).build();
       BiomeGenerationSettings.Builder biomegenerationsettings$builder = (new BiomeGenerationSettings.Builder()).surfaceBuilder(ConfiguredSurfaceBuilders.CRIMSON_FOREST).addStructureStart(StructureFeatures.RUINED_PORTAL_NETHER).addCarver(GenerationStage.Carving.AIR, ConfiguredCarvers.NETHER_CAVE).addStructureStart(StructureFeatures.NETHER_BRIDGE).addStructureStart(StructureFeatures.BASTION_REMNANT).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.SPRING_LAVA);
       DefaultBiomeFeatures.addDefaultMushrooms(biomegenerationsettings$builder);
       biomegenerationsettings$builder.addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SPRING_OPEN).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.PATCH_FIRE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.GLOWSTONE_EXTRA).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.GLOWSTONE).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.ORE_MAGMA).addFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, Features.SPRING_CLOSED).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.WEEPING_VINES).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.CRIMSON_FUNGI).addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.CRIMSON_FOREST_VEGETATION);

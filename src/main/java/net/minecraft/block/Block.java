@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.client.util.ITooltipFlag;
@@ -15,6 +16,7 @@ import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.monster.piglin.PiglinTasks;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
@@ -22,6 +24,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameters;
+import net.minecraft.state.Property;
 import net.minecraft.state.StateContainer;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
@@ -67,6 +70,30 @@ public class Block extends AbstractBlock implements IItemProvider {
       return object2bytelinkedopenhashmap;
    });
 
+   public static VoxelShape column(double d, double d2, double d3, double d4) {
+      double d5 = d / 2.0;
+      double d6 = d2 / 2.0;
+      return Block.box(8.0 - d5, d3, 8.0 - d6, 8.0 + d5, d4, 8.0 + d6);
+   }
+
+   public static VoxelShape column(double d, double d3, double d4) {
+      return column(d, d, d3, d4);
+   }
+
+   public static VoxelShape boxZ(double d, double d2, double d3) {
+      return Block.boxZ(d, d, d2, d3);
+   }
+
+   public static VoxelShape boxZ(double d, double d2, double d3, double d4) {
+      double d5 = d2 / 2.0;
+      return Block.boxZ(d, 8.0 - d5, 8.0 + d5, d3, d4);
+   }
+
+   public static VoxelShape boxZ(double d, double d2, double d3, double d4, double d5) {
+      double d6 = d / 2.0;
+      return Block.box(8.0 - d6, d2, d4, 8.0 + d6, d3, d5);
+   }
+
    public static int getId(@Nullable BlockState p_196246_0_) {
       if (p_196246_0_ == null) {
          return 0;
@@ -74,6 +101,20 @@ public class Block extends AbstractBlock implements IItemProvider {
          int i = BLOCK_STATE_REGISTRY.getId(p_196246_0_);
          return i == -1 ? 0 : i;
       }
+   }
+
+
+   public final BlockState withPropertiesOf(BlockState blockState) {
+      BlockState blockState2 = this.defaultBlockState();
+      for (Property<?> property : blockState.getBlock().getStateDefinition().getProperties()) {
+         if (!blockState2.hasProperty(property)) continue;
+         blockState2 = Block.copyProperty(blockState, blockState2, property);
+      }
+      return blockState2;
+   }
+
+   private static <T extends Comparable<T>> BlockState copyProperty(BlockState blockState, BlockState blockState2, Property<T> property) {
+      return (BlockState)blockState2.setValue(property, blockState.getValue(property));
    }
 
    public static BlockState stateById(int p_196257_0_) {
@@ -102,6 +143,14 @@ public class Block extends AbstractBlock implements IItemProvider {
    }
 
    public boolean is(ITag<Block> p_203417_1_) {
+      return p_203417_1_.contains(this);
+   }
+
+   public boolean is(List<Block> p_203417_1_) {
+      return p_203417_1_.contains(this);
+   }
+
+   public boolean is(Set<Block> p_203417_1_) {
       return p_203417_1_.contains(this);
    }
 
@@ -299,10 +348,6 @@ public class Block extends AbstractBlock implements IItemProvider {
       p_180657_2_.awardStat(Stats.BLOCK_MINED.get(this));
       p_180657_2_.causeFoodExhaustion(0.005F);
       dropResources(p_180657_4_, p_180657_1_, p_180657_3_, p_180657_5_, p_180657_2_, p_180657_6_);
-
-   if (this == Blocks.PALE_OAK_LOG || this == Blocks.PALE_MOSS_BLOCK || this == Blocks.PALE_OAK_PLANKS || this == Blocks.STRIPPED_PALE_LOG || this == Blocks.WHITE_PUMPKIN || this == Blocks.WHITE_CARVED_PUMPKIN || this == Blocks.WHITE_JACK_O_LANTERN) {
-      popResource(p_180657_1_, p_180657_3_, new ItemStack(this));
-   }
    }
 
    public void setPlacedBy(World p_180633_1_, BlockPos p_180633_2_, BlockState p_180633_3_, @Nullable LivingEntity p_180633_4_, ItemStack p_180633_5_) {
@@ -354,12 +399,13 @@ public class Block extends AbstractBlock implements IItemProvider {
       return this.jumpFactor;
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       p_176208_1_.levelEvent(p_176208_4_, 2001, p_176208_2_, getId(p_176208_3_));
       if (this.is(BlockTags.GUARDED_BY_PIGLINS)) {
          PiglinTasks.angerNearbyPiglins(p_176208_4_, false);
       }
-
+      p_176208_1_.gameEvent(GameEvent.BLOCK_DESTROY, p_176208_2_, GameEvent.Context.of(p_176208_4_, p_176208_3_));
+      return p_176208_3_;
    }
 
    public void handleRain(World p_176224_1_, BlockPos p_176224_2_) {
@@ -373,7 +419,7 @@ public class Block extends AbstractBlock implements IItemProvider {
       return true;
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
    }
 
    public StateContainer<Block, BlockState> getStateDefinition() {

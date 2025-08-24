@@ -3,6 +3,7 @@ package net.minecraft.block;
 import javax.annotation.Nullable;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
@@ -40,11 +41,11 @@ public class TrapDoorBlock extends HorizontalBlock implements IWaterLoggable {
       this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(OPEN, Boolean.valueOf(false)).setValue(HALF, Half.BOTTOM).setValue(POWERED, Boolean.valueOf(false)).setValue(WATERLOGGED, Boolean.valueOf(false)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      if (!p_220053_1_.getValue(OPEN)) {
-         return p_220053_1_.getValue(HALF) == Half.TOP ? TOP_AABB : BOTTOM_AABB;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      if (!state.getValue(OPEN)) {
+         return state.getValue(HALF) == Half.TOP ? TOP_AABB : BOTTOM_AABB;
       } else {
-         switch((Direction)p_220053_1_.getValue(FACING)) {
+         switch((Direction) state.getValue(FACING)) {
          case NORTH:
          default:
             return NORTH_OPEN_AABB;
@@ -72,7 +73,7 @@ public class TrapDoorBlock extends HorizontalBlock implements IWaterLoggable {
    }
 
    public ActionResultType use(BlockState p_225533_1_, World p_225533_2_, BlockPos p_225533_3_, PlayerEntity p_225533_4_, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
-      if (this.material == Material.METAL) {
+      if (this.material == Material.METAL && !this.isCopper()) {
          return ActionResultType.PASS;
       } else {
          p_225533_1_ = p_225533_1_.cycle(OPEN);
@@ -86,13 +87,19 @@ public class TrapDoorBlock extends HorizontalBlock implements IWaterLoggable {
       }
    }
 
+   public boolean isCopper() {
+      return this instanceof WeatheringCopperTrapDoorBlock || this == Blocks.WAXED_COPPER_TRAPDOOR || this == Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR || this == Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR || this == Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR;
+   }
+
    protected void playSound(@Nullable PlayerEntity p_185731_1_, World p_185731_2_, BlockPos p_185731_3_, boolean p_185731_4_) {
       if (p_185731_4_) {
-         int i = this.material == Material.METAL ? 1037 : 1007;
+         int i = this.material == Material.METAL ? this.isCopper() ? 3008 : 1037 : 1007;
          p_185731_2_.levelEvent(p_185731_1_, i, p_185731_3_, 0);
+         p_185731_2_.gameEvent(p_185731_1_, GameEvent.BLOCK_OPEN, p_185731_3_);
       } else {
-         int j = this.material == Material.METAL ? 1036 : 1013;
+         int j = this.material == Material.METAL ? this.isCopper() ? 3009 : 1036 : 1013;
          p_185731_2_.levelEvent(p_185731_1_, j, p_185731_3_, 0);
+         p_185731_2_.gameEvent(p_185731_1_, GameEvent.BLOCK_CLOSE, p_185731_3_);
       }
 
    }
@@ -132,8 +139,8 @@ public class TrapDoorBlock extends HorizontalBlock implements IWaterLoggable {
       return blockstate.setValue(WATERLOGGED, Boolean.valueOf(fluidstate.getType() == Fluids.WATER));
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(FACING, OPEN, HALF, POWERED, WATERLOGGED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(FACING, OPEN, HALF, POWERED, WATERLOGGED);
    }
 
    public FluidState getFluidState(BlockState p_204507_1_) {

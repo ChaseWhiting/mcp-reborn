@@ -17,13 +17,17 @@ public class Effects {
    public static final Effect DAMAGE_BOOST = register(5, "strength", (new AttackDamageEffect(EffectType.BENEFICIAL, 9643043, 3.0D)).addAttributeModifier(Attributes.ATTACK_DAMAGE, "648D7064-6A60-4F59-8ABE-C2C23A6DD7A9", 0.0D, AttributeModifier.Operation.ADDITION));
    public static final Effect HEAL = register(6, "instant_health", new InstantEffect(EffectType.BENEFICIAL, 16262179));
    public static final Effect HARM = register(7, "instant_damage", new InstantEffect(EffectType.HARMFUL, 4393481));
-   public static final Effect JUMP = register(8, "jump_boost", new Effect(EffectType.BENEFICIAL, 2293580));
+   public static final Effect JUMP = register(8, "jump_boost", new Effect(EffectType.BENEFICIAL, 16646020));
    public static final Effect GRAVITATION = register(36, "gravitation", new Effect(EffectType.BENEFICIAL, 2293580));
 
    public static final Effect CONFUSION = register(9, "nausea", new Effect(EffectType.HARMFUL, 5578058));
    public static final Effect CONFUSED = register(35, "confused", new Effect(EffectType.HARMFUL, 5578058));
 
    public static final Effect REGENERATION = register(10, "regeneration", new Effect(EffectType.BENEFICIAL, 13458603));
+   public static final Effect LIFEFORCE = register(39, "lifeforce", new LifeforceEffect());
+
+   public static final Effect INSIGHT = register(40, "insight", new Effect(EffectType.BENEFICIAL, 5699069));
+
    public static final Effect HONEY = register(34, "honey", new Effect(EffectType.BENEFICIAL, 9643043));
    public static final Effect DAMAGE_RESISTANCE = register(11, "resistance", new Effect(EffectType.BENEFICIAL, 10044730));
    public static final Effect FIRE_RESISTANCE = register(12, "fire_resistance", new Effect(EffectType.BENEFICIAL, 14981690));
@@ -46,6 +50,10 @@ public class Effects {
    public static final Effect SLOW_FALLING = register(28, "slow_falling", new Effect(EffectType.BENEFICIAL, 16773073));
    public static final Effect CONDUIT_POWER = register(29, "conduit_power", new Effect(EffectType.BENEFICIAL, 1950417));
    public static final Effect DOLPHINS_GRACE = register(30, "dolphins_grace", new Effect(EffectType.BENEFICIAL, 8954814));
+   public static final Effect TURTLES_GRACE = register(36, "turtles_grace", new Effect(EffectType.BENEFICIAL, 0x3FA442));
+   public static final Effect DARKNESS = register(37, "darkness", new Effect(EffectType.HARMFUL, 2696993).setFactorDataFactory(() -> new EffectInstance.FactorData(22)));
+   public static final Effect ENDER_FLU = register(38, "ender_flu", new EffectEnderFlu());
+
    public static final Effect BAD_OMEN = register(31, "bad_omen", new Effect(EffectType.NEUTRAL, 745784) {
       public boolean isDurationEffectTick(int p_76397_1_, int p_76397_2_) {
          return true;

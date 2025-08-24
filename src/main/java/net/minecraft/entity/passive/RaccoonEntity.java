@@ -21,7 +21,6 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.passive.fish.AbstractGroupFishEntity;
@@ -68,11 +67,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.entity.item.TNTEntity;
-import net.minecraft.item.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.item.Item;
 
 public class RaccoonEntity extends TameableEntity {
     private static final Logger logger = Logger.getLogger(RaccoonEntity.class.getName());
@@ -258,7 +253,7 @@ public class RaccoonEntity extends TameableEntity {
     );
 
     public static boolean isFoodItem(ItemStack itemStack) {
-        return itemStack.getItem().isEdible();
+        return itemStack.isEdible();
     }
 
 
@@ -319,15 +314,7 @@ public class RaccoonEntity extends TameableEntity {
         this.dirtyCountdown = 600;
     }
 
-//    private static final Predicate<Entity> STALKABLE_PREY = (entity) -> {
-//        if (entity instanceof ChickenEntity || entity instanceof RabbitEntity) {
-//            return true;
-//        }
-//        if (entity instanceof PlayerEntity) {
-//            return RaccoonEntity.this.getRaccoonType() == BoggedType.RABID;
-//        }
-//        return false;
-//    };
+
 
     public Predicate<Entity> getStalkablePreyPredicate() {
         return (entity) -> {
@@ -670,7 +657,7 @@ public class RaccoonEntity extends TameableEntity {
                         itemstack.shrink(1);
                     }
 
-                    this.heal((float) item.getFoodProperties().getNutrition());
+                    this.heal((float) itemstack.getFoodProperties().getNutrition());
                     return ActionResultType.SUCCESS;
                 }
 
@@ -741,6 +728,22 @@ public class RaccoonEntity extends TameableEntity {
 
         public RaccoonBreedGoal(double p_28668_) {
             super(RaccoonEntity.this, p_28668_);
+        }
+
+        @Nullable
+        private Animal getFreePartner() {
+            List<Animal> list = this.level.getNearbyEntities(this.partnerClass, PARTNER_TARGETING, this.animal, this.animal.getBoundingBox().inflate(8.0D));
+            double d0 = Double.MAX_VALUE;
+            Animal animalentity = null;
+
+            for(Animal animalentity1 : list) {
+                if ((this.animal.canMate(animalentity1) || RaccoonEntity.this.getRaccoonType() == Type.RABID) && this.animal.distanceToSqr(animalentity1) < d0) {
+                    animalentity = animalentity1;
+                    d0 = this.animal.distanceToSqr(animalentity1);
+                }
+            }
+
+            return animalentity;
         }
 
         @Override
@@ -1128,7 +1131,7 @@ public class RaccoonEntity extends TameableEntity {
         compound.putInt("Thirst", thirst);
         compound.put("Trusted", listnbt);
         compound.putBoolean("Sleeping", this.isSleeping());
-        compound.putString("BoggedType", this.getRaccoonType().getName());
+        compound.putString("Type", this.getRaccoonType().getName());
         compound.putBoolean("Sitting", this.isSitting());
         compound.putBoolean("Crouching", this.isCrouching());
 
@@ -1150,7 +1153,7 @@ public class RaccoonEntity extends TameableEntity {
     public void readAdditionalSaveData(CompoundNBT compound) {
         super.readAdditionalSaveData(compound);
         ListNBT listnbt = compound.getList("Trusted", 11);
-
+        this.TIME_FOR_BREED = compound.getInt("Time_For_breed");
         for (int i = 0; i < listnbt.size(); ++i) {
             this.addTrustedUUID(NBTUtil.loadUUID(listnbt.get(i)));
         }
@@ -1173,7 +1176,7 @@ public class RaccoonEntity extends TameableEntity {
         }
         this.setDirty(compound.getBoolean("Dirty"));
         this.setSleeping(compound.getBoolean("Sleeping"));
-        this.setRaccoonType(Type.byName(compound.getString("BoggedType")));
+        this.setRaccoonType(Type.byName(compound.getString("Type")));
         this.setSitting(compound.getBoolean("Sitting"));
         this.setIsCrouching(compound.getBoolean("Crouching"));
 
@@ -1968,6 +1971,12 @@ public class RaccoonEntity extends TameableEntity {
     @Override
     public void tick() {
         super.tick();
+        if (this.getRaccoonType() == Type.RABID) {
+            if (TIME_FOR_BREED++ > 60 * 20 && random.nextFloat() < 0.05f) {
+                TIME_FOR_BREED = 0;
+                this.setInLoveTime(20 * 20);
+            }
+        }
         handleDirtyEnvironment();
         handleHungerAndThirst();
         handleHunger();
@@ -2299,7 +2308,7 @@ public class RaccoonEntity extends TameableEntity {
     }
 
     public boolean isFood(ItemStack item) {
-        return item.getItem().isEdible();
+        return item.isEdible();
     }
 
     protected void onOffspringSpawnedFromEgg(PlayerEntity p_213406_1_, Mob p_213406_2_) {
@@ -2352,8 +2361,8 @@ public class RaccoonEntity extends TameableEntity {
         super.setTarget(p_70624_1_);
     }
 
-    protected int calculateFallDamage(float p_225508_1_, float p_225508_2_) {
-        return MathHelper.ceil((p_225508_1_ - 5.0F) * p_225508_2_);
+    protected int calculateFallDamage(float damageToDeal, float damageMultiplier) {
+        return MathHelper.ceil((damageToDeal - 5.0F) * damageMultiplier);
     }
 
     private void wakeUp() {
@@ -2896,6 +2905,9 @@ public class RaccoonEntity extends TameableEntity {
                 loveCause.awardStat(Stats.ANIMALS_BRED);
                 CriteriaTriggers.BRED_ANIMALS.trigger(loveCause, this.animal, this.partner, babyRaccoon);
             }
+            babyRaccoon.setHunger(200);
+            babyRaccoon.setThirst(200);
+            babyRaccoon.dirtyCountdown = 800;
 
             babyRaccoon.setAge(-24000);
             babyRaccoon.moveTo(this.animal.getX(), this.animal.getY(), this.animal.getZ(), 0.0F, 0.0F);
@@ -2944,7 +2956,7 @@ public class RaccoonEntity extends TameableEntity {
 
     public class PounceGoal extends net.minecraft.entity.ai.goal.JumpGoal {
         public boolean canUse() {
-
+            if (RaccoonEntity.this.age < -20000) return false;
 
             if (!RaccoonEntity.this.isFullyCrouched()) {
                 return false;

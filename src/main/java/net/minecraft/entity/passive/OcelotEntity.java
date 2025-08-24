@@ -150,8 +150,8 @@ public class OcelotEntity extends Animal {
       return (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      return p_70652_1_.hurt(DamageSource.mobAttack(this), this.getAttackDamage());
+   public boolean doHurtTarget(Entity target) {
+      return target.hurt(DamageSource.mobAttack(this), this.getAttackDamage());
    }
 
    public boolean hurt(DamageSource p_70097_1_, float p_70097_2_) {

@@ -157,6 +157,10 @@ public class PotionBrewing {
       addMix(Potions.SLOWNESS, Items.REDSTONE, Potions.LONG_SLOWNESS);
       addMix(Potions.SLOWNESS, Items.GLOWSTONE_DUST, Potions.STRONG_SLOWNESS);
       addMix(Potions.AWKWARD, Items.TURTLE_HELMET, Potions.TURTLE_MASTER);
+      addMix(Potions.AWKWARD, Items.TURTLE_CHESTPLATE, Potions.TURTLE_MASTER);
+      addMix(Potions.AWKWARD, Items.TURTLE_LEGGINGS, Potions.TURTLE_MASTER);
+      addMix(Potions.AWKWARD, Items.TURTLE_BOOTS, Potions.TURTLE_MASTER);
+
       addMix(Potions.TURTLE_MASTER, Items.REDSTONE, Potions.LONG_TURTLE_MASTER);
       addMix(Potions.TURTLE_MASTER, Items.GLOWSTONE_DUST, Potions.STRONG_TURTLE_MASTER);
       addMix(Potions.SWIFTNESS, Items.FERMENTED_SPIDER_EYE, Potions.SLOWNESS);
@@ -187,6 +191,16 @@ public class PotionBrewing {
       addMix(Potions.WEAKNESS, Items.REDSTONE, Potions.LONG_WEAKNESS);
       addMix(Potions.AWKWARD, Items.PHANTOM_MEMBRANE, Potions.SLOW_FALLING);
       addMix(Potions.SLOW_FALLING, Items.REDSTONE, Potions.LONG_SLOW_FALLING);
+
+
+      addMix(Potions.THICK, Items.LAPIS_LAZULI, Potions.INSIGHT);
+      addMix(Potions.INSIGHT, Items.WARPED_ROOTS, Potions.STRONG_INSIGHT);
+      addMix(Potions.STRONG_INSIGHT, Items.WARPED_ROOTS, Potions.VERY_STRONG_INSIGHT);
+
+      addMix(Potions.INSIGHT, Items.REDSTONE, Potions.LONG_INSIGHT);
+      addMix(Potions.STRONG_INSIGHT, Items.REDSTONE, Potions.LONG_STRONG_INSIGHT);
+      addMix(Potions.VERY_STRONG_INSIGHT, Items.REDSTONE, Potions.LONG_VERY_STRONG_INSIGHT);
+
    }
 
    private static void addContainerRecipe(Item p_196207_0_, Item p_196207_1_, Item p_196207_2_) {

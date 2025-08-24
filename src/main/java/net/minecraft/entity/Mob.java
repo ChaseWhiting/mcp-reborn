@@ -1,14 +1,19 @@
 package net.minecraft.entity;
 
+import com.clearspring.analytics.util.Lists;
 import com.google.common.collect.Maps;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.EntityBoundSoundInstance;
 import net.minecraft.client.renderer.debug.EntityAIDebugRenderer;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.ai.EntitySenses;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -25,12 +30,17 @@ import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.LeashKnotEntity;
+import net.minecraft.entity.leashable.Leashable;
 import net.minecraft.entity.monster.*;
+import net.minecraft.entity.monster.crimson_mosquito.EntityBoundSounds;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
+import net.minecraft.item.dagger.DesolateDaggerEntity;
+import net.minecraft.item.equipment.trim.*;
 import net.minecraft.item.tool.AxeItem;
 import net.minecraft.item.tool.BowItem;
 import net.minecraft.item.tool.SwordItem;
@@ -49,11 +59,14 @@ import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.potion.Effects;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.GameRules;
@@ -65,7 +78,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class Mob extends LivingEntity {
+public abstract class Mob extends LivingEntity implements Leashable {
    private static final DataParameter<Byte> DATA_MOB_FLAGS_ID = EntityDataManager.defineId(Mob.class, DataSerializers.BYTE);
    public int ambientSoundTime;
    public int xpReward;
@@ -94,30 +107,114 @@ public abstract class Mob extends LivingEntity {
    private final Map<PathNodeType, Float> pathfindingMalus = Maps.newEnumMap(PathNodeType.class);
    private ResourceLocation lootTable;
    private long lootTableSeed;
+
+
+
+
+
+   public void stopInPlace() {
+      this.getNavigation().stop();
+      this.setXxa(0.0f);
+      this.setYya(0.0f);
+      this.setSpeed(0.0f);
+      this.setDeltaMovement(0.0, 0.0, 0.0);
+      this.resetAngularLeashMomentum();
+   }
+
+   private LeashData leashData;
+
+
+   @Override
    @Nullable
-   private Entity leashHolder;
-   private int delayedLeashHolderId;
-   @Nullable
-   private CompoundNBT leashInfoTag;
+   public LeashData getLeashData() {
+      return this.leashData;
+   }
+
+   private void resetAngularLeashMomentum() {
+      if (this.leashData != null) {
+         this.leashData.angularMomentum = 0.0;
+      }
+   }
+
+   @Override
+   public void setLeashData(@Nullable LeashData leashData) {
+      this.leashData = leashData;
+   }
+
+   @Override
+   public void onLeashRemoved() {
+      if (this.getLeashData() == null) {
+         this.restrictRadius = -1.0F;
+      }
+   }
+
+   @Override
+   public void leashTooFarBehaviour() {
+      Leashable.super.leashTooFarBehaviour();
+      this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
+   }
+
+   @Override
+   public boolean canBeLeashed() {
+      return this.getType().is(EntityTypeTags.LEASHABLE);
+   }
+
+
+
+
    private BlockPos restrictCenter = BlockPos.ZERO;
    private float restrictRadius = -1.0F;
 
-   protected Mob(EntityType<? extends Mob> p_i48576_1_, World p_i48576_2_) {
-      super(p_i48576_1_, p_i48576_2_);
-      this.goalSelector = new GoalSelector(p_i48576_2_.getProfilerSupplier());
-      this.targetSelector = new GoalSelector(p_i48576_2_.getProfilerSupplier());
+   public void setHomeTo(BlockPos blockPos, int n) {
+      this.restrictCenter = blockPos;
+      this.restrictRadius = n;
+   }
+
+   public boolean isWithinHome(Vector3d vec3) {
+      if (this.restrictRadius == -1) {
+         return true;
+      }
+      return this.restrictCenter.distToCenterSqr(vec3) < (double)(this.restrictRadius * this.restrictRadius);
+   }
+
+   public void clearHome() {
+      this.restrictRadius = -1.0F;
+   }
+
+   public boolean hasHome() {
+      return this.restrictRadius != -1F;
+   }
+
+   public float getHomeRadius() {
+      return this.restrictRadius;
+   }
+
+   public BlockPos getHomePosition() {
+      return this.restrictCenter;
+   }
+
+   protected Mob(EntityType<? extends Mob> entity, World world) {
+      super(entity, world);
+      this.goalSelector = new GoalSelector(world.getProfilerSupplier());
+      this.targetSelector = new GoalSelector(world.getProfilerSupplier());
       this.lookControl = new LookController(this);
       this.moveControl = new MovementController(this);
       this.jumpControl = new JumpController(this);
       this.bodyRotationControl = this.createBodyControl();
-      this.navigation = this.createNavigation(p_i48576_2_);
+      this.navigation = this.createNavigation(world);
       this.sensing = new EntitySenses(this);
       Arrays.fill(this.armorDropChances, 0.085F);
       Arrays.fill(this.handDropChances, 0.085F);
-      if (p_i48576_2_ != null && !p_i48576_2_.isClientSide) {
+      if (world != null && !world.isClientSide) {
          this.registerGoals();
       }
 
+   }
+
+
+
+   protected boolean canShearEquipment(PlayerEntity player) {
+      return !this.isVehicle();
    }
 
    public GoalSelector getGoalSelector() {
@@ -125,6 +222,16 @@ public abstract class Mob extends LivingEntity {
    }
 
    protected void registerGoals() {
+   }
+
+   public void removeAllGoals(Predicate<Goal> predicate) {
+      this.goalSelector.removeAllGoals(predicate);
+   }
+
+   public void onPathfindingStart() {
+   }
+
+   public void onPathfindingDone() {
    }
 
 
@@ -163,6 +270,10 @@ public abstract class Mob extends LivingEntity {
 
    protected BodyController createBodyControl() {
       return new BodyController(this);
+   }
+
+   public BodyController getBodyRotationControl() {
+      return bodyRotationControl;
    }
 
    public LookController getLookControl() {
@@ -217,6 +328,7 @@ public abstract class Mob extends LivingEntity {
    }
 
    public void ate() {
+      gameEvent(GameEvent.EAT);
    }
 
    protected void defineSynchedData() {
@@ -231,7 +343,18 @@ public abstract class Mob extends LivingEntity {
    public void playAmbientSound() {
       SoundEvent soundevent = this.getAmbientSound();
       if (soundevent != null) {
-         this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
+         if (this instanceof EntityBoundSounds) {
+            if (this.level.isClientSide) {
+               EntityBoundSoundInstance si = new EntityBoundSoundInstance(soundevent, this.getSoundSource(), this.getSoundVolume(), this.getVoicePitch(), this);
+
+               Minecraft.getInstance().getSoundManager().play(si);
+            }
+
+         }
+
+          if (!(this instanceof EntityBoundSounds)) {
+              this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
+          }
       }
 
    }
@@ -308,7 +431,6 @@ public abstract class Mob extends LivingEntity {
    public void tick() {
       super.tick();
       if (!this.level.isClientSide) {
-         this.tickLeash();
          if (this.tickCount % 5 == 0) {
             this.updateControlFlags();
          }
@@ -398,22 +520,6 @@ public abstract class Mob extends LivingEntity {
       }
 
       p_213281_1_.put("HandDropChances", listnbt3);
-      if (this.leashHolder != null) {
-         CompoundNBT compoundnbt2 = new CompoundNBT();
-         if (this.leashHolder instanceof LivingEntity) {
-            UUID uuid = this.leashHolder.getUUID();
-            compoundnbt2.putUUID("UUID", uuid);
-         } else if (this.leashHolder instanceof HangingEntity) {
-            BlockPos blockpos = ((HangingEntity)this.leashHolder).getPos();
-            compoundnbt2.putInt("X", blockpos.getX());
-            compoundnbt2.putInt("Y", blockpos.getY());
-            compoundnbt2.putInt("Z", blockpos.getZ());
-         }
-
-         p_213281_1_.put("Leash", compoundnbt2);
-      } else if (this.leashInfoTag != null) {
-         p_213281_1_.put("Leash", this.leashInfoTag.copy());
-      }
 
       p_213281_1_.putBoolean("LeftHanded", this.isLeftHanded());
       if (this.lootTable != null) {
@@ -427,6 +533,7 @@ public abstract class Mob extends LivingEntity {
          p_213281_1_.putBoolean("NoAI", this.isNoAi());
       }
 
+      this.writeLeashData(p_213281_1_, this.leashData);
    }
 
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
@@ -468,10 +575,6 @@ public abstract class Mob extends LivingEntity {
          }
       }
 
-      if (p_70037_1_.contains("Leash", 10)) {
-         this.leashInfoTag = p_70037_1_.getCompound("Leash");
-      }
-
       this.setLeftHanded(p_70037_1_.getBoolean("LeftHanded"));
       if (p_70037_1_.contains("DeathLootTable", 8)) {
          this.lootTable = new ResourceLocation(p_70037_1_.getString("DeathLootTable"));
@@ -479,6 +582,8 @@ public abstract class Mob extends LivingEntity {
       }
 
       this.setNoAi(p_70037_1_.getBoolean("NoAI"));
+
+      this.readLeashData(p_70037_1_);
    }
 
    protected void dropFromLootTable(DamageSource p_213354_1_, boolean p_213354_2_) {
@@ -519,7 +624,9 @@ public abstract class Mob extends LivingEntity {
       super.aiStep();
       this.level.getProfiler().push("looting");
       if (!this.level.isClientSide && this.canPickUpLoot() && this.isAlive() && !this.dead && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-         for(ItemEntity itementity : this.level.getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(1.0D, 0.0D, 1.0D))) {
+         for(ItemEntity itementity :
+                 this.level.getEntitiesOfClass(ItemEntity.class, this.getBoundingBox()
+                         .inflate(this.getPickupReach().getX(), this.getPickupReach().getY(), this.getPickupReach().getZ()))) {
             if (!itementity.removed && !itementity.getItem().isEmpty() && !itementity.hasPickUpDelay() && this.wantsToPickUp(itementity.getItem())) {
                this.pickUpItem(itementity);
             }
@@ -527,6 +634,10 @@ public abstract class Mob extends LivingEntity {
       }
 
       this.level.getProfiler().pop();
+   }
+
+   public Vector3i getPickupReach() {
+      return new Vector3i(1, 0, 1);
    }
 
    protected void pickUpItem(ItemEntity p_175445_1_) {
@@ -551,10 +662,18 @@ public abstract class Mob extends LivingEntity {
 
          this.setItemSlotAndDropWhenKilled(equipmentslottype, p_233665_1_);
          this.playEquipSound(p_233665_1_);
+
+         if (doesEmitEquipEvent(equipmentslottype)) {
+            gameEvent(GameEvent.EQUIP);
+         }
          return true;
       } else {
          return false;
       }
+   }
+
+   protected boolean doesEmitEquipEvent(EquipmentSlotType equipmentSlot) {
+      return true;
    }
 
    protected void setItemSlotAndDropWhenKilled(EquipmentSlotType p_233657_1_, ItemStack p_233657_2_) {
@@ -828,6 +947,14 @@ public abstract class Mob extends LivingEntity {
       return this.armorItems;
    }
 
+   public Iterable<ItemStack> getArmorAndHandSlots() {
+      List<ItemStack> l = Lists.newArrayList();
+      l.addAll(this.armorItems);
+      l.add(this.getMainHandItem());
+      l.add(this.getOffhandItem());
+      return l;
+   }
+
    public ItemStack getItemBySlot(EquipmentSlotType p_184582_1_) {
       switch(p_184582_1_.getType()) {
       case HAND:
@@ -900,16 +1027,17 @@ public abstract class Mob extends LivingEntity {
    protected void populateDefaultEquipmentSlots(DifficultyInstance p_180481_1_) {
       if (this.random.nextFloat() < 0.15F * p_180481_1_.getSpecialMultiplier()) {
          int i = this.random.nextInt(2);
-         float f = this.level.getDifficulty() == Difficulty.HARD ? veryHardmode() ? 0.3F : 0.1F : 0.25F;
-         if (this.random.nextFloat() < 0.095F) {
+         float f = this.level.getDifficulty() == Difficulty.HARD ? veryHardmode() ? 0.05F : 0.1F : 0.25F;
+         float chance = veryHardmode() ? 0.25f : 0.095f;
+         if (this.random.nextFloat() < chance) {
             ++i;
          }
 
-         if (this.random.nextFloat() < 0.095F) {
+         if (this.random.nextFloat() < chance) {
             ++i;
          }
 
-         if (this.random.nextFloat() < 0.095F) {
+         if (this.random.nextFloat() < chance) {
             ++i;
          }
 
@@ -926,7 +1054,12 @@ public abstract class Mob extends LivingEntity {
                if (itemstack.isEmpty()) {
                   Item item = getEquipmentForSlot(equipmentslottype, i);
                   if (item != null) {
-                     this.setItemSlot(equipmentslottype, new ItemStack(item));
+
+                     ItemStack stack = new ItemStack(item);
+
+                     this.applyTrimsRandomly(equipmentslottype, stack);
+
+                     this.setItemSlot(equipmentslottype, stack);
                   }
                }
             }
@@ -935,8 +1068,48 @@ public abstract class Mob extends LivingEntity {
 
    }
 
+   public boolean canApplyTrims() {
+      return true;
+   }
+
+   public float getTrimApplyChance() {
+      return 0.255F;
+   }
+
+   private void applyTrimsRandomly(EquipmentSlotType equipmentslottype, ItemStack stack) {
+      if (this.canApplyTrims()) {
+         if (!(this.random.nextFloat() < this.getTrimApplyChance())) return;
+
+         int a = switch(equipmentslottype) {
+            case FEET -> 1;
+            case LEGS -> 3;
+            case CHEST -> 4;
+            case HEAD -> 2;
+            default -> 0;
+         };
+         if (this.random.nextFloat() < (0.35F - (0.05F * (a)))) {
+            List<TrimPattern> trimPatterns =
+                    Util.shuffledCopy(Registry.TRIM_PATTERN.stream()
+                            .filter(pattern -> pattern != TrimPatterns.DUMMY_TRIM_PATTERN).toList(), random);
+            TrimPattern trimPattern = trimPatterns.get(this.random.nextInt(trimPatterns.size()));
+            List<TrimMaterial> trimMaterials =
+                    Util.shuffledCopy(Registry.TRIM_MATERIAL.stream()
+                            .filter(material -> material != TrimMaterials.DUMMY_TRIM_MATERIAL).toList(), random);
+
+            TrimMaterial trimMaterial = trimMaterials.get(this.random.nextInt(trimMaterials.size()));
+
+            ArmorTrim trim = new ArmorTrim(trimMaterial, trimPattern, random.nextFloat() < (0.12F - (0.02F * a)));
+
+            ArmorTrim.setTrim(null, stack, trim);
+
+            this.setDropChance(equipmentslottype, Math.max(0.0F, this.getEquipmentDropChance(equipmentslottype) - 0.01F * a));
+         }
+      }
+   }
+
    public static EquipmentSlotType getEquipmentSlotForItem(ItemStack p_184640_0_) {
       Item item = p_184640_0_.getItem();
+
       if (item != Blocks.CARVED_PUMPKIN.asItem() && item != Blocks.WHITE_CARVED_PUMPKIN.asItem() && (!(item instanceof BlockItem) || !(((BlockItem)item).getBlock() instanceof AbstractSkullBlock))) {
          if (item instanceof ArmorItem) {
             return ((ArmorItem)item).getSlot();
@@ -1009,6 +1182,7 @@ public abstract class Mob extends LivingEntity {
 
    protected void populateDefaultEquipmentEnchantments(DifficultyInstance p_180483_1_) {
       float f = p_180483_1_.getSpecialMultiplier();
+      if (veryHardmode()) f *= 4;
       this.enchantSpawnedWeapon(f);
 
       for(EquipmentSlotType equipmentslottype : EquipmentSlotType.values()) {
@@ -1043,6 +1217,11 @@ public abstract class Mob extends LivingEntity {
          this.setLeftHanded(true);
       } else {
          this.setLeftHanded(false);
+      }
+
+      if (this instanceof WarmColdVariantHolder) {
+         WarmColdVariantHolder warmColdVariantHolder = (WarmColdVariantHolder) this;
+         warmColdVariantHolder.setVariantOnSpawn(p_213386_1_, this.blockPosition());
       }
 
       return p_213386_4_;
@@ -1108,30 +1287,52 @@ public abstract class Mob extends LivingEntity {
       return this.persistenceRequired;
    }
 
-   public final ActionResultType interact(PlayerEntity p_184230_1_, Hand p_184230_2_) {
+//   public final ActionResultType interact(PlayerEntity p_184230_1_, Hand p_184230_2_) {
+//      if (!this.isAlive()) {
+//         return ActionResultType.PASS;
+//      } else if (this.getLeashHolder() == p_184230_1_) {
+//         this.dropLeash(true, !p_184230_1_.abilities.instabuild);
+//         return ActionResultType.sidedSuccess(this.level.isClientSide);
+//      } else {
+//         ActionResultType actionresulttype = this.checkAndHandleImportantInteractions(p_184230_1_, p_184230_2_);
+//         if (actionresulttype.consumesAction()) {
+//            this.gameEvent(GameEvent.ENTITY_INTERACT);
+//            return actionresulttype;
+//         } else {
+//            actionresulttype = this.mobInteract(p_184230_1_, p_184230_2_);
+//            return actionresulttype.consumesAction() ? actionresulttype : super.interact(p_184230_1_, p_184230_2_);
+//         }
+//      }
+//   }
+
+   public final ActionResultType interact(PlayerEntity player, Hand hand) {
+
       if (!this.isAlive()) {
          return ActionResultType.PASS;
-      } else if (this.getLeashHolder() == p_184230_1_) {
-         this.dropLeash(true, !p_184230_1_.abilities.instabuild);
-         return ActionResultType.sidedSuccess(this.level.isClientSide);
-      } else {
-         ActionResultType actionresulttype = this.checkAndHandleImportantInteractions(p_184230_1_, p_184230_2_);
-         if (actionresulttype.consumesAction()) {
-            return actionresulttype;
-         } else {
-            actionresulttype = this.mobInteract(p_184230_1_, p_184230_2_);
-            return actionresulttype.consumesAction() ? actionresulttype : super.interact(p_184230_1_, p_184230_2_);
-         }
       }
+
+      ActionResultType actionResultType = this.checkAndHandleImportantInteractions(player, hand);
+      if (actionResultType.consumesAction()) {
+         this.gameEvent(GameEvent.ENTITY_INTERACT);
+         return actionResultType;
+      }
+      ActionResultType actionResultType2 = super.interact(player, hand);
+      if (actionResultType2 != ActionResultType.PASS) {
+         return actionResultType2;
+      }
+
+      actionResultType = this.mobInteract(player, hand);
+      if (actionResultType.consumesAction()) {
+         this.gameEvent(GameEvent.ENTITY_INTERACT);
+         return actionResultType;
+      }
+
+      return ActionResultType.PASS;
    }
 
    private ActionResultType checkAndHandleImportantInteractions(PlayerEntity p_233661_1_, Hand p_233661_2_) {
       ItemStack itemstack = p_233661_1_.getItemInHand(p_233661_2_);
-      if (itemstack.getItem() == Items.LEAD && this.canBeLeashed(p_233661_1_)) {
-         this.setLeashedTo(p_233661_1_, true);
-         itemstack.shrink(1);
-         return ActionResultType.sidedSuccess(this.level.isClientSide);
-      } else {
+      {
          if (itemstack.getItem() == Items.NAME_TAG) {
             ActionResultType actionresulttype = itemstack.interactLivingEntity(p_233661_1_, this, p_233661_2_);
             if (actionresulttype.consumesAction()) {
@@ -1237,110 +1438,13 @@ public abstract class Mob extends LivingEntity {
       }
    }
 
-   protected void tickLeash() {
-      if (this.leashInfoTag != null) {
-         this.restoreLeashFromSave();
-      }
-
-      if (this.leashHolder != null) {
-         if (!this.isAlive() || !this.leashHolder.isAlive()) {
-            this.dropLeash(true, true);
-         }
-
-      }
-   }
-
-   public void dropLeash(boolean broadcast, boolean dropLead) {
-      if (this.leashHolder != null) {
-         this.forcedLoading = false;
-         if (!(this.leashHolder instanceof PlayerEntity)) {
-            this.leashHolder.forcedLoading = false;
-         }
-
-         this.leashHolder = null;
-         this.leashInfoTag = null;
-         if (!this.level.isClientSide && dropLead) {
-            this.spawnAtLocation(Items.LEAD);
-         }
-
-         if (!this.level.isClientSide && broadcast && this.level instanceof ServerWorld) {
-            ((ServerWorld)this.level).getChunkSource().broadcast(this, new SMountEntityPacket(this, (Entity)null));
-         }
-      }
-
-   }
-
-   public boolean canBeLeashed(PlayerEntity p_184652_1_) {
-      return !this.isLeashed() && !(this instanceof IMob);
-   }
-
-   public boolean isLeashed() {
-      return this.leashHolder != null;
-   }
-
-   @Nullable
-   public Entity getLeashHolder() {
-      if (this.leashHolder == null && this.delayedLeashHolderId != 0 && this.level.isClientSide) {
-         this.leashHolder = this.level.getEntity(this.delayedLeashHolderId);
-      }
-
-      return this.leashHolder;
-   }
-
-   public void setLeashedTo(Entity p_110162_1_, boolean p_110162_2_) {
-      this.leashHolder = p_110162_1_;
-      this.leashInfoTag = null;
-      this.forcedLoading = true;
-      if (!(this.leashHolder instanceof PlayerEntity)) {
-         this.leashHolder.forcedLoading = true;
-      }
-
-      if (!this.level.isClientSide && p_110162_2_ && this.level instanceof ServerWorld) {
-         ((ServerWorld)this.level).getChunkSource().broadcast(this, new SMountEntityPacket(this, this.leashHolder));
-      }
-
-      if (this.isPassenger()) {
-         this.stopRiding();
-      }
-
-   }
-
-   @OnlyIn(Dist.CLIENT)
-   public void setDelayedLeashHolderId(int p_213381_1_) {
-      this.delayedLeashHolderId = p_213381_1_;
-      this.dropLeash(false, false);
-   }
-
    public boolean startRiding(Entity p_184205_1_, boolean p_184205_2_) {
       boolean flag = super.startRiding(p_184205_1_, p_184205_2_);
       if (flag && this.isLeashed()) {
-         this.dropLeash(true, true);
+         dropLeash();
       }
 
       return flag;
-   }
-
-   private void restoreLeashFromSave() {
-      if (this.leashInfoTag != null && this.level instanceof ServerWorld) {
-         if (this.leashInfoTag.hasUUID("UUID")) {
-            UUID uuid = this.leashInfoTag.getUUID("UUID");
-            Entity entity = ((ServerWorld)this.level).getEntity(uuid);
-            if (entity != null) {
-               this.setLeashedTo(entity, true);
-               return;
-            }
-         } else if (this.leashInfoTag.contains("X", 99) && this.leashInfoTag.contains("Y", 99) && this.leashInfoTag.contains("Z", 99)) {
-            BlockPos blockpos = new BlockPos(this.leashInfoTag.getInt("X"), this.leashInfoTag.getInt("Y"), this.leashInfoTag.getInt("Z"));
-            this.setLeashedTo(LeashKnotEntity.getOrCreateKnot(this.level, blockpos), true);
-            return;
-         }
-
-         if (this.tickCount > 100) {
-            this.spawnAtLocation(Items.LEAD);
-            this.leashInfoTag = null;
-         }
-      }
-
    }
 
    public boolean setSlot(int p_174820_1_, ItemStack p_174820_2_) {
@@ -1422,55 +1526,73 @@ public abstract class Mob extends LivingEntity {
       return p_213336_1_.getType() == EntityType.PLAYER && ((PlayerEntity)p_213336_1_).abilities.invulnerable ? false : super.canAttack(p_213336_1_);
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
-      float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
-      if (p_70652_1_ instanceof LivingEntity) {
-         f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)p_70652_1_).getMobType());
-         f1 += (float)EnchantmentHelper.getKnockbackBonus(this);
+   public boolean doHurtTarget(Entity target) {
+      float attackDamage = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
+      float attackKnockback = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+      if (target instanceof LivingEntity) {
+         attackDamage += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)target).getMobType());
+         attackKnockback += (float)EnchantmentHelper.getKnockbackBonus(this);
       }
 
-      int i = EnchantmentHelper.getFireAspect(this);
-      if (i > 0) {
-         p_70652_1_.setSecondsOnFire(i * 4);
+      int fireAspectLevel = EnchantmentHelper.getFireAspect(this);
+      if (fireAspectLevel > 0) {
+         target.setSecondsOnFire(fireAspectLevel * 4);
       }
 
-      boolean flag = p_70652_1_.hurt(DamageSource.mobAttack(this), f);
-      if (flag) {
-         if (f1 > 0.0F && p_70652_1_ instanceof LivingEntity) {
-            ((LivingEntity)p_70652_1_).knockback(f1 * 0.5F, (double)MathHelper.sin(this.yRot * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.yRot * ((float)Math.PI / 180F))));
+      boolean didHurt = target.hurt(DamageSource.mobAttack(this), attackDamage);
+      if (didHurt) {
+         if (attackKnockback > 0.0F && target instanceof LivingEntity) {
+            ((LivingEntity)target).knockback(attackKnockback * 0.5F, (double)MathHelper.sin(this.yRot * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.yRot * ((float)Math.PI / 180F))));
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
          }
 
-         if (p_70652_1_ instanceof PlayerEntity) {
-            PlayerEntity playerentity = (PlayerEntity)p_70652_1_;
+         if (target instanceof PlayerEntity) {
+            PlayerEntity playerentity = (PlayerEntity)target;
             this.maybeDisableShield(playerentity, this.getMainHandItem(), playerentity.isUsingItem() ? playerentity.getUseItem() : ItemStack.EMPTY);
          }
 
-         this.doEnchantDamageEffects(this, p_70652_1_);
-         this.setLastHurtMob(p_70652_1_);
+         this.doEnchantDamageEffects(this, target);
+         this.setLastHurtMob(target);
+
+         if (this.getMainHandItem().getItem() == Items.DESOLATE_DAGGER) {
+            ItemStack stack = this.getMainHandItem();
+
+            int delayedLevel = stack.getEnchantmentLevel(Enchantments.IMPENDING_STAB);
+            int doubleStab = stack.getEnchantmentLevel(Enchantments.DOUBLE_STAB);
+
+            for(int i = 0; i < 1 + doubleStab; i++){
+               DesolateDaggerEntity daggerEntity = EntityType.DESOLATE_DAGGER.create(this.level());
+               daggerEntity.setTargetId(target.getId());
+               daggerEntity.copyPosition(this);
+               daggerEntity.setItemStack(stack);
+               daggerEntity.entity = this;
+               daggerEntity.orbitFor = (delayedLevel > 0 ? 40 : 20) + this.getRandom().nextInt(10) + (doubleStab != 0  && i != 0 ? 8 + 8 * (i == 1 ? 0 : i) : 0);
+               this.level().addFreshEntity(daggerEntity);
+            }
+         }
       }
 
-      return flag;
+      return didHurt;
    }
 
    private void maybeDisableShield(PlayerEntity player, ItemStack axeItemStack, ItemStack shieldItemStack) {
-      if (!axeItemStack.isEmpty() && !shieldItemStack.isEmpty() && axeItemStack.getItem() instanceof AxeItem) {
+      boolean b = this.canDisableShield();
+      if (((!axeItemStack.isEmpty() && axeItemStack.getItem() instanceof AxeItem) || b) && !shieldItemStack.isEmpty()) {
          if (shieldItemStack.getItem() == Items.SHIELD) {
             float chance = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(player) * 0.05F;
-            if (this.random.nextFloat() < chance) {
+            if (this.random.nextFloat() < chance || b) {
                player.getCooldowns().addCooldown(Items.SHIELD, 100);
                this.level.broadcastEntityEvent(player, (byte)30);
             }
          } else if (shieldItemStack.getItem() == Items.NETHERITE_SHIELD) { // Replace MyModItems with your actual mod item registry class
             float chance = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(player) * 0.05F;
-            if (this.random.nextFloat() < chance) {
+            if (this.random.nextFloat() < chance || b) {
                player.getCooldowns().addCooldown(Items.NETHERITE_SHIELD, 20); // Cooldown for 30 ticks for netherite shield
                this.level.broadcastEntityEvent(player, (byte)30);
             }
          } else if (shieldItemStack.getItem() == Items.SHIELD_OF_CTHULHU) { // Replace MyModItems with your actual mod item registry class
             float chance = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(player) * 0.05F;
-            if (this.random.nextFloat() < chance) {
+            if (this.random.nextFloat() < chance || b) {
                player.getCooldowns().addCooldown(Items.SHIELD_OF_CTHULHU, 20); // Cooldown for 30 ticks for netherite shield
                this.level.broadcastEntityEvent(player, (byte)30);
             }
@@ -1502,7 +1624,7 @@ public abstract class Mob extends LivingEntity {
 
    protected void removeAfterChangingDimensions() {
       super.removeAfterChangingDimensions();
-      this.dropLeash(true, false);
+      this.dropLeash();
    }
 
    public Orientation getOrientation() {

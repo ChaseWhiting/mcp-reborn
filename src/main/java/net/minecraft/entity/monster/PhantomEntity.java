@@ -136,14 +136,14 @@ public class PhantomEntity extends FlyingEntity implements IMob {
       super.aiStep();
    }
 
-   public boolean doHurtTarget(Entity entity) {
+   public boolean doHurtTarget(Entity target) {
       if (this.getPassengers().isEmpty()) {
-         if (entity instanceof PlayerEntity && !this.hasPassenger(entity) && this.veryHardmode()) {
-            entity.startRiding(this);
+         if (target instanceof PlayerEntity && !this.hasPassenger(target) && this.veryHardmode()) {
+            target.startRiding(this);
             this.timeWithPassenger = 0;
          }
       }
-      return super.doHurtTarget(entity);
+      return super.doHurtTarget(target);
    }
 
    protected void customServerAiStep() {

@@ -11,10 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -56,6 +53,21 @@ public class FireworkRocketItem extends Item {
          return ActionResult.sidedSuccess(player.getItemInHand(hand), world.isClientSide());
       } else {
          return ActionResult.pass(player.getItemInHand(hand));
+      }
+   }
+
+   @Override
+   public void fillItemCategory(ItemGroup itemGroup, NonNullList<ItemStack> items) {
+
+      if (this.allowdedIn(ItemGroup.TAB_COMBAT) && (itemGroup == ItemGroup.TAB_COMBAT || itemGroup == ItemGroup.TAB_SEARCH)) {
+         for (int i = 1; i <= 3; i++) {
+            ItemStack firework = new ItemStack(Items.FIREWORK_ROCKET);
+            CompoundNBT fireworkNBT = new CompoundNBT();
+            byte b = (byte) i;
+            fireworkNBT.putByte("Flight", b);
+            firework.getOrCreateTag().put("Fireworks", fireworkNBT);
+            items.add(firework);
+         }
       }
    }
 

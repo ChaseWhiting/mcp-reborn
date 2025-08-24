@@ -6,6 +6,8 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.sculk.SculkPatchConfiguration;
+import net.minecraft.block.sculk.SculkPatchFeature;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.ISeedReader;
@@ -39,9 +41,14 @@ public abstract class Feature<FC extends IFeatureConfig> {
    public static final Feature<BlockStateFeatureConfig> ICEBERG = register("iceberg", new IcebergFeature(BlockStateFeatureConfig.CODEC));
    public static final Feature<BlockStateFeatureConfig> FOREST_ROCK = register("forest_rock", new BlockBlobFeature(BlockStateFeatureConfig.CODEC));
    public static final Feature<SphereReplaceConfig> DISK = register("disk", new SphereReplaceFeature(SphereReplaceConfig.CODEC));
+   public static final Feature<SphereReplaceConfig> DISK_SUSPICIOUS_CLAY = register("disk_suspicious_clay_swamp", new SphereReplaceFeatureDisk(SphereReplaceConfig.CODEC));
+
    public static final Feature<SphereReplaceConfig> ICE_PATCH = register("ice_patch", new IcePathFeature(SphereReplaceConfig.CODEC));
    public static final Feature<BlockStateFeatureConfig> LAKE = register("lake", new LakesFeature(BlockStateFeatureConfig.CODEC));
    public static final Feature<OreFeatureConfig> ORE = register("ore", new OreFeature(OreFeatureConfig.CODEC));
+   public static final Feature<OreFeatureConfig> SUSPICIOUS_SOUL_SOIL = register("suspicious_soul_soil_ore", new SuspiciousSoulSoilOreFeature(OreFeatureConfig.CODEC));
+   public static final Feature<OreFeatureConfig> SUSPICIOUS_GRAVEL = register("suspicious_gravel_ore", new SuspiciousGravelOreFeature(OreFeatureConfig.CODEC));
+
    public static final Feature<EndSpikeFeatureConfig> END_SPIKE = register("end_spike", new EndSpikeFeature(EndSpikeFeatureConfig.CODEC));
    public static final Feature<NoFeatureConfig> END_ISLAND = register("end_island", new EndIslandFeature(NoFeatureConfig.CODEC));
    public static final Feature<EndGatewayConfig> END_GATEWAY = register("end_gateway", new EndGatewayFeature(EndGatewayConfig.CODEC));
@@ -53,6 +60,17 @@ public abstract class Feature<FC extends IFeatureConfig> {
    public static final Feature<FeatureSpreadConfig> SEA_PICKLE = register("sea_pickle", new SeaPickleFeature(FeatureSpreadConfig.CODEC));
    public static final Feature<BlockWithContextConfig> SIMPLE_BLOCK = register("simple_block", new BlockWithContextFeature(BlockWithContextConfig.CODEC));
    public static final Feature<ProbabilityConfig> BAMBOO = register("bamboo", new BambooFeature(ProbabilityConfig.CODEC));
+   public static final Feature<ProbabilityConfig> PODZOL = register("podzol", new ScatteredPodzolFeature(ProbabilityConfig.CODEC));
+   public static final Feature<ProbabilityConfig> MUD = register("mud", new ScatteredMudFeature(ProbabilityConfig.CODEC));
+   public static final Feature<ProbabilityConfig> COARSE_SAND = register("coarse_sand", new CoarseDirtSandFeature(ProbabilityConfig.CODEC));
+
+   public static final Feature<MultifaceGrowthConfiguration> MULTIFACE_GROWTH = register("multiface_growth", new MultifaceGrowthFeature(MultifaceGrowthConfiguration.CODEC));
+
+   public static final Feature<SculkPatchConfiguration> SCULK_PATCH = Feature.register("sculk_patch", new SculkPatchFeature(SculkPatchConfiguration.CODEC, false));
+
+   public static final Feature<SculkPatchConfiguration> SCULK_PATCH_GRASS = Feature.register("sculk_patch_grass", new SculkPatchFeature(SculkPatchConfiguration.CODEC, true));
+   public static final Feature<FallenTreeConfiguration> FALLEN_TREE = register("fallen_tree", new FallenTreeFeature(FallenTreeConfiguration.CODEC));
+
    public static final Feature<HugeFungusConfig> HUGE_FUNGUS = register("huge_fungus", new HugeFungusFeature(HugeFungusConfig.CODEC));
    public static final Feature<BlockStateProvidingFeatureConfig> NETHER_FOREST_VEGETATION = register("nether_forest_vegetation", new NetherVegetationFeature(BlockStateProvidingFeatureConfig.CODEC));
    public static final Feature<NoFeatureConfig> WEEPING_VINES = register("weeping_vines", new WeepingVineFeature(NoFeatureConfig.CODEC));
@@ -94,7 +112,7 @@ public abstract class Feature<FC extends IFeatureConfig> {
       p_230367_1_.setBlock(p_230367_2_, p_230367_3_, 3);
    }
 
-   public abstract boolean place(ISeedReader p_241855_1_, ChunkGenerator p_241855_2_, Random p_241855_3_, BlockPos p_241855_4_, FC p_241855_5_);
+   public abstract boolean place(ISeedReader world, ChunkGenerator generator, Random random, BlockPos blockPos, FC config);
 
    protected static boolean isStone(Block p_227249_0_) {
       return p_227249_0_ == Blocks.STONE || p_227249_0_ == Blocks.GRANITE || p_227249_0_ == Blocks.DIORITE || p_227249_0_ == Blocks.ANDESITE;

@@ -48,6 +48,8 @@ public class PointOfInterestType {
    public static final PointOfInterestType LEATHERWORKER = register("leatherworker", getBlockStates(Blocks.CAULDRON), 1, 1);
    public static final PointOfInterestType LIBRARIAN = register("librarian", getBlockStates(Blocks.LECTERN), 1, 1);
    public static final PointOfInterestType MASON = register("mason", getBlockStates(Blocks.STONECUTTER), 1, 1);
+   public static final PointOfInterestType CARPENTER = register("carpenter", getBlockStates(Blocks.WOODCUTTER), 1, 1);
+
    public static final PointOfInterestType NITWIT = register("nitwit", ImmutableSet.of(), 1, 1);
    public static final PointOfInterestType SHEPHERD = register("shepherd", getBlockStates(Blocks.LOOM), 1, 1);
    public static final PointOfInterestType TOOLSMITH = register("toolsmith", getBlockStates(Blocks.SMITHING_TABLE), 1, 1);
@@ -61,6 +63,7 @@ public class PointOfInterestType {
    public static final PointOfInterestType BEE_NEST = register("bee_nest", getBlockStates(Blocks.BEE_NEST), 0, 1);
    public static final PointOfInterestType NETHER_PORTAL = register("nether_portal", getBlockStates(Blocks.NETHER_PORTAL), 0, 1);
    public static final PointOfInterestType LODESTONE = register("lodestone", getBlockStates(Blocks.LODESTONE), 0, 1);
+   public static final PointOfInterestType LIGHTNING_ROD = register("lightning_rod", getBlockStates(Blocks.LIGHTNING_ROD), 0, 1);
    protected static final Set<BlockState> ALL_STATES = new ObjectOpenHashSet<>(TYPE_BY_STATE.keySet());
    private final String name;
    private final Set<BlockState> matchingStates;

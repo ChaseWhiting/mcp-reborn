@@ -3,6 +3,7 @@ package net.minecraft.util;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.InfernalFireballEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.*;
 import net.minecraft.util.math.vector.Vector3d;
@@ -33,6 +34,7 @@ public class DamageSource {
    public static final DamageSource DRAGON_BREATH = (new DamageSource("dragonBreath")).bypassArmor();
    public static final DamageSource DRY_OUT = new DamageSource("dryout");
    public static final DamageSource SWEET_BERRY_BUSH = new DamageSource("sweetBerryBush");
+   public static final DamageSource GUMBALL = new DamageSource("gumball");
    private boolean bypassArmor;
    private boolean bypassInvul;
    private boolean bypassMagic;
@@ -60,6 +62,18 @@ public class DamageSource {
       return new EntityDamageSource("player", p_76365_0_);
    }
 
+   public static DamageSource causeGumballDamage(Entity entity) {
+      return new EntityDamageSource("gumball", entity);
+   }
+
+   public static DamageSource causeDesolateDaggerDamage(Entity entity) {
+      return new EntityDamageSource("desolate_dagger", entity);
+   }
+
+   public static DamageSource sonicBoom(Entity entity) {
+      return new EntityDamageSource("sonic_boom", entity).bypassArmor().bypassMagic().setMagic();
+   }
+
    public static DamageSource arrow(AbstractArrowEntity p_76353_0_, @Nullable Entity p_76353_1_) {
       return (new IndirectEntityDamageSource("arrow", p_76353_0_, p_76353_1_)).setProjectile();
    }
@@ -76,6 +90,10 @@ public class DamageSource {
 
    public static DamageSource fireball(AbstractFireballEntity p_233547_0_, @Nullable Entity p_233547_1_) {
       return p_233547_1_ == null ? (new IndirectEntityDamageSource("onFire", p_233547_0_, p_233547_0_)).setIsFire().setProjectile() : (new IndirectEntityDamageSource("fireball", p_233547_0_, p_233547_1_)).setIsFire().setProjectile();
+   }
+
+   public static DamageSource hellfire(InfernalFireballEntity p_233547_0_, @Nullable Entity p_233547_1_) {
+      return p_233547_1_ == null ? (new IndirectEntityDamageSource("onFire", p_233547_0_, p_233547_0_)).setIsFire().setProjectile() : (new IndirectEntityDamageSource("hellfire", p_233547_0_, p_233547_1_)).setIsFire().setProjectile();
    }
 
 

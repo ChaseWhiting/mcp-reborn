@@ -13,6 +13,9 @@ public class SharedConstants {
    public static boolean CHECK_DATA_FIXER_SCHEMA = true;
    public static boolean IS_RUNNING_IN_IDE = true;
    public static boolean TEST_CELLULAR_NOISE = false;
+   public static boolean EVERY_BLOCK_IS_TNT = false;
+   public static boolean EVERY_BLOCK_IS_FLAMMABLE = false;
+
    public static final char[] ILLEGAL_FILE_CHARACTERS = new char[]{'/', '\n', '\r', '\t', '\u0000', '\f', '`', '?', '*', '\\', '<', '>', '|', '"', ':'};
    private static GameVersion CURRENT_VERSION;
 
@@ -41,7 +44,7 @@ public class SharedConstants {
    }
 
    public static int getProtocolVersion() {
-      return 834;
+      return 755;
    }
 
    static {

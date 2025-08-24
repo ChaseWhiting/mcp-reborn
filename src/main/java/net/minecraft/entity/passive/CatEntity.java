@@ -32,6 +32,7 @@ import net.minecraft.entity.ai.goal.SitGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.passive.roadrunner.RoadrunnerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.DyeItem;
@@ -126,6 +127,8 @@ public class CatEntity extends TameableEntity {
       this.goalSelector.addGoal(11, new WaterAvoidingRandomWalkingGoal(this, 0.8D, 1.0000001E-5F));
       this.goalSelector.addGoal(12, new LookAtGoal(this, PlayerEntity.class, 10.0F));
       this.targetSelector.addGoal(1, new NonTamedTargetGoal<>(this, RabbitEntity.class, false, (Predicate<LivingEntity>)null));
+      this.targetSelector.addGoal(1, new NonTamedTargetGoal<>(this, RoadrunnerEntity.class, false, (Predicate<LivingEntity>)null));
+
       this.targetSelector.addGoal(1, new NonTamedTargetGoal<>(this, TurtleEntity.class, false, TurtleEntity.BABY_ON_LAND_SELECTOR));
    }
 
@@ -134,7 +137,7 @@ public class CatEntity extends TameableEntity {
    }
 
    public void setCatType(int p_213422_1_) {
-      if (p_213422_1_ < 0 || p_213422_1_ >= 14) {
+      if (p_213422_1_ < 0 || p_213422_1_ >= 15) {
          p_213422_1_ = this.random.nextInt(14);
       }
 
@@ -257,8 +260,8 @@ public class CatEntity extends TameableEntity {
       return (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      return p_70652_1_.hurt(DamageSource.mobAttack(this), this.getAttackDamage());
+   public boolean doHurtTarget(Entity target) {
+      return target.hurt(DamageSource.mobAttack(this), this.getAttackDamage());
    }
 
    public void tick() {
@@ -382,9 +385,9 @@ public class CatEntity extends TameableEntity {
          if (this.isTame()) {
             if (this.isOwnedBy(p_230254_1_)) {
                if (!(item instanceof DyeItem)) {
-                  if (item.isEdible() && this.isFood(itemstack) && this.getHealth() < this.getMaxHealth()) {
+                  if (itemstack.isEdible() && this.isFood(itemstack) && this.getHealth() < this.getMaxHealth()) {
                      this.usePlayerItem(p_230254_1_, itemstack);
-                     this.heal((float)item.getFoodProperties().getNutrition());
+                     this.heal((float)itemstack.getFoodProperties().getNutrition());
                      return ActionResultType.CONSUME;
                   }
 

@@ -1,5 +1,6 @@
 package net.minecraft.potion;
 
+import net.minecraft.util.TimeConstants;
 import net.minecraft.util.registry.Registry;
 
 public class Potions {
@@ -41,6 +42,8 @@ public class Potions {
    public static final Potion REGENERATION = register("regeneration", new Potion(new EffectInstance(Effects.REGENERATION, 900)));
    public static final Potion LONG_REGENERATION = register("long_regeneration", new Potion("regeneration", new EffectInstance(Effects.REGENERATION, 1800)));
    public static final Potion STRONG_REGENERATION = register("strong_regeneration", new Potion("regeneration", new EffectInstance(Effects.REGENERATION, 450, 1)));
+   public static final Potion VERY_STRONG_REGENERATION = register("very_strong_regeneration", new Potion("regeneration", new EffectInstance(Effects.REGENERATION, 450, 2)));
+
    public static final Potion STRENGTH = register("strength", new Potion(new EffectInstance(Effects.DAMAGE_BOOST, 3600)));
    public static final Potion LONG_STRENGTH = register("long_strength", new Potion("strength", new EffectInstance(Effects.DAMAGE_BOOST, 9600)));
    public static final Potion STRONG_STRENGTH = register("strong_strength", new Potion("strength", new EffectInstance(Effects.DAMAGE_BOOST, 1800, 1)));
@@ -52,6 +55,30 @@ public class Potions {
    public static final Potion STRONGER_BAD_OMEN = register("stronger_bad_omen", new Potion("bad_omen", new EffectInstance(Effects.BAD_OMEN, 120000, 4)));
    public static final Potion SLOW_FALLING = register("slow_falling", new Potion(new EffectInstance(Effects.SLOW_FALLING, 1800)));
    public static final Potion LONG_SLOW_FALLING = register("long_slow_falling", new Potion("slow_falling", new EffectInstance(Effects.SLOW_FALLING, 4800)));
+
+   public static final Potion LIFEFORCE = register("lifeforce", new Potion("lifeforce", lifeforce(1, TimeConstants.EIGHT_MINUTES)));
+   public static final Potion LIFEFORCE_TWO = register("lifeforce_two", new Potion("lifeforce", lifeforce(2, TimeConstants.EIGHT_MINUTES)));
+   public static final Potion LIFEFORCE_THREE = register("lifeforce_three", new Potion("lifeforce", lifeforce(3, TimeConstants.EIGHT_MINUTES)));
+   public static final Potion LIFEFORCE_FOUR = register("lifeforce_four", new Potion("lifeforce", lifeforce(4, TimeConstants.EIGHT_MINUTES)));
+
+
+   public static final Potion INSIGHT = register("insight", new Potion("insight", insight(0, TimeConstants.SIX_MINUTES)));
+   public static final Potion STRONG_INSIGHT = register("strong_insight", new Potion("insight", insight(1, TimeConstants.SIX_MINUTES)));
+   public static final Potion VERY_STRONG_INSIGHT = register("very_strong_insight", new Potion("insight", insight(2, TimeConstants.SIX_MINUTES)));
+
+   public static final Potion LONG_INSIGHT = register("long_insight", new Potion("insight", insight(0, TimeConstants.SIXTEEN_MINUTES)));
+   public static final Potion LONG_STRONG_INSIGHT = register("long_strong_insight", new Potion("insight", insight(1, TimeConstants.SIXTEEN_MINUTES)));
+   public static final Potion LONG_VERY_STRONG_INSIGHT = register("long_very_strong_insight", new Potion("insight", insight(2, TimeConstants.SIXTEEN_MINUTES)));
+
+
+   private static EffectInstance insight(int level, int duration) {
+      return new EffectInstance(Effects.INSIGHT, duration, level);
+   }
+
+
+   private static EffectInstance lifeforce(int level, int duration) {
+      return new EffectInstance(Effects.LIFEFORCE, duration, level - 1);
+   }
 
    private static Potion register(String p_222125_0_, Potion p_222125_1_) {
       return Registry.register(Registry.POTION, p_222125_0_, p_222125_1_);

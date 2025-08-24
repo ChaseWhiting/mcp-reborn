@@ -6,13 +6,11 @@ import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractSkeletonEntity;
 import net.minecraft.entity.monster.Monster;
 import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.tool.BowItem;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.EnumSet;
@@ -52,7 +50,7 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
     protected boolean isHoldingBow() {
         if (mob.hasEffect(Effects.CONFUSED)) return false;
         
-        return this.mob.isHolding(Items.BOW) || this.mob.isHolding(Items.BONE_BOW);
+        return this.mob.isHolding(Items.BOW) || this.mob.isHolding(Items.BONE_BOW) || this.mob.isHolding(Items.AERIAL_BANE);
     }
 
     public boolean canContinueToUse() {
@@ -88,9 +86,7 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
                 --this.seeTime;
             }
 
-            // Check if there is a monster too close that should block pathfinding
             boolean avoidMonster = this.shouldAvoidMonsterNearby();
-            // Existing strafing and movement logic for non-Iron Golem targets
             if (!(d0 > (double)this.attackRadiusSqr) && this.seeTime >= 20) {
                 if (!avoidMonster) {
                     this.mob.getNavigation().stop();
@@ -103,9 +99,8 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
                 this.strafingTime = -1;
             }
 
-            // Strafing logic for Iron Golem
             if (livingentity instanceof IronGolemEntity) {
-                IronGolemStrafe(d0, livingentity);
+                IronGolemStrafe(livingentity);
             } else {
 
                 if (this.strafingTime >= 10) {
@@ -127,15 +122,12 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
                         this.strafingBackwards = true;
                     }
 
-                    // Minimum strafing distance and speed adjustments based on target distance
                     strafeSpeed = 0.7F;
                     boolean isClose = d0 < 27d;
                     if (isClose) {
                         strafeSpeed = 1.1F;
                         this.strafingClockwise = this.mob.nextBoolean();
                     }
-
-                    // Strafing backwards and jumping behavior
                     if (this.strafingBackwards) {
                         if (this.moveFartherBackwards++ >= 35) {
                             if (!avoidMonster) {
@@ -148,14 +140,12 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
                         }
                     }
 
-                    // Flanking behavior
                     if (livingentity instanceof VillagerEntity) {
                         if (!avoidMonster) {
                             this.mob.getNavigation().moveTo(livingentity, this.speedModifier * 1.1D);
                         }
                     }
 
-                    // Strafing around obstacles
                     this.mob.strafe(this.strafingBackwards ? -strafeSpeed : strafeSpeed,
                             avoidMonster ? (this.strafingClockwise ? -strafeSpeed : strafeSpeed)
                                     : (this.strafingClockwise ? strafeSpeed : -strafeSpeed));
@@ -164,8 +154,6 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
                     this.mob.getLookControl().setLookAt(livingentity, 30.0F, 30.0F);
                 }
 
-                // Adjust shooting logic to avoid friendly fire
-
             }
 
 
@@ -173,12 +161,11 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
         }
     }
 
-    private void IronGolemStrafe(double d0, LivingEntity livingentity) {
+    private void IronGolemStrafe(LivingEntity livingentity) {
         this.strafingBackwards = true;
         this.strafingClockwise = !(this.mob.nextFloat() < 0.3) && this.mob.nextBoolean();
-        strafeSpeed = 1.5F;  // Increased speed for strafing backward
+        strafeSpeed = 1.5F;
 
-        // Keep the strafing logic but favor backward movement
         if (this.strafingTime >= 10) {
             if ((double)this.mob.getRandom().nextFloat() < 0.5D) {
                 this.strafingClockwise = !this.strafingClockwise;
@@ -188,13 +175,10 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
 
         if (this.strafingTime > -1) {
 
-
-            // Strafing speed adjustments based on distance
-            strafeSpeed = 1.2F;  // Slightly faster for Golem avoidance
-            this.mob.strafe(this.strafingBackwards ? -strafeSpeed : strafeSpeed,
+            strafeSpeed = 1.2F;
+            this.mob.strafe(-strafeSpeed,
                     this.strafingClockwise ? strafeSpeed : -strafeSpeed);
 
-            // Jump occasionally while strafing backward to avoid getting killed
             if (this.mob.nextFloat() < 0.1) {
                 this.mob.getJumpControl().jump();
             }
@@ -233,20 +217,18 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
     private boolean anyBlocked(LivingEntity livingentity, LivingEntity targetEntity) {
         boolean canShoot = true;
 
-        // Check if there is any monster blocking the line of sight to the target
         Vector3d mobPos = this.mob.position();
         Vector3d targetPos = targetEntity.position();
         Vector3d direction = targetPos.subtract(mobPos).normalize();
         double distanceToTarget = mobPos.distanceTo(targetPos);
 
-        // Create a bounding box around the line of sight
         AxisAlignedBB lineOfSightArea = new AxisAlignedBB(
                 mobPos, mobPos.add(direction.scale(distanceToTarget))
-        ).inflate(0.3D); // Inflating the bounding box to account for the width of the line of sight
+        ).inflate(0.3D);
 
         for (LivingEntity nearbyEntity : this.mob.level.getEntitiesOfClass(LivingEntity.class, lineOfSightArea)) {
             if (nearbyEntity instanceof Monster || nearbyEntity.isAlliedTo(this.mob)) {
-                if (nearbyEntity != this.mob && nearbyEntity != livingentity && this.mob.getSensing().canSee(nearbyEntity)) {
+                if (nearbyEntity != this.mob && nearbyEntity != livingentity && nearbyEntity != this.mob.getVehicle() && this.mob.getSensing().canSee(nearbyEntity)) {
                     canShoot = false;
                     break;
                 }
@@ -256,29 +238,22 @@ public class AdvancedBowAttackGoal<T extends Monster & IRangedAttackMob> extends
     }
 
     private boolean shouldAvoidMonsterNearby() {
-        AxisAlignedBB boundingBox = this.mob.getBoundingBox().inflate(1D);  // Expanding bounding box by 0.85
+        AxisAlignedBB boundingBox = this.mob.getBoundingBox().inflate(1D);
         List<Monster> nearbyMonsters = this.mob.level.getEntitiesOfClass(Monster.class, boundingBox,
                 entity -> entity != this.mob && !(entity instanceof AbstractSkeletonEntity));
 
         if (!nearbyMonsters.isEmpty()) {
-            // Determine the relative position of the nearest monster to decide strafing direction
-            Monster closestMonster = nearbyMonsters.get(0);  // Assuming the first monster is the closest
+            Monster closestMonster = nearbyMonsters.get(0);
             double deltaX = closestMonster.getX() - this.mob.getX();
             double deltaZ = closestMonster.getZ() - this.mob.getZ();
-
-            // Choose strafing direction based on monster's position
             if (Math.abs(deltaX) > Math.abs(deltaZ)) {
-                // Monster is more to the left or right
-                this.strafingClockwise = deltaX < 0;  // Strafe right if the monster is to the left, and vice versa
+                this.strafingClockwise = deltaX < 0;
             } else {
-                // Monster is more in front or behind
-                this.strafingBackwards = deltaZ > 0;  // Strafe backwards if the monster is in front
+                this.strafingBackwards = deltaZ > 0;
             }
-
-            return true;  // Monster detected, should avoid it
+            return true;
         }
-
-        return false;  // No monster in proximity, proceed as normal
+        return false;
     }
 
 

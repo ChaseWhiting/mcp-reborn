@@ -12,7 +12,7 @@ public class RandomWalkingGoal extends Goal {
    protected double wantedX;
    protected double wantedY;
    protected double wantedZ;
-   protected final double speedModifier;
+   protected double speedModifier;
    protected int interval;
    protected boolean forceTrigger;
    private boolean checkNoActionTime;

@@ -5,10 +5,8 @@ package net.minecraft.entity.terraria.monster.demoneye;// Made with Blockbench 4
 
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.animation.HierarchicalModel;
-import net.minecraft.client.animation.definitions.DeerclopsAnimation;
-import net.minecraft.client.animation.definitions.EndermanAnimation;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.monster.EndermanEntity;
+import org.jetbrains.annotations.NotNull;
 
 public class DemonEyeModel extends HierarchicalModel<DemonEyeEntity> {
 	private final ModelRenderer root;
@@ -90,7 +88,7 @@ public class DemonEyeModel extends HierarchicalModel<DemonEyeEntity> {
 	}
 
 	@Override
-	public void setupAnim(DemonEyeEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+	public void setupAnim(@NotNull DemonEyeEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
 		super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 		//this.animate(entity.tails, DemonEyeAnimation.IDLE, ageInTicks);
 		this.animateWalk(DemonEyeAnimation.IDLE, limbSwing, limbSwingAmount, 4f, 6f);

@@ -4,15 +4,11 @@ package net.minecraft.entity.monster.deerclops;// Made with Blockbench 4.11.1
 
 
 import com.google.common.collect.ImmutableSet;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.animation.HierarchicalModel;
-import net.minecraft.client.animation.definitions.CreakingAnimation;
 import net.minecraft.client.animation.definitions.DeerclopsAnimation;
-import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.Mob;
+import org.jetbrains.annotations.NotNull;
 
 public class DeerclopsModel<T extends Mob> extends HierarchicalModel<T> {
 	private final ModelRenderer root;
@@ -535,7 +531,7 @@ public class DeerclopsModel<T extends Mob> extends HierarchicalModel<T> {
 	}
 
 	@Override
-	public void setupAnim(Mob entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+	public void setupAnim(@NotNull Mob entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
 		this.animateWalk(DeerclopsAnimation.WALKING, limbSwing, limbSwingAmount, 3.5f, 2.0f);
 
 

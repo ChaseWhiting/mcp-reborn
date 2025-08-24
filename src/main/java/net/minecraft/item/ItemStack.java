@@ -7,6 +7,7 @@ import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -16,18 +17,19 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.EncoderException;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.bundle.BundleItem;
 import net.minecraft.bundle.SlotAccess;
+import net.minecraft.client.TooltipComponent;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.command.arguments.BlockPredicateArgument;
 import net.minecraft.command.arguments.BlockStateParser;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.enchantment.UnbreakingEnchantment;
+import net.minecraft.enchantment.*;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -43,21 +45,21 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.container.ClickAction;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.equipment.trim.ArmorTrim;
+import net.minecraft.item.equipment.trim.ToolTrim;
+import net.minecraft.item.food.EffectWithChance;
+import net.minecraft.item.food.FoodData;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.network.RegistryPacketBuffer;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ITagCollectionSupplier;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.CachedBlockInfo;
-import net.minecraft.util.Hand;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
+import net.minecraft.util.codec.StreamCodec;
+import net.minecraft.util.component.DataComponentPatch;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -84,7 +86,14 @@ public final class ItemStack {
          return Optional.ofNullable(p_234704_0_.tag);
       })).apply(p_234698_0_, ItemStack::new);
    });
-   private static final Logger LOGGER = LogManager.getLogger();
+
+
+   public Optional<TooltipComponent> getTooltipImage() {
+      return this.getItem().getTooltipImage(this);
+   }
+
+
+      private static final Logger LOGGER = LogManager.getLogger();
    public static final ItemStack EMPTY = new ItemStack((Item)null);
    public static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = Util.make(new DecimalFormat("#.##"), (p_234699_0_) -> {
       p_234699_0_.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
@@ -102,7 +111,18 @@ public final class ItemStack {
    private CachedBlockInfo cachedPlaceBlock;
    private boolean cachedPlaceBlockResult;
 
+   public boolean is(IItemProvider provider) {
+      return provider.asItem() == this.getItem();
+   }
 
+   public ItemStack copyWithCount(int n) {
+      if (this.isEmpty()) {
+         return EMPTY;
+      }
+      ItemStack itemStack = this.copy();
+      itemStack.setCount(n);
+      return itemStack;
+   }
 
    public ItemEntity toEntity(World world) {
       ItemEntity entity = EntityType.ITEM.create(world);
@@ -111,6 +131,54 @@ public final class ItemStack {
          return entity;
       }
       return null;
+   }
+
+   @Nullable
+   public Food getFoodProperties() {
+
+      if (this.isEdible()) {
+         if (this.getOrCreateTag().contains("FoodData", 10)) {
+
+            FoodData data = FoodData.load(this.getOrCreateTag());
+
+            if (data == null) return null;
+
+            Food.Builder builder = new Food.Builder();
+
+            for (EffectWithChance effect : data.effects()) {
+               builder = builder.effect(effect.effect(), effect.probability());
+            }
+
+            if (data.canAlwaysEat()) {
+               builder = builder.alwaysEat();
+            }
+
+            if (data.isFast()) {
+               builder = builder.fast();
+            }
+
+            if (data.isMeat()) {
+               builder = builder.meat();
+            }
+
+            return builder.nutrition(data.nutrition()).saturationMod(data.saturation()).build();
+         }
+
+         if (this.getItem().isEdible()) {
+            return this.getItem().getFoodProperties();
+         }
+      }
+
+      return new Food.Builder().build();
+   }
+
+
+   public static boolean isSameItemSameTags(ItemStack p_150943_, ItemStack p_150944_) {
+      return p_150943_.get() == (p_150944_.getItem()) && tagMatches(p_150943_, p_150944_);
+   }
+
+   public int getEnchantmentLevel(Enchantment enchantment) {
+      return EnchantmentHelper.getItemEnchantmentLevel(enchantment, this);
    }
 
    public boolean hasCustomScrollBehaviour() {
@@ -145,13 +213,11 @@ public final class ItemStack {
    public int getWeight(ItemStack stack, ItemStack bundle) {
       int defaultWeight = this.getItem().getWeight(bundle);
 
-      // Calculate the durability lost as a percentage
       if (stack.isDamageableItem()) {
          int maxDurability = stack.getMaxDamage();
          int currentDurability = maxDurability - stack.getDamageValue();
          double durabilityPercentageLost = 1.0 - ((double) currentDurability / maxDurability);
 
-         // Reduce the weight by 1% for every 1% of durability lost
          defaultWeight = (int) (defaultWeight * (1.0 - durabilityPercentageLost));
       }
 
@@ -720,7 +786,13 @@ public final class ItemStack {
             appendEnchantmentNames(list, this.getEnchantmentTags());
          }
 
-         if (this.tag.contains("display", 10)) {
+          if (shouldShowInTooltip(i, TooltipDisplayFlags.UPGRADES) && p_82840_1_ != null) {
+              ArmorTrim.appendUpgradeHoverText(this, p_82840_1_.level().registryAccess(), list);
+             ToolTrim.appendUpgradeHoverText(this, p_82840_1_.level.registryAccess(), list);
+          }
+
+
+          if (this.tag.contains("display", 10)) {
             CompoundNBT compoundnbt = this.tag.getCompound("display");
             if (shouldShowInTooltip(i, ItemStack.TooltipDisplayFlags.DYE) && compoundnbt.contains("color", 99)) {
                if (p_82840_2_.isAdvanced()) {
@@ -857,6 +929,9 @@ public final class ItemStack {
             list.add((new TranslationTextComponent("item.unbreakable")).withStyle(TextFormatting.BLUE));
          }
 
+         //ArmorTrim.appendUpgradeHoverText(this, p_82840_1_.level().registryAccess(), arrayList);
+
+
          if (shouldShowInTooltip(i, ItemStack.TooltipDisplayFlags.CAN_DESTROY) && this.tag.contains("CanDestroy", 9)) {
             ListNBT listnbt1 = this.tag.getList("CanDestroy", 8);
             if (!listnbt1.isEmpty()) {
@@ -956,7 +1031,7 @@ public final class ItemStack {
    }
 
    public boolean hasFoil() {
-      return this.getItem().isFoil(this);
+      return this.getItem().isFoil(this) || this.getOrCreateTag().getBoolean("Foil");
    }
 
    public Rarity getRarity() {
@@ -982,6 +1057,16 @@ public final class ItemStack {
       compoundnbt.putString("id", String.valueOf((Object)Registry.ENCHANTMENT.getKey(p_77966_1_)));
       compoundnbt.putShort("lvl", (short)((byte)p_77966_2_));
       listnbt.add(compoundnbt);
+   }
+
+   public void enchant(EnchantmentData data) {
+      enchant(data.enchantment, data.level);
+   }
+
+   public void enchant(List<EnchantmentData> enchantmentData) {
+      for (EnchantmentData d : enchantmentData) {
+         enchant(d);
+      }
    }
 
    public boolean isEnchanted() {
@@ -1175,7 +1260,14 @@ public final class ItemStack {
    }
 
    public boolean isEdible() {
-      return this.getItem().isEdible();
+      if (this.getOrCreateTag().contains("FoodData", 10)) {
+         CompoundNBT food = this.getTag().getCompound("FoodData");
+
+         return true;
+      }
+
+
+      return this.getItem().isEdible() || this.getOrCreateTag().contains("FoodData");
    }
 
    public SoundEvent getDrinkingSound() {
@@ -1183,16 +1275,36 @@ public final class ItemStack {
    }
 
    public SoundEvent getEatingSound() {
+      if (this.getTag().contains("FoodData", 10)) {
+         FoodData newFoodData = FoodData.load(this.getTag());
+
+         if (newFoodData != null) {
+            return newFoodData.eating().soundWrapper().event();
+         }
+
+
+      }
+
       return this.getItem().getEatingSound();
    }
 
-   public static enum TooltipDisplayFlags {
+   public ItemStack copyAndClear() {
+      if (this.isEmpty()) {
+         return EMPTY;
+      }
+      ItemStack itemStack = this.copy();
+      this.setCount(0);
+      return itemStack;
+   }
+
+    public static enum TooltipDisplayFlags {
       ENCHANTMENTS,
       MODIFIERS,
       UNBREAKABLE,
       CAN_DESTROY,
       CAN_PLACE,
       ADDITIONAL,
+      UPGRADES,
       DYE;
 
       private int mask = 1 << this.ordinal();

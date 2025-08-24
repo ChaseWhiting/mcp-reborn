@@ -18,6 +18,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -105,7 +106,7 @@ public class ShapedRecipe implements ICraftingRecipe {
       return true;
    }
 
-   public ItemStack assemble(CraftingInventory p_77572_1_) {
+   public ItemStack assemble(CraftingInventory p_77572_1_, DynamicRegistries registryAccess) {
       return this.getResultItem().copy();
    }
 
@@ -117,7 +118,7 @@ public class ShapedRecipe implements ICraftingRecipe {
       return this.height;
    }
 
-   private static NonNullList<Ingredient> dissolvePattern(String[] p_192402_0_, Map<String, Ingredient> p_192402_1_, int p_192402_2_, int p_192402_3_) {
+   public static NonNullList<Ingredient> dissolvePattern(String[] p_192402_0_, Map<String, Ingredient> p_192402_1_, int p_192402_2_, int p_192402_3_) {
       NonNullList<Ingredient> nonnulllist = NonNullList.withSize(p_192402_2_ * p_192402_3_, Ingredient.EMPTY);
       Set<String> set = Sets.newHashSet(p_192402_1_.keySet());
       set.remove(" ");
@@ -239,8 +240,13 @@ public class ShapedRecipe implements ICraftingRecipe {
 
    public static ItemStack itemFromJson(JsonObject p_199798_0_) {
       String s = JSONUtils.getAsString(p_199798_0_, "item");
+      if (s.equals("minecraft:powered_rail")) {
+         s = "minecraft:golden_powered_rail";
+      }
+
+      String finalS = s;
       Item item = Registry.ITEM.getOptional(new ResourceLocation(s)).orElseThrow(() -> {
-         return new JsonSyntaxException("Unknown item '" + s + "'");
+         return new JsonSyntaxException("Unknown item '" + finalS + "'");
       });
       if (p_199798_0_.has("data")) {
          throw new JsonParseException("Disallowed data tag found");

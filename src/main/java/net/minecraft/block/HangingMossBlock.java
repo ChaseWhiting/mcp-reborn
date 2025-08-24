@@ -2,27 +2,21 @@ package net.minecraft.block;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -42,7 +36,7 @@ public class HangingMossBlock extends Block {
 
    // Override to define the shape of the block based on its TIP state
    @Override
-   public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return state.getValue(TIP) ? TIP_SHAPE : BASE_SHAPE;
    }
 
@@ -89,9 +83,6 @@ public class HangingMossBlock extends Block {
    @Override
    public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, IWorld world, BlockPos currentPos, BlockPos facingPos) {
       if (!this.canSurvive(state, world, currentPos)) {
-         if (world instanceof ServerWorld) {
-            popResource((World)world, currentPos, new ItemStack(this));
-         }
          return Blocks.AIR.defaultBlockState();
       } else {
          // Set TIP based on whether the block below is another moss block
@@ -114,18 +105,5 @@ public class HangingMossBlock extends Block {
          return this.defaultBlockState().setValue(TIP, !context.getLevel().getBlockState(pos.below()).is(this));
       }
       return null;
-   }
-
-   // Ensure the player can destroy the block and drop resources
-//   @Override
-//   public void playerDestroy(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
-//      super.playerDestroy(worldIn, player, pos, state, te, stack);
-//      popResource(worldIn, pos, new ItemStack(this));
-//   }
-
-   @Override
-   public void destroy(IWorld p_176206_1_, BlockPos p_176206_2_, BlockState p_176206_3_) {
-      super.destroy(p_176206_1_, p_176206_2_, p_176206_3_);
-      popResource((World) p_176206_1_, p_176206_2_, new ItemStack(this));
    }
 }

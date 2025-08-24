@@ -18,7 +18,28 @@ public class DimensionStructuresSettings {
          return p_236196_0_.structureConfig;
       })).apply(p_236198_0_, DimensionStructuresSettings::new);
    });
-   public static final ImmutableMap<Structure<?>, StructureSeparationSettings> DEFAULTS = ImmutableMap.<Structure<?>, StructureSeparationSettings>builder().put(Structure.PALE_VILLAGE, new StructureSeparationSettings(16, 8, 987654321)).put(Structure.VILLAGE, new StructureSeparationSettings(32, 8, 10387312)).put(Structure.DESERT_PYRAMID, new StructureSeparationSettings(32, 8, 14357617)).put(Structure.IGLOO, new StructureSeparationSettings(32, 8, 14357618)).put(Structure.JUNGLE_TEMPLE, new StructureSeparationSettings(32, 8, 14357619)).put(Structure.SWAMP_HUT, new StructureSeparationSettings(32, 8, 14357620)).put(Structure.PILLAGER_OUTPOST, new StructureSeparationSettings(32, 8, 165745296)).put(Structure.STRONGHOLD, new StructureSeparationSettings(1, 0, 0)).put(Structure.OCEAN_MONUMENT, new StructureSeparationSettings(32, 5, 10387313)).put(Structure.END_CITY, new StructureSeparationSettings(20, 11, 10387313)).put(Structure.WOODLAND_MANSION, new StructureSeparationSettings(80, 20, 10387319)).put(Structure.BURIED_TREASURE, new StructureSeparationSettings(1, 0, 0)).put(Structure.MINESHAFT, new StructureSeparationSettings(1, 0, 0)).put(Structure.RUINED_PORTAL, new StructureSeparationSettings(40, 15, 34222645)).put(Structure.SHIPWRECK, new StructureSeparationSettings(24, 4, 165745295)).put(Structure.OCEAN_RUIN, new StructureSeparationSettings(20, 8, 14357621)).put(Structure.BASTION_REMNANT, new StructureSeparationSettings(27, 4, 30084232)).put(Structure.NETHER_BRIDGE, new StructureSeparationSettings(27, 4, 30084232)).put(Structure.NETHER_FOSSIL, new StructureSeparationSettings(2, 1, 14357921)).build();
+   public static final ImmutableMap<Structure<?>, StructureSeparationSettings> DEFAULTS = ImmutableMap.<Structure<?>, StructureSeparationSettings>builder()
+           .put(Structure.TRAIL_RUINS, new StructureSeparationSettings(34, 8, 83469867))
+           .put(Structure.PALE_VILLAGE, new StructureSeparationSettings(32, 8, 10387312))
+           .put(Structure.VILLAGE, new StructureSeparationSettings(32, 8, 10387312))
+           .put(Structure.DESERT_PYRAMID, new StructureSeparationSettings(32, 8, 14357617))
+           .put(Structure.IGLOO, new StructureSeparationSettings(32, 8, 14357618))
+           .put(Structure.JUNGLE_TEMPLE, new StructureSeparationSettings(32, 8, 14357619))
+           .put(Structure.SWAMP_HUT, new StructureSeparationSettings(32, 8, 14357620))
+           .put(Structure.PILLAGER_OUTPOST, new StructureSeparationSettings(32, 8, 165745296))
+           .put(Structure.STRONGHOLD, new StructureSeparationSettings(1, 0, 0))
+           .put(Structure.OCEAN_MONUMENT, new StructureSeparationSettings(32, 5, 10387313))
+           .put(Structure.END_CITY, new StructureSeparationSettings(20, 11, 10387313))
+           .put(Structure.WOODLAND_MANSION, new StructureSeparationSettings(80, 20, 10387319))
+           .put(Structure.BURIED_TREASURE, new StructureSeparationSettings(1, 0, 0))
+           .put(Structure.MINESHAFT, new StructureSeparationSettings(1, 0, 0))
+           .put(Structure.RUINED_PORTAL, new StructureSeparationSettings(40, 15, 34222645))
+           .put(Structure.SHIPWRECK, new StructureSeparationSettings(24, 4, 165745295))
+           .put(Structure.OCEAN_RUIN, new StructureSeparationSettings(20, 8, 14357621))
+           .put(Structure.BASTION_REMNANT, new StructureSeparationSettings(27, 4, 30084232))
+           .put(Structure.NETHER_BRIDGE, new StructureSeparationSettings(27, 4, 30084232))
+           .put(Structure.NETHER_FOSSIL, new StructureSeparationSettings(2, 1, 14357921))
+           .build();
    public static final StructureSpreadSettings DEFAULT_STRONGHOLD;
    private final Map<Structure<?>, StructureSeparationSettings> structureConfig;
    @Nullable

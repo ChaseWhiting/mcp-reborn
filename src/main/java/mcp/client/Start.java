@@ -2,6 +2,7 @@ package mcp.client;
 
 import java.util.Arrays;
 import net.minecraft.client.main.Main;
+import net.minecraft.util.MinecraftVersion;
 
 public class Start
 {
@@ -14,7 +15,7 @@ public class Start
          */
         String assets = System.getenv().containsKey("assetDirectory") ? System.getenv("assetDirectory") : "assets";
         Main.main(concat(new String[]{
-                "--version", "2.3.1",
+                "--version", MinecraftVersion.VERSION,
                 "--accessToken", "0",
                 "--assetsDir", assets,
                 "--assetIndex", "1.16",

@@ -241,6 +241,10 @@ public class EnchantmentHelper {
       return getItemEnchantmentLevel(Enchantments.BINDING_CURSE, p_190938_0_) > 0;
    }
 
+   public static boolean hasConductingCurse(ItemStack p_190938_0_) {
+      return getItemEnchantmentLevel(Enchantments.CONDUCTING_CURSE, p_190938_0_) > 0;
+   }
+
    public static boolean hasVanishingCurse(ItemStack p_190939_0_) {
       return getItemEnchantmentLevel(Enchantments.VANISHING_CURSE, p_190939_0_) > 0;
    }

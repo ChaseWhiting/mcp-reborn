@@ -48,7 +48,7 @@ public class HorizontalFaceBlock extends HorizontalBlock {
       return getConnectedDirection(p_196271_1_).getOpposite() == p_196271_2_ && !p_196271_1_.canSurvive(p_196271_4_, p_196271_5_) ? Blocks.AIR.defaultBlockState() : super.updateShape(p_196271_1_, p_196271_2_, p_196271_3_, p_196271_4_, p_196271_5_, p_196271_6_);
    }
 
-   protected static Direction getConnectedDirection(BlockState p_196365_0_) {
+   public static Direction getConnectedDirection(BlockState p_196365_0_) {
       switch((AttachFace)p_196365_0_.getValue(FACE)) {
       case CEILING:
          return Direction.DOWN;

@@ -1,0 +1,145 @@
+{
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "item/frying_pan",
+		"particle": "item/frying_pan"
+	},
+	"elements": [
+		{
+			"name": "frying_pan_inner",
+			"from": [4, 0, 2.5],
+			"to": [12, 2, 10.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 0, 8.5]},
+			"faces": {
+				"north": {"uv": [8, 7.5, 12, 8.5], "texture": "#0"},
+				"east": {"uv": [8.5, 0, 12.5, 1], "texture": "#0"},
+				"south": {"uv": [8.5, 1, 12.5, 2], "texture": "#0"},
+				"west": {"uv": [8.5, 2, 12.5, 3], "texture": "#0"},
+				"up": {"uv": [4, 4, 0, 0], "texture": "#0"},
+				"down": {"uv": [4, 4, 0, 8], "texture": "#0"}
+			}
+		},
+		{
+			"name": "pan_outer",
+			"from": [3.5, 0, 2.5],
+			"to": [4, 3, 10.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-1, 0, 8.5]},
+			"faces": {
+				"north": {"uv": [1, 9.5, 1.5, 11], "texture": "#0"},
+				"east": {"uv": [4, 6, 8, 7.5], "texture": "#0"},
+				"south": {"uv": [1.5, 9.5, 2, 11], "texture": "#0"},
+				"west": {"uv": [4, 7.5, 8, 9], "texture": "#0"},
+				"up": {"uv": [5.5, 13, 5, 9], "texture": "#0"},
+				"down": {"uv": [6, 9, 5.5, 13], "texture": "#0"}
+			}
+		},
+		{
+			"name": "pan_outer",
+			"from": [12, 0, 2.5],
+			"to": [12.5, 3, 10.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7.5, 0, 8.5]},
+			"faces": {
+				"north": {"uv": [2, 9.5, 2.5, 11], "texture": "#0"},
+				"east": {"uv": [0, 8, 4, 9.5], "texture": "#0"},
+				"south": {"uv": [2.5, 9.5, 3, 11], "texture": "#0"},
+				"west": {"uv": [8, 6, 12, 7.5], "texture": "#0"},
+				"up": {"uv": [6.5, 13, 6, 9], "texture": "#0"},
+				"down": {"uv": [7, 9, 6.5, 13], "texture": "#0"}
+			}
+		},
+		{
+			"name": "pan_outer",
+			"from": [3.5, 0, 10.5],
+			"to": [12.5, 3, 11],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6.5, 0, 16.5]},
+			"faces": {
+				"north": {"uv": [4, 0, 8.5, 1.5], "texture": "#0"},
+				"east": {"uv": [3, 9.5, 3.5, 11], "texture": "#0"},
+				"south": {"uv": [4, 1.5, 8.5, 3], "texture": "#0"},
+				"west": {"uv": [3.5, 9.5, 4, 11], "texture": "#0"},
+				"up": {"uv": [13, 5.5, 8.5, 5], "texture": "#0"},
+				"down": {"uv": [13, 5.5, 8.5, 6], "texture": "#0"}
+			}
+		},
+		{
+			"name": "pan_outer",
+			"from": [3.5, 0, 2],
+			"to": [12.5, 3, 2.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6.5, 0, 8]},
+			"faces": {
+				"north": {"uv": [4, 3, 8.5, 4.5], "texture": "#0"},
+				"east": {"uv": [9, 9.5, 9.5, 11], "texture": "#0"},
+				"south": {"uv": [4, 4.5, 8.5, 6], "texture": "#0"},
+				"west": {"uv": [9.5, 9.5, 10, 11], "texture": "#0"},
+				"up": {"uv": [13.5, 9, 9, 8.5], "texture": "#0"},
+				"down": {"uv": [13.5, 9, 9, 9.5], "texture": "#0"}
+			}
+		},
+		{
+			"name": "handle",
+			"from": [7.52, 0.02, 10.52],
+			"to": [8.98, 1.48, 18.48],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7.5, 0, 8]},
+			"faces": {
+				"north": {"uv": [7, 9, 8, 10], "texture": "#0"},
+				"east": {"uv": [8.5, 3, 12.5, 4], "texture": "#0"},
+				"south": {"uv": [0, 9.5, 1, 10.5], "texture": "#0"},
+				"west": {"uv": [8.5, 4, 12.5, 5], "texture": "#0"},
+				"up": {"uv": [9, 12.5, 8, 8.5], "texture": "#0"},
+				"down": {"uv": [5, 9, 4, 13], "texture": "#0"}
+			}
+		}
+	],
+	"gui_light": "front",
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 5.75, -6.75]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 5.75, -6.75]
+		},
+		"firstperson_righthand": {
+			"rotation": [-6.25, 8.75, 12],
+			"translation": [0, 7, 0],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-6.25, 8.75, 12],
+			"translation": [0, 7, 0],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"ground": {
+			"translation": [0, 5.25, 0]
+		},
+		"gui": {
+			"rotation": [-122.47, 43.26, 175.86],
+			"translation": [0.5, 3.25, 0],
+			"scale": [0.8, 0.8, 0.8]
+		},
+		"head": {
+			"rotation": [-85, -76, 0],
+			"translation": [-0.75, 0, -13.5]
+		},
+		"fixed": {
+			"rotation": [-103, -58, -16],
+			"translation": [1.25, -0.25, -5.5],
+			"scale": [0.9, 0.9, 0.9]
+		}
+	},
+	"groups": [
+		{
+			"name": "handle",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [
+				{
+					"name": "pan",
+					"origin": [8, 8, 8],
+					"color": 0,
+					"children": [0, 1, 2, 3, 4]
+				},
+				5
+			]
+		}
+	]
+}

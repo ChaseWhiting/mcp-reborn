@@ -13,28 +13,22 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.BedBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RespawnAnchorBlock;
+import net.minecraft.block.*;
 import net.minecraft.bundle.QuiverItem;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mob;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.Pose;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
+import net.minecraft.entity.happy_ghast.HappyGhastEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.item.minecart.MinecartEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.creaking.CreakingEntity;
 import net.minecraft.entity.passive.ParrotEntity;
@@ -46,6 +40,8 @@ import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.GrapplingHookEntity;
 import net.minecraft.entity.villager.data.quest.Quest;
 import net.minecraft.entity.villager.data.quest.QuestManager;
+import net.minecraft.entity.warden.WardenSpawnTracker;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fallout.Addiction;
 import net.minecraft.fallout.Skills;
 import net.minecraft.fallout.Special;
@@ -57,7 +53,8 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.tool.AxeItem;
+import net.minecraft.item.food.FoodData;
+import net.minecraft.item.tool.BatItem;
 import net.minecraft.item.tool.SwordItem;
 import net.minecraft.item.tool.terraria.AccessoryHolderItem;
 import net.minecraft.item.tool.terraria.MoltenSkullRoseItem;
@@ -85,40 +82,26 @@ import net.minecraft.tileentity.CommandBlockTileEntity;
 import net.minecraft.tileentity.JigsawTileEntity;
 import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.tileentity.StructureBlockTileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.CachedBlockInfo;
-import net.minecraft.util.CooldownTracker;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.FoodStats;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SharedConstants;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Unit;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.random.RandomSource;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.Gamemode;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.entity.villager.data.quest.QuestTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class PlayerEntity extends LivingEntity {
-    public static final EntitySize STANDING_DIMENSIONS = EntitySize.scalable(0.6F, 1.8F);
+    public static final Vector3d DEFAULT_VEHICLE_ATTACHMENT = new Vector3d(0.0, 0.6, 0.0);
+    public static final EntitySize STANDING_DIMENSIONS = EntitySize.scalable(0.6F, 1.8F).withAttachments(EntityAttachments.builder().attach(EntityAttachment.VEHICLE, DEFAULT_VEHICLE_ATTACHMENT));
     private static final Map<Pose, EntitySize> POSES = ImmutableMap.<Pose, EntitySize>builder().put(Pose.STANDING, STANDING_DIMENSIONS).put(Pose.SLEEPING, SLEEPING_DIMENSIONS).put(Pose.FALL_FLYING, EntitySize.scalable(0.6F, 0.6F)).put(Pose.SWIMMING, EntitySize.scalable(0.6F, 0.6F)).put(Pose.SPIN_ATTACK, EntitySize.scalable(0.6F, 0.6F)).put(Pose.CROUCHING, EntitySize.scalable(0.6F, 1.5F)).put(Pose.DYING, EntitySize.fixed(0.2F, 0.2F)).build();
     private static final DataParameter<Float> DATA_PLAYER_ABSORPTION_ID = EntityDataManager.defineId(PlayerEntity.class, DataSerializers.FLOAT);
     private static final DataParameter<Integer> DATA_SCORE_ID = EntityDataManager.defineId(PlayerEntity.class, DataSerializers.INT);
@@ -165,6 +148,96 @@ public abstract class PlayerEntity extends LivingEntity {
     private GrapplingHookEntity grapplingHook;
     public Special.SpecialManager specialManager;
     public Skills skills;
+    private static final UUID INVENTORY_WEIGHT_MOD = UUID.fromString("7E0292F2-9434-48D5-A29F-9583AF7DF27F");
+
+    public boolean isScoping() {
+        return this.isUsingItem() && this.getUseItem().is(Items.SPYGLASS);
+    }
+
+    @Override
+    public Vector3d getVehicleAttachmentPoint(Entity vehicle) {
+        if (vehicle instanceof AbstractHorseEntity) {
+            return new Vector3d(0.0, 0.723, 0.0);
+        }
+
+        return new Vector3d(0.0, 0.6, 0.0); // TEMP: forces it to be flush with the vehicle
+    }
+
+
+    @Override
+    protected Entity.MovementEmission getMovementEmission() {
+        return !this.abilities.flying && (!this.onGround || !this.isDiscrete()) ? Entity.MovementEmission.ALL : Entity.MovementEmission.NONE;
+    }
+
+
+    public float getReachDistance() {
+        return (float) this.getAttributeValue(Attributes.REACH_DISTANCE) + (this.isCreative() ? 0.5F : 0F);
+    }
+
+    public double getEntityReachDistance() {
+        return this.getAttributeValue(Attributes.ENTITY_REACH_DISTANCE) + (this.isCreative() ? 2D : 0D);
+    }
+
+    public Optional<WardenSpawnTracker> getWardenSpawnTracker() {
+        return Optional.empty();
+    }
+
+
+    protected boolean doesEmitEquipEvent(EquipmentSlotType equipmentSlot) {
+        return equipmentSlot.getType() == EquipmentSlotType.Group.ARMOR;
+    }
+
+    public void assignSlownessBasedOnItemWeightInVeryHardMode() {
+        ModifiableAttributeInstance movementSpeed = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeed == null) {
+            return; // No movement speed attribute, exit early
+        }
+
+        // Check if the player is in very hard mode
+        if (this.veryHardmode()) {
+            // Calculate the total weight of items in the player's inventory
+            int totalWeight = 0;
+            for (List<ItemStack> list : this.inventory.compartments) {
+                for (ItemStack itemStack : list) {
+                    if (!itemStack.isEmpty()) {
+                        totalWeight += itemStack.getWeight(itemStack, new ItemStack(Items.AIR, 0));
+                    }
+                }
+            }
+
+            // Calculate the slowness modifier based on weight
+            double slownessValue = (totalWeight / 5) * -0.0005; // Negative to reduce speed
+
+            // Check if the modifier already exists
+            AttributeModifier existingModifier = movementSpeed.getModifier(INVENTORY_WEIGHT_MOD);
+
+            if (existingModifier != null) {
+                // If the modifier exists, update it only if the value has changed
+                if (existingModifier.getAmount() != slownessValue) {
+                    movementSpeed.removeModifier(INVENTORY_WEIGHT_MOD);
+                    movementSpeed.addTransientModifier(new AttributeModifier(
+                            INVENTORY_WEIGHT_MOD,
+                            "Inventory weight slowness",
+                            slownessValue,
+                            AttributeModifier.Operation.ADDITION
+                    ));
+                }
+            } else {
+                // If no modifier exists, add a new one
+                movementSpeed.addTransientModifier(new AttributeModifier(
+                        INVENTORY_WEIGHT_MOD,
+                        "Inventory weight slowness",
+                        slownessValue,
+                        AttributeModifier.Operation.ADDITION
+                ));
+            }
+        } else {
+            // If not in very hard mode, ensure the modifier is removed
+            if (movementSpeed.getModifier(INVENTORY_WEIGHT_MOD) != null) {
+                movementSpeed.removeModifier(INVENTORY_WEIGHT_MOD);
+            }
+        }
+    }
 
 
     public PlayerEntity(World p_i241920_1_, BlockPos p_i241920_2_, float p_i241920_3_, GameProfile p_i241920_4_) {
@@ -210,7 +283,7 @@ public abstract class PlayerEntity extends LivingEntity {
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return LivingEntity.createLivingAttributes().add(Attributes.ATTACK_DAMAGE, 1.0D).add(Attributes.MOVEMENT_SPEED, (double) 0.1F).add(Attributes.ATTACK_SPEED).add(Attributes.LUCK);
+        return LivingEntity.createLivingAttributes().add(Attributes.ATTACK_DAMAGE, 1.0D).add(Attributes.ENTITY_REACH_DISTANCE, 3D).add(Attributes.REACH_DISTANCE, 4.5D).add(Attributes.MOVEMENT_SPEED, (double) 0.1F).add(Attributes.ATTACK_SPEED).add(Attributes.LUCK);
     }
 
     protected void defineSynchedData() {
@@ -280,38 +353,6 @@ public abstract class PlayerEntity extends LivingEntity {
     public void tick() {
         tickQuests();
         addictions.tick();
-        UUID attackingModifier = UUID.fromString("d9b2d63d-a233-4123-847d-e53d9580fda0");
-        UUID itemDamageModifier = UUID.fromString("f9b2d63d-a233-4123-847d-e53d9580fda0");
-        UUID speedModifier = UUID.fromString("c9b2d63d-a233-4123-847d-e53d9580fda0");
-        AttributeModifier attackModifier = new AttributeModifier(attackingModifier, "temporary_bonus0", 0.05 * skills.getSkill(Skills.SkillType.UNARMED), AttributeModifier.Operation.ADDITION);
-        AttributeModifier itemModifier = new AttributeModifier(itemDamageModifier, "temporary_bonus2", 0.03 * skills.getSkill(Skills.SkillType.MELEE_WEAPONS), AttributeModifier.Operation.ADDITION);
-
-        AttributeModifier speedModify = new AttributeModifier(speedModifier, "temporary_bonus1", 0.002 * specialManager.getStat(Special.SpecialStats.AGILITY), AttributeModifier.Operation.ADDITION);
-
-
-        if (!this.hasEffect(Effects.DAMAGE_BOOST)) {
-            if (this.getMainHandItem().isEmpty() && !this.getAttribute(Attributes.ATTACK_DAMAGE).hasModifier(attackModifier)) {
-                this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(attackModifier);
-            } else {
-                Item item = this.getMainHandItem().getItem();
-                if (item instanceof TieredItem && !this.getAttribute(Attributes.ATTACK_DAMAGE).hasModifier(itemModifier)) {
-                    this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(itemModifier);
-                } else {
-                    this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(attackingModifier);
-                    this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(itemModifier);
-                }
-            }
-        }
-        if (!this.hasEffect(Effects.MOVEMENT_SPEED) && !this.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(speedModify)) {
-            this.getAttribute(Attributes.MOVEMENT_SPEED).addTransientModifier(speedModify);
-        } else {
-            if (!this.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(speedModify)) {
-                this.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(speedModifier);
-            }
-        }
-        if (!this.hasEffect(Effects.LUCK)) {
-                this.getAttribute(Attributes.LUCK).setBaseValue(specialManager.getStat(Special.SpecialStats.LUCK));
-        }
 
 
         this.noPhysics = this.isSpectator();
@@ -404,8 +445,34 @@ public abstract class PlayerEntity extends LivingEntity {
 
     private void turtleHelmetTick() {
         ItemStack itemstack = this.getItemBySlot(EquipmentSlotType.HEAD);
-        if (itemstack.getItem() == Items.TURTLE_HELMET && !this.isEyeInFluid(FluidTags.WATER)) {
+        ItemStack itemstack2 = this.getItemBySlot(EquipmentSlotType.FEET);
+        ItemStack itemstack3 = this.getItemBySlot(EquipmentSlotType.LEGS);
+        ItemStack itemstack4 = this.getItemBySlot(EquipmentSlotType.CHEST);
+
+        boolean helmet = itemstack.getItem() == Items.TURTLE_HELMET || itemstack.getItem() == Items.BURNT_TURTLE_HELMET;
+        boolean chestplate = itemstack4.getItem() == Items.TURTLE_CHESTPLATE || itemstack4.getItem() == Items.BURNT_TURTLE_CHESTPLATE;
+        boolean legs = itemstack3.getItem() == Items.TURTLE_LEGGINGS || itemstack3.getItem() == Items.BURNT_TURTLE_LEGGINGS;
+        boolean boots = itemstack2.getItem() == Items.TURTLE_BOOTS || itemstack2.getItem() == Items.BURNT_TURTLE_BOOTS;
+
+        if (itemstack.get() == Items.FLOWER_CROWN) {
+            this.addEffect(new EffectInstance(Effects.LUCK, 10 * 20, 4, false, false, true));
+            if (!this.hasEffect(Effects.REGENERATION)) {
+                this.addEffect(new EffectInstance(Effects.REGENERATION, 10 * 20, 0, false, false, true));
+            }
+        }
+
+        if (helmet && !this.isEyeInFluid(FluidTags.WATER)) {
             this.addEffect(new EffectInstance(Effects.WATER_BREATHING, 200, 0, false, false, true));
+        }
+
+        if (boots && legs && this.isInWater()) {
+            this.addEffect(new EffectInstance(Effects.TURTLES_GRACE, 200, 0, false, false, true));
+        }
+
+
+        if (boots && legs && chestplate && helmet && this.isInWaterRainOrBubble()) {
+            this.addEffect(new EffectInstance(Effects.DAMAGE_RESISTANCE, 200, 2, false, false, true));
+            this.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 200, 3, false, false, true));
         }
 
     }
@@ -802,6 +869,8 @@ public abstract class PlayerEntity extends LivingEntity {
             f *= 1.0F + (float) (EffectUtils.getDigSpeedAmplification(this) + 1) * 0.2F;
         }
 
+        float multiplier = 5.0F;
+
         if (this.hasEffect(Effects.DIG_SLOWDOWN)) {
             float f1;
             switch (this.getEffect(Effects.DIG_SLOWDOWN).getAmplifier()) {
@@ -823,11 +892,37 @@ public abstract class PlayerEntity extends LivingEntity {
         }
 
         if (this.isEyeInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(this)) {
-            f /= 5.0F;
+            f /= multiplier;
         }
 
         if (!this.onGround) {
-            f /= 5.0F;
+
+
+            if (isPassenger() && getRootVehicle() instanceof Mob mob) {
+                if (mob.getBodyRotationControl().isMovingAtAll()) {
+                    f /= ( !(mob instanceof HappyGhastEntity) ? (isInWaterOrBubble() ? 5.0F : 2.5F) : 5.0F);
+                }
+            } else if (isPassenger()) {
+                if (getRootVehicle() instanceof BoatEntity || getRootVehicle() instanceof AbstractMinecartEntity) {
+                    Entity rv = this.getRootVehicle();
+
+                    double d0 = rv.getX() - rv.xo;
+                    double d1 = rv.getZ() - rv.zo;
+                    if (d0 * d0 + d1 * d1 > (double) 2.5000003E-7F) {
+                        f /= (rv.isInWaterOrBubble() ? (rv instanceof BoatEntity ? 3.5F : 5.0F) : 2.5F);
+                    } else if (rv.isInWaterOrBubble()) {
+                        if (!(rv instanceof BoatEntity) && rv.isInWaterOrBubble()) {
+                            f /= 5.0F;
+                        }
+                    }
+                } else {
+                    f /= 5.0F;
+                }
+            } else {
+                f /= 5.0F;
+            }
+
+
         }
 
         return f;
@@ -905,7 +1000,6 @@ public abstract class PlayerEntity extends LivingEntity {
     }
 
     public boolean isInvulnerableTo(DamageSource p_180431_1_) {
-
 
 
         if (super.isInvulnerableTo(p_180431_1_)) {
@@ -1009,8 +1103,8 @@ public abstract class PlayerEntity extends LivingEntity {
 
     protected void blockUsingShield(LivingEntity p_190629_1_) {
         super.blockUsingShield(p_190629_1_);
-        if (p_190629_1_.getMainHandItem().getItem() instanceof AxeItem) {
-            this.disableShield(true);
+        if (p_190629_1_.canDisableShield()) {
+            this.disableShield(true, p_190629_1_);
         }
 
     }
@@ -1075,7 +1169,7 @@ public abstract class PlayerEntity extends LivingEntity {
                 if (f2 < 3.4028235E37F) {
                     this.awardStat(Stats.DAMAGE_TAKEN, Math.round(f2 * 10.0F));
                 }
-
+                this.gameEvent(GameEvent.ENTITY_DAMAGE);
             }
         }
     }
@@ -1224,7 +1318,7 @@ public abstract class PlayerEntity extends LivingEntity {
     public void attack(Entity p_71059_1_) {
         if (p_71059_1_.isAttackable()) {
             if (!p_71059_1_.skipAttackInteraction(this)) {
-                float f = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
+                float damageAttribute = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
                 float f1;
                 if (p_71059_1_ instanceof LivingEntity) {
                     f1 = EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity) p_71059_1_).getMobType());
@@ -1233,10 +1327,10 @@ public abstract class PlayerEntity extends LivingEntity {
                 }
 
                 float f2 = this.getAttackStrengthScale(0.5F);
-                f = f * (0.2F + f2 * f2 * 0.8F);
+                damageAttribute = damageAttribute * (0.2F + f2 * f2 * 0.8F);
                 f1 = f1 * f2;
                 this.resetAttackStrengthTicker();
-                if (f > 0.0F || f1 > 0.0F) {
+                if (damageAttribute > 0.0F || f1 > 0.0F) {
                     boolean flag = f2 > 0.9F;
                     boolean flag1 = false;
                     int i = 0;
@@ -1247,19 +1341,19 @@ public abstract class PlayerEntity extends LivingEntity {
                         flag1 = true;
                     }
 
-                    boolean flag2 = flag && this.fallDistance > 0.0F && !this.onGround && !this.onClimbable() && !this.isInWater() && !this.hasEffect(Effects.BLINDNESS) && !this.isPassenger() && p_71059_1_ instanceof LivingEntity;
+                    boolean flag2 = flag && this.fallDistance > 0.0F && !this.onGround && !this.onClimbable() && !this.isInWater() && !this.hasEffect(Effects.BLINDNESS) && !this.isPassenger() && p_71059_1_ instanceof LivingEntity && !(this.getItemInHand(Hand.MAIN_HAND).get() instanceof BatItem);
                     flag2 = flag2 && !this.isSprinting();
                     if (flag2) {
-                        f *= 1.5F;
+                        damageAttribute *= 1.5F;
                     }
 
-                    f = f + f1;
-                    boolean flag3 = false;
+                    damageAttribute = damageAttribute + f1;
+                    boolean doSweeping = false;
                     double d0 = (double) (this.walkDist - this.walkDistO);
                     if (flag && !flag2 && !flag1 && this.onGround && d0 < (double) this.getSpeed()) {
                         ItemStack itemstack = this.getItemInHand(Hand.MAIN_HAND);
                         if (itemstack.getItem() instanceof SwordItem) {
-                            flag3 = true;
+                            doSweeping = true;
                         }
                     }
 
@@ -1275,8 +1369,34 @@ public abstract class PlayerEntity extends LivingEntity {
                     }
 
                     Vector3d vector3d = p_71059_1_.getDeltaMovement();
-                    boolean flag5 = p_71059_1_.hurt(DamageSource.playerAttack(this), f);
+                    boolean flag5 = p_71059_1_.hurt(DamageSource.playerAttack(this), damageAttribute);
+
+                    if (this.getItemInHand(Hand.MAIN_HAND).getItem() == Items.WITHER_BONE_CUTLASS) {
+                        float f3 = 1.0F + EnchantmentHelper.getSweepingDamageRatio(this) * damageAttribute;
+                        int sweepingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.SWEEPING_EDGE, this);
+                        double dd;
+
+
+                        f3 *= 1.5F;
+                        sweepingLevel += RandomSource.create(this.random.nextLong()).nextInt((int) Math.min(MathHelper.clamp(sweepingLevel, MathHelper.randomBetween(random, 2, 5), 5), MathHelper.randomBetweenInclusive(random, 3, 6)));
+                        dd = 12.0D + MathHelper.randomBetweenInclusive(random, random.nextInt(Math.max(1, sweepingLevel) + 1), random.nextInt(sweepingLevel + 1, sweepingLevel + 5));
+
+
+                        for (LivingEntity livingentity : this.level.getEntitiesOfClass(LivingEntity.class, p_71059_1_.getBoundingBox().inflate(1.0D + (0.05 * sweepingLevel), 0.25D + (0.05 * sweepingLevel), 1.0D + (0.05 * sweepingLevel)))) {
+                            if (livingentity != this && livingentity != p_71059_1_ && !this.isAlliedTo(livingentity) && (!(livingentity instanceof ArmorStandEntity) || !((ArmorStandEntity) livingentity).isMarker()) && this.distanceToSqr(livingentity) < dd) {
+                                livingentity.knockback(0.4F, (double) MathHelper.sin(this.yRot * ((float) Math.PI / 180F)), (double) (-MathHelper.cos(this.yRot * ((float) Math.PI / 180F))));
+                                livingentity.hurt(DamageSource.playerAttack(this), f3);
+                            }
+                        }
+
+                        this.level.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, this.getSoundSource(), 1.0F, 1.0F);
+                        this.multiSweepAttack();
+                    }
+
                     if (flag5) {
+                        if (this.getItemInHand(Hand.MAIN_HAND).get() instanceof BatItem) {
+                            i += 1;
+                        }
                         if (i > 0) {
                             if (p_71059_1_ instanceof LivingEntity) {
                                 ((LivingEntity) p_71059_1_).knockback((float) i * 0.5F, (double) MathHelper.sin(this.yRot * ((float) Math.PI / 180F)), (double) (-MathHelper.cos(this.yRot * ((float) Math.PI / 180F))));
@@ -1288,11 +1408,13 @@ public abstract class PlayerEntity extends LivingEntity {
                             this.setSprinting(false);
                         }
 
-                        if (flag3) {
-                            float f3 = 1.0F + EnchantmentHelper.getSweepingDamageRatio(this) * f;
+                        if (doSweeping && this.getItemInHand(Hand.MAIN_HAND).getItem() != Items.WITHER_BONE_CUTLASS) {
+                            float f3 = 1.0F + EnchantmentHelper.getSweepingDamageRatio(this) * damageAttribute;
+                            int sweepingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.SWEEPING_EDGE, this);
+                            double dd = 9.0D;
 
-                            for (LivingEntity livingentity : this.level.getEntitiesOfClass(LivingEntity.class, p_71059_1_.getBoundingBox().inflate(1.0D, 0.25D, 1.0D))) {
-                                if (livingentity != this && livingentity != p_71059_1_ && !this.isAlliedTo(livingentity) && (!(livingentity instanceof ArmorStandEntity) || !((ArmorStandEntity) livingentity).isMarker()) && this.distanceToSqr(livingentity) < 9.0D) {
+                            for (LivingEntity livingentity : this.level.getEntitiesOfClass(LivingEntity.class, p_71059_1_.getBoundingBox().inflate(1.0D + (0.05 * sweepingLevel), 0.25D + (0.05 * sweepingLevel), 1.0D + (0.05 * sweepingLevel)))) {
+                                if (livingentity != this && livingentity != p_71059_1_ && !this.isAlliedTo(livingentity) && (!(livingentity instanceof ArmorStandEntity) || !((ArmorStandEntity) livingentity).isMarker()) && this.distanceToSqr(livingentity) < dd) {
                                     livingentity.knockback(0.4F, (double) MathHelper.sin(this.yRot * ((float) Math.PI / 180F)), (double) (-MathHelper.cos(this.yRot * ((float) Math.PI / 180F))));
                                     livingentity.hurt(DamageSource.playerAttack(this), f3);
                                 }
@@ -1313,7 +1435,7 @@ public abstract class PlayerEntity extends LivingEntity {
                             this.crit(p_71059_1_);
                         }
 
-                        if (!flag2 && !flag3) {
+                        if (!flag2 && !doSweeping) {
                             if (flag) {
                                 this.level.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_STRONG, this.getSoundSource(), 1.0F, 1.0F);
                             } else {
@@ -1376,21 +1498,24 @@ public abstract class PlayerEntity extends LivingEntity {
         this.attack(p_204804_1_);
     }
 
-    public void disableShield(boolean p_190777_1_) {
+    public void disableShield(boolean p_190777_1_, LivingEntity entity) {
         float f = 0.25F + (float) EnchantmentHelper.getBlockEfficiency(this) * 0.05F;
         if (p_190777_1_) {
             f += 0.75F;
         }
 
         if (this.random.nextFloat() < f) {
-            this.getCooldowns().addCooldown(Items.SHIELD, 100);
-            this.getCooldowns().addCooldown(Items.NETHERITE_SHIELD, 30);
-            this.getCooldowns().addCooldown(Items.SHIELD_OF_CTHULHU, 45);
+            int b = entity.getDisableShieldTime();
+
+            this.getCooldowns().addCooldown(Items.SHIELD, b);
+            this.getCooldowns().addCooldown(Items.NETHERITE_SHIELD, entity.canDisableShield() ? b : 30);
+            this.getCooldowns().addCooldown(Items.SHIELD_OF_CTHULHU, entity.canDisableShield() ? b : 45);
             this.stopUsingItem();
             this.level.broadcastEntityEvent(this, (byte) 30);
         }
 
     }
+
 
     public void crit(Entity p_71009_1_) {
     }
@@ -1406,6 +1531,31 @@ public abstract class PlayerEntity extends LivingEntity {
         }
 
     }
+
+    public void multiSweepAttack() {
+        if (this.level instanceof ServerWorld serverWorld) {
+            int sweeps = random.nextInt(1, 3);
+            float baseYaw = this.yRot;
+
+            for (int i = 0; i < sweeps; i++) {
+                float angleStep = 0F + random.nextInt(-10, 10);
+
+                float currentYaw = baseYaw + (i - (sweeps / 2.0F)) * angleStep; // center around baseYaw
+                double radians = currentYaw * (Math.PI / 180F);
+                double d0 = -MathHelper.sin((float) radians);
+                double d1 = MathHelper.cos((float) radians);
+
+                serverWorld.sendParticles(
+                        ParticleTypes.SWEEP_ATTACK,
+                        this.getX() + d0,
+                        this.getY(random.nextDouble(0.5D, 0.8D)),
+                        this.getZ() + d1,
+                        0, d0, 0.0D, d1, 0.0D
+                );
+            }
+        }
+    }
+
 
     @OnlyIn(Dist.CLIENT)
     public void respawn() {
@@ -1428,7 +1578,7 @@ public abstract class PlayerEntity extends LivingEntity {
         return this.gameProfile;
     }
 
-    public Either<PlayerEntity.SleepResult, Unit> startSleepInBed(BlockPos p_213819_1_) {
+    public Either<SleepResult, Unit> startSleepInBed(BlockPos p_213819_1_) {
         this.startSleeping(p_213819_1_);
         this.sleepCounter = 0;
         return Either.right(Unit.INSTANCE);
@@ -1632,6 +1782,8 @@ public abstract class PlayerEntity extends LivingEntity {
                     this.awardStat(Stats.HORSE_ONE_CM, i);
                 } else if (entity instanceof StriderEntity) {
                     this.awardStat(Stats.STRIDER_ONE_CM, i);
+                } else if (entity instanceof HappyGhastEntity) {
+                    this.awardStat(Stats.HAPPY_GHAST_ONE_CM, i);
                 }
             }
         }
@@ -1780,9 +1932,67 @@ public abstract class PlayerEntity extends LivingEntity {
                 if (this.hasEffect(Effects.ROOTED)) {
                     exhaustionAmount *= Math.min(6, this.getEffect(Effects.ROOTED).getAmplifier() + 1);
                 }
+
+                exhaustionAmount *= this.getExhaustionRate();
+
+
                 this.foodData.addExhaustion(exhaustionAmount);
             }
         }
+    }
+
+//    public float getExhaustionRate() {
+//        if (level.isClientSide) return 1.0F;
+//
+//        AtomicReference<Float> rate = new AtomicReference<>(0.3F);
+//
+//        this.getArmorSlots().forEach(stack -> {
+//            if (stack.getItem() instanceof Equipable equipable) {
+//                if (stack.getItem() instanceof ArmorItem armorItem) {
+//                    ArmorMaterial material = armorItem.material1;
+//
+//                    if (material != ArmorMaterial.LEATHER && material != ArmorMaterial.CHAIN) {
+//                        if (rate.get() == 0.9F) {
+//                            rate.set(1.0F);
+//                        } else {
+//                            rate.set(rate.get() + 0.2F);
+//                        }
+//                    }
+//                }
+//                if (equipable instanceof ElytraItem) {
+//                    if (ElytraItem.isFlyEnabled(stack)) {
+//                        float s = rate.get() - 0.15F;
+//                        if (s > 0.0F) {
+//                            rate.set(s);
+//                        }
+//                    }
+//                }
+//            }
+//        });
+//
+//        return rate.get();
+//    }
+
+    public float getExhaustionRate() {
+        if (level.isClientSide) return 1.0F;
+
+        float rate = 0.3F;
+
+        for (ItemStack armorSlot : this.getArmorSlots()) {
+            if (armorSlot.getItem() instanceof Equipable equipable) {
+                if (armorSlot.getItem() instanceof ArmorItem armorItem) {
+                    rate += (armorItem.getWeight(null) / 100);
+                }
+
+                if (equipable instanceof ElytraItem elytraItem) {
+                    if (ElytraItem.isFlyEnabled(armorSlot)) {
+                        rate -= 0.15F;
+                    }
+                }
+            }
+        }
+
+        return MathHelper.clamp(rate, 0.0F, 1.0F);
     }
 
     public FoodStats getFoodData() {
@@ -1857,23 +2067,75 @@ public abstract class PlayerEntity extends LivingEntity {
         }
     }
 
-    public void setItemSlot(EquipmentSlotType p_184201_1_, ItemStack p_184201_2_) {
-        if (p_184201_1_ == EquipmentSlotType.MAINHAND) {
-            this.playEquipSound(p_184201_2_);
-            this.inventory.items.set(this.inventory.selected, p_184201_2_);
-        } else if (p_184201_1_ == EquipmentSlotType.OFFHAND) {
-            this.playEquipSound(p_184201_2_);
-            this.inventory.offhand.set(0, p_184201_2_);
-        } else if (p_184201_1_.getType() == EquipmentSlotType.Group.ARMOR) {
-            this.playEquipSound(p_184201_2_);
-            this.inventory.armor.set(p_184201_1_.getIndex(), p_184201_2_);
-        }
+//    public void setItemSlot(EquipmentSlotType p_184201_1_, ItemStack p_184201_2_) {
+//        if (p_184201_1_ == EquipmentSlotType.MAINHAND) {
+//            this.playEquipSound(p_184201_2_);
+//            this.inventory.items.set(this.inventory.selected, p_184201_2_);
+//        } else if (p_184201_1_ == EquipmentSlotType.OFFHAND) {
+//            this.playEquipSound(p_184201_2_);
+//            this.inventory.offhand.set(0, p_184201_2_);
+//        } else if (p_184201_1_.getType() == EquipmentSlotType.Group.ARMOR) {
+//            this.playEquipSound(p_184201_2_);
+//            this.gameEvent(GameEvent.EQUIP);
+//            this.inventory.armor.set(p_184201_1_.getIndex(), p_184201_2_);
+//        }
+//
+//    }
 
+    protected void verifyEquippedItem(ItemStack itemStack) {
+        CompoundNBT compoundTag = itemStack.getTag();
+        if (compoundTag != null) {
+            itemStack.getItem().verifyTagAfterLoad(compoundTag);
+        }
+    }
+
+    @Override
+    public void setItemSlot(EquipmentSlotType equipmentSlot, ItemStack itemStack) {
+        this.verifyEquippedItem(itemStack);
+        if (equipmentSlot == EquipmentSlotType.MAINHAND) {
+            this.onEquipItem(equipmentSlot, this.inventory.items.set(this.inventory.selected, itemStack), itemStack);
+        } else if (equipmentSlot == EquipmentSlotType.OFFHAND) {
+            this.onEquipItem(equipmentSlot, this.inventory.offhand.set(0, itemStack), itemStack);
+        } else if (equipmentSlot.getType() == EquipmentSlotType.Group.ARMOR) {
+            this.onEquipItem(equipmentSlot, this.inventory.armor.set(equipmentSlot.getIndex(), itemStack), itemStack);
+        }
+    }
+
+    public void onEquipItem(EquipmentSlotType equipmentSlot, ItemStack itemStack, ItemStack itemStack2) {
+        boolean bl;
+        boolean bl2 = bl = itemStack2.isEmpty() && itemStack.isEmpty();
+        if (bl || ItemStack.isSameItemSameTags(itemStack, itemStack2) || this.firstTick) {
+            return;
+        }
+        Equipable equipable = Equipable.get(itemStack2);
+        if (equipable != null && !this.isSpectator() && equipable.getEquipmentSlot() == equipmentSlot) {
+            if (!this.level().isClientSide() && !this.isSilent()) {
+                this.level().playSound(null, this.getX(), this.getY(), this.getZ(), equipable.getEquipSound(), this.getSoundSource(), 1.0f, 1.0f);
+            }
+            if (this.doesEmitEquipEvent(equipmentSlot)) {
+                this.gameEvent(GameEvent.EQUIP);
+            }
+        }
     }
 
     public boolean addItem(ItemStack p_191521_1_) {
         this.playEquipSound(p_191521_1_);
-        return this.inventory.add(p_191521_1_);
+        boolean add = this.inventory.add(p_191521_1_);
+
+        if (add) {
+//            for (Pair<Set<Item>, List<String>> group : RecipeManager.ITEM_UNLOCK_RECIPE_MAP) {
+//                for (Item item : group.getFirst()) {
+//                    if (item == p_191521_1_.getItem()) {
+//                        // unlock all recipes in group.recipesToUnlock for the player
+//                        awardRecipesByKey(Arrays.stream(group.getSecond().toArray(new String[0])).map(ResourceLocation::new).toList().toArray(new ResourceLocation[0]));
+//                        // You probably want to mark these as unlocked for this player so you don't repeat!
+//                        break; // No need to check more items in this group for this player
+//                    }
+//                }
+//            }
+        }
+
+        return add;
     }
 
     public boolean addOrDrop(ItemStack stack) {
@@ -1889,7 +2151,22 @@ public abstract class PlayerEntity extends LivingEntity {
         if (sound) {
             this.playEquipSound(stack);
         }
-        return this.inventory.add(stack);
+        boolean add = this.inventory.add(stack);
+
+        if (add) {
+//            for (Pair<Set<Item>, List<String>> group : RecipeManager.ITEM_UNLOCK_RECIPE_MAP) {
+//                for (Item item : group.getFirst()) {
+//                    if (item == stack.getItem()) {
+//                        // unlock all recipes in group.recipesToUnlock for the player
+//                        awardRecipesByKey(Arrays.stream(group.getSecond().toArray(new String[0])).map(ResourceLocation::new).toList().toArray(new ResourceLocation[0]));
+//                        // You probably want to mark these as unlocked for this player so you don't repeat!
+//                        break; // No need to check more items in this group for this player
+//                    }
+//                }
+//            }
+        }
+
+        return add;
     }
 
     public Iterable<ItemStack> getHandSlots() {
@@ -1898,6 +2175,15 @@ public abstract class PlayerEntity extends LivingEntity {
 
     public Iterable<ItemStack> getArmorSlots() {
         return this.inventory.armor;
+    }
+
+    public Iterable<ItemStack> getArmorAndHandSlots() {
+        List<ItemStack> l = Lists.newArrayList();
+        l.addAll(this.inventory.armor);
+        l.add(this.getMainHandItem());
+        l.add(this.getOffhandItem());
+
+        return l;
     }
 
     public boolean setEntityOnShoulder(CompoundNBT p_192027_1_) {
@@ -2192,7 +2478,26 @@ public abstract class PlayerEntity extends LivingEntity {
     public ItemStack eat(World p_213357_1_, ItemStack p_213357_2_) {
         this.getFoodData().eat(p_213357_2_.getItem(), p_213357_2_);
         this.awardStat(Stats.ITEM_USED.get(p_213357_2_.getItem()));
-        p_213357_1_.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_BURP, SoundCategory.PLAYERS, 0.5F, p_213357_1_.random.nextFloat() * 0.1F + 0.9F);
+
+        SoundEvent sound = SoundEvents.PLAYER_BURP;
+        float volume = 0.5F;
+        float pitch = p_213357_1_.random.nextFloat() * 0.1F + 0.9F;
+
+        if (p_213357_2_.getOrCreateTag().contains("FoodData", 10)) {
+            FoodData data = FoodData.load(p_213357_2_.getTag());
+
+            if (data != null) {
+                sound = data.doneEating().soundWrapper().event();
+                if (data.doneEating().volume() != -1.0F) {
+                    volume = data.doneEating().volume();
+                }
+                if (data.doneEating().pitch() != -1.0F) {
+                    pitch = data.doneEating().pitch();
+                }
+            }
+        }
+
+        p_213357_1_.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), sound, SoundCategory.PLAYERS, volume, pitch);
         if (this instanceof ServerPlayerEntity) {
             CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity) this, p_213357_2_);
         }

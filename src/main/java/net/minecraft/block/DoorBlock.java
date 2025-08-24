@@ -3,8 +3,10 @@ package net.minecraft.block;
 import javax.annotation.Nullable;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.PushReaction;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathType;
@@ -49,10 +51,10 @@ public class DoorBlock extends Block {
       this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(OPEN, Boolean.valueOf(false)).setValue(HINGE, DoorHingeSide.LEFT).setValue(POWERED, Boolean.valueOf(false)).setValue(HALF, DoubleBlockHalf.LOWER));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      Direction direction = p_220053_1_.getValue(FACING);
-      boolean flag = !p_220053_1_.getValue(OPEN);
-      boolean flag1 = p_220053_1_.getValue(HINGE) == DoorHingeSide.RIGHT;
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      Direction direction = state.getValue(FACING);
+      boolean flag = !state.getValue(OPEN);
+      boolean flag1 = state.getValue(HINGE) == DoorHingeSide.RIGHT;
       switch(direction) {
       case EAST:
       default:
@@ -75,16 +77,17 @@ public class DoorBlock extends Block {
       }
    }
 
-   public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+   public BlockState playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
       if (!p_176208_1_.isClientSide && p_176208_4_.isCreative()) {
          DoublePlantBlock.preventCreativeDropFromBottomPart(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
       }
 
-      super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
+      return super.playerWillDestroy(p_176208_1_, p_176208_2_, p_176208_3_, p_176208_4_);
    }
 
    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {
       switch(p_196266_4_) {
+         case LAVA: return false;
       case LAND:
          return p_196266_1_.getValue(OPEN);
       case WATER:
@@ -97,11 +100,15 @@ public class DoorBlock extends Block {
    }
 
    private int getCloseSound() {
-      return this.material == Material.METAL ? 1011 : 1012;
+      return this.material == Material.METAL ? isCopper() ? 3007 : 1011 : 1012;
+   }
+
+   public boolean isCopper() {
+      return this instanceof WeatheringCopper || this == Blocks.WAXED_COPPER_DOOR || this == Blocks.WAXED_OXIDIZED_COPPER_DOOR || this == Blocks.WAXED_WEATHERED_COPPER_DOOR || this == Blocks.WAXED_EXPOSED_COPPER_DOOR;
    }
 
    private int getOpenSound() {
-      return this.material == Material.METAL ? 1005 : 1006;
+      return this.material == Material.METAL ? isCopper() ? 3006 : 1005 : 1006;
    }
 
    @Nullable
@@ -155,12 +162,13 @@ public class DoorBlock extends Block {
    }
 
    public ActionResultType use(BlockState p_225533_1_, World p_225533_2_, BlockPos p_225533_3_, PlayerEntity p_225533_4_, Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
-      if (this.material == Material.METAL) {
+      if (this.material == Material.METAL && !this.isCopper()) {
          return ActionResultType.PASS;
       } else {
          p_225533_1_ = p_225533_1_.cycle(OPEN);
          p_225533_2_.setBlock(p_225533_3_, p_225533_1_, 10);
          p_225533_2_.levelEvent(p_225533_4_, p_225533_1_.getValue(OPEN) ? this.getOpenSound() : this.getCloseSound(), p_225533_3_, 0);
+         p_225533_2_.gameEvent(p_225533_4_, this.isOpen(p_225533_1_) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, p_225533_3_);
          return ActionResultType.sidedSuccess(p_225533_2_.isClientSide);
       }
    }
@@ -169,10 +177,11 @@ public class DoorBlock extends Block {
       return p_242664_1_.getValue(OPEN);
    }
 
-   public void setOpen(World p_242663_1_, BlockState p_242663_2_, BlockPos p_242663_3_, boolean p_242663_4_) {
+   public void setOpen(@Nullable Entity entity, World p_242663_1_, BlockState p_242663_2_, BlockPos p_242663_3_, boolean p_242663_4_) {
       if (p_242663_2_.is(this) && p_242663_2_.getValue(OPEN) != p_242663_4_) {
          p_242663_1_.setBlock(p_242663_3_, p_242663_2_.setValue(OPEN, Boolean.valueOf(p_242663_4_)), 10);
          this.playSound(p_242663_1_, p_242663_3_, p_242663_4_);
+         p_242663_1_.gameEvent(entity, p_242663_4_ ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, p_242663_3_);
       }
    }
 
@@ -181,6 +190,7 @@ public class DoorBlock extends Block {
       if (p_220069_4_ != this && flag != p_220069_1_.getValue(POWERED)) {
          if (flag != p_220069_1_.getValue(OPEN)) {
             this.playSound(p_220069_2_, p_220069_3_, flag);
+            p_220069_2_.gameEvent(null, p_220069_6_ ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, p_220069_3_);
          }
 
          p_220069_2_.setBlock(p_220069_3_, p_220069_1_.setValue(POWERED, Boolean.valueOf(flag)).setValue(OPEN, Boolean.valueOf(flag)), 2);
@@ -215,8 +225,8 @@ public class DoorBlock extends Block {
       return MathHelper.getSeed(p_209900_2_.getX(), p_209900_2_.below(p_209900_1_.getValue(HALF) == DoubleBlockHalf.LOWER ? 0 : 1).getY(), p_209900_2_.getZ());
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(HALF, FACING, OPEN, HINGE, POWERED);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(HALF, FACING, OPEN, HINGE, POWERED);
    }
 
    public static boolean isWoodenDoor(World p_235491_0_, BlockPos p_235491_1_) {

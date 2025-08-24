@@ -1,11 +1,10 @@
 package net.minecraft.item.crafting;
 
-import com.google.common.collect.Lists;
-import java.util.List;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.World;
 import net.minecraft.bundle.BundleItem;
 import net.minecraft.bundle.BundleColour;
@@ -36,7 +35,7 @@ public class BundleColourChangeRecipe extends SpecialRecipe {
                }
                dye = currentItem;
             } else {
-               return false; // Invalid item in crafting grid
+               return false;
             }
          }
       }
@@ -45,7 +44,7 @@ public class BundleColourChangeRecipe extends SpecialRecipe {
    }
 
    @Override
-   public ItemStack assemble(CraftingInventory inv) {
+   public ItemStack assemble(CraftingInventory inv, DynamicRegistries registryAccess) {
       ItemStack bundle = ItemStack.EMPTY;
       DyeItem dye = null;
 
@@ -70,9 +69,20 @@ public class BundleColourChangeRecipe extends SpecialRecipe {
          return ItemStack.EMPTY;
       }
 
-      // Apply the color to the bundle
-      BundleColour colour = BundleColour.byDye(dye.getDyeColor());
-      BundleItem.setColour(bundle, colour);
+      // Get the current color ID of the bundle
+      int currentColourId = BundleItem.getColourId(bundle);
+
+      // Get the dye's target color ID
+      int dyeColourId = BundleColour.byDye(dye.getDyeColor()).getId();
+
+      // Check if the bundle is already dyed with the same color
+      if (currentColourId == dyeColourId) {
+         return ItemStack.EMPTY; // Recipe is invalid if the bundle is already that color
+      }
+
+      // Apply the new color to the bundle
+      BundleColour newColour = BundleColour.byDye(dye.getDyeColor());
+      BundleItem.setColour(bundle, newColour);
 
       return bundle;
    }
@@ -85,6 +95,6 @@ public class BundleColourChangeRecipe extends SpecialRecipe {
 
    @Override
    public IRecipeSerializer<?> getSerializer() {
-      return IRecipeSerializer.BUNDLE_DYE; // Register your own serializer
+      return IRecipeSerializer.BUNDLE_DYE;
    }
 }

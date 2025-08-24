@@ -6,10 +6,7 @@ package net.minecraft.entity.terraria.boss.twins;// Made with Blockbench 4.11.2
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import com.google.common.collect.ImmutableSet;
-import net.minecraft.client.animation.HierarchicalModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.monster.Monster;
+import org.jetbrains.annotations.NotNull;
 
 public class RetinazerLaserModel extends RetinazerModel {
 	private final ModelRenderer laser;
@@ -31,12 +28,12 @@ public class RetinazerLaserModel extends RetinazerModel {
 	}
 
 	@Override
-	public void setupAnim(RetinazerEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+	public void setupAnim(@NotNull RetinazerEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
 		super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 	}
 
 	@Override
-	public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+	public void renderToBuffer(@NotNull MatrixStack matrixStack, @NotNull IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
 		root.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 }

@@ -5,8 +5,6 @@ import net.minecraft.client.animation.HierarchicalModel;
 import net.minecraft.client.animation.definitions.BatAnimation;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.passive.BatEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.client.renderer.model.Model;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -43,49 +41,50 @@ public class BatModel<T extends BatEntity> extends HierarchicalModel<T> {
 
       // Right Ear
       ModelRenderer rightEar = new ModelRenderer(this, "right_ear");
-      rightEar.texOffs(1, 15).addBox(-2.5F, -4.0F, 0.0F, 3.0F, 5.0F, 0.05F);
+      rightEar.texOffs(1, 15).addBox(-2.5F, -4.0F, 0.0F, 3.0F, 5.0F, 0.0005F);
       rightEar.setPos(-1.5F, -2.0F, 0F);
       this.head.addChild(rightEar);
 
       // Left Ear
       ModelRenderer leftEar = new ModelRenderer(this, "left_ear");
-      leftEar.texOffs(8, 15).addBox(-0.1F, -3.0F, 0.0F, 3.0F, 5.0F, 0.05F);
+      leftEar.texOffs(8, 15).addBox(-0.1F, -3.0F, 0.0F, 3.0F, 5.0F, 0.0005F);
       leftEar.setPos(1.1F, -3.0F, 0F);
       this.head.addChild(leftEar);
 
       // Right Wing
       this.rightWing = new ModelRenderer(this, "right_wing");
-      this.rightWing.texOffs(12, 0).addBox(-2.0F, -2.0F, 0.0F, 2.0F, 7.0F, 0.0F);
+      this.rightWing.texOffs(12, 0).addBox(-2.0F, -2.0F, 0.0F, 2.0F, 7.0F, 0.0005F);
       this.rightWing.setPos(-1.5F, 0.0F, 0.0F);
       this.body.addChild(this.rightWing);
 
       // Right Wing Tip
       this.rightWingTip = new ModelRenderer(this, "right_wing_tip");
-      this.rightWingTip.texOffs(16, 0).addBox(-6.0F, -2.0F, 0.0F, 6.0F, 8.0F, 0.0F);
+      this.rightWingTip.texOffs(16, 0).addBox(-6.0F, -2.0F, 0.0F, 6.0F, 8.0F, 0.0005F);
       this.rightWingTip.setPos(-2.0F, 0.0F, 0.0F);
       this.rightWing.addChild(this.rightWingTip);
 
       // Left Wing
       this.leftWing = new ModelRenderer(this, "left_wing");
-      this.leftWing.texOffs(12, 7).addBox(0.0F, -2.0F, 0.0F, 2.0F, 7.0F, 0.0F);
+      this.leftWing.texOffs(12, 7).addBox(0.0F, -2.0F, 0.0F, 2.0F, 7.0F, 0.0005F);
       this.leftWing.setPos(1.5F, 0.0F, 0.0F);
       this.body.addChild(this.leftWing);
 
       // Left Wing Tip
       this.leftWingTip = new ModelRenderer(this, "left_wing_tip");
-      this.leftWingTip.texOffs(16, 8).addBox(0.0F, -2.0F, 0.0F, 6.0F, 8.0F, 0.0F);
+      this.leftWingTip.texOffs(16, 8).addBox(0.0F, -2.0F, 0.0F, 6.0F, 8.0F, 0.0005F);
       this.leftWingTip.setPos(2.0F, 0.0F, 0.0F);
       this.leftWing.addChild(this.leftWingTip);
 
       // Feet
       this.feet = new ModelRenderer(this, "feet");
-      this.feet.texOffs(16, 16).addBox(-1.5F, 0.0F, 0.0F, 3.0F, 2.0F, 0.0F);
+      this.feet.texOffs(16, 16).addBox(-1.5F, 0.0F, 0.0F, 3.0F, 2.0F, 0.0005F);
       this.feet.setPos(0.0F, 5.0F, 0.0F);
       this.body.addChild(feet);
    }
 
    @Override
    public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+      super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
       if (entity.isResting()) {
          this.applyHeadRotation(entity.yRot);
       }

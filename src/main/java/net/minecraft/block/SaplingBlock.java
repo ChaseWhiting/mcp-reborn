@@ -28,7 +28,7 @@ public class SaplingBlock extends BushBlock implements IGrowable {
       this.registerDefaultState(this.stateDefinition.any().setValue(STAGE, Integer.valueOf(0)));
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
       return SHAPE;
    }
 
@@ -60,14 +60,14 @@ public class SaplingBlock extends BushBlock implements IGrowable {
       this.advanceTree(p_225535_1_, p_225535_3_, p_225535_4_, p_225535_2_);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(STAGE);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(STAGE);
    }
 
    @Override
    public void playerDestroy(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
       super.playerDestroy(worldIn, player, pos, state, te, stack);
-      if (this == Blocks.PALE_OAK_SAPLING) {
+      if (this == Blocks.PALE_OAK_SAPLING || this == Blocks.APPLE_SAPLING || this == Blocks.DEAD_SAPLING) {
          popResource(worldIn, pos, new ItemStack(this));
       }
    }

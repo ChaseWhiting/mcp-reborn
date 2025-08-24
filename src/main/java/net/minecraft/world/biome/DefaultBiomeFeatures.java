@@ -55,6 +55,8 @@ public class DefaultBiomeFeatures {
    public static void addDefaultUndergroundVariety(BiomeGenerationSettings.Builder p_243748_0_) {
       p_243748_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_DIRT);
       p_243748_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_GRAVEL);
+      p_243748_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_SUSPICIOUS_GRAVEL);
+
       p_243748_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_GRANITE);
       p_243748_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_DIORITE);
       p_243748_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_ANDESITE);
@@ -63,6 +65,8 @@ public class DefaultBiomeFeatures {
    public static void addDefaultOres(BiomeGenerationSettings.Builder p_243750_0_) {
       p_243750_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_COAL);
       p_243750_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_IRON);
+      p_243750_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_COPPER);
+
       p_243750_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_GOLD);
       p_243750_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_REDSTONE);
       p_243750_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.ORE_DIAMOND);
@@ -83,12 +87,13 @@ public class DefaultBiomeFeatures {
 
    public static void addDefaultSoftDisks(BiomeGenerationSettings.Builder p_243754_0_) {
       p_243754_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.DISK_SAND);
-      p_243754_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.DISK_CLAY);
+      p_243754_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.DISK_SUSPICIOUS_CLAY_RIVER);
       p_243754_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.DISK_GRAVEL);
    }
 
    public static void addSwampClayDisk(BiomeGenerationSettings.Builder p_243755_0_) {
-      p_243755_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.DISK_CLAY);
+      //p_243755_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.DISK_CLAY);
+      p_243755_0_.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Features.DISK_SUSPICIOUS_CLAY_SWAMP);
    }
 
    public static void addMossyStoneBlock(BiomeGenerationSettings.Builder p_243756_0_) {
@@ -154,6 +159,9 @@ public class DefaultBiomeFeatures {
 
    public static void addJungleTrees(BiomeGenerationSettings.Builder p_243691_0_) {
       p_243691_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.TREES_JUNGLE);
+      p_243691_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PODZOL);
+      p_243691_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.MUD);
+
    }
 
    public static void addJungleEdgeTrees(BiomeGenerationSettings.Builder p_243692_0_) {
@@ -187,14 +195,22 @@ public class DefaultBiomeFeatures {
    public static void addBadlandGrass(BiomeGenerationSettings.Builder p_243699_0_) {
       p_243699_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_GRASS_BADLANDS);
       p_243699_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_DEAD_BUSH_BADLANDS);
+      p_243699_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_DRY_GRASS_BADLANDS);
+
    }
 
    public static void addForestFlowers(BiomeGenerationSettings.Builder p_243700_0_) {
       p_243700_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.FOREST_FLOWER_VEGETATION);
    }
 
+   public static void addWildflowers(BiomeGenerationSettings.Builder p_243700_0_) {
+      p_243700_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.WILDFLOWERS_PATCH);
+   }
+
+
    public static void addForestGrass(BiomeGenerationSettings.Builder p_243701_0_) {
       p_243701_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_GRASS_FOREST);
+     // p_243701_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.LEAF_LITTER_PATCH);
    }
 
    public static void addSwampVegetation(BiomeGenerationSettings.Builder p_243702_0_) {
@@ -221,6 +237,8 @@ public class DefaultBiomeFeatures {
 
    public static void addDesertVegetation(BiomeGenerationSettings.Builder p_243705_0_) {
       p_243705_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_DEAD_BUSH_2);
+      p_243705_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_DRY_GRASS_DESERT);
+
    }
 
    public static void addGiantTaigaVegetation(BiomeGenerationSettings.Builder p_243706_0_) {
@@ -266,6 +284,7 @@ public class DefaultBiomeFeatures {
       p_243718_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_SUGAR_CANE_BADLANDS);
       p_243718_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_PUMPKIN);
       p_243718_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_CACTUS_DECORATED);
+
    }
 
    public static void addJungleExtraVegetation(BiomeGenerationSettings.Builder p_243719_0_) {
@@ -277,10 +296,13 @@ public class DefaultBiomeFeatures {
       p_243720_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_SUGAR_CANE_DESERT);
       p_243720_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_PUMPKIN);
       p_243720_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_CACTUS_DESERT);
+
    }
 
    public static void addSwampExtraVegetation(BiomeGenerationSettings.Builder p_243721_0_) {
       p_243721_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_SUGAR_CANE_SWAMP);
+      p_243721_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_CATTAILS_SWAMP);
+
       p_243721_0_.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Features.PATCH_PUMPKIN);
    }
 
@@ -361,6 +383,8 @@ public class DefaultBiomeFeatures {
    public static void warmOceanSpawns(MobSpawnInfo.Builder p_243715_0_, int p_243715_1_, int p_243715_2_) {
       p_243715_0_.addSpawn(EntityClassification.WATER_CREATURE, new MobSpawnInfo.Spawners(EntityType.SQUID, p_243715_1_, p_243715_2_, 4));
       p_243715_0_.addSpawn(EntityClassification.WATER_AMBIENT, new MobSpawnInfo.Spawners(EntityType.TROPICAL_FISH, 25, 8, 8));
+      p_243715_0_.addSpawn(EntityClassification.WATER_AMBIENT, new MobSpawnInfo.Spawners(EntityType.AXOLOTL, 7, 1, 4));
+
       p_243715_0_.addSpawn(EntityClassification.WATER_CREATURE, new MobSpawnInfo.Spawners(EntityType.DOLPHIN, 2, 1, 2));
       commonSpawns(p_243715_0_);
    }
@@ -383,6 +407,8 @@ public class DefaultBiomeFeatures {
 
    public static void desertSpawns(MobSpawnInfo.Builder p_243743_0_) {
       p_243743_0_.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.RABBIT, 4, 2, 3));
+      p_243743_0_.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.CAMEL, 1, 1, 1));
+      p_243743_0_.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.ROADRUNNER, 10, 2, 3));
       ambientSpawns(p_243743_0_);
       monsters(p_243743_0_, 19, 1, 100);
       p_243743_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.HUSK, 80, 4, 4));
@@ -398,6 +424,7 @@ public class DefaultBiomeFeatures {
       p_243735_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ENDERMAN, 10, 1, 4));
       p_243735_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.WITCH, 5, 1, 1));
       p_243735_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.CREAKING, 100, 1, 1));
+      p_243735_0_.addSpawn(EntityClassification.WARDEN, new MobSpawnInfo.Spawners(EntityType.WARDEN, 10, 1, 1));
    }
 
    public static void mooshroomSpawns(MobSpawnInfo.Builder p_243745_0_) {
@@ -414,5 +441,7 @@ public class DefaultBiomeFeatures {
 
    public static void endSpawns(MobSpawnInfo.Builder p_243749_0_) {
       p_243749_0_.addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(EntityType.ENDERMAN, 10, 4, 4));
+      //p_243749_0_.addSpawn(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(EntityType.ENDERIOPHAGE, 4, 2, 2));
+
    }
 }

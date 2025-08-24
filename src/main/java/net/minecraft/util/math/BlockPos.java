@@ -15,8 +15,10 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
 
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.dispenser.IPosition;
+import net.minecraft.dispenser.Position;
 import net.minecraft.util.AxisRotation;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
@@ -30,6 +32,11 @@ import org.apache.logging.log4j.Logger;
 
 @Immutable
 public class BlockPos extends Vector3i {
+   public static final Codec<BlockPos> VANILLA_COMPOUND_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+           Codec.INT.fieldOf("X").forGetter(BlockPos::getX),
+           Codec.INT.fieldOf("Y").forGetter(BlockPos::getY),
+           Codec.INT.fieldOf("Z").forGetter(BlockPos::getZ)
+   ).apply(instance, BlockPos::new));
    public static final Codec<BlockPos> CODEC = Codec.INT_STREAM.comapFlatMap((p_239586_0_) -> {
       return Util.fixedSize(p_239586_0_, 3).map((p_239587_0_) -> {
          return new BlockPos(p_239587_0_[0], p_239587_0_[1], p_239587_0_[2]);
@@ -41,12 +48,58 @@ public class BlockPos extends Vector3i {
    public static final BlockPos ZERO = new BlockPos(0, 0, 0);
    private static final int PACKED_X_LENGTH = 1 + MathHelper.log2(MathHelper.smallestEncompassingPowerOfTwo(30000000));
    private static final int PACKED_Z_LENGTH = PACKED_X_LENGTH;
-   private static final int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
+   public static final int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
    private static final long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
    private static final long PACKED_Y_MASK = (1L << PACKED_Y_LENGTH) - 1L;
    private static final long PACKED_Z_MASK = (1L << PACKED_Z_LENGTH) - 1L;
    private static final int Z_OFFSET = PACKED_Y_LENGTH;
    private static final int X_OFFSET = PACKED_Y_LENGTH + PACKED_Z_LENGTH;
+
+   public static BlockPos containing(double d, double d2, double d3) {
+      return new BlockPos(MathHelper.floor(d), MathHelper.floor(d2), MathHelper.floor(d3));
+   }
+
+   @Deprecated
+   public static Stream<BlockPos> squareOutSouthEast(BlockPos blockPos) {
+      return Stream.of(blockPos, blockPos.south(), blockPos.east(), blockPos.south().east());
+   }
+
+   public static BlockPos containing(Vector3d position) {
+      return BlockPos.containing(position.x(), position.y(), position.z());
+   }
+
+   public static Iterable<BlockPos> betweenClosed(AxisAlignedBB aABB) {
+      BlockPos blockPos = BlockPos.containing(aABB.minX, aABB.minY, aABB.minZ);
+      BlockPos blockPos2 = BlockPos.containing(aABB.maxX, aABB.maxY, aABB.maxZ);
+      return BlockPos.betweenClosed(blockPos, blockPos2);
+   }
+
+   public boolean closerToCenterThan(Vector3d position, double d) {
+      return this.distToCenterSqr(position) < MathHelper.square(d);
+   }
+
+   public double distToCenterSqr(Vector3d position) {
+      return this.distToCenterSqr(position.x(), position.y(), position.z());
+   }
+
+   public double distToCenterSqr(double d, double d2, double d3) {
+      double d4 = (double)this.getX() + 0.5 - d;
+      double d5 = (double)this.getY() + 0.5 - d2;
+      double d6 = (double)this.getZ() + 0.5 - d3;
+      return d4 * d4 + d5 * d5 + d6 * d6;
+   }
+
+   public BlockPos atY(int n) {
+      return new BlockPos(this.getX(), n, this.getZ());
+   }
+
+   public Vector3d getCenter() {
+      return Vector3d.atCenterOf(this);
+   }
+
+   public static Iterable<BlockPos> randomInCube(Random randomSource, int n, BlockPos blockPos, int n2) {
+      return BlockPos.randomBetweenClosed(randomSource, n, blockPos.getX() - n2, blockPos.getY() - n2, blockPos.getZ() - n2, blockPos.getX() + n2, blockPos.getY() + n2, blockPos.getZ() + n2);
+   }
 
    public BlockPos(int p_i46030_1_, int p_i46030_2_, int p_i46030_3_) {
       super(p_i46030_1_, p_i46030_2_, p_i46030_3_);
@@ -481,6 +534,10 @@ public class BlockPos extends Vector3i {
 
       public BlockPos.Mutable setWithOffset(Vector3i p_239622_1_, Direction p_239622_2_) {
          return this.set(p_239622_1_.getX() + p_239622_2_.getStepX(), p_239622_1_.getY() + p_239622_2_.getStepY(), p_239622_1_.getZ() + p_239622_2_.getStepZ());
+      }
+
+      public Mutable setWithOffset(Vector3i vec3i, Vector3i vec3i2) {
+         return this.set(vec3i.getX() + vec3i2.getX(), vec3i.getY() + vec3i2.getY(), vec3i.getZ() + vec3i2.getZ());
       }
 
       public BlockPos.Mutable setWithOffset(Vector3i p_239621_1_, int p_239621_2_, int p_239621_3_, int p_239621_4_) {

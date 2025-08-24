@@ -23,7 +23,7 @@ public class GreatHungerRenderer extends MobRenderer<GreatHungerEntity, GreatHun
    @Override
    protected void scale(GreatHungerEntity entity, MatrixStack matrixStack, float deltaTime) {
       // Calculate target scale based on whether the entity is digging or swallowing items
-      float targetScale = entity.isDigging() ? 0.0F : (1.0F + 0.015F * entity.getSwallowedItemCount());
+      float targetScale = (1.0F + 0.015F * entity.getSwallowedItemCount());
 
       // Lerp between current progress and target scale for smooth transition
       entity.setClientSideGrowProgress(MathHelper.lerp(0.05F, entity.getClientSideGrowProgress(), targetScale));

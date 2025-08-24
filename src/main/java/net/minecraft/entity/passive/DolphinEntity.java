@@ -174,10 +174,10 @@ public class DolphinEntity extends WaterMobEntity {
       return new SwimmerPathNavigator(this, p_175447_1_);
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      boolean flag = p_70652_1_.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
+   public boolean doHurtTarget(Entity target) {
+      boolean flag = target.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
       if (flag) {
-         this.doEnchantDamageEffects(this, p_70652_1_);
+         this.doEnchantDamageEffects(this, target);
          this.playSound(SoundEvents.DOLPHIN_ATTACK, 1.0F, 1.0F);
       }
 

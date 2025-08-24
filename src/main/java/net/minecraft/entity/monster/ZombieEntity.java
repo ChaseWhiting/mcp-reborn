@@ -11,7 +11,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FenceBlock;
 import net.minecraft.block.TorchBlock;
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Creature;
 import net.minecraft.entity.Entity;
@@ -34,6 +33,7 @@ import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -42,6 +42,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.pathfinding.GroundPathNavigator;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityPredicates;
@@ -88,11 +89,11 @@ public class ZombieEntity extends Monster {
 
    protected void registerGoals() {
       //addCreeperRunGoal();
-      this.goalSelector.addGoal(4, new ZombieEntity.AttackTurtleEggGoal(this, 1.0D, 3));
+      this.goalSelector.addGoal(4, new AttackTurtleEggGoal(this, 1.0D, 3));
       this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F));
       this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
-      this.goalSelector.addGoal(3, new SearchForTargetGoal<>(this, VillagerEntity.class, 1.14D, this.getAttributeValue(Attributes.FOLLOW_RANGE), EntityPredicates.ANY::test, false));
-      this.goalSelector.addGoal(2, new SearchForTargetGoal<>(this, PlayerEntity.class, 1.14D, this.getAttributeValue(Attributes.FOLLOW_RANGE), EntityPredicates.NO_CREATIVE_OR_SPECTATOR::test, false));
+      this.goalSelector.addGoal(5, new SearchForTargetGoal<>(this, VillagerEntity.class, 1.14D, this.getAttributeValue(Attributes.FOLLOW_RANGE), EntityPredicates.ANY::test, false));
+      this.goalSelector.addGoal(4, new SearchForTargetGoal<>(this, PlayerEntity.class, 1.14D, this.getAttributeValue(Attributes.FOLLOW_RANGE), EntityPredicates.NO_CREATIVE_OR_SPECTATOR::test, false));
 
       this.addBehaviourGoals();
    }
@@ -101,12 +102,20 @@ public class ZombieEntity extends Monster {
       this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0D, false));
       this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0D, true, 4, this::canBreakDoors));
       this.goalSelector.addGoal(7, new WaterAvoidingRandomWalkingGoal(this, 1.0D));
-     // this.goalSelector.addGoal(1, new AdvancedBreakBlockGoal(this, state -> state.getBlock() instanceof FenceBlock || state.getBlock() instanceof TorchBlock, d -> this.veryHardmode()));
+      this.goalSelector.addGoal(4, new PlaceLadderGoal(this));
+      this.goalSelector.addGoal(0, new WaterSaveGoal(this));
+
+      this.goalSelector.addGoal(3, new LadderClimbGoal(this));
+      this.goalSelector.addGoal(1, new AdvancedBreakBlockGoal(this, state -> !state.isAir(),d -> this.veryHardmode()));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglinEntity.class, AbstractSkeletonEntity.class));
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, false));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, true));
       this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_ON_LAND_SELECTOR));
+   }
+
+   public boolean canHaveLadderGoal() {
+      return false;
    }
 
    public static AttributeModifierMap.MutableAttribute createAttributes() {
@@ -314,15 +323,15 @@ public class ZombieEntity extends Monster {
       }
    }
 
-   public boolean doHurtTarget(Entity entity) {
-      boolean flag = super.doHurtTarget(entity);
+   public boolean doHurtTarget(Entity target) {
+      boolean flag = super.doHurtTarget(target);
       if (flag) {
          float f = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
          if (this.getMainHandItem().isEmpty() && this.isOnFire() && this.random.nextFloat() < f * 0.3F) {
-            entity.setSecondsOnFire(2 * (int)f);
+            target.setSecondsOnFire(2 * (int)f);
          }
-         if(this.getMainHandItem().isEmpty() && entity instanceof PlayerEntity) {
-            ((PlayerEntity)entity).addRads(this.random.nextInt(80));
+         if(this.getMainHandItem().isEmpty() && target instanceof PlayerEntity) {
+            ((PlayerEntity) target).addRads(this.random.nextInt(80));
          }
       }
 
@@ -355,15 +364,39 @@ public class ZombieEntity extends Monster {
 
    protected void populateDefaultEquipmentSlots(DifficultyInstance p_180481_1_) {
       super.populateDefaultEquipmentSlots(p_180481_1_);
-      if (this.random.nextFloat() < (this.level.getDifficulty() == Difficulty.HARD ? 0.05F : 0.01F)) {
-         int i = this.random.nextInt(3);
-         if (i == 0) {
-            this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
-         } else {
-            this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SHOVEL));
-         }
-      }
-
+      List<Item> randomWoodenTools = List.of(Items.WOODEN_SWORD, Items.WOODEN_PICKAXE, Items.WOODEN_AXE, Items.WOODEN_SHOVEL, Items.WOODEN_HOE);
+      List<Item> randomGoldTools = List.of(Items.GOLDEN_SWORD, Items.GOLDEN_PICKAXE, Items.GOLDEN_AXE, Items.GOLDEN_SHOVEL, Items.GOLDEN_HOE);
+      List<Item> randomStoneTools = List.of(Items.STONE_SWORD, Items.STONE_PICKAXE, Items.STONE_AXE, Items.STONE_SHOVEL, Items.STONE_HOE, Items.SHEARS);
+      List<Item> randomIronTools = List.of(Items.IRON_SWORD, Items.IRON_PICKAXE, Items.IRON_AXE, Items.IRON_SHOVEL, Items.IRON_HOE, Items.BUCKET, Items.WATER_BUCKET, Items.SHEARS);
+      List<Item> randomDiamondTools = List.of(Items.DIAMOND_SWORD, Items.DIAMOND_PICKAXE, Items.DIAMOND_AXE, Items.DIAMOND_SHOVEL, Items.DIAMOND_HOE);
+       if (!veryHardmode()) {
+           if (this.random.nextFloat() < (this.level.getDifficulty() == Difficulty.HARD ? 0.05F : 0.01F)) {
+              int i = this.random.nextInt(3);
+              if (i == 0) {
+                 this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
+              } else {
+                 this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SHOVEL));
+              }
+           }
+       } else {
+          Difficulty d = level.getDifficulty();
+          List<Item> chosenList = switch(d) {
+              case EASY -> random.nextBoolean() ? randomWoodenTools : randomStoneTools;
+              case NORMAL -> random.nextFloat() > 0.7F ? random.nextBoolean() ? randomGoldTools : randomIronTools : randomStoneTools;
+              case HARD -> random.nextFloat() > 0.85f ? randomDiamondTools : random.nextFloat() < 0.15f ? randomGoldTools : randomIronTools;
+              default -> random.nextFloat() > 0.95f ? randomStoneTools : randomWoodenTools;
+          };
+          Item tool = chosenList.get(random.nextInt(chosenList.size()));
+          float chance = switch(d) {
+              case EASY -> 0.24F;
+              case NORMAL -> 0.16F;
+              case HARD -> 0.12F;
+             default -> 0.35f;
+          };
+          if (random.nextFloat() < chance) {
+             this.setItemSlot(EquipmentSlotType.MAINHAND, new ItemStack(tool));
+          }
+       }
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
@@ -414,7 +447,7 @@ public class ZombieEntity extends Monster {
    }
 
    public boolean canHoldItem(ItemStack p_175448_1_) {
-      return p_175448_1_.getItem() == Items.EGG && this.isBaby() && this.isPassenger() ? false : super.canHoldItem(p_175448_1_);
+      return p_175448_1_.getItem().isEgg() && this.isBaby() && this.isPassenger() ? false : super.canHoldItem(p_175448_1_);
    }
 
    @Nullable
@@ -423,11 +456,11 @@ public class ZombieEntity extends Monster {
       float f = p_213386_2_.getSpecialMultiplier();
       this.setCanPickUpLoot(this.random.nextFloat() < 0.55F * f);
       if (p_213386_4_ == null) {
-         p_213386_4_ = new ZombieEntity.GroupData(getSpawnAsBabyOdds(p_213386_1_.getRandom()), true);
+         p_213386_4_ = new GroupData(getSpawnAsBabyOdds(p_213386_1_.getRandom()), true);
       }
 
-      if (p_213386_4_ instanceof ZombieEntity.GroupData) {
-         ZombieEntity.GroupData zombieentity$groupdata = (ZombieEntity.GroupData)p_213386_4_;
+      if (p_213386_4_ instanceof GroupData) {
+         GroupData zombieentity$groupdata = (GroupData)p_213386_4_;
          if (zombieentity$groupdata.isBaby) {
             this.setBaby(true);
             if (zombieentity$groupdata.canSpawnJockey) {

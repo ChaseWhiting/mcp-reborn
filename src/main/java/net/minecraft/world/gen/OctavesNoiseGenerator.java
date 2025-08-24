@@ -134,8 +134,8 @@ public class OctavesNoiseGenerator implements INoiseGenerator {
       return this.noiseLevels[this.noiseLevels.length - 1 - p_215463_1_];
    }
 
-   public static double wrap(double p_215461_0_) {
-      return p_215461_0_ - (double)MathHelper.lfloor(p_215461_0_ / 3.3554432E7D + 0.5D) * 3.3554432E7D;
+   public static double wrap(double number) {
+      return number - (double)MathHelper.lfloor(number / 3.3554432E7D + 0.5D) * 3.3554432E7D;
    }
 
    public double getSurfaceNoiseValue(double p_215460_1_, double p_215460_3_, double p_215460_5_, double p_215460_7_) {

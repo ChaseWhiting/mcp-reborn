@@ -1,11 +1,20 @@
 package net.minecraft.block.material;
 
+import net.minecraft.util.Util;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 public final class Material {
+
+
    public static final Material AIR = (new Material.Builder(MaterialColor.NONE)).noCollider().notSolidBlocking().nonSolid().replaceable().build();
    public static final Material STRUCTURAL_AIR = (new Material.Builder(MaterialColor.NONE)).noCollider().notSolidBlocking().nonSolid().replaceable().build();
    public static final Material PORTAL = (new Material.Builder(MaterialColor.NONE)).noCollider().notSolidBlocking().nonSolid().notPushable().build();
    public static final Material CLOTH_DECORATION = (new Material.Builder(MaterialColor.WOOL)).noCollider().notSolidBlocking().nonSolid().flammable().build();
    public static final Material PLANT = (new Material.Builder(MaterialColor.PLANT)).noCollider().notSolidBlocking().nonSolid().destroyOnPush().build();
+
    public static final Material WATER_PLANT = (new Material.Builder(MaterialColor.WATER)).noCollider().notSolidBlocking().nonSolid().destroyOnPush().build();
    public static final Material REPLACEABLE_PLANT = (new Material.Builder(MaterialColor.PLANT)).noCollider().notSolidBlocking().nonSolid().destroyOnPush().replaceable().flammable().build();
    public static final Material REPLACEABLE_FIREPROOF_PLANT = (new Material.Builder(MaterialColor.PLANT)).noCollider().notSolidBlocking().nonSolid().destroyOnPush().replaceable().build();
@@ -20,6 +29,9 @@ public final class Material {
    public static final Material BUILDABLE_GLASS = (new Material.Builder(MaterialColor.NONE)).build();
    public static final Material CLAY = (new Material.Builder(MaterialColor.CLAY)).build();
    public static final Material DIRT = (new Material.Builder(MaterialColor.DIRT)).build();
+   public static final Material FROGSPAWN = new Builder(MaterialColor.WATER).noCollider().notSolidBlocking().nonSolid().destroyOnPush().build();
+   public static final Material DESTROY = (new Material.Builder(MaterialColor.CLAY)).destroyOnPush().build();
+
    public static final Material GRASS = (new Material.Builder(MaterialColor.GRASS)).build();
    public static final Material ICE_SOLID = (new Material.Builder(MaterialColor.ICE)).build();
    public static final Material SAND = (new Material.Builder(MaterialColor.SAND)).build();
@@ -38,6 +50,9 @@ public final class Material {
    public static final Material CACTUS = (new Material.Builder(MaterialColor.PLANT)).notSolidBlocking().destroyOnPush().build();
    public static final Material STONE = (new Material.Builder(MaterialColor.STONE)).build();
    public static final Material METAL = (new Material.Builder(MaterialColor.METAL)).build();
+   public static final Material RESIN = (new Material.Builder(MaterialColor.TERRACOTTA_ORANGE)).build();
+   public static final Material RESIN_CLUMP = (new Material.Builder(MaterialColor.TERRACOTTA_ORANGE)).noCollider().replaceable().notSolidBlocking().nonSolid().destroyOnPush().build();
+   public static final Material CANDLE = (new Material.Builder(MaterialColor.SAND)).destroyOnPush().build();
    public static final Material SNOW = (new Material.Builder(MaterialColor.SNOW)).build();
    public static final Material HEAVY_METAL = (new Material.Builder(MaterialColor.METAL)).notPushable().build();
    public static final Material BARRIER = (new Material.Builder(MaterialColor.NONE)).notPushable().build();
@@ -54,8 +69,43 @@ public final class Material {
    private final boolean solidBlocking;
    private final boolean replaceable;
    private final boolean solid;
+   private final float fallDamageMultiplier;
 
-   public Material(MaterialColor p_i232146_1_, boolean p_i232146_2_, boolean p_i232146_3_, boolean p_i232146_4_, boolean p_i232146_5_, boolean p_i232146_6_, boolean p_i232146_7_, PushReaction p_i232146_8_) {
+
+   public static final Supplier<Map<Material, Float>> FALL_MULTIPLIER_BY_MATERIAL = (() -> Util.make(new HashMap<>(), map -> {
+      map.put(PISTON, 1.25F);
+      map.put(STONE, 1.35F);
+      map.put(METAL, 1.25F);
+      map.put(LEAVES, 0.75F);
+      map.put(GLASS, 1.1F);
+      map.put(BUILDABLE_GLASS, 1.1F);
+      map.put(WOOL, 0.875F);
+      map.put(SCULK, 0.6F);
+      map.put(RESIN, 0.8F);
+      map.put(DIRT, 0.95F);
+      map.put(VEGETABLE, 1.15F);
+      map.put(ICE, 1.15F);
+      map.put(ICE_SOLID, 1.65F);
+      map.put(CLAY, 0.8F);
+      map.put(HEAVY_METAL, 1.75F);
+      map.put(SNOW, 0.7F);
+      map.put(SAND, 0.855F);
+      map.put(WOOD, 1.125F);
+      map.put(NETHER_WOOD, 1.25F);
+      map.put(SHULKER_SHELL, 1.85F);
+      map.put(CORAL, 0.85F);
+      map.put(CACTUS, 1.4F);
+
+
+
+
+
+      map.put(CAKE, 0.0F);
+      map.put(EGG, 64f);
+   }));
+
+
+   public Material(MaterialColor p_i232146_1_, boolean p_i232146_2_, boolean p_i232146_3_, boolean p_i232146_4_, boolean p_i232146_5_, boolean p_i232146_6_, boolean p_i232146_7_, PushReaction p_i232146_8_, float fallDamageMultiplier) {
       this.color = p_i232146_1_;
       this.liquid = p_i232146_2_;
       this.solid = p_i232146_3_;
@@ -64,6 +114,7 @@ public final class Material {
       this.flammable = p_i232146_6_;
       this.replaceable = p_i232146_7_;
       this.pushReaction = p_i232146_8_;
+      this.fallDamageMultiplier = fallDamageMultiplier;
    }
 
    public boolean isLiquid() {
@@ -72,6 +123,10 @@ public final class Material {
 
    public boolean isSolid() {
       return this.solid;
+   }
+
+   public float getFallDamageMultiplier() {
+      return this.fallDamageMultiplier;
    }
 
    public boolean blocksMotion() {
@@ -105,11 +160,17 @@ public final class Material {
       private boolean liquid;
       private boolean replaceable;
       private boolean solid = true;
+      private float fallDamageMultiplier = 1.0F;
       private final MaterialColor color;
       private boolean solidBlocking = true;
 
       public Builder(MaterialColor p_i48270_1_) {
          this.color = p_i48270_1_;
+      }
+
+      public Material.Builder fallDamageMultiplier(float f) {
+         this.fallDamageMultiplier = f;
+         return this;
       }
 
       public Material.Builder liquid() {
@@ -153,7 +214,7 @@ public final class Material {
       }
 
       public Material build() {
-         return new Material(this.color, this.liquid, this.solid, this.blocksMotion, this.solidBlocking, this.flammable, this.replaceable, this.pushReaction);
+         return new Material(this.color, this.liquid, this.solid, this.blocksMotion, this.solidBlocking, this.flammable, this.replaceable, this.pushReaction, this.fallDamageMultiplier);
       }
    }
 }

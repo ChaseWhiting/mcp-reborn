@@ -3,6 +3,12 @@ package net.minecraft.block;
 import java.util.function.ToIntFunction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
+import net.minecraft.block.sculk.SculkBlock;
+import net.minecraft.block.sculk.SculkCatalystBlock;
+import net.minecraft.block.sculk.SculkShriekerBlock;
+import net.minecraft.block.sculk.SculkVeinBlock;
+import net.minecraft.block.sensor.SculkSensorBlock;
+import net.minecraft.block.sensor.SculkSensorPhase;
 import net.minecraft.block.trees.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -11,6 +17,7 @@ import net.minecraft.entity.monster.creaking.block.CreakingHeartBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.DyeColor;
+import net.minecraft.item.dyeable.WoolBlock;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
@@ -20,6 +27,7 @@ import net.minecraft.tileentity.ShulkerBoxTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
@@ -37,6 +45,10 @@ public class Blocks {
    public static final Block POLISHED_ANDESITE = register("polished_andesite", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.STONE).requiresCorrectToolForDrops().strength(1.5F, 6.0F)));
    public static final Block GRASS_BLOCK = register("grass_block", new GrassBlock(AbstractBlock.Properties.of(Material.GRASS).randomTicks().strength(0.6F).sound(SoundType.GRASS)));
    public static final Block DIRT = register("dirt", new Block(AbstractBlock.Properties.of(Material.DIRT, MaterialColor.DIRT).strength(0.5F).sound(SoundType.GRAVEL)));
+
+   public static final Block MUD = Blocks.register("mud", new MudBlock(AbstractBlock.Properties.copy(DIRT).isValidSpawn(Blocks::always).isRedstoneConductor(Blocks::always).isViewBlocking(Blocks::always).isSuffocating(Blocks::always).sound(SoundType.MUD)));
+   public static final Block DECORATED_POT = Blocks.register("decorated_pot", (Block)new DecoratedPotBlock(AbstractBlock.Properties.of(Material.DESTROY, MaterialColor.TERRACOTTA_RED).strength(0.0f, 0.0f).noOcclusion()));
+
    public static final Block COARSE_DIRT = register("coarse_dirt", new Block(AbstractBlock.Properties.of(Material.DIRT, MaterialColor.DIRT).strength(0.5F).sound(SoundType.GRAVEL)));
    public static final Block PODZOL = register("podzol", new SnowyDirtBlock(AbstractBlock.Properties.of(Material.DIRT, MaterialColor.PODZOL).strength(0.5F).sound(SoundType.GRAVEL)));
    public static final Block COBBLESTONE = register("cobblestone", new Block(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(2.0F, 6.0F)));
@@ -49,6 +61,18 @@ public class Blocks {
    public static final Block ACACIA_PLANKS = register("acacia_planks", new Block(AbstractBlock.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
    public static final Block DARK_OAK_PLANKS = register("dark_oak_planks", new Block(AbstractBlock.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
    public static final Block OAK_SAPLING = register("oak_sapling", new SaplingBlock(new OakTree(), AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS)));
+   public static final Block APPLE_SAPLING = register("apple_sapling", new SaplingBlock(new AppleTree(), AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS)));
+
+   public static final Block DEAD_SAPLING = register("dead_sapling", new SaplingBlock(new DeadTree(), AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.LEAF_LITTER)));
+
+   public static final Block PACKED_MUD = Blocks.register("packed_mud", new Block(AbstractBlock.Properties.copy(DIRT).strength(1.0f, 3.0f).sound(SoundType.PACKED_MUD)));
+   public static final Block MUD_BRICKS = Blocks.register("mud_bricks", new Block(AbstractBlock.Properties.of(Material.DIRT, MaterialColor.COLOR_LIGHT_GRAY).requiresCorrectToolForDrops().strength(1.5f, 3.0f).sound(SoundType.MUD_BRICKS)));
+
+   public static final Block MUD_BRICK_SLAB = Blocks.register("mud_brick_slab", (Block)new SlabBlock(AbstractBlock.Properties.of(Material.DIRT, MaterialColor.COLOR_LIGHT_GRAY).requiresCorrectToolForDrops().strength(1.5f, 3.0f).sound(SoundType.MUD_BRICKS)));
+   public static final Block MUD_BRICK_WALL = Blocks.register("mud_brick_wall", (Block)new WallBlock(AbstractBlock.Properties.copy(MUD_BRICKS)));
+   public static final Block MUD_BRICK_STAIRS = Blocks.registerStair("mud_brick_stairs", MUD_BRICKS);
+
+
    public static final Block SPRUCE_SAPLING = register("spruce_sapling", new SaplingBlock(new SpruceTree(), AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS)));
    public static final Block BIRCH_SAPLING = register("birch_sapling", new SaplingBlock(new BirchTree(), AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS)));
    public static final Block JUNGLE_SAPLING = register("jungle_sapling", new SaplingBlock(new JungleTree(), AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS)));
@@ -61,11 +85,17 @@ public class Blocks {
    public static final Block LAVA = register("lava", new FlowingFluidBlock(Fluids.LAVA, AbstractBlock.Properties.of(Material.LAVA).noCollission().randomTicks().strength(100.0F).lightLevel((p_235418_0_) -> {
       return 15;
    }).noDrops()));
+
    public static final Block SAND = register("sand", new SandBlock(14406560, AbstractBlock.Properties.of(Material.SAND, MaterialColor.SAND).strength(0.5F).sound(SoundType.SAND)));
+   public static final Block SUSPICIOUS_SAND = Blocks.register("suspicious_sand", new BrushableBlock(SAND, AbstractBlock.Properties.of(Material.SAND, MaterialColor.SAND).strength(0.25f).sound(SoundType.SUSPICIOUS_SAND), SoundEvents.BRUSH_SAND, SoundEvents.BRUSH_SAND_COMPLETED));
+
    public static final Block RED_SAND = register("red_sand", new SandBlock(11098145, AbstractBlock.Properties.of(Material.SAND, MaterialColor.COLOR_ORANGE).strength(0.5F).sound(SoundType.SAND)));
    public static final Block GRAVEL = register("gravel", new GravelBlock(AbstractBlock.Properties.of(Material.SAND, MaterialColor.STONE).strength(0.6F).sound(SoundType.GRAVEL)));
+   public static final Block SUSPICIOUS_GRAVEL = Blocks.register("suspicious_gravel", new BrushableBlock(GRAVEL, AbstractBlock.Properties.of(Material.SAND, MaterialColor.STONE).strength(0.25f).sound(SoundType.SUSPICIOUS_GRAVEL), SoundEvents.BRUSH_GRAVEL, SoundEvents.BRUSH_GRAVEL_COMPLETED));
+
    public static final Block GOLD_ORE = register("gold_ore", new OreBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
    public static final Block IRON_ORE = register("iron_ore", new OreBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
+   public static final Block COPPER_ORE = register("copper_ore", new OreBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
    public static final Block COAL_ORE = register("coal_ore", new OreBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
    public static final Block NETHER_GOLD_ORE = register("nether_gold_ore", new OreBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.NETHER).requiresCorrectToolForDrops().strength(3.0F, 3.0F).sound(SoundType.NETHER_GOLD_ORE)));
    public static final Block OAK_LOG = register("oak_log", log(MaterialColor.WOOD, MaterialColor.PODZOL));
@@ -99,16 +129,21 @@ public class Blocks {
    public static final Block STRIPPED_DARK_OAK_WOOD = register("stripped_dark_oak_wood", new RotatedPillarBlock(AbstractBlock.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).strength(2.0F).sound(SoundType.WOOD)));
    public static final Block STRIPPED_PALE_OAK_WOOD = register("stripped_pale_oak_wood", new RotatedPillarBlock(AbstractBlock.Properties.of(Material.WOOD, MaterialColor.PALE_LOG).strength(2.0F).sound(SoundType.WOOD)));
    public static final Block OAK_LEAVES = register("oak_leaves", leaves());
+   public static final Block APPLE_LEAVES = register("apple_leaves", leaves());
+
    public static final Block SPRUCE_LEAVES = register("spruce_leaves", leaves());
    public static final Block BIRCH_LEAVES = register("birch_leaves", leaves());
    public static final Block JUNGLE_LEAVES = register("jungle_leaves", leaves());
    public static final Block ACACIA_LEAVES = register("acacia_leaves", leaves());
    public static final Block DARK_OAK_LEAVES = register("dark_oak_leaves", leaves());
    public static final Block PALE_OAK_LEAVES = register("pale_oak_leaves", paleLeaves());
+   public static final Block DEAD_LEAVES = register("dead_leaves", deadLeaves());
 
    public static final Block SPONGE = register("sponge", new SpongeBlock(AbstractBlock.Properties.of(Material.SPONGE).strength(0.6F).sound(SoundType.GRASS)));
    public static final Block WET_SPONGE = register("wet_sponge", new WetSpongeBlock(AbstractBlock.Properties.of(Material.SPONGE).strength(0.6F).sound(SoundType.GRASS)));
    public static final Block GLASS = register("glass", new GlassBlock(AbstractBlock.Properties.of(Material.GLASS).strength(0.3F).sound(SoundType.GLASS).noOcclusion().isValidSpawn(Blocks::never).isRedstoneConductor(Blocks::never).isSuffocating(Blocks::never).isViewBlocking(Blocks::never)));
+   public static final Block TINTED_GLASS = register("tinted_glass", new TintedGlassBlock(AbstractBlock.Properties.copy(GLASS).strength(0.3F).sound(SoundType.GLASS).noOcclusion().isValidSpawn(Blocks::never).isRedstoneConductor(Blocks::never).isSuffocating(Blocks::never).isViewBlocking(Blocks::never)));
+
    public static final Block LAPIS_ORE = register("lapis_ore", new OreBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
    public static final Block LAPIS_BLOCK = register("lapis_block", new Block(AbstractBlock.Properties.of(Material.METAL, MaterialColor.LAPIS).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
    public static final Block DISPENSER = register("dispenser", new DispenserBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F)));
@@ -133,8 +168,7 @@ public class Blocks {
    public static final Block GREEN_BED = register("green_bed", bed(DyeColor.GREEN));
    public static final Block RED_BED = register("red_bed", bed(DyeColor.RED));
    public static final Block BLACK_BED = register("black_bed", bed(DyeColor.BLACK));
-   public static final Block CORAL_BED = register("coral_bed", bed(DyeColor.CORAL));
-   public static final Block POWERED_RAIL = register("powered_rail", new PoweredRailBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().strength(0.7F).sound(SoundType.METAL)));
+   public static final Block GOLDEN_POWERED_RAIL = register("golden_powered_rail", new PoweredRailBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().strength(0.7F).sound(SoundType.METAL)));
    public static final Block DETECTOR_RAIL = register("detector_rail", new DetectorRailBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().strength(0.7F).sound(SoundType.METAL)));
    public static final Block STICKY_PISTON = register("sticky_piston", pistonBase(true));
    public static final Block COBWEB = register("cobweb", new WebBlock(AbstractBlock.Properties.of(Material.WEB).noCollission().requiresCorrectToolForDrops().strength(4.0F)));
@@ -145,22 +179,25 @@ public class Blocks {
    public static final Block TALL_SEAGRASS = register("tall_seagrass", new TallSeaGrassBlock(AbstractBlock.Properties.of(Material.REPLACEABLE_WATER_PLANT).noCollission().instabreak().sound(SoundType.WET_GRASS)));
    public static final Block PISTON = register("piston", pistonBase(false));
    public static final Block PISTON_HEAD = register("piston_head", new PistonHeadBlock(AbstractBlock.Properties.of(Material.PISTON).strength(1.5F).noDrops()));
-   public static final Block WHITE_WOOL = register("white_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.SNOW).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block ORANGE_WOOL = register("orange_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_ORANGE).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block MAGENTA_WOOL = register("magenta_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_MAGENTA).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block LIGHT_BLUE_WOOL = register("light_blue_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_LIGHT_BLUE).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block YELLOW_WOOL = register("yellow_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_YELLOW).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block LIME_WOOL = register("lime_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_LIGHT_GREEN).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block PINK_WOOL = register("pink_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_PINK).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block GRAY_WOOL = register("gray_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_GRAY).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block LIGHT_GRAY_WOOL = register("light_gray_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_LIGHT_GRAY).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block CYAN_WOOL = register("cyan_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_CYAN).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block PURPLE_WOOL = register("purple_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_PURPLE).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block BLUE_WOOL = register("blue_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_BLUE).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block BROWN_WOOL = register("brown_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_BROWN).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block GREEN_WOOL = register("green_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_GREEN).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block RED_WOOL = register("red_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_RED).strength(0.8F).sound(SoundType.WOOL)));
-   public static final Block BLACK_WOOL = register("black_wool", new Block(AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_BLACK).strength(0.8F).sound(SoundType.WOOL)));
+
+
+   public static final Block WHITE_WOOL = register("white_wool", new WoolBlock(DyeColor.WHITE, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.SNOW).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block ORANGE_WOOL = register("orange_wool", new WoolBlock(DyeColor.ORANGE, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_ORANGE).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block MAGENTA_WOOL = register("magenta_wool", new WoolBlock(DyeColor.MAGENTA, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_MAGENTA).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block LIGHT_BLUE_WOOL = register("light_blue_wool", new WoolBlock(DyeColor.LIGHT_BLUE, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_LIGHT_BLUE).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block YELLOW_WOOL = register("yellow_wool", new WoolBlock(DyeColor.YELLOW, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_YELLOW).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block LIME_WOOL = register("lime_wool", new WoolBlock(DyeColor.LIME, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_LIGHT_GREEN).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block PINK_WOOL = register("pink_wool", new WoolBlock(DyeColor.PINK, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_PINK).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block GRAY_WOOL = register("gray_wool", new WoolBlock(DyeColor.GRAY, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_GRAY).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block LIGHT_GRAY_WOOL = register("light_gray_wool", new WoolBlock(DyeColor.LIGHT_GRAY, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_LIGHT_GRAY).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block CYAN_WOOL = register("cyan_wool", new WoolBlock(DyeColor.CYAN, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_CYAN).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block PURPLE_WOOL = register("purple_wool", new WoolBlock(DyeColor.PURPLE, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_PURPLE).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block BLUE_WOOL = register("blue_wool", new WoolBlock(DyeColor.BLUE, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_BLUE).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block BROWN_WOOL = register("brown_wool", new WoolBlock(DyeColor.BROWN, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_BROWN).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block GREEN_WOOL = register("green_wool", new WoolBlock(DyeColor.GREEN, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_GREEN).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block RED_WOOL = register("red_wool", new WoolBlock(DyeColor.RED, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_RED).strength(0.8F).sound(SoundType.WOOL)));
+   public static final Block BLACK_WOOL = register("black_wool", new WoolBlock(DyeColor.BLACK, AbstractBlock.Properties.of(Material.WOOL, MaterialColor.COLOR_BLACK).strength(0.8F).sound(SoundType.WOOL)));
+
    public static final Block MOVING_PISTON = register("moving_piston", new MovingPistonBlock(AbstractBlock.Properties.of(Material.PISTON).strength(-1.0F).dynamicShape().noDrops().noOcclusion().isRedstoneConductor(Blocks::never).isSuffocating(Blocks::never).isViewBlocking(Blocks::never)));
    public static final Block DANDELION = register("dandelion", new FlowerBlock(Effects.SATURATION, 7, AbstractBlock.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS)));
    public static final Block POPPY = register("poppy", new FlowerBlock(Effects.NIGHT_VISION, 5, AbstractBlock.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS)));
@@ -188,11 +225,16 @@ public class Blocks {
                    AbstractBlock.Properties.of(Material.PLANT).noCollission().instabreak().randomTicks().sound(SoundType.GRASS)));
 
    public static final Block PINK_PETALS = Blocks.register("pink_petals", new PetalBlock(AbstractBlock.Properties.of(Material.PLANT, MaterialColor.PLANT).sound(SoundType.MOSS).noCollission()));
+   public static final Block WILDFLOWERS = Blocks.register("wildflowers", new PetalBlock(AbstractBlock.Properties.of(Material.PLANT, MaterialColor.PLANT).sound(SoundType.MOSS).noCollission()));
+
    public static final Block PALE_LEAF_PILE = Blocks.register("pale_leaf_pile", new PetalBlock(AbstractBlock.Properties.of(Material.PLANT, MaterialColor.PALE_MOSS).sound(SoundType.MOSS).noCollission()));
+   public static final Block LEAF_LITTER = Blocks.register("leaf_litter", new PetalBlock(AbstractBlock.Properties.of(Material.PLANT, MaterialColor.PLANT).sound(SoundType.LEAF_LITTER).noCollission()));
+
 
 
 
    public static final Block GOLD_BLOCK = register("gold_block", new Block(AbstractBlock.Properties.of(Material.METAL, MaterialColor.GOLD).requiresCorrectToolForDrops().strength(3.0F, 6.0F).sound(SoundType.METAL)));
+   public static final Block ROSE_GOLD_BLOCK = register("rose_gold_block", new Block(AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(2.5F, 6.0F).sound(SoundType.METAL)));
    public static final Block IRON_BLOCK = register("iron_block", new Block(AbstractBlock.Properties.of(Material.METAL, MaterialColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL)));
    public static final Block BRICKS = register("bricks", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_RED).requiresCorrectToolForDrops().strength(2.0F, 6.0F)));
    public static final Block TNT = register("tnt", new TNTBlock(AbstractBlock.Properties.of(Material.EXPLOSIVE).instabreak().sound(SoundType.GRASS)));
@@ -211,6 +253,9 @@ public class Blocks {
    public static final Block SOUL_FIRE = register("soul_fire", new SoulFireBlock(AbstractBlock.Properties.of(Material.FIRE, MaterialColor.COLOR_LIGHT_BLUE).noCollission().instabreak().lightLevel((p_235467_0_) -> {
       return 10;
    }).sound(SoundType.WOOL)));
+   public static final Block HELLFIRE = register("hellfire", new HellfireBlock(AbstractBlock.Properties.of(Material.FIRE, MaterialColor.FIRE).noCollission().strength(0.6f, 10f).lightLevel((p_235467_0_) -> {
+      return 15;
+   }).sound(SoundType.NETHERRACK)));
    public static final Block SPAWNER = register("spawner", new SpawnerBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(5.0F).sound(SoundType.METAL).noOcclusion()));
    public static final Block OAK_STAIRS = register("oak_stairs", new StairsBlock(OAK_PLANKS.defaultBlockState(), AbstractBlock.Properties.copy(OAK_PLANKS)));
    public static final Block PALE_OAK_STAIRS = register("pale_oak_stairs", new StairsBlock(PALE_OAK_PLANKS.defaultBlockState(), AbstractBlock.Properties.copy(PALE_OAK_PLANKS)));
@@ -266,13 +311,17 @@ public class Blocks {
    public static final Block ICE = register("ice", new IceBlock(AbstractBlock.Properties.of(Material.ICE).friction(0.98F).randomTicks().strength(0.5F).sound(SoundType.GLASS).noOcclusion().isValidSpawn((p_235450_0_, p_235450_1_, p_235450_2_, p_235450_3_) -> {
       return p_235450_3_ == EntityType.POLAR_BEAR;
    })));
-   public static final Block SNOW_BLOCK = register("snow_block", new Block(AbstractBlock.Properties.of(Material.SNOW).requiresCorrectToolForDrops().strength(0.2F).sound(SoundType.SNOW)));
+   public static final Block SNOW_BLOCK = register("snow_block", new SimpleBrushableBlock(AIR, AbstractBlock.Properties.of(Material.SNOW).requiresCorrectToolForDrops().strength(0.2F).sound(SoundType.SNOW), SoundEvents.BRUSH_GENERIC, SoundEvents.SNOW_BREAK));
    public static final Block CACTUS = register("cactus", new CactusBlock(AbstractBlock.Properties.of(Material.CACTUS).randomTicks().strength(0.4F).sound(SoundType.WOOL)));
+   public static final Block CACTUS_FLOWER = register("cactus_flower", new CactusFlowerBlock(AbstractBlock.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.CACTUS_FLOWER)));
    public static final Block CLAY = register("clay", new Block(AbstractBlock.Properties.of(Material.CLAY).strength(0.6F).sound(SoundType.GRAVEL)));
    public static final Block SUGAR_CANE = register("sugar_cane", new SugarCaneBlock(AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS)));
    public static final Block JUKEBOX = register("jukebox", new JukeboxBlock(AbstractBlock.Properties.of(Material.WOOD, MaterialColor.DIRT).strength(2.0F, 6.0F)));
    public static final Block OAK_FENCE = register("oak_fence", new FenceBlock(AbstractBlock.Properties.of(Material.WOOD, OAK_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
    public static final Block PALE_OAK_FENCE = register("pale_oak_fence", new FenceBlock(AbstractBlock.Properties.of(Material.WOOD, PALE_OAK_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
+
+   public static final Block SUSPICIOUS_CLAY = Blocks.register("suspicious_clay", new SimpleBrushableBlock(CLAY, AbstractBlock.Properties.of(Material.CLAY, MaterialColor.CLAY).strength(0.3f).sound(SoundType.SUSPICIOUS_GRAVEL), SoundEvents.BRUSH_GRAVEL, SoundEvents.BRUSH_GRAVEL_COMPLETED));
+
 
    public static final Block PUMPKIN = register("pumpkin", new PumpkinBlock(AbstractBlock.Properties.of(Material.VEGETABLE, MaterialColor.COLOR_ORANGE).strength(1.0F).sound(SoundType.WOOD)));
    public static final Block WHITE_PUMPKIN = register("white_pumpkin", new WhitePumpkinBlock(AbstractBlock.Properties.of(Material.VEGETABLE, MaterialColor.TERRACOTTA_WHITE).strength(1.0F).sound(SoundType.WOOD)));
@@ -280,6 +329,8 @@ public class Blocks {
    public static final Block NETHERRACK = register("netherrack", new NetherrackBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.NETHER).requiresCorrectToolForDrops().strength(0.4F).sound(SoundType.NETHERRACK)));
    public static final Block SOUL_SAND = register("soul_sand", new SoulSandBlock(AbstractBlock.Properties.of(Material.SAND, MaterialColor.COLOR_BROWN).strength(0.5F).speedFactor(0.4F).sound(SoundType.SOUL_SAND).isValidSpawn(Blocks::always).isRedstoneConductor(Blocks::always).isViewBlocking(Blocks::always).isSuffocating(Blocks::always)));
    public static final Block SOUL_SOIL = register("soul_soil", new Block(AbstractBlock.Properties.of(Material.DIRT, MaterialColor.COLOR_BROWN).strength(0.5F).sound(SoundType.SOUL_SOIL)));
+   public static final Block SUSPICIOUS_SOUL_SOIL = Blocks.register("suspicious_soul_soil", new SimpleBrushableBlock(SOUL_SOIL, AbstractBlock.Properties.of(Material.DIRT, MaterialColor.COLOR_BROWN).strength(0.25f).sound(SoundType.SUSPICIOUS_SOUL_SOIL), SoundEvents.BRUSH_GENERIC, SoundEvents.SOUL_ESCAPE));
+
    public static final Block BASALT = register("basalt", new RotatedPillarBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_BLACK).requiresCorrectToolForDrops().strength(1.25F, 4.2F).sound(SoundType.BASALT)));
    public static final Block POLISHED_BASALT = register("polished_basalt", new RotatedPillarBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_BLACK).requiresCorrectToolForDrops().strength(1.25F, 4.2F).sound(SoundType.BASALT)));
    public static final Block SOUL_TORCH = register("soul_torch", new TorchBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_235466_0_) -> {
@@ -354,6 +405,10 @@ public class Blocks {
 
    public static final Block MELON_STEM = register("melon_stem", new StemBlock((StemGrownBlock)MELON, AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.HARD_CROP)));
    public static final Block VINE = register("vine", new VineBlock(AbstractBlock.Properties.of(Material.REPLACEABLE_PLANT).noCollission().randomTicks().strength(0.2F).sound(SoundType.VINE)));
+   //public static final Block BLOOMING_IVY = register("blooming_ivy",
+           //new BloomingIvyBlock(AbstractBlock.Properties.copy(Blocks.VINE).sound(SoundType.VINE).randomTicks()));
+
+
    public static final Block OAK_FENCE_GATE = register("oak_fence_gate", new FenceGateBlock(AbstractBlock.Properties.of(Material.WOOD, OAK_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
    public static final Block PALE_OAK_FENCE_GATE = register("pale_oak_fence_gate", new FenceGateBlock(AbstractBlock.Properties.of(Material.WOOD, PALE_OAK_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
 
@@ -444,14 +499,18 @@ public class Blocks {
    public static final Block PLAYER_WALL_HEAD = register("player_wall_head", new SkullWallPlayerBlock(AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F).dropsLike(PLAYER_HEAD)));
    public static final Block CREEPER_HEAD = register("creeper_head", new SkullBlock(SkullBlock.Types.CREEPER, AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F)));
    public static final Block CREEPER_WALL_HEAD = register("creeper_wall_head", new WallSkullBlock(SkullBlock.Types.CREEPER, AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F).dropsLike(CREEPER_HEAD)));
+
+   public static final Block PIGLIN_HEAD = register("piglin_head", new SkullBlock(SkullBlock.Types.PIGLIN, AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F)));
+   public static final Block PIGLIN_WALL_HEAD = register("piglin_wall_head", new PiglinWallSkullBlock(AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F).dropsLike(PIGLIN_HEAD)));
+
    public static final Block DRAGON_HEAD = register("dragon_head", new SkullBlock(SkullBlock.Types.DRAGON, AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F)));
    public static final Block DRAGON_WALL_HEAD = register("dragon_wall_head", new WallSkullBlock(SkullBlock.Types.DRAGON, AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F).dropsLike(DRAGON_HEAD)));
    public static final Block ANVIL = register("anvil", new AnvilBlock(AbstractBlock.Properties.of(Material.HEAVY_METAL, MaterialColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 1200.0F).sound(SoundType.ANVIL)));
    public static final Block CHIPPED_ANVIL = register("chipped_anvil", new AnvilBlock(AbstractBlock.Properties.of(Material.HEAVY_METAL, MaterialColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 1200.0F).sound(SoundType.ANVIL)));
    public static final Block DAMAGED_ANVIL = register("damaged_anvil", new AnvilBlock(AbstractBlock.Properties.of(Material.HEAVY_METAL, MaterialColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 1200.0F).sound(SoundType.ANVIL)));
    public static final Block TRAPPED_CHEST = register("trapped_chest", new TrappedChestBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
-   public static final Block LIGHT_WEIGHTED_PRESSURE_PLATE = register("light_weighted_pressure_plate", new WeightedPressurePlateBlock(15, AbstractBlock.Properties.of(Material.METAL, MaterialColor.GOLD).requiresCorrectToolForDrops().noCollission().strength(0.5F).sound(SoundType.WOOD)));
-   public static final Block HEAVY_WEIGHTED_PRESSURE_PLATE = register("heavy_weighted_pressure_plate", new WeightedPressurePlateBlock(150, AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().noCollission().strength(0.5F).sound(SoundType.WOOD)));
+   public static final Block LIGHT_WEIGHTED_PRESSURE_PLATE = register("light_weighted_pressure_plate", new WeightedPressurePlateBlock(15, AbstractBlock.Properties.of(Material.METAL, MaterialColor.GOLD).requiresCorrectToolForDrops().noCollission().strength(0.5F).sound(SoundType.METAL)));
+   public static final Block HEAVY_WEIGHTED_PRESSURE_PLATE = register("heavy_weighted_pressure_plate", new WeightedPressurePlateBlock(150, AbstractBlock.Properties.of(Material.METAL).requiresCorrectToolForDrops().noCollission().strength(0.5F).sound(SoundType.METAL)));
    public static final Block COMPARATOR = register("comparator", new ComparatorBlock(AbstractBlock.Properties.of(Material.DECORATION).instabreak().sound(SoundType.WOOD)));
    public static final Block DAYLIGHT_DETECTOR = register("daylight_detector", new DaylightDetectorBlock(AbstractBlock.Properties.of(Material.WOOD).strength(0.2F).sound(SoundType.WOOD)));
    public static final Block REDSTONE_BLOCK = register("redstone_block", new RedstoneBlock(AbstractBlock.Properties.of(Material.METAL, MaterialColor.FIRE).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL).isRedstoneConductor(Blocks::never)));
@@ -463,22 +522,22 @@ public class Blocks {
    public static final Block QUARTZ_STAIRS = register("quartz_stairs", new StairsBlock(QUARTZ_BLOCK.defaultBlockState(), AbstractBlock.Properties.copy(QUARTZ_BLOCK)));
    public static final Block ACTIVATOR_RAIL = register("activator_rail", new PoweredRailBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().strength(0.7F).sound(SoundType.METAL)));
    public static final Block DROPPER = register("dropper", new DropperBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F)));
-   public static final Block WHITE_TERRACOTTA = register("white_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_WHITE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block ORANGE_TERRACOTTA = register("orange_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_ORANGE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block MAGENTA_TERRACOTTA = register("magenta_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_MAGENTA).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block LIGHT_BLUE_TERRACOTTA = register("light_blue_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block YELLOW_TERRACOTTA = register("yellow_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_YELLOW).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block LIME_TERRACOTTA = register("lime_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_GREEN).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block PINK_TERRACOTTA = register("pink_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_PINK).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block GRAY_TERRACOTTA = register("gray_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_GRAY).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block LIGHT_GRAY_TERRACOTTA = register("light_gray_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_GRAY).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block CYAN_TERRACOTTA = register("cyan_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_CYAN).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block PURPLE_TERRACOTTA = register("purple_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_PURPLE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block BLUE_TERRACOTTA = register("blue_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BLUE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block BROWN_TERRACOTTA = register("brown_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BROWN).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block GREEN_TERRACOTTA = register("green_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_GREEN).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block RED_TERRACOTTA = register("red_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_RED).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
-   public static final Block BLACK_TERRACOTTA = register("black_terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BLACK).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block WHITE_TERRACOTTA = register("white_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_WHITE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block ORANGE_TERRACOTTA = register("orange_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_ORANGE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block MAGENTA_TERRACOTTA = register("magenta_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_MAGENTA).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block LIGHT_BLUE_TERRACOTTA = register("light_blue_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block YELLOW_TERRACOTTA = register("yellow_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_YELLOW).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block LIME_TERRACOTTA = register("lime_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_GREEN).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block PINK_TERRACOTTA = register("pink_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_PINK).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block GRAY_TERRACOTTA = register("gray_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_GRAY).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block LIGHT_GRAY_TERRACOTTA = register("light_gray_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_GRAY).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block CYAN_TERRACOTTA = register("cyan_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_CYAN).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block PURPLE_TERRACOTTA = register("purple_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_PURPLE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block BLUE_TERRACOTTA = register("blue_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BLUE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block BROWN_TERRACOTTA = register("brown_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BROWN).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block GREEN_TERRACOTTA = register("green_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_GREEN).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block RED_TERRACOTTA = register("red_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_RED).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block BLACK_TERRACOTTA = register("black_terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BLACK).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
    public static final Block WHITE_STAINED_GLASS_PANE = register("white_stained_glass_pane", new StainedGlassPaneBlock(DyeColor.WHITE, AbstractBlock.Properties.of(Material.GLASS).strength(0.3F).sound(SoundType.GLASS).noOcclusion()));
    public static final Block ORANGE_STAINED_GLASS_PANE = register("orange_stained_glass_pane", new StainedGlassPaneBlock(DyeColor.ORANGE, AbstractBlock.Properties.of(Material.GLASS).strength(0.3F).sound(SoundType.GLASS).noOcclusion()));
    public static final Block MAGENTA_STAINED_GLASS_PANE = register("magenta_stained_glass_pane", new StainedGlassPaneBlock(DyeColor.MAGENTA, AbstractBlock.Properties.of(Material.GLASS).strength(0.3F).sound(SoundType.GLASS).noOcclusion()));
@@ -529,9 +588,12 @@ public class Blocks {
    public static final Block GREEN_CARPET = register("green_carpet", new CarpetBlock(DyeColor.GREEN, AbstractBlock.Properties.of(Material.CLOTH_DECORATION, MaterialColor.COLOR_GREEN).strength(0.1F).sound(SoundType.WOOL)));
    public static final Block RED_CARPET = register("red_carpet", new CarpetBlock(DyeColor.RED, AbstractBlock.Properties.of(Material.CLOTH_DECORATION, MaterialColor.COLOR_RED).strength(0.1F).sound(SoundType.WOOL)));
    public static final Block BLACK_CARPET = register("black_carpet", new CarpetBlock(DyeColor.BLACK, AbstractBlock.Properties.of(Material.CLOTH_DECORATION, MaterialColor.COLOR_BLACK).strength(0.1F).sound(SoundType.WOOL)));
-   public static final Block TERRACOTTA = register("terracotta", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
+   public static final Block DUCKWEED = register("duckweed", new CarpetBlock(DyeColor.GREEN, AbstractBlock.Properties.of(Material.PLANT, MaterialColor.COLOR_GREEN).noCollission().strength(0.1F).sound(SoundType.MOSS)));
+
+   public static final Block TERRACOTTA = register("terracotta", new TerracottaBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(1.25F, 4.2F)));
    public static final Block COAL_BLOCK = register("coal_block", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_BLACK).requiresCorrectToolForDrops().strength(5.0F, 6.0F)));
    public static final Block PACKED_ICE = register("packed_ice", new Block(AbstractBlock.Properties.of(Material.ICE_SOLID).friction(0.98F).strength(0.5F).sound(SoundType.GLASS)));
+   public static final Block CATTAILS = register("cattails", new CattailsBlock(AbstractBlock.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS)));
    public static final Block SUNFLOWER = register("sunflower", new TallFlowerBlock(AbstractBlock.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS)));
    public static final Block LILAC = register("lilac", new TallFlowerBlock(AbstractBlock.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS)));
    public static final Block ROSE_BUSH = register("rose_bush", new TallFlowerBlock(AbstractBlock.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS)));
@@ -688,22 +750,22 @@ public class Blocks {
    public static final Block GREEN_GLAZED_TERRACOTTA = register("green_glazed_terracotta", new GlazedTerracottaBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.GREEN).requiresCorrectToolForDrops().strength(1.4F)));
    public static final Block RED_GLAZED_TERRACOTTA = register("red_glazed_terracotta", new GlazedTerracottaBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.RED).requiresCorrectToolForDrops().strength(1.4F)));
    public static final Block BLACK_GLAZED_TERRACOTTA = register("black_glazed_terracotta", new GlazedTerracottaBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.BLACK).requiresCorrectToolForDrops().strength(1.4F)));
-   public static final Block WHITE_CONCRETE = register("white_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.WHITE).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block ORANGE_CONCRETE = register("orange_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.ORANGE).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block MAGENTA_CONCRETE = register("magenta_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.MAGENTA).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block LIGHT_BLUE_CONCRETE = register("light_blue_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.LIGHT_BLUE).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block YELLOW_CONCRETE = register("yellow_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.YELLOW).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block LIME_CONCRETE = register("lime_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.LIME).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block PINK_CONCRETE = register("pink_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.PINK).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block WHITE_CONCRETE = register("white_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.WHITE).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block ORANGE_CONCRETE = register("orange_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.ORANGE).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block MAGENTA_CONCRETE = register("magenta_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.MAGENTA).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block LIGHT_BLUE_CONCRETE = register("light_blue_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.LIGHT_BLUE).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block YELLOW_CONCRETE = register("yellow_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.YELLOW).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block LIME_CONCRETE = register("lime_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.LIME).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block PINK_CONCRETE = register("pink_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.PINK).requiresCorrectToolForDrops().strength(1.8F)));
    public static final Block GRAY_CONCRETE = register("gray_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.GRAY).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block LIGHT_GRAY_CONCRETE = register("light_gray_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.LIGHT_GRAY).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block CYAN_CONCRETE = register("cyan_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.CYAN).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block PURPLE_CONCRETE = register("purple_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.PURPLE).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block BLUE_CONCRETE = register("blue_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.BLUE).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block BROWN_CONCRETE = register("brown_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.BROWN).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block GREEN_CONCRETE = register("green_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.GREEN).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block RED_CONCRETE = register("red_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.RED).requiresCorrectToolForDrops().strength(1.8F)));
-   public static final Block BLACK_CONCRETE = register("black_concrete", new Block(AbstractBlock.Properties.of(Material.STONE, DyeColor.BLACK).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block LIGHT_GRAY_CONCRETE = register("light_gray_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.LIGHT_GRAY).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block CYAN_CONCRETE = register("cyan_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.CYAN).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block PURPLE_CONCRETE = register("purple_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.PURPLE).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block BLUE_CONCRETE = register("blue_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.BLUE).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block BROWN_CONCRETE = register("brown_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.BROWN).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block GREEN_CONCRETE = register("green_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.GREEN).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block RED_CONCRETE = register("red_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.RED).requiresCorrectToolForDrops().strength(1.8F)));
+   public static final Block BLACK_CONCRETE = register("black_concrete", new ConcreteBlock(AbstractBlock.Properties.of(Material.STONE, DyeColor.BLACK).requiresCorrectToolForDrops().strength(1.8F)));
    public static final Block WHITE_CONCRETE_POWDER = register("white_concrete_powder", new ConcretePowderBlock(WHITE_CONCRETE, AbstractBlock.Properties.of(Material.SAND, DyeColor.WHITE).strength(0.5F).sound(SoundType.SAND)));
    public static final Block ORANGE_CONCRETE_POWDER = register("orange_concrete_powder", new ConcretePowderBlock(ORANGE_CONCRETE, AbstractBlock.Properties.of(Material.SAND, DyeColor.ORANGE).strength(0.5F).sound(SoundType.SAND)));
    public static final Block MAGENTA_CONCRETE_POWDER = register("magenta_concrete_powder", new ConcretePowderBlock(MAGENTA_CONCRETE, AbstractBlock.Properties.of(Material.SAND, DyeColor.MAGENTA).strength(0.5F).sound(SoundType.SAND)));
@@ -724,6 +786,7 @@ public class Blocks {
    public static final Block KELP_PLANT = register("kelp_plant", new KelpBlock(AbstractBlock.Properties.of(Material.WATER_PLANT).noCollission().instabreak().sound(SoundType.WET_GRASS)));
    public static final Block DRIED_KELP_BLOCK = register("dried_kelp_block", new Block(AbstractBlock.Properties.of(Material.GRASS, MaterialColor.COLOR_GREEN).strength(0.5F, 2.5F).sound(SoundType.GRASS)));
    public static final Block TURTLE_EGG = register("turtle_egg", new TurtleEggBlock(AbstractBlock.Properties.of(Material.EGG, MaterialColor.SAND).strength(0.5F).sound(SoundType.METAL).randomTicks().noOcclusion()));
+   public static final Block SNIFFER_EGG = Blocks.register("sniffer_egg", new SnifferEggBlock(AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_RED).strength(0.5f).sound(SoundType.METAL).noOcclusion()));
    public static final Block DEAD_TUBE_CORAL_BLOCK = register("dead_tube_coral_block", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(1.5F, 6.0F)));
    public static final Block DEAD_BRAIN_CORAL_BLOCK = register("dead_brain_coral_block", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(1.5F, 6.0F)));
    public static final Block DEAD_BUBBLE_CORAL_BLOCK = register("dead_bubble_coral_block", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(1.5F, 6.0F)));
@@ -828,6 +891,9 @@ public class Blocks {
    public static final Block LECTERN = register("lectern", new LecternBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
    public static final Block SMITHING_TABLE = register("smithing_table", new SmithingTableBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD)));
    public static final Block STONECUTTER = register("stonecutter", new StonecutterBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F)));
+   public static final Block WOODCUTTER = register("woodcutter", new WoodcutterBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3F)));
+
+
    public static final Block WAX_MELTER = register("wax_melter", new WaxMelterBlock(AbstractBlock.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(2.5F).sound(SoundType.WOOD)));
 
    public static final Block BELL = register("bell", new BellBlock(AbstractBlock.Properties.of(Material.METAL, MaterialColor.GOLD).requiresCorrectToolForDrops().strength(5.0F).sound(SoundType.ANVIL)));
@@ -934,13 +1000,336 @@ public class Blocks {
    public static final Block POLISHED_BLACKSTONE_BUTTON = register("polished_blackstone_button", new StoneButtonBlock(AbstractBlock.Properties.of(Material.DECORATION).noCollission().strength(0.5F)));
    public static final Block POLISHED_BLACKSTONE_WALL = register("polished_blackstone_wall", new WallBlock(AbstractBlock.Properties.copy(POLISHED_BLACKSTONE)));
    public static final Block CHISELED_NETHER_BRICKS = register("chiseled_nether_bricks", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.NETHER).requiresCorrectToolForDrops().strength(2.0F, 6.0F).sound(SoundType.NETHER_BRICKS)));
-   public static final Block CRACKED_NETHER_BRICKS = register("cracked_nether_bricks", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.NETHER).requiresCorrectToolForDrops().strength(2.0F, 6.0F).sound(SoundType.NETHER_BRICKS)));
+   public static final Block CRACKED_NETHER_BRICKS = register("cracked_nether_bricks", new SimpleBrushableBlock(NETHER_BRICKS, AbstractBlock.Properties.of(Material.STONE, MaterialColor.NETHER).requiresCorrectToolForDrops().strength(2.0F, 6.0F).sound(SoundType.NETHER_BRICKS), SoundEvents.BRUSH_GENERIC, SoundEvents.NETHER_BRICKS_HIT));
+   public static final Block SUSPICIOUS_CRACKED_NETHER_BRICKS = register("suspicious_cracked_nether_bricks", new SimpleBrushableBlock(CRACKED_NETHER_BRICKS, AbstractBlock.Properties.of(Material.STONE, MaterialColor.NETHER).requiresCorrectToolForDrops().strength(0.7F, 1.0F).sound(SoundType.NETHER_BRICKS), SoundEvents.BRUSH_GENERIC, SoundEvents.NETHER_BRICKS_HIT));
+
    public static final Block QUARTZ_BRICKS = register("quartz_bricks", new Block(AbstractBlock.Properties.copy(QUARTZ_BLOCK)));
    public static final Block PALE_MOSS_BLOCK = register("pale_moss_block", new Block(AbstractBlock.Properties.of(Material.PLANT, MaterialColor.PALE_MOSS).strength(0.1F).sound(SoundType.MOSS).isValidSpawn((f, s, a, g) -> true)));
    public static final Block PALE_MOSS_CARPET = Blocks.register("pale_moss_carpet", new MossyCarpetBlock(AbstractBlock.Properties.of(Material.PLANT, MaterialColor.PALE_MOSS).strength(0.1F).sound(SoundType.MOSS).noOcclusion()));
    public static final Block PALE_HANGING_MOSS = Blocks.register("pale_hanging_moss", new HangingMossBlock());
 public static final Block CREAKING_HEART = Blocks.register("creaking_heart", new CreakingHeartBlock(AbstractBlock.Properties.of(Material.WOOD).strength(5F).sound(SoundType.MOSS)));
 
+   public static final Block LIGHTNING_ROD = Blocks.register("lightning_rod", new LightningRodBlock(AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(3.0f, 6.0f).sound(SoundType.COPPER).noOcclusion()));
+   public static final Block COPPER_BULB = Blocks.register("copper_bulb", new WeatheringCopperBulbBlock(
+           WeatheringCopper.WeatherState.UNAFFECTED,
+           AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_ORANGE)
+                   .strength(3.0f, 6.0f)
+                   .sound(SoundType.COPPER_BULB)
+                   .requiresCorrectToolForDrops()
+                   .isRedstoneConductor(Blocks::never)
+                   .lightLevel(Blocks.litBlockEmission(15))
+   ));
+   public static final Block EXPOSED_COPPER_BULB = Blocks.register("exposed_copper_bulb", new WeatheringCopperBulbBlock(
+           WeatheringCopper.WeatherState.EXPOSED,
+           AbstractBlock.Properties.copy(COPPER_BULB)
+                   .lightLevel(Blocks.litBlockEmission(12))
+   ));
+
+   public static final Block WEATHERED_COPPER_BULB = Blocks.register("weathered_copper_bulb", new WeatheringCopperBulbBlock(
+           WeatheringCopper.WeatherState.WEATHERED,
+           AbstractBlock.Properties.copy(COPPER_BULB)
+                   .lightLevel(Blocks.litBlockEmission(8))
+   ));
+
+   public static final Block OXIDIZED_COPPER_BULB = Blocks.register("oxidized_copper_bulb", new WeatheringCopperBulbBlock(
+           WeatheringCopper.WeatherState.OXIDIZED,
+           AbstractBlock.Properties.copy(COPPER_BULB)
+                   .lightLevel(Blocks.litBlockEmission(4))
+   ));
+
+   public static final Block WAXED_COPPER_BULB = Blocks.register("waxed_copper_bulb",
+           new CopperBulbBlock(AbstractBlock.Properties.copy(COPPER_BULB)));
+
+   public static final Block WAXED_EXPOSED_COPPER_BULB = Blocks.register("waxed_exposed_copper_bulb",
+           new CopperBulbBlock(AbstractBlock.Properties.copy(EXPOSED_COPPER_BULB)));
+
+   public static final Block WAXED_WEATHERED_COPPER_BULB = Blocks.register("waxed_weathered_copper_bulb",
+           new CopperBulbBlock(AbstractBlock.Properties.copy(WEATHERED_COPPER_BULB)));
+
+   public static final Block WAXED_OXIDIZED_COPPER_BULB = Blocks.register("waxed_oxidized_copper_bulb",
+           new CopperBulbBlock(AbstractBlock.Properties.copy(OXIDIZED_COPPER_BULB)));
+
+
+   public static final Block COPPER_BLOCK = Blocks.register("copper_block", (new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.UNAFFECTED, (AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(3.0f, 6.0f).sound(SoundType.COPPER)))));
+   public static final Block COPPER_BUTTON = register("copper_button", new WeatheringCopperButtonBlock(WeatheringCopper.WeatherState.UNAFFECTED, AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_ORANGE).noCollission().strength(3.0f, 6.0f).sound(SoundType.COPPER)));
+   public static final Block EXPOSED_COPPER_BUTTON = register("exposed_copper_button", new WeatheringCopperButtonBlock(WeatheringCopper.WeatherState.EXPOSED, AbstractBlock.Properties.copy(COPPER_BLOCK)));
+   public static final Block WEATHERED_COPPER_BUTTON = register("weathered_copper_button", new WeatheringCopperButtonBlock(WeatheringCopper.WeatherState.WEATHERED, AbstractBlock.Properties.copy(COPPER_BLOCK)));
+   public static final Block OXIDIZED_COPPER_BUTTON = register("oxidized_copper_button", new WeatheringCopperButtonBlock(WeatheringCopper.WeatherState.OXIDIZED, AbstractBlock.Properties.copy(COPPER_BLOCK)));
+
+   public static final Block WAXED_COPPER_BUTTON = register("waxed_copper_button", new CopperButtonBlock(WeatheringCopper.WeatherState.UNAFFECTED, AbstractBlock.Properties.copy(COPPER_BUTTON)));
+   public static final Block WAXED_EXPOSED_COPPER_BUTTON = register("waxed_exposed_copper_button", new CopperButtonBlock(WeatheringCopper.WeatherState.EXPOSED, AbstractBlock.Properties.copy(EXPOSED_COPPER_BUTTON)));
+   public static final Block WAXED_WEATHERED_COPPER_BUTTON = register("waxed_weathered_copper_button", new CopperButtonBlock(WeatheringCopper.WeatherState.WEATHERED, AbstractBlock.Properties.copy(WEATHERED_COPPER_BUTTON)));
+   public static final Block WAXED_OXIDIZED_COPPER_BUTTON = register("waxed_oxidized_copper_button", new CopperButtonBlock(WeatheringCopper.WeatherState.OXIDIZED, AbstractBlock.Properties.copy(OXIDIZED_COPPER_BUTTON)));
+
+
+
+   public static final Block EXPOSED_COPPER = Blocks.register("exposed_copper", new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.EXPOSED, AbstractBlock.Properties.copy(COPPER_BLOCK)));
+   public static final Block WEATHERED_COPPER = Blocks.register("weathered_copper", (new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.WEATHERED, AbstractBlock.Properties.copy(COPPER_BLOCK))));
+   public static final Block OXIDIZED_COPPER = Blocks.register("oxidized_copper", (new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.OXIDIZED, AbstractBlock.Properties.copy(COPPER_BLOCK))));
+
+   public static final Block CUT_COPPER = Blocks.register("cut_copper", (new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.UNAFFECTED, (AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(3.0f, 6.0f).sound(SoundType.COPPER)))));
+   public static final Block EXPOSED_CUT_COPPER = Blocks.register("exposed_cut_copper", new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.EXPOSED, AbstractBlock.Properties.copy(EXPOSED_COPPER)));
+   public static final Block WEATHERED_CUT_COPPER = Blocks.register("weathered_cut_copper", (new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.WEATHERED, AbstractBlock.Properties.copy(WEATHERED_COPPER))));
+   public static final Block OXIDIZED_CUT_COPPER = Blocks.register("oxidized_cut_copper", (new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.OXIDIZED, AbstractBlock.Properties.copy(OXIDIZED_COPPER))));
+
+   public static final Block COPPER_GRATE = Blocks.register("copper_grate", new WeatheringCopperGrateBlock(
+           WeatheringCopper.WeatherState.UNAFFECTED,
+           AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_ORANGE)
+                   .strength(3.0f, 6.0f)
+                   .sound(SoundType.COPPER_GRATE)
+                   .noOcclusion()
+                   .requiresCorrectToolForDrops()
+                   .isValidSpawn(Blocks::never)
+                   .isRedstoneConductor(Blocks::never)
+                   .isSuffocating(Blocks::never)
+                   .isViewBlocking(Blocks::never)
+   ));
+
+   public static final Block EXPOSED_COPPER_GRATE = Blocks.register("exposed_copper_grate", new WeatheringCopperGrateBlock(
+           WeatheringCopper.WeatherState.EXPOSED,
+           AbstractBlock.Properties.copy(COPPER_GRATE)
+   ));
+
+   public static final Block WEATHERED_COPPER_GRATE = Blocks.register("weathered_copper_grate", new WeatheringCopperGrateBlock(
+           WeatheringCopper.WeatherState.WEATHERED,
+           AbstractBlock.Properties.copy(COPPER_GRATE)
+   ));
+
+   public static final Block OXIDIZED_COPPER_GRATE = Blocks.register("oxidized_copper_grate", new WeatheringCopperGrateBlock(
+           WeatheringCopper.WeatherState.OXIDIZED,
+           AbstractBlock.Properties.copy(COPPER_GRATE)
+   ));
+
+   public static final Block WAXED_COPPER_GRATE = Blocks.register("waxed_copper_grate", new WaterloggedTransparentBlock(
+           AbstractBlock.Properties.copy(COPPER_GRATE)
+   ));
+
+   public static final Block WAXED_EXPOSED_COPPER_GRATE = Blocks.register("waxed_exposed_copper_grate", new WaterloggedTransparentBlock(
+           AbstractBlock.Properties.copy(EXPOSED_COPPER_GRATE)
+   ));
+
+   public static final Block WAXED_WEATHERED_COPPER_GRATE = Blocks.register("waxed_weathered_copper_grate", new WaterloggedTransparentBlock(
+           AbstractBlock.Properties.copy(WEATHERED_COPPER_GRATE)
+   ));
+
+   public static final Block WAXED_OXIDIZED_COPPER_GRATE = Blocks.register("waxed_oxidized_copper_grate", new WaterloggedTransparentBlock(
+           AbstractBlock.Properties.copy(OXIDIZED_COPPER_GRATE)
+   ));
+
+
+   public static final Block OXIDIZED_CUT_COPPER_SLAB = Blocks.register("oxidized_cut_copper_slab",
+           new WeatheringCopperSlabBlock(
+                   WeatheringCopper.WeatherState.OXIDIZED,
+                   AbstractBlock.Properties.copy(OXIDIZED_CUT_COPPER)
+           )
+   );
+
+   public static final Block WEATHERED_CUT_COPPER_SLAB = Blocks.register("weathered_cut_copper_slab",
+           new WeatheringCopperSlabBlock(
+                   WeatheringCopper.WeatherState.WEATHERED,
+                   AbstractBlock.Properties.copy(WEATHERED_CUT_COPPER)
+           )
+   );
+
+   public static final Block EXPOSED_CUT_COPPER_SLAB = Blocks.register("exposed_cut_copper_slab",
+           new WeatheringCopperSlabBlock(
+                   WeatheringCopper.WeatherState.EXPOSED,
+                   AbstractBlock.Properties.copy(EXPOSED_CUT_COPPER)
+           )
+   );
+
+   public static final Block CUT_COPPER_SLAB = Blocks.register("cut_copper_slab",
+           new WeatheringCopperSlabBlock(
+                   WeatheringCopper.WeatherState.UNAFFECTED,
+                   AbstractBlock.Properties.copy(CUT_COPPER)
+           )
+   );
+
+   public static final Block WAXED_COPPER_BLOCK = Blocks.register("waxed_copper_block",
+           new Block(AbstractBlock.Properties.copy(COPPER_BLOCK))
+   );
+
+   public static final Block WAXED_WEATHERED_COPPER = Blocks.register("waxed_weathered_copper",
+           new Block(AbstractBlock.Properties.copy(WEATHERED_COPPER))
+   );
+
+   public static final Block WAXED_EXPOSED_COPPER = Blocks.register("waxed_exposed_copper",
+           new Block(AbstractBlock.Properties.copy(EXPOSED_COPPER))
+   );
+
+   public static final Block WAXED_OXIDIZED_COPPER = Blocks.register("waxed_oxidized_copper",
+           new Block(AbstractBlock.Properties.copy(OXIDIZED_COPPER))
+   );
+
+   public static final Block WAXED_OXIDIZED_CUT_COPPER = Blocks.register("waxed_oxidized_cut_copper",
+           new Block(AbstractBlock.Properties.copy(OXIDIZED_CUT_COPPER))
+   );
+
+   public static final Block WAXED_WEATHERED_CUT_COPPER = Blocks.register("waxed_weathered_cut_copper",
+           new Block(AbstractBlock.Properties.copy(WEATHERED_CUT_COPPER))
+   );
+
+   public static final Block WAXED_EXPOSED_CUT_COPPER = Blocks.register("waxed_exposed_cut_copper",
+           new Block(AbstractBlock.Properties.copy(EXPOSED_CUT_COPPER))
+   );
+
+   public static final Block WAXED_CUT_COPPER = Blocks.register("waxed_cut_copper",
+           new Block(AbstractBlock.Properties.copy(CUT_COPPER))
+   );
+
+   public static final Block OXIDIZED_CUT_COPPER_STAIRS = Blocks.register("oxidized_cut_copper_stairs", new WeatheringCopperStairBlock(WeatheringCopper.WeatherState.OXIDIZED, OXIDIZED_CUT_COPPER.defaultBlockState(), AbstractBlock.Properties.copy(OXIDIZED_CUT_COPPER)));
+   public static final Block WEATHERED_CUT_COPPER_STAIRS = Blocks.register("weathered_cut_copper_stairs",new WeatheringCopperStairBlock(WeatheringCopper.WeatherState.WEATHERED, WEATHERED_CUT_COPPER.defaultBlockState(), AbstractBlock.Properties.copy(WEATHERED_COPPER)));
+   public static final Block EXPOSED_CUT_COPPER_STAIRS = Blocks.register("exposed_cut_copper_stairs", new WeatheringCopperStairBlock(WeatheringCopper.WeatherState.EXPOSED, EXPOSED_CUT_COPPER.defaultBlockState(), AbstractBlock.Properties.copy(EXPOSED_COPPER)));
+   public static final Block CUT_COPPER_STAIRS = Blocks.register("cut_copper_stairs", new WeatheringCopperStairBlock(WeatheringCopper.WeatherState.UNAFFECTED, CUT_COPPER.defaultBlockState(), AbstractBlock.Properties.copy(COPPER_BLOCK)));
+
+
+   public static final Block WAXED_OXIDIZED_CUT_COPPER_SLAB = Blocks.register("waxed_oxidized_cut_copper_slab",
+           new SlabBlock(AbstractBlock.Properties.copy(WAXED_OXIDIZED_CUT_COPPER).requiresCorrectToolForDrops())
+   );
+
+   public static final Block WAXED_WEATHERED_CUT_COPPER_SLAB = Blocks.register("waxed_weathered_cut_copper_slab",
+           new SlabBlock(AbstractBlock.Properties.copy(WAXED_WEATHERED_CUT_COPPER).requiresCorrectToolForDrops())
+   );
+
+   public static final Block WAXED_EXPOSED_CUT_COPPER_SLAB = Blocks.register("waxed_exposed_cut_copper_slab",
+           new SlabBlock(AbstractBlock.Properties.copy(WAXED_EXPOSED_CUT_COPPER).requiresCorrectToolForDrops())
+   );
+
+   public static final Block WAXED_CUT_COPPER_SLAB = Blocks.register("waxed_cut_copper_slab",
+           new SlabBlock(AbstractBlock.Properties.copy(WAXED_CUT_COPPER).requiresCorrectToolForDrops())
+   );
+
+   public static final Block WAXED_OXIDIZED_CUT_COPPER_STAIRS = Blocks.registerStair("waxed_oxidized_cut_copper_stairs", WAXED_OXIDIZED_CUT_COPPER);
+   public static final Block WAXED_WEATHERED_CUT_COPPER_STAIRS = Blocks.registerStair("waxed_weathered_cut_copper_stairs", WAXED_WEATHERED_CUT_COPPER);
+   public static final Block WAXED_EXPOSED_CUT_COPPER_STAIRS = Blocks.registerStair("waxed_exposed_cut_copper_stairs", WAXED_EXPOSED_CUT_COPPER);
+   public static final Block WAXED_CUT_COPPER_STAIRS = Blocks.registerStair("waxed_cut_copper_stairs", WAXED_CUT_COPPER);
+
+   public static final Block OXIDIZED_CHISELED_COPPER = Blocks.register("oxidized_chiseled_copper", new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.OXIDIZED, AbstractBlock.Properties.copy(OXIDIZED_COPPER)));
+   public static final Block WEATHERED_CHISELED_COPPER = Blocks.register("weathered_chiseled_copper", new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.WEATHERED, AbstractBlock.Properties.copy(WEATHERED_COPPER)));
+   public static final Block EXPOSED_CHISELED_COPPER = Blocks.register("exposed_chiseled_copper", new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.EXPOSED, AbstractBlock.Properties.copy(EXPOSED_COPPER)));
+   public static final Block CHISELED_COPPER = Blocks.register("chiseled_copper", new WeatheringCopperFullBlock(WeatheringCopper.WeatherState.UNAFFECTED, AbstractBlock.Properties.copy(COPPER_BLOCK)));
+
+   public static final Block WAXED_OXIDIZED_CHISELED_COPPER = Blocks.register("waxed_oxidized_chiseled_copper", new Block(AbstractBlock.Properties.copy(OXIDIZED_CHISELED_COPPER)));
+   public static final Block WAXED_WEATHERED_CHISELED_COPPER = Blocks.register("waxed_weathered_chiseled_copper", new Block(AbstractBlock.Properties.copy(WEATHERED_CHISELED_COPPER)));
+   public static final Block WAXED_EXPOSED_CHISELED_COPPER = Blocks.register("waxed_exposed_chiseled_copper", new Block(AbstractBlock.Properties.copy(EXPOSED_CHISELED_COPPER)));
+   public static final Block WAXED_CHISELED_COPPER = Blocks.register("waxed_chiseled_copper", new Block(AbstractBlock.Properties.copy(CHISELED_COPPER)));
+
+
+   public static final Block COPPER_DOOR = Blocks.register("copper_door", new WeatheringCopperDoorBlock(WeatheringCopper.WeatherState.UNAFFECTED, AbstractBlock.Properties.of(COPPER_BLOCK.material).sound(SoundType.COPPER).requiresCorrectToolForDrops().strength(3.0f, 6.0f).noOcclusion()));
+   public static final Block EXPOSED_COPPER_DOOR = Blocks.register("exposed_copper_door", new WeatheringCopperDoorBlock(WeatheringCopper.WeatherState.EXPOSED, AbstractBlock.Properties.copy(COPPER_DOOR)));
+   public static final Block OXIDIZED_COPPER_DOOR = Blocks.register("oxidized_copper_door", new WeatheringCopperDoorBlock(WeatheringCopper.WeatherState.OXIDIZED, AbstractBlock.Properties.copy(COPPER_DOOR)));
+   public static final Block WEATHERED_COPPER_DOOR = Blocks.register("weathered_copper_door", new WeatheringCopperDoorBlock(WeatheringCopper.WeatherState.WEATHERED, AbstractBlock.Properties.copy(COPPER_DOOR)));
+
+   public static final Block WAXED_COPPER_DOOR = Blocks.register("waxed_copper_door", new DoorBlock(AbstractBlock.Properties.copy(COPPER_DOOR)));
+   public static final Block WAXED_EXPOSED_COPPER_DOOR = Blocks.register("waxed_exposed_copper_door", new DoorBlock(AbstractBlock.Properties.copy(EXPOSED_COPPER_DOOR)));
+   public static final Block WAXED_OXIDIZED_COPPER_DOOR = Blocks.register("waxed_oxidized_copper_door", new DoorBlock(AbstractBlock.Properties.copy(OXIDIZED_COPPER_DOOR)));
+   public static final Block WAXED_WEATHERED_COPPER_DOOR = Blocks.register("waxed_weathered_copper_door", new DoorBlock(AbstractBlock.Properties.copy(WEATHERED_COPPER_DOOR)));
+
+
+   public static final Block COPPER_TRAPDOOR = Blocks.register("copper_trapdoor", new WeatheringCopperTrapDoorBlock(WeatheringCopper.WeatherState.UNAFFECTED, AbstractBlock.Properties.of(Material.METAL).sound(SoundType.COPPER).strength(3.0f, 6.0f).requiresCorrectToolForDrops().noOcclusion().isValidSpawn(Blocks::never)));
+   public static final Block EXPOSED_COPPER_TRAPDOOR = Blocks.register("exposed_copper_trapdoor", new WeatheringCopperTrapDoorBlock(WeatheringCopper.WeatherState.EXPOSED, AbstractBlock.Properties.copy(COPPER_TRAPDOOR)));
+   public static final Block OXIDIZED_COPPER_TRAPDOOR = Blocks.register("oxidized_copper_trapdoor", new WeatheringCopperTrapDoorBlock(WeatheringCopper.WeatherState.OXIDIZED, AbstractBlock.Properties.copy(COPPER_TRAPDOOR)));
+   public static final Block WEATHERED_COPPER_TRAPDOOR = Blocks.register("weathered_copper_trapdoor", new WeatheringCopperTrapDoorBlock(WeatheringCopper.WeatherState.WEATHERED, AbstractBlock.Properties.copy(COPPER_TRAPDOOR)));
+   public static final Block WAXED_COPPER_TRAPDOOR = Blocks.register("waxed_copper_trapdoor", new TrapDoorBlock(AbstractBlock.Properties.copy(COPPER_TRAPDOOR)));
+   public static final Block WAXED_EXPOSED_COPPER_TRAPDOOR = Blocks.register("waxed_exposed_copper_trapdoor", new TrapDoorBlock(AbstractBlock.Properties.copy(EXPOSED_COPPER_TRAPDOOR)));
+   public static final Block WAXED_OXIDIZED_COPPER_TRAPDOOR = Blocks.register("waxed_oxidized_copper_trapdoor", new TrapDoorBlock(AbstractBlock.Properties.copy(OXIDIZED_COPPER_TRAPDOOR)));
+   public static final Block WAXED_WEATHERED_COPPER_TRAPDOOR = Blocks.register("waxed_weathered_copper_trapdoor", new TrapDoorBlock(AbstractBlock.Properties.copy(WEATHERED_COPPER_TRAPDOOR)));
+
+
+   public static final Block TUFF = register("tuff", new Block(AbstractBlock.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_GRAY).requiresCorrectToolForDrops().strength(1.5F, 6.0F).sound(SoundType.STONE)));
+   public static final Block TUFF_SLAB = register("tuff_slab", new SlabBlock(AbstractBlock.Properties.copy(TUFF)));
+   public static final Block TUFF_STAIRS = register("tuff_stairs", new StairsBlock(TUFF.defaultBlockState(), AbstractBlock.Properties.copy(TUFF)));
+   public static final Block TUFF_WALL = register("tuff_wall", new WallBlock(AbstractBlock.Properties.copy(TUFF)));
+   public static final Block POLISHED_TUFF = register("polished_tuff", new Block(AbstractBlock.Properties.copy(TUFF).sound(SoundType.STONE)));
+   public static final Block POLISHED_TUFF_SLAB = register("polished_tuff_slab", new SlabBlock(AbstractBlock.Properties.copy(POLISHED_TUFF)));
+   public static final Block POLISHED_TUFF_STAIRS = register("polished_tuff_stairs", new StairsBlock(POLISHED_TUFF.defaultBlockState(), AbstractBlock.Properties.copy(POLISHED_TUFF)));
+   public static final Block POLISHED_TUFF_WALL = register("polished_tuff_wall", new WallBlock(AbstractBlock.Properties.copy(POLISHED_TUFF)));
+   public static final Block CHISELED_TUFF = register("chiseled_tuff", new Block(AbstractBlock.Properties.copy(TUFF)));
+   public static final Block TUFF_BRICKS = register("tuff_bricks", new Block(AbstractBlock.Properties.copy(TUFF).sound(SoundType.STONE)));
+   public static final Block TUFF_BRICK_SLAB = register("tuff_brick_slab", new SlabBlock(AbstractBlock.Properties.copy(TUFF_BRICKS)));
+   public static final Block TUFF_BRICK_STAIRS = register("tuff_brick_stairs", new StairsBlock(TUFF_BRICKS.defaultBlockState(), AbstractBlock.Properties.copy(TUFF_BRICKS)));
+   public static final Block TUFF_BRICK_WALL = register("tuff_brick_wall", new WallBlock(AbstractBlock.Properties.copy(TUFF_BRICKS)));
+   public static final Block CHISELED_TUFF_BRICKS = register("chiseled_tuff_bricks", new Block(AbstractBlock.Properties.copy(TUFF_BRICKS)));
+
+   public static final Block FROGSPAWN = register("frogspawn", new FrogspawnBlock());
+
+   public static final Block FIREFLY_BUSH = Blocks.register("firefly_bush", new FireflyBushBlock(AbstractBlock.Properties.of(Material.PLANT).lightLevel(blockState -> 2).noCollission().instabreak().sound(SoundType.SWEET_BERRY_BUSH)));
+public static final Block SHORT_DRY_GRASS = register("short_dry_grass", new ShortDryGrassBlock(AbstractBlock.Properties.of(Material.PLANT).sound(SoundType.GRASS)
+        .instabreak().noCollission()));
+   public static final Block TALL_DRY_GRASS = register("tall_dry_grass", new TallDryGrassBlock(AbstractBlock.Properties.of(Material.PLANT).sound(SoundType.GRASS)
+           .instabreak().noCollission()));
+
+
+
+   public static final Block RESIN_CLUMP = Blocks.register("resin_clump",
+           new MultifaceBlock(AbstractBlock.Properties.of(Material.RESIN_CLUMP)
+                   .noCollission()
+                   .sound(SoundType.RESIN)
+                   .hasInsideStepSounds()
+           ));
+
+   public static final Block RESIN_BLOCK = Blocks.register("resin_block", new Block(AbstractBlock.Properties.of(Material.RESIN).instabreak().sound(SoundType.RESIN)));
+
+
+
+   public static final Block SCULK_SENSOR = Blocks.register("sculk_sensor", new SculkSensorBlock(AbstractBlock.Properties.of(Material.SCULK, MaterialColor.COLOR_CYAN).strength(1.5f).sound(SoundType.SCULK_SENSOR).lightLevel(blockState -> 1).emissiveRendering((blockState, blockGetter, blockPos) -> SculkSensorBlock.getPhase(blockState) == SculkSensorPhase.ACTIVE), 8));
+
+   public static final Block SCULK = register("sculk", new SculkBlock());
+   public static final Block SCULK_VEIN = register("sculk_vein", new SculkVeinBlock());
+   public static final Block SCULK_CATALYST = register("sculk_catalyst", new SculkCatalystBlock());
+   public static final Block SCULK_SHRIEKER = register("sculk_shrieker", new SculkShriekerBlock());
+
+
+
+
+   public static final Block DEEPSLATE = Blocks.register("deepslate", new RotatedPillarBlock(AbstractBlock.Properties.of(Material.STONE, MaterialColor.DEEPSLATE).requiresCorrectToolForDrops().strength(3.0f, 6.0f).sound(SoundType.DEEPSLATE)));
+   public static final Block COBBLED_DEEPSLATE = Blocks.register("cobbled_deepslate", new Block(AbstractBlock.Properties.copy(DEEPSLATE).strength(3.5f, 6.0f)));
+   public static final Block COBBLED_DEEPSLATE_STAIRS = Blocks.register("cobbled_deepslate_stairs", new StairsBlock(COBBLED_DEEPSLATE.defaultBlockState(), AbstractBlock.Properties.copy(COBBLED_DEEPSLATE)));
+   public static final Block COBBLED_DEEPSLATE_SLAB = Blocks.register("cobbled_deepslate_slab", new SlabBlock(AbstractBlock.Properties.copy(COBBLED_DEEPSLATE)));
+   public static final Block COBBLED_DEEPSLATE_WALL = Blocks.register("cobbled_deepslate_wall", new WallBlock(AbstractBlock.Properties.copy(COBBLED_DEEPSLATE)));
+   public static final Block POLISHED_DEEPSLATE = Blocks.register("polished_deepslate", new Block(AbstractBlock.Properties.copy(COBBLED_DEEPSLATE).sound(SoundType.POLISHED_DEEPSLATE)));
+   public static final Block POLISHED_DEEPSLATE_STAIRS = Blocks.register("polished_deepslate_stairs", new StairsBlock(POLISHED_DEEPSLATE.defaultBlockState(), AbstractBlock.Properties.copy(POLISHED_DEEPSLATE)));
+   public static final Block POLISHED_DEEPSLATE_SLAB = Blocks.register("polished_deepslate_slab", new SlabBlock(AbstractBlock.Properties.copy(POLISHED_DEEPSLATE)));
+   public static final Block POLISHED_DEEPSLATE_WALL = Blocks.register("polished_deepslate_wall", new WallBlock(AbstractBlock.Properties.copy(POLISHED_DEEPSLATE)));
+   public static final Block DEEPSLATE_TILES = Blocks.register("deepslate_tiles", new Block(AbstractBlock.Properties.copy(COBBLED_DEEPSLATE).sound(SoundType.DEEPSLATE_TILES)));
+   public static final Block DEEPSLATE_TILE_STAIRS = Blocks.register("deepslate_tile_stairs", new StairsBlock(DEEPSLATE_TILES.defaultBlockState(), AbstractBlock.Properties.copy(DEEPSLATE_TILES)));
+   public static final Block DEEPSLATE_TILE_SLAB = Blocks.register("deepslate_tile_slab", new SlabBlock(AbstractBlock.Properties.copy(DEEPSLATE_TILES)));
+   public static final Block DEEPSLATE_TILE_WALL = Blocks.register("deepslate_tile_wall", new WallBlock(AbstractBlock.Properties.copy(DEEPSLATE_TILES)));
+   public static final Block DEEPSLATE_BRICKS = Blocks.register("deepslate_bricks", new Block(AbstractBlock.Properties.copy(COBBLED_DEEPSLATE).sound(SoundType.DEEPSLATE_BRICKS)));
+   public static final Block DEEPSLATE_BRICK_STAIRS = Blocks.register("deepslate_brick_stairs", new StairsBlock(DEEPSLATE_BRICKS.defaultBlockState(), AbstractBlock.Properties.copy(DEEPSLATE_BRICKS)));
+   public static final Block DEEPSLATE_BRICK_SLAB = Blocks.register("deepslate_brick_slab", new SlabBlock(AbstractBlock.Properties.copy(DEEPSLATE_BRICKS)));
+   public static final Block DEEPSLATE_BRICK_WALL = Blocks.register("deepslate_brick_wall", new WallBlock(AbstractBlock.Properties.copy(DEEPSLATE_BRICKS)));
+   public static final Block CHISELED_DEEPSLATE = Blocks.register("chiseled_deepslate", new Block(AbstractBlock.Properties.copy(COBBLED_DEEPSLATE).sound(SoundType.DEEPSLATE_BRICKS)));
+   public static final Block CRACKED_DEEPSLATE_BRICKS = Blocks.register("cracked_deepslate_bricks", new Block(AbstractBlock.Properties.copy(DEEPSLATE_BRICKS)));
+   public static final Block CRACKED_DEEPSLATE_TILES = Blocks.register("cracked_deepslate_tiles", new Block(AbstractBlock.Properties.copy(DEEPSLATE_TILES)));
+
+
+   public static final Block CANDLE = Blocks.register("candle", Blocks.candle(MaterialColor.SAND));
+   public static final Block WHITE_CANDLE = Blocks.register("white_candle", Blocks.candle(MaterialColor.WOOL));
+   public static final Block ORANGE_CANDLE = Blocks.register("orange_candle", Blocks.candle(MaterialColor.COLOR_ORANGE));
+   public static final Block MAGENTA_CANDLE = Blocks.register("magenta_candle", Blocks.candle(MaterialColor.COLOR_MAGENTA));
+   public static final Block LIGHT_BLUE_CANDLE = Blocks.register("light_blue_candle", Blocks.candle(MaterialColor.COLOR_LIGHT_BLUE));
+   public static final Block YELLOW_CANDLE = Blocks.register("yellow_candle", Blocks.candle(MaterialColor.COLOR_YELLOW));
+   public static final Block LIME_CANDLE = Blocks.register("lime_candle", Blocks.candle(MaterialColor.COLOR_LIGHT_GREEN));
+   public static final Block PINK_CANDLE = Blocks.register("pink_candle", Blocks.candle(MaterialColor.COLOR_PINK));
+   public static final Block GRAY_CANDLE = Blocks.register("gray_candle", Blocks.candle(MaterialColor.COLOR_GRAY));
+   public static final Block LIGHT_GRAY_CANDLE = Blocks.register("light_gray_candle", Blocks.candle(MaterialColor.COLOR_LIGHT_GRAY));
+   public static final Block CYAN_CANDLE = Blocks.register("cyan_candle", Blocks.candle(MaterialColor.COLOR_CYAN));
+   public static final Block PURPLE_CANDLE = Blocks.register("purple_candle", Blocks.candle(MaterialColor.COLOR_PURPLE));
+   public static final Block BLUE_CANDLE = Blocks.register("blue_candle", Blocks.candle(MaterialColor.COLOR_BLUE));
+   public static final Block BROWN_CANDLE = Blocks.register("brown_candle", Blocks.candle(MaterialColor.COLOR_BROWN));
+   public static final Block GREEN_CANDLE = Blocks.register("green_candle", Blocks.candle(MaterialColor.COLOR_GREEN));
+   public static final Block RED_CANDLE = Blocks.register("red_candle", Blocks.candle(MaterialColor.COLOR_RED));
+   public static final Block BLACK_CANDLE = Blocks.register("black_candle", Blocks.candle(MaterialColor.COLOR_BLACK));
+
+
+   private static CandleBlock candle(MaterialColor mapColor) {
+      return new CandleBlock(AbstractBlock.Properties.of(Material.CANDLE, mapColor).noOcclusion().strength(0.1f).sound(SoundType.CANDLE).lightLevel(CandleBlock.LIGHT_EMISSION));
+   }
+
+   private static Block registerStair(String string, Block block) {
+      return Blocks.register(string, new StairsBlock(block.defaultBlockState(), (AbstractBlock.Properties.copy(block))));
+   }
 
 
    private static ToIntFunction<BlockState> litBlockEmission(int p_235420_0_) {
@@ -992,7 +1381,11 @@ public static final Block CREAKING_HEART = Blocks.register("creaking_heart", new
    }
 
    private static LeavesBlock leaves() {
-      return new LeavesBlock(AbstractBlock.Properties.of(Material.LEAVES).strength(0.2F).randomTicks().sound(SoundType.GRASS).noOcclusion().isValidSpawn(Blocks::ocelotOrParrot).isSuffocating(Blocks::never).isViewBlocking(Blocks::never));
+      return new ParticleLeavesBlock(100, ParticleTypes.TINTED_LEAVES, AbstractBlock.Properties.of(Material.LEAVES).strength(0.2F).randomTicks().sound(SoundType.GRASS).noOcclusion().isValidSpawn(Blocks::ocelotOrParrot).isSuffocating(Blocks::never).isViewBlocking(Blocks::never));
+   }
+
+   private static LeavesBlock deadLeaves() {
+      return new ParticleLeavesBlock(15, ParticleTypes.DEAD_LEAVES, AbstractBlock.Properties.of(Material.LEAVES).strength(0.2F).randomTicks().sound(SoundType.LEAF_LITTER).noOcclusion().isValidSpawn(Blocks::ocelotOrParrot).isSuffocating(Blocks::never).isViewBlocking(Blocks::never));
    }
 
    private static LeavesBlock paleLeaves() {

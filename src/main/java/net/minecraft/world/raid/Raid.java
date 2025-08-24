@@ -28,13 +28,11 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.DebugPacketSender;
 import net.minecraft.network.play.server.SPlaySoundEffectPacket;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.stats.Stats;
 import net.minecraft.tileentity.BannerPattern;
-import net.minecraft.util.DebugUtils;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -825,16 +823,17 @@ public class Raid {
    }
 
    public static enum WaveMember {
-      VINDICATOR(EntityType.VINDICATOR, new int[]{0, 0, 2, 0, 1, 4, 2, 5}),
-      EVOKER(EntityType.EVOKER, new int[]{0, 0, 0, 0, 0, 1, 1, 2}),
-      PILLAGER(EntityType.PILLAGER, new int[]{0, 4, 3, 3, 3, 4, 4, 2}),
-      WITCH(EntityType.WITCH, new int[]{0, 0, 0, 0, 3, 0, 0, 1}),
-      RAVAGER(EntityType.RAVAGER, new int[]{0, 0, 1, 0, 0, 2, 1, 1}),
-      GILDED_RAVAGER(EntityType.GILDED_RAVAGER, new int[]{0, 0, 1, 2, 0, 0, 2, 3}),
+      VINDICATOR(EntityType.VINDICATOR, new int[]{0, 0, 2, 0, 1, 4, 2, 5, 4, 4, 4, 6, 12}),
+      EVOKER(EntityType.EVOKER, new int[]{0, 0, 0, 0, 0, 1, 1, 2, 3, 3, 2, 4, 5, 7}),
+      PILLAGER(EntityType.PILLAGER, new int[]{0, 4, 3, 3, 3, 4, 4, 2, 3, 4, 5, 5, 6, 12}),
+      WITCH(EntityType.WITCH, new int[]{0, 0, 0, 0, 3, 0, 0, 1, 2, 2, 3, 5, 6, 7}),
+      RAVAGER(EntityType.RAVAGER, new int[]{0, 0, 1, 0, 0, 2, 1, 1, 2, 2, 3, 4, 5, 6, 7}),
+      GILDED_RAVAGER(EntityType.GILDED_RAVAGER, new int[]{0, 0, 1, 2, 0, 0, 2, 3, 4, 4, 5, 6, 7}),
       //ILLUSIONER(EntityType.ILLUSIONER, new int[]{0, 0, 0, 1, 0, 1, 2, 3}),
-      SHAMAN(EntityType.SHAMAN, new int[]{0, 1, 0, 2, 0, 2, 0, 3}),
-      MARAUDER(EntityType.MARAUDER, new int[]{0, 0, 2, 1, 0, 2, 1, 2}),
-      CAPTAIN(EntityType.PILLAGER_CAPTAIN, new int[]{1, 0, 1, 0, 1, 3, 2, 4});
+      SHAMAN(EntityType.SHAMAN, new int[]{0, 1, 0, 2, 0, 2, 0, 3, 3, 3, 3, 3, 3, 3}),
+      MARAUDER(EntityType.MARAUDER, new int[]{0, 0, 2, 1, 0, 2, 1, 2, 4, 3, 4, 2, 2, 6}),
+      TRICKSTER(EntityType.TRICKSTER, new int[]{0, 0, 0, 1, 1, 0, 1, 2, 3, 2, 4, 3, 2}),
+      CAPTAIN(EntityType.PILLAGER_CAPTAIN, new int[]{1, 0, 1, 0, 1, 3, 2, 4, 6, 8, 8, 12, 12});
 
       private static final Raid.WaveMember[] VALUES = values();
       private final EntityType<? extends AbstractRaiderEntity> entityType;

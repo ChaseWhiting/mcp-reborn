@@ -31,6 +31,7 @@ import net.minecraft.entity.ai.goal.PanicGoal;
 import net.minecraft.entity.ai.goal.RunAroundLikeCrazyGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+import net.minecraft.entity.leashable.Leashable;
 import net.minecraft.entity.passive.Animal;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -50,14 +51,7 @@ import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.Effects;
 import net.minecraft.server.management.PreYggdrasilConverter;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.TransportationHelper;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -83,6 +77,11 @@ public abstract class AbstractHorseEntity extends Animal implements IInventoryCh
    public int tailCounter;
    public int sprintCounter;
    protected boolean isJumping;
+
+   public Inventory getInventory() {
+      return inventory;
+   }
+
    protected Inventory inventory;
    protected int temper;
    protected float playerJumpPendingScale;
@@ -95,6 +94,54 @@ public abstract class AbstractHorseEntity extends Animal implements IInventoryCh
    private float mouthAnimO;
    protected boolean canGallop = true;
    protected int gallopSoundCounter;
+
+   @Override
+   public boolean supportQuadLeash() {
+      return true;
+   }
+
+   @Override
+   public Vector3d[] getQuadLeashOffsets() {
+      return Leashable.createQuadLeashOffsets(this, 0.04, 0.52, 0.23, 0.87);
+   }
+
+   @Override
+   public void onElasticLeashPull() {
+      super.onElasticLeashPull();
+      if (this.isEating()) {
+         this.setEating(false);
+      }
+   }
+
+   public ActionResultType defaultHorseRide(PlayerEntity player, Hand hand) {
+      ItemStack itemstack = player.getItemInHand(hand);
+      if (!this.isTamed()) {
+         return ActionResultType.PASS;
+      } else if (this.isBaby()) {
+         return super.mobInteract(player, hand);
+      } else if (player.isSecondaryUseActive()) {
+         this.openInventory(player);
+         return ActionResultType.sidedSuccess(this.level.isClientSide);
+      } else if (this.isVehicle()) {
+         return super.mobInteract(player, hand);
+      } else {
+         if (!itemstack.isEmpty()) {
+            if (itemstack.getItem() == Items.SADDLE && !this.isSaddled()) {
+               this.openInventory(player);
+               return ActionResultType.sidedSuccess(this.level.isClientSide);
+            }
+
+            ActionResultType actionresulttype = itemstack.interactLivingEntity(player, this, hand);
+            if (actionresulttype.consumesAction()) {
+               return actionresulttype;
+            }
+         }
+
+         this.doPlayerRide(player);
+         return ActionResultType.sidedSuccess(this.level.isClientSide);
+      }
+   }
+
 
    protected AbstractHorseEntity(EntityType<? extends AbstractHorseEntity> p_i48563_1_, World p_i48563_2_) {
       super(p_i48563_1_, p_i48563_2_);
@@ -251,8 +298,8 @@ public abstract class AbstractHorseEntity extends Animal implements IInventoryCh
       }
    }
 
-   protected int calculateFallDamage(float p_225508_1_, float p_225508_2_) {
-      return MathHelper.ceil((p_225508_1_ * 0.5F - 3.0F) * p_225508_2_);
+   protected int calculateFallDamage(float damageToDeal, float damageMultiplier) {
+      return MathHelper.ceil((damageToDeal * 0.5F - 3.0F) * damageMultiplier);
    }
 
    protected int getInventorySize() {
@@ -360,7 +407,7 @@ public abstract class AbstractHorseEntity extends Animal implements IInventoryCh
    }
 
    public static AttributeModifierMap.MutableAttribute createBaseHorseAttributes() {
-      return Mob.createMobAttributes().add(Attributes.JUMP_STRENGTH).add(Attributes.MAX_HEALTH, 53.0D).add(Attributes.MOVEMENT_SPEED, (double)0.225F);
+      return Mob.createMobAttributes().add(Attributes.JUMP_STRENGTH).add(Attributes.MAX_HEALTH, 53).add(Attributes.MOVEMENT_SPEED, (double)0.225F);
    }
 
    public int getMaxSpawnClusterSize() {

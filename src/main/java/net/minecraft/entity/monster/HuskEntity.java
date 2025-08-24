@@ -45,11 +45,11 @@ public class HuskEntity extends ZombieEntity {
       return SoundEvents.HUSK_STEP;
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      boolean flag = super.doHurtTarget(p_70652_1_);
-      if (flag && this.getMainHandItem().isEmpty() && p_70652_1_ instanceof LivingEntity) {
+   public boolean doHurtTarget(Entity target) {
+      boolean flag = super.doHurtTarget(target);
+      if (flag && this.getMainHandItem().isEmpty() && target instanceof LivingEntity) {
          float f = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
-         ((LivingEntity)p_70652_1_).addEffect(new EffectInstance(Effects.HUNGER, 140 * (int)f));
+         ((LivingEntity) target).addEffect(new EffectInstance(Effects.HUNGER, 140 * (int)f));
       }
 
       return flag;

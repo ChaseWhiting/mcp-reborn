@@ -101,6 +101,8 @@ public class ParticleManager implements IFutureReloadListener {
       this.register(ParticleTypes.FALLING_WATER, DripParticle.FallingWaterFactory::new);
       this.register(ParticleTypes.DUST, RedstoneParticle.Factory::new);
       this.register(ParticleTypes.EFFECT, SpellParticle.Factory::new);
+      this.register(ParticleTypes.EGG_CRACK, SuspendedTownParticle.EggCrackProvider::new);
+      this.register(ParticleTypes.SONIC_BOOM, SonicBoomParticle.Provider::new);
       this.register(ParticleTypes.ELDER_GUARDIAN, new MobAppearanceParticle.Factory());
       this.register(ParticleTypes.ENCHANTED_HIT, CritParticle.MagicFactory::new);
       this.register(ParticleTypes.ENCHANT, EnchantmentTableParticle.EnchantmentTable::new);
@@ -110,12 +112,29 @@ public class ParticleManager implements IFutureReloadListener {
       this.register(ParticleTypes.EXPLOSION, LargeExplosionParticle.Factory::new);
       this.register(ParticleTypes.FALLING_DUST, FallingDustParticle.Factory::new);
       this.register(ParticleTypes.PALE_OAK_LEAVES, FallingLeavesParticle.PaleOakProvider::new);
+      this.register(ParticleTypes.TINTED_LEAVES, FallingLeavesParticle.TintedLeavesProvider::new);
+      this.register(ParticleTypes.BURSTING_TINTED_LEAVES, FallingLeavesParticle.BurstingTintedLeavesProvider::new);
+
+      this.register(ParticleTypes.DEAD_LEAVES, FallingLeavesParticle.DeadLeavesProvider::new);
+      this.register(ParticleTypes.ELECTRIC_SPARK, ElectricSparkParticle.Provider::new);
+      this.register(ParticleTypes.WAX_ON, ElectricSparkParticle.WaxOnProvider::new);
+      this.register(ParticleTypes.WAX_OFF, ElectricSparkParticle.WaxOffProvider::new);
+      this.register(ParticleTypes.SCRAPE, ElectricSparkParticle.ScrapeProvider::new);
+      this.register(ParticleTypes.FIREFLY, FireflyParticle.FireflyProvider::new);
+      this.register(ParticleTypes.TRAIL, TrailParticle.Provider::new);
+      this.register(ParticleTypes.DNA, ParticleDna.Factory::new);
+      this.register(ParticleTypes.VIBRATION, VibrationParticleSignal.Provider::new);
       this.register(ParticleTypes.FIREWORK, FireworkParticle.SparkFactory::new);
       this.register(ParticleTypes.FISHING, WaterWakeParticle.Factory::new);
       this.register(ParticleTypes.FLAME, FlameParticle.Factory::new);
       this.register(ParticleTypes.SOUL, SoulParticle.Factory::new);
       this.register(ParticleTypes.SOUL_FIRE_FLAME, FlameParticle.Factory::new);
       this.register(ParticleTypes.FLASH, FireworkParticle.OverlayFactory::new);
+
+
+      this.register(ParticleTypes.DUST_PLUME, DustPlumeParticle.Provider::new);
+
+
       this.register(ParticleTypes.HAPPY_VILLAGER, SuspendedTownParticle.HappyVillagerFactory::new);
       this.register(ParticleTypes.HEART, HeartParticle.Factory::new);
       this.register(ParticleTypes.INSTANT_EFFECT, SpellParticle.InstantFactory::new);
@@ -131,6 +150,7 @@ public class ParticleManager implements IFutureReloadListener {
       this.register(ParticleTypes.PORTAL, PortalParticle.Factory::new);
       this.register(ParticleTypes.RAIN, RainParticle.Factory::new);
       this.register(ParticleTypes.SMOKE, SmokeParticle.Factory::new);
+      this.register(ParticleTypes.SMALL_FLAME, FlameParticle.SmallFlameProvider::new);
       this.register(ParticleTypes.SNEEZE, CloudParticle.SneezeFactory::new);
       this.register(ParticleTypes.SPIT, SpitParticle.Factory::new);
       this.register(ParticleTypes.SWEEP_ATTACK, SweepAttackParticle.Factory::new);

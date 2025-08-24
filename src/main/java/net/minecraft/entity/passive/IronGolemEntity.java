@@ -179,15 +179,15 @@ public class IronGolemEntity extends GolemEntity implements IAngerable {
       return (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
+   public boolean doHurtTarget(Entity target) {
       this.attackAnimationTick = 10;
       this.level.broadcastEntityEvent(this, (byte)4);
       float f = this.getAttackDamage();
       float f1 = (int)f > 0 ? f / 2.0F + (float)this.random.nextInt((int)f) : f;
-      boolean flag = p_70652_1_.hurt(DamageSource.mobAttack(this), f1);
+      boolean flag = target.hurt(DamageSource.mobAttack(this), f1);
       if (flag) {
-         p_70652_1_.setDeltaMovement(p_70652_1_.getDeltaMovement().add(0.0D, (double)0.4F, 0.0D));
-         this.doEnchantDamageEffects(this, p_70652_1_);
+         target.setDeltaMovement(target.getDeltaMovement().add(0.0D, (double)0.4F, 0.0D));
+         this.doEnchantDamageEffects(this, target);
       }
 
       this.playSound(SoundEvents.IRON_GOLEM_ATTACK, 1.0F, 1.0F);

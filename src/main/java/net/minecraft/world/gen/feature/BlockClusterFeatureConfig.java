@@ -107,6 +107,12 @@ public class BlockClusterFeatureConfig implements IFeatureConfig {
          return this;
       }
 
+      public BlockClusterFeatureConfig.Builder xzSpread(int p_227318_1_) {
+         this.xspread = p_227318_1_;
+         this.zspread = p_227318_1_;
+         return this;
+      }
+
       public BlockClusterFeatureConfig.Builder yspread(int p_227321_1_) {
          this.yspread = p_227321_1_;
          return this;

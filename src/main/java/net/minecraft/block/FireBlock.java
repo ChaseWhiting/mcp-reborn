@@ -13,11 +13,13 @@ import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
+import net.minecraft.util.SharedConstants;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
@@ -44,8 +46,20 @@ public class FireBlock extends AbstractFireBlock {
    private final Object2IntMap<Block> flameOdds = new Object2IntOpenHashMap<>();
    private final Object2IntMap<Block> burnOdds = new Object2IntOpenHashMap<>();
 
+   public Object2IntMap<Block> getBurnOdds() {
+      return burnOdds;
+   }
+
    public FireBlock(AbstractBlock.Properties p_i48397_1_) {
       super(p_i48397_1_, 1.0F);
+      this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(NORTH, Boolean.valueOf(false)).setValue(EAST, Boolean.valueOf(false)).setValue(SOUTH, Boolean.valueOf(false)).setValue(WEST, Boolean.valueOf(false)).setValue(UP, Boolean.valueOf(false)));
+      this.shapesCache = ImmutableMap.copyOf(this.stateDefinition.getPossibleStates().stream().filter((p_242674_0_) -> {
+         return p_242674_0_.getValue(AGE) == 0;
+      }).collect(Collectors.toMap(Function.identity(), FireBlock::calculateShape)));
+   }
+
+   public FireBlock(AbstractBlock.Properties p_i48397_1_, float damage) {
+      super(p_i48397_1_, damage);
       this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(NORTH, Boolean.valueOf(false)).setValue(EAST, Boolean.valueOf(false)).setValue(SOUTH, Boolean.valueOf(false)).setValue(WEST, Boolean.valueOf(false)).setValue(UP, Boolean.valueOf(false)));
       this.shapesCache = ImmutableMap.copyOf(this.stateDefinition.getPossibleStates().stream().filter((p_242674_0_) -> {
          return p_242674_0_.getValue(AGE) == 0;
@@ -81,15 +95,15 @@ public class FireBlock extends AbstractFireBlock {
       return this.canSurvive(p_196271_1_, p_196271_4_, p_196271_5_) ? this.getStateWithAge(p_196271_4_, p_196271_5_, p_196271_1_.getValue(AGE)) : Blocks.AIR.defaultBlockState();
    }
 
-   public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-      return this.shapesCache.get(p_220053_1_.setValue(AGE, Integer.valueOf(0)));
+   public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+      return this.shapesCache.get(state.setValue(AGE, Integer.valueOf(0)));
    }
 
    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {
       return this.getStateForPlacement(p_196258_1_.getLevel(), p_196258_1_.getClickedPos());
    }
 
-   protected BlockState getStateForPlacement(IBlockReader p_196448_1_, BlockPos p_196448_2_) {
+   public BlockState getStateForPlacement(IBlockReader p_196448_1_, BlockPos p_196448_2_) {
       BlockPos blockpos = p_196448_2_.below();
       BlockState blockstate = p_196448_1_.getBlockState(blockpos);
       if (!this.canBurn(blockstate) && !blockstate.isFaceSturdy(p_196448_1_, blockpos, Direction.UP)) {
@@ -251,7 +265,7 @@ public class FireBlock extends AbstractFireBlock {
       }
    }
 
-   protected boolean canBurn(BlockState p_196446_1_) {
+   public boolean canBurn(BlockState p_196446_1_) {
       return this.getFlameOdds(p_196446_1_) > 0;
    }
 
@@ -264,8 +278,8 @@ public class FireBlock extends AbstractFireBlock {
       return 30 + p_235495_0_.nextInt(10);
    }
 
-   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
-      p_206840_1_.add(AGE, NORTH, EAST, SOUTH, WEST, UP);
+   protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+      builder.add(AGE, NORTH, EAST, SOUTH, WEST, UP);
    }
 
    private void setFlammable(Block p_180686_1_, int p_180686_2_, int p_180686_3_) {
@@ -275,6 +289,7 @@ public class FireBlock extends AbstractFireBlock {
 
    public static void bootStrap() {
       FireBlock fireblock = (FireBlock)Blocks.FIRE;
+
       fireblock.setFlammable(Blocks.OAK_PLANKS, 5, 20);
       fireblock.setFlammable(Blocks.SPRUCE_PLANKS, 5, 20);
       fireblock.setFlammable(Blocks.BIRCH_PLANKS, 5, 20);
@@ -282,6 +297,8 @@ public class FireBlock extends AbstractFireBlock {
       fireblock.setFlammable(Blocks.ACACIA_PLANKS, 5, 20);
       fireblock.setFlammable(Blocks.DARK_OAK_PLANKS, 5, 20);
       fireblock.setFlammable(Blocks.OAK_SLAB, 5, 20);
+      fireblock.setFlammable(Blocks.CACTUS_FLOWER, 60, 100);
+
       fireblock.setFlammable(Blocks.SPRUCE_SLAB, 5, 20);
       fireblock.setFlammable(Blocks.BIRCH_SLAB, 5, 20);
       fireblock.setFlammable(Blocks.JUNGLE_SLAB, 5, 20);
@@ -330,6 +347,8 @@ public class FireBlock extends AbstractFireBlock {
       fireblock.setFlammable(Blocks.ACACIA_WOOD, 5, 5);
       fireblock.setFlammable(Blocks.DARK_OAK_WOOD, 5, 5);
       fireblock.setFlammable(Blocks.OAK_LEAVES, 30, 60);
+      fireblock.setFlammable(Blocks.DEAD_LEAVES, 70, 80);
+
       fireblock.setFlammable(Blocks.SPRUCE_LEAVES, 30, 60);
       fireblock.setFlammable(Blocks.BIRCH_LEAVES, 30, 60);
       fireblock.setFlammable(Blocks.JUNGLE_LEAVES, 30, 60);
@@ -344,6 +363,11 @@ public class FireBlock extends AbstractFireBlock {
       fireblock.setFlammable(Blocks.LILAC, 60, 100);
       fireblock.setFlammable(Blocks.ROSE_BUSH, 60, 100);
       fireblock.setFlammable(Blocks.PEONY, 60, 100);
+      fireblock.setFlammable(Blocks.WILDFLOWERS, 60, 100);
+      fireblock.setFlammable(Blocks.PALE_LEAF_PILE, 60, 100);
+      fireblock.setFlammable(Blocks.LEAF_LITTER, 60, 100);
+      fireblock.setFlammable(Blocks.PINK_PETALS, 60, 100);
+
       fireblock.setFlammable(Blocks.TALL_GRASS, 60, 100);
       fireblock.setFlammable(Blocks.LARGE_FERN, 60, 100);
       fireblock.setFlammable(Blocks.DANDELION, 60, 100);
@@ -376,6 +400,7 @@ public class FireBlock extends AbstractFireBlock {
       fireblock.setFlammable(Blocks.RED_WOOL, 30, 60);
       fireblock.setFlammable(Blocks.BLACK_WOOL, 30, 60);
       fireblock.setFlammable(Blocks.VINE, 15, 100);
+      //fireblock.setFlammable(Blocks.BLOOMING_IVY, 15, 100);
       fireblock.setFlammable(Blocks.COAL_BLOCK, 5, 5);
       fireblock.setFlammable(Blocks.HAY_BLOCK, 60, 20);
       fireblock.setFlammable(Blocks.TARGET, 15, 20);
@@ -403,5 +428,14 @@ public class FireBlock extends AbstractFireBlock {
       fireblock.setFlammable(Blocks.SWEET_BERRY_BUSH, 60, 100);
       fireblock.setFlammable(Blocks.BEEHIVE, 5, 20);
       fireblock.setFlammable(Blocks.BEE_NEST, 30, 20);
+
+      if (SharedConstants.EVERY_BLOCK_IS_FLAMMABLE) {
+         for (Block block : Registry.BLOCK) {
+            if (block instanceof AirBlock || block instanceof AbstractFireBlock) continue;
+            if (!fireblock.burnOdds.containsKey(block)) {
+               fireblock.setFlammable(block, 5, 20);
+            }
+         }
+      }
    }
 }

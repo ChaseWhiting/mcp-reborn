@@ -28,8 +28,8 @@ public class FoodStats {
    }
 
    public void eat(Item p_221410_1_, ItemStack p_221410_2_) {
-      if (p_221410_1_.isEdible()) {
-         Food food = p_221410_1_.getFoodProperties();
+      if (p_221410_2_.isEdible()) {
+         Food food = p_221410_2_.getFoodProperties();
           assert food != null;
           this.eat(food.getNutrition(), food.getSaturationModifier());
       }
@@ -70,7 +70,8 @@ public class FoodStats {
          }
       } else if (this.foodLevel <= 0) {
          ++this.tickTimer;
-         if (this.tickTimer >= 80) {
+         int a = p_75118_1_.veryHardmode() ? 15 : 80;
+         if (this.tickTimer >= a) {
             if (p_75118_1_.getHealth() > 10.0F || difficulty == Difficulty.HARD || p_75118_1_.getHealth() > 1.0F && difficulty == Difficulty.NORMAL) {
                p_75118_1_.hurt(DamageSource.STARVE, 1.0F);
             }

@@ -116,14 +116,14 @@ public class ZoglinEntity extends Monster implements IMob, IFlinging {
       return !this.isBaby();
    }
 
-   public boolean doHurtTarget(Entity p_70652_1_) {
-      if (!(p_70652_1_ instanceof LivingEntity)) {
+   public boolean doHurtTarget(Entity target) {
+      if (!(target instanceof LivingEntity)) {
          return false;
       } else {
          this.attackAnimationRemainingTicks = 10;
          this.level.broadcastEntityEvent(this, (byte)4);
          this.playSound(SoundEvents.ZOGLIN_ATTACK, 1.0F, this.getVoicePitch());
-         return IFlinging.hurtAndThrowTarget(this, (LivingEntity)p_70652_1_);
+         return IFlinging.hurtAndThrowTarget(this, (LivingEntity) target);
       }
    }
 

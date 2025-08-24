@@ -1,6 +1,5 @@
 package net.minecraft.command;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -30,7 +29,7 @@ public class TimerCallbackSerializers<C> {
       ITimerCallback.Serializer<C, T> serializer = this.getSerializer(p_216339_1_.getClass());
       CompoundNBT compoundnbt = new CompoundNBT();
       serializer.serialize(compoundnbt, p_216339_1_);
-      compoundnbt.putString("BoggedType", serializer.getId().toString());
+      compoundnbt.putString("Type", serializer.getId().toString());
       return compoundnbt;
    }
 

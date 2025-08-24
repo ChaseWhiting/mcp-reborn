@@ -253,7 +253,7 @@ public class DedicatedServer extends MinecraftServer implements IServer {
       p_71230_1_.getSystemDetails().setDetail("Is Modded", () -> {
          return this.getModdedStatus().orElse("Unknown (can't tell)");
       });
-      p_71230_1_.getSystemDetails().setDetail("BoggedType", () -> {
+      p_71230_1_.getSystemDetails().setDetail("Type", () -> {
          return "Dedicated Server (map_server.txt)";
       });
       return p_71230_1_;

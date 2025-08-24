@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
@@ -22,6 +23,8 @@ import net.minecraft.block.PortalInfo;
 import net.minecraft.block.PortalSize;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.PushReaction;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ICommandSource;
 import net.minecraft.command.arguments.EntityAnchorArgument;
@@ -30,17 +33,23 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.ProtectionEnchantment;
+import net.minecraft.entity.camel.AbstractContainerAnimalEntity;
+import net.minecraft.entity.camel.CamelEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
+import net.minecraft.entity.happy_ghast.HappyGhastEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.Monster;
-import net.minecraft.entity.passive.Animal;
+import net.minecraft.entity.leashable.Leashable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.warden.event.DynamicGameEventListener;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.dyeable.IDyeSource;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.DoubleNBT;
 import net.minecraft.nbt.FloatNBT;
@@ -147,10 +156,85 @@ public abstract class Entity implements INameable, ICommandSource {
     public float maxUpStep;
     public boolean noPhysics;
 
+    public double bankingYawMomentum = 0.0D;
+    public double bankingPitchMomentum = 0.0D;
+
+
+    public void validateFireSource(TextureAtlasSprite sprite) {
+        if (sprite == ModelBakery.SOUL_FIRE_1.sprite() || sprite == ModelBakery.SOUL_FIRE_0.sprite()) {
+            this.setFireSource(FireSource.SOUL_FIRE);
+        } else if (sprite == ModelBakery.FIRE_0.sprite() || sprite == ModelBakery.FIRE_1.sprite()) {
+            this.setFireSource(FireSource.FIRE);
+        }
+    }
+
+    public boolean isFlyingVehicle() {
+        return false;
+    }
+
+
+    public boolean canBeCollidedWith(@Nullable Entity entity) {
+        return false;
+    }
+
+
+
+
+    public boolean canSimulateMovement() {
+        return this.isLocalInstanceAuthoritative();
+    }
+    public final boolean isLocalInstanceAuthoritative() {
+        if (this.level.isClientSide()) {
+            return this.isLocalClientAuthoritative();
+        }
+        return !this.isClientAuthoritative();
+    }
+
+    protected boolean isLocalClientAuthoritative() {
+        Entity livingEntity = this.getControllingPassenger();
+        return livingEntity != null && livingEntity.isLocalClientAuthoritative();
+    }
+
+    public boolean isClientAuthoritative() {
+        Entity livingEntity = this.getControllingPassenger();
+        return livingEntity != null && livingEntity.isClientAuthoritative();
+    }
+
+
+    public float getPreciseBodyRotation(float f) {
+        return MathHelper.lerp(f, this.yRotO, this.yRot);
+    }
+
+    public Vector3d[] getQuadLeashHolderOffsets() {
+        return Leashable.createQuadLeashOffsets(this, 0.0, 0.5, 0.5, 0.0);
+    }
+
+    public void checkFallDistanceAccumulation() {
+        if (this.getDeltaMovement().y() > -0.5 && this.fallDistance > 1.0) {
+            this.fallDistance = 1.0F;
+        }
+    }
+
+    public boolean supportQuadLeashAsHolder() {
+        return false;
+    }
+
+    public boolean isInLiquid() {
+        return this.isInWater() || this.isInLava();
+    }
+
+    public void notifyLeashHolder(Leashable leashable) {
+    }
+
+    public void notifyLeasheeRemoved(Leashable leashable) {
+    }
+
     public float pushthrough;
     protected final Random random = new Random();
     public int tickCount;
     private int remainingFireTicks = -this.getFireImmuneTicks();
+
+
     protected boolean wasTouchingWater;
     protected Object2DoubleMap<ITag<Fluid>> fluidHeight = new Object2DoubleArrayMap<>(2);
     protected boolean wasEyeInWater;
@@ -164,6 +248,8 @@ public abstract class Entity implements INameable, ICommandSource {
     private static final DataParameter<Optional<ITextComponent>> DATA_CUSTOM_NAME = EntityDataManager.defineId(Entity.class, DataSerializers.OPTIONAL_COMPONENT);
     private static final DataParameter<Boolean> DATA_CUSTOM_NAME_VISIBLE = EntityDataManager.defineId(Entity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> DATA_SILENT = EntityDataManager.defineId(Entity.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<FireSource> DATA_FIRE_SOURCE = EntityDataManager.defineId(Entity.class, DataSerializers.FIRE_SOURCE);
+
     private static final DataParameter<Boolean> DATA_NO_GRAVITY = EntityDataManager.defineId(Entity.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Pose> DATA_POSE = EntityDataManager.defineId(Entity.class, DataSerializers.POSE);
     public boolean inChunk;
@@ -187,7 +273,46 @@ public abstract class Entity implements INameable, ICommandSource {
     private final double[] pistonDeltas = new double[]{0.0D, 0.0D, 0.0D};
     private long pistonDeltasGameTime;
     private EntitySize dimensions;
+    public EntityAttachments attachments;
     private float eyeHeight;
+
+    private boolean requiresPrecisePosition;
+
+    public boolean getRequiresPrecisePosition() {
+        return this.requiresPrecisePosition;
+    }
+
+
+
+    public FireSource getFireSource() {
+        return this.entityData.get(DATA_FIRE_SOURCE);
+    }
+
+
+
+    public void addDeltaMovement(Vector3d vec3) {
+        this.setDeltaMovement(this.getDeltaMovement().add(vec3));
+    }
+
+    public Vector3d getKnownMovement() {
+        Entity livingEntity = this.getControllingPassenger();
+        if (livingEntity instanceof PlayerEntity player) {
+            if (this.isAlive()) {
+                return player.getKnownMovement();
+            }
+        }
+        return this.getDeltaMovement();
+    }
+
+
+    public boolean canRiderInteract() {
+        return false; // default to vanilla behavior
+    }
+
+
+    public float getNameTagOffsetY() {
+        return this.getBbHeight() + 0.5f;
+    }
 
     public EntitySize getDimensions() {
         return dimensions;
@@ -203,10 +328,14 @@ public abstract class Entity implements INameable, ICommandSource {
         return level();
     }
 
-    public Entity(EntityType<?> p_i48580_1_, World p_i48580_2_) {
-        this.type = p_i48580_1_;
-        this.level = p_i48580_2_;
-        this.dimensions = p_i48580_1_.getDimensions();
+    public float getSoundPitch() {
+        return this instanceof LivingEntity ? ((LivingEntity)this).getVoicePitch() : 1.0F;
+    }
+
+    public Entity(EntityType<?> entity, World world) {
+        this.type = entity;
+        this.level = world;
+        this.dimensions = entity.getDimensions();
         this.position = Vector3d.ZERO;
         this.blockPosition = BlockPos.ZERO;
         this.packetCoordinates = Vector3d.ZERO;
@@ -219,8 +348,14 @@ public abstract class Entity implements INameable, ICommandSource {
         this.entityData.define(DATA_SILENT, false);
         this.entityData.define(DATA_NO_GRAVITY, false);
         this.entityData.define(DATA_POSE, Pose.STANDING);
+        this.entityData.define(DATA_FIRE_SOURCE, FireSource.FIRE);
         this.defineSynchedData();
         this.eyeHeight = this.getEyeHeight(Pose.STANDING, this.dimensions);
+        this.attachments = this.dimensions.attachments;
+    }
+
+    public void setFireSource(FireSource source) {
+        this.entityData.set(DATA_FIRE_SOURCE, source);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -235,6 +370,13 @@ public abstract class Entity implements INameable, ICommandSource {
     public int getTeamColor() {
         Team team = this.getTeam();
         return team != null && team.getColor().getColor() != null ? team.getColor().getColor() : 16777215;
+    }
+
+    public boolean dampensVibrations() {
+        return false;
+    }
+
+    public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerWorld> biConsumer) {
     }
 
     public boolean isSpectator() {
@@ -303,6 +445,7 @@ public abstract class Entity implements INameable, ICommandSource {
 
     public void kill() {
         this.remove();
+        this.gameEvent(GameEvent.ENTITY_DIE);
     }
 
     protected abstract void defineSynchedData();
@@ -361,6 +504,13 @@ public abstract class Entity implements INameable, ICommandSource {
         return d0 * d0 + d1 * d1 + d2 * d2 < p_233562_2_ * p_233562_2_;
     }
 
+    public boolean closerThan(Entity entity, double d, double d2) {
+        double d3 = entity.getX() - this.getX();
+        double d4 = entity.getY() - this.getY();
+        double d5 = entity.getZ() - this.getZ();
+        return MathHelper.lengthSquared(d3, d5) < MathHelper.square(d) && MathHelper.square(d4) < MathHelper.square(d2);
+    }
+
     protected void setRot(float p_70101_1_, float p_70101_2_) {
         this.yRot = p_70101_1_ % 360.0F;
         this.xRot = p_70101_2_ % 360.0F;
@@ -375,6 +525,14 @@ public abstract class Entity implements INameable, ICommandSource {
         double x = pos.getX();
         double y = pos.getY();
         double z = pos.getZ();
+        this.setPosRaw(x, y, z);
+        this.setBoundingBox(this.dimensions.makeBoundingBox(x, y, z));
+    }
+
+    public void setPos(Vector3d pos) {
+        double x = pos.x;
+        double y = pos.y;
+        double z = pos.z;
         this.setPosRaw(x, y, z);
         this.setBoundingBox(this.dimensions.makeBoundingBox(x, y, z));
     }
@@ -405,6 +563,10 @@ public abstract class Entity implements INameable, ICommandSource {
         }
 
         this.baseTick();
+    }
+
+    public void setRequiresPrecisePosition(boolean bl) {
+        this.requiresPrecisePosition = bl;
     }
 
     public void baseTick() {
@@ -438,7 +600,11 @@ public abstract class Entity implements INameable, ICommandSource {
                 }
             } else {
                 if (this.remainingFireTicks % 20 == 0 && !this.isInLava()) {
-                    this.hurt(DamageSource.ON_FIRE, 1.0F);
+                    if (this.getFireSource() == FireSource.FIRE || getFireSource() == null) {
+                        this.hurt(DamageSource.ON_FIRE, 1.0F);
+                    } else {
+                        this.hurt(DamageSource.ON_FIRE, 2.0F);
+                    }
                 }
 
                 this.setRemainingFireTicks(this.remainingFireTicks - 1);
@@ -459,6 +625,13 @@ public abstract class Entity implements INameable, ICommandSource {
         }
 
         this.firstTick = false;
+        level = this.level();
+        if (level instanceof ServerWorld serverWorld) {
+            if (this instanceof Leashable) {
+                Leashable.tickLeash(serverWorld, this);
+            }
+        }
+
         this.level.getProfiler().pop();
     }
 
@@ -483,7 +656,7 @@ public abstract class Entity implements INameable, ICommandSource {
 
     protected void lavaHurt() {
         if (!this.fireImmune()) {
-            this.setSecondsOnFire(15);
+            this.setSecondsOnFire(15, FireSource.FIRE);
             this.hurt(DamageSource.LAVA, 4.0F);
         }
     }
@@ -500,8 +673,18 @@ public abstract class Entity implements INameable, ICommandSource {
 
     }
 
+    public void setSecondsOnFire(int p_70015_1_, FireSource source) {
+        this.setSecondsOnFire(p_70015_1_);
+        this.setFireSource(source);
+    }
+
     public void setRemainingFireTicks(int p_241209_1_) {
         this.remainingFireTicks = p_241209_1_;
+    }
+
+    public void setRemainingFireTicks(int p_241209_1_, FireSource source) {
+        this.remainingFireTicks = p_241209_1_;
+        this.setFireSource(source);
     }
 
     public int getRemainingFireTicks() {
@@ -510,6 +693,7 @@ public abstract class Entity implements INameable, ICommandSource {
 
     public void clearFire() {
         this.setRemainingFireTicks(0);
+        this.setFireSource(FireSource.FIRE);
     }
 
     protected void outOfWorld() {
@@ -533,6 +717,7 @@ public abstract class Entity implements INameable, ICommandSource {
     }
 
     public void move(MoverType p_213315_1_, Vector3d vector3d3) {
+        MovementEmission movementEmission;
         if (this.noPhysics) {
             this.setBoundingBox(this.getBoundingBox().move(vector3d3));
             this.setLocationFromBoundingbox();
@@ -584,7 +769,7 @@ public abstract class Entity implements INameable, ICommandSource {
                 block.stepOn(this.level, blockpos, this);
             }
 
-            if (this.isMovementNoisy() && !this.isPassenger()) {
+            if ((movementEmission = this.getMovementEmission()).emitsAnything() && !this.isPassenger()) {
                 double d0 = vector3d.x;
                 double d1 = vector3d.y;
                 double d2 = vector3d.z;
@@ -597,20 +782,33 @@ public abstract class Entity implements INameable, ICommandSource {
                 if (this.moveDist > this.nextStep && !blockstate.isAir()) {
                     this.nextStep = this.nextStep();
                     if (this.isInWater()) {
-                        Entity entity = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
-                        float f = entity == this ? 0.35F : 0.4F;
-                        Vector3d vector3d2 = entity.getDeltaMovement();
-                        float f1 = MathHelper.sqrt(vector3d2.x * vector3d2.x * (double) 0.2F + vector3d2.y * vector3d2.y + vector3d2.z * vector3d2.z * (double) 0.2F) * f;
-                        if (f1 > 1.0F) {
-                            f1 = 1.0F;
-                        }
+                        if (movementEmission.emitsSounds()) {
+                            Entity entity = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
+                            float f = entity == this ? 0.35F : 0.4F;
+                            Vector3d vector3d2 = entity.getDeltaMovement();
+                            float f1 = MathHelper.sqrt(vector3d2.x * vector3d2.x * (double) 0.2F + vector3d2.y * vector3d2.y + vector3d2.z * vector3d2.z * (double) 0.2F) * f;
+                            if (f1 > 1.0F) {
+                                f1 = 1.0F;
+                            }
 
-                        this.playSwimSound(f1);
+                            this.playSwimSound(f1);
+                        }
+                        if (movementEmission.emitsEvents()) {
+                            this.gameEvent(GameEvent.SWIM);
+                        }
                     } else {
-                        this.playStepSound(blockpos, blockstate);
+                        if (movementEmission.emitsSounds()) {
+                            this.playStepSound(blockpos, blockstate);
+                        }
+                        if (movementEmission.emitsEvents() && (this.onGround || vector3d3.y == 0.0)) {
+                            this.level.gameEvent(GameEvent.STEP, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
+                        }
                     }
                 } else if (this.moveDist > this.nextFlap && this.makeFlySound() && blockstate.isAir()) {
                     this.nextFlap = this.playFlySound(this.moveDist);
+                    if (this.getMovementEmission().emitsEvents()) {
+                        this.gameEvent(GameEvent.FLAP);
+                    }
                 }
             }
 
@@ -631,13 +829,21 @@ public abstract class Entity implements INameable, ICommandSource {
                 this.setRemainingFireTicks(-this.getFireImmuneTicks());
             }
 
-            if (this.isInWaterRainOrBubble() && this.isOnFire()) {
+            if (this.isInWaterRainOrBubble() && this.isOnFire() && this.getFireSource() != FireSource.SOUL_FIRE) {
                 this.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
                 this.setRemainingFireTicks(-this.getFireImmuneTicks());
             }
 
             this.level.getProfiler().pop();
         }
+    }
+
+    public void gameEvent(GameEvent gameEvent) {
+        this.gameEvent(gameEvent, this);
+    }
+
+    public void gameEvent(GameEvent gameEvent, @Nullable Entity entity) {
+        this.level.gameEvent(entity, gameEvent, this.blockPosition);
     }
 
     protected BlockPos getOnPos() {
@@ -676,6 +882,8 @@ public abstract class Entity implements INameable, ICommandSource {
     protected BlockPos getBlockPosBelowThatAffectsMyMovement() {
         return new BlockPos(this.position.x, this.getBoundingBox().minY - 0.5000001D, this.position.z);
     }
+
+
 
     public BlockPos directlyBelow() {
         return this.getBlockPosBelowThatAffectsMyMovement();
@@ -891,7 +1099,7 @@ public abstract class Entity implements INameable, ICommandSource {
     protected void playStepSound(BlockPos p_180429_1_, BlockState p_180429_2_) {
         if (!p_180429_2_.getMaterial().isLiquid()) {
             BlockState blockstate = this.level.getBlockState(p_180429_1_.above());
-            SoundType soundtype = blockstate.is(Blocks.SNOW) ? blockstate.getSoundType() : p_180429_2_.getSoundType();
+            SoundType soundtype = blockstate.hasInsideStepSounds() ? blockstate.getSoundType() : p_180429_2_.getSoundType();
             this.playSound(soundtype.getStepSound(), soundtype.getVolume() * 0.15F, soundtype.getPitch());
         }
     }
@@ -947,6 +1155,7 @@ public abstract class Entity implements INameable, ICommandSource {
         if (p_184231_3_) {
             if (this.fallDistance > 0.0F) {
                 p_184231_4_.getBlock().fallOn(this.level, p_184231_5_, this, this.fallDistance);
+                this.level.gameEvent(GameEvent.HIT_GROUND, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
             }
 
             this.fallDistance = 0.0F;
@@ -1089,7 +1298,7 @@ public abstract class Entity implements INameable, ICommandSource {
             double d3 = (this.random.nextDouble() * 2.0D - 1.0D) * (double) this.dimensions.width;
             this.level.addParticle(ParticleTypes.SPLASH, this.getX() + d2, (double) (f2 + 1.0F), this.getZ() + d3, vector3d.x, vector3d.y, vector3d.z);
         }
-
+        this.gameEvent(GameEvent.SPLASH);
     }
 
     protected BlockState getBlockStateOn() {
@@ -1209,6 +1418,21 @@ public abstract class Entity implements INameable, ICommandSource {
         return MathHelper.sqrt(f * f + f1 * f1 + f2 * f2);
     }
 
+    public float distanceTo(BlockPos p_70032_1_) {
+        float f = (float) (this.getX() - p_70032_1_.getX());
+        float f1 = (float) (this.getY() - p_70032_1_.getY());
+        float f2 = (float) (this.getZ() - p_70032_1_.getZ());
+        return MathHelper.sqrt(f * f + f1 * f1 + f2 * f2);
+    }
+
+    public float distanceTo(Vector3d p_70032_1_) {
+        float f = (float) (this.getX() - p_70032_1_.x);
+        float f1 = (float) (this.getY() - p_70032_1_.y);
+        float f2 = (float) (this.getZ() - p_70032_1_.z);
+        return MathHelper.sqrt(f * f + f1 * f1 + f2 * f2);
+    }
+
+
     public double distanceToSqr(double p_70092_1_, double p_70092_3_, double p_70092_5_) {
         double d0 = this.getX() - p_70092_1_;
         double d1 = this.getY() - p_70092_3_;
@@ -1287,8 +1511,30 @@ public abstract class Entity implements INameable, ICommandSource {
         }
     }
 
+    @Deprecated
+    public final boolean hurtOrSimulate(DamageSource damageSource, float f) {
+        World level = this.level;
+        if (level instanceof ServerWorld) {
+            ServerWorld serverLevel = (ServerWorld)level;
+            return this.hurtServer(serverLevel, damageSource, f);
+        }
+        return this.hurtClient(damageSource);
+    }
+
+    public boolean hurtServer(ServerWorld var1, DamageSource var2, float var3) {
+        return true;
+    }
+
+    public boolean hurtClient(DamageSource damageSource) {
+        return false;
+    }
+
     public final Vector3d getViewVector(float p_70676_1_) {
         return this.calculateViewVector(this.getViewXRot(p_70676_1_), this.getViewYRot(p_70676_1_));
+    }
+
+    public final Vector3d getViewVector() {
+        return this.calculateViewVector(this.getViewXRot(0F), this.getViewYRot(0F));
     }
 
     public float getViewXRot(float p_195050_1_) {
@@ -1595,6 +1841,66 @@ public abstract class Entity implements INameable, ICommandSource {
         return this.spawnAtLocation(p_199703_1_, 0);
     }
 
+
+    @Nullable
+    public ItemEntity spawnAtLocation(ServerWorld serverLevel, IItemProvider itemLike) {
+        return this.spawnAtLocation(serverLevel, itemLike, 0);
+    }
+
+    @Nullable
+    public ItemEntity spawnAtLocation(ServerWorld serverLevel, IItemProvider itemLike, int n) {
+        return this.spawnAtLocation(serverLevel, new ItemStack(itemLike), (float)n);
+    }
+
+    @Nullable
+    public ItemEntity spawnAtLocation(ServerWorld serverLevel, ItemStack itemStack) {
+        return this.spawnAtLocation(serverLevel, itemStack, 0.0f);
+    }
+
+    @Nullable
+    public ItemEntity spawnAtLocation(ServerWorld serverLevel, ItemStack itemStack, Vector3d vec3) {
+        if (itemStack.isEmpty()) {
+            return null;
+        }
+        ItemEntity itemEntity = new ItemEntity(serverLevel, this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z, itemStack);
+        itemEntity.setDefaultPickUpDelay();
+        serverLevel.addFreshEntity(itemEntity);
+        return itemEntity;
+    }
+
+    @Nullable
+    public ItemEntity spawnAtLocationNoWorldCoordinates(ServerWorld serverLevel, ItemStack itemStack, Vector3d vec3) {
+        if (itemStack.isEmpty()) {
+            return null;
+        }
+        ItemEntity itemEntity = new ItemEntity(serverLevel, vec3.x, vec3.y, vec3.z, itemStack);
+        itemEntity.setDefaultPickUpDelay();
+        serverLevel.addFreshEntity(itemEntity);
+        return itemEntity;
+    }
+
+
+    public boolean collidedWithShapeMovingFrom(Vector3d vec3, Vector3d vec32, List<AxisAlignedBB> list) {
+        AxisAlignedBB aABB = this.makeBoundingBox(vec3);
+        Vector3d vec33 = vec32.subtract(vec3);
+        return aABB.collidedAlongVector(vec33, list);
+    }
+
+    public boolean collidedWithFluid(FluidState fluidState, BlockPos blockPos, Vector3d vec3, Vector3d vec32) {
+        AxisAlignedBB aABB = fluidState.getAABB(this.level(), blockPos);
+        return aABB != null && this.collidedWithShapeMovingFrom(vec3, vec32, List.of(aABB));
+    }
+
+    protected AxisAlignedBB makeBoundingBox(Vector3d vec3) {
+        return this.dimensions.makeBoundingBox(vec3);
+    }
+
+    @Nullable
+    public ItemEntity spawnAtLocation(ServerWorld serverLevel, ItemStack itemStack, float f) {
+        return this.spawnAtLocation(serverLevel, itemStack, new Vector3d(0.0, f, 0.0));
+    }
+
+
     @Nullable
     public ItemEntity spawnAtLocation(IItemProvider p_199702_1_, int p_199702_2_) {
         return this.spawnAtLocation(new ItemStack(p_199702_1_), (float) p_199702_2_);
@@ -1663,12 +1969,148 @@ public abstract class Entity implements INameable, ICommandSource {
         }
     }
 
-    public ActionResultType interact(PlayerEntity p_184230_1_, Hand p_184230_2_) {
+
+
+    public ActionResultType interact(PlayerEntity player, Hand hand) {
+        ItemStack itemInHand = player.getItemInHand(hand);
+        boolean isServer = !this.level().isClientSide;
+
+        if (this instanceof AbstractContainerAnimalEntity containerAnimalEntity) {
+            if (containerAnimalEntity.hasChest()) {
+                if (itemInHand.getItem() != Items.LEAD && itemInHand.getItem() != Items.SHEARS) {
+                    boolean b = true;
+
+                    if (containerAnimalEntity instanceof CamelEntity camel && camel.getCarpetColor().isPresent()) {
+                        if (itemInHand.getItem() instanceof IDyeSource iDyeSource) {
+                            if (iDyeSource.getDyeColor() != camel.getCarpetColor().get()) {
+                                b = false;
+                            }
+                        }
+                    }
+
+                    if (b) {
+                        if (!player.isSecondaryUseActive() || itemInHand.isEmpty() && !Leashable.leashableLeashedTo(player).contains(containerAnimalEntity)) {
+                            return ActionResultType.PASS;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isServer && player.isSecondaryUseActive() && this instanceof Leashable leashableSelf && leashableSelf.canBeLeashed() && this.isAlive()) {
+            if (!(this instanceof LivingEntity living && living.isBaby())) {
+                List<Leashable> nearbyLeashables = Leashable.leashableInArea(this, l -> l.getLeashHolder() == player);
+                boolean anyLeashed = false;
+                for (Leashable target : nearbyLeashables) {
+                    if (target.canHaveALeashAttachedTo(this)) {
+                        target.setLeashedTo(this, true);
+                        anyLeashed = true;
+                    }
+                }
+                if (anyLeashed) {
+                    this.level().gameEvent(GameEvent.ENTITY_ACTION, this.blockPosition(), GameEvent.Context.of(player));
+                    this.playSound(SoundEvents.LEASH_KNOT_PLACE, 1.0F, 1.0F);
+                    return ActionResultType.SUCCESS;
+                }
+            }
+        }
+
+        if (itemInHand.is(Items.SHEARS) && this.shearOffAllLeashConnections(player)) {
+            itemInHand.hurt(1, player);
+            return ActionResultType.SUCCESS;
+        }
+
+        if (this instanceof Mob mob && itemInHand.is(Items.SHEARS) && mob.canShearEquipment(player) && !player.isSecondaryUseActive()) {
+            if (this.attemptToShearEquipment(player, hand, itemInHand, mob)) {
+                return ActionResultType.SUCCESS;
+            }
+        }
+
+        if (this.isAlive() && this instanceof Leashable leashable) {
+            if (leashable.getLeashHolder() == player) {
+                if (isServer) {
+                    if (player.abilities.instabuild) {
+                        leashable.removeLeash();
+                    } else {
+                        leashable.dropLeash();
+                    }
+                    this.gameEvent(GameEvent.ENTITY_INTERACT, player);
+                    this.playSound(SoundEvents.LEASH_KNOT_BREAK, 1.0F, 1.0F);
+                }
+                return ActionResultType.SUCCESS;
+            }
+
+            if (itemInHand.is(Items.LEAD) && !(leashable.getLeashHolder() instanceof PlayerEntity)) {
+                if (isServer && leashable.canHaveALeashAttachedTo(player)) {
+                    if (leashable.isLeashed()) {
+                        leashable.dropLeash();
+                    }
+                    leashable.setLeashedTo(player, true);
+                    this.playSound(SoundEvents.LEASH_KNOT_PLACE, 1.0F, 1.0F);
+                    itemInHand.shrink(1);
+                }
+                return ActionResultType.SUCCESS;
+            }
+        }
+
         return ActionResultType.PASS;
     }
 
-    public boolean canCollideWith(Entity p_241849_1_) {
-        return p_241849_1_.canBeCollidedWith() && !this.isPassengerOfSameVehicle(p_241849_1_);
+
+    public boolean shearOffAllLeashConnections(@Nullable PlayerEntity player) {
+        World level;
+        boolean bl = this.dropAllLeashConnections(player);
+        if (bl && (level = this.level) instanceof ServerWorld) {
+            ServerWorld serverLevel = (ServerWorld)level;
+            serverLevel.playSound(null, this.blockPosition(), SoundEvents.SHEEP_SHEAR, player != null ? player.getSoundSource() : this.getSoundSource(), 1.0F, 1.0F);
+        }
+        return bl;
+    }
+
+    public boolean dropAllLeashConnections(@Nullable PlayerEntity player) {
+        List<Leashable> list = Leashable.leashableLeashedTo(this);
+        boolean bl = !list.isEmpty();
+        Entity object22 = this;
+        if (object22 instanceof Leashable leashable && (leashable = (Leashable)((Object)object22)).isLeashed()) {
+            leashable.dropLeash();
+            bl = true;
+        }
+        for (Leashable leashable : list) {
+            leashable.dropLeash();
+        }
+        if (bl) {
+            this.gameEvent(GameEvent.SHEAR, player);
+            return true;
+        }
+        return false;
+    }
+    //TODO fix
+    public boolean attemptToShearEquipment(PlayerEntity player, Hand interactionHand, ItemStack itemStack, Mob mob) {
+//        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+//            ItemStack itemStack2 = mob.getItemBySlot(equipmentSlot);
+//            Equippable equippable = itemStack2.get(DataComponents.EQUIPPABLE);
+//            if (equippable == null || !equippable.canBeSheared() || EnchantmentHelper.has(itemStack2, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) && !player.isCreative()) continue;
+//            itemStack.hurtAndBreak(1, (LivingEntity)player, LivingEntity.getSlotForHand(interactionHand));
+//            Vec3 vec3 = this.dimensions.attachments().getAverage(EntityAttachment.PASSENGER);
+//            mob.setItemSlotAndDropWhenKilled(equipmentSlot, ItemStack.EMPTY);
+//            this.gameEvent(GameEvent.SHEAR, player);
+//            this.playSound(equippable.shearingSound().value());
+//            Level level = this.level();
+//            if (level instanceof ServerLevel) {
+//                ServerLevel serverLevel = (ServerLevel)level;
+//                this.spawnAtLocation(serverLevel, itemStack2, vec3);
+//                CriteriaTriggers.PLAYER_SHEARED_EQUIPMENT.trigger((ServerPlayer)player, itemStack2, mob);
+//            }
+//            return true;
+//        }
+        return false;
+    }
+
+
+
+
+    public boolean canCollideWith(Entity entity) {
+        return entity.canBeCollidedWith(this) && !this.isPassengerOfSameVehicle(entity);
     }
 
     public boolean canBeCollidedWith() {
@@ -1683,15 +2125,53 @@ public abstract class Entity implements INameable, ICommandSource {
         }
     }
 
-    public void positionRider(Entity p_184232_1_) {
-        this.positionRider(p_184232_1_, Entity::setPos);
+
+
+    public void positionRider(Entity entity) {
+        if (!this.hasPassenger(entity)) {
+            return;
+        }
+        if (!(this instanceof HappyGhastEntity)) {
+            this.positionRider(entity, Entity::setPos);
+        } else {
+            positionRiderHappyGhast(entity, Entity::setPos);
+        }
     }
 
-    private void positionRider(Entity p_226266_1_, Entity.IMoveCallback p_226266_2_) {
-        if (this.hasPassenger(p_226266_1_)) {
-            double d0 = this.getY() + this.getPassengersRidingOffset() + p_226266_1_.getMyRidingOffset();
-            p_226266_2_.accept(p_226266_1_, this.getX(), d0, this.getZ());
+    private void positionRiderHappyGhast(Entity entity, Entity.IMoveCallback moveFunction) {
+        Vector3d vec3 = this.getPassengerRidingPosition(entity);
+        Vector3d vec32 = entity.getVehicleAttachmentPoint(this);
+        moveFunction.accept(entity, vec3.x - vec32.x, vec3.y - vec32.y, vec3.z - vec32.z);
+    }
+
+    private void positionRider(Entity entity, Entity.IMoveCallback moveFunction) {
+        if (!this.hasPassenger(entity)) {
+            return;
         }
+        double d = this.getY() + this.getPassengersRidingOffset() + entity.getMyRidingOffset();
+        moveFunction.accept(entity, this.getX(), d, this.getZ());
+    }
+
+
+    public final EntityAttachments getAttachments() {
+        return this.attachments;
+    }
+
+    public Vector3d getVehicleAttachmentPoint(Entity entity) {
+        return this.getAttachments().get(EntityAttachment.VEHICLE, 0, this.yRot);
+    }
+
+    public Vector3d getPassengerRidingPosition(Entity entity) {
+        return this.position().add(this.getPassengerAttachmentPoint(entity, this.dimensions, 1.0f));
+    }
+
+    protected Vector3d getPassengerAttachmentPoint(Entity entity, EntitySize entityDimensions, float f) {
+        return Entity.getDefaultPassengerAttachmentPoint(this, entity, entityDimensions.attachments);
+    }
+
+    protected static Vector3d getDefaultPassengerAttachmentPoint(Entity entity, Entity entity2, EntityAttachments entityAttachments) {
+        int n = entity.getPassengers().indexOf(entity2);
+        return entityAttachments.getClamped(EntityAttachment.PASSENGER, n, entity.yRot);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -1787,7 +2267,7 @@ public abstract class Entity implements INameable, ICommandSource {
     }
 
     protected boolean canAddPassenger(Entity p_184219_1_) {
-        return this.getPassengers().size() < 1;
+        return this.getPassengers().isEmpty();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -2517,8 +2997,11 @@ public abstract class Entity implements INameable, ICommandSource {
 
 
     protected float getEyeHeight(Pose p_213316_1_, EntitySize p_213316_2_) {
-        return p_213316_2_.height * 0.85F;
+        return this.dimensions.eyeHeight;
     }
+
+
+
 
     @OnlyIn(Dist.CLIENT)
     public float getEyeHeight(Pose p_213307_1_) {
@@ -3059,6 +3542,10 @@ public abstract class Entity implements INameable, ICommandSource {
         return this.getPosition(p_241843_1_).add(0.0D, (double) this.eyeHeight * 0.7D, 0.0D);
     }
 
+    public ItemStack getPickResult() {
+        return ItemStack.EMPTY;
+    }
+
     public void onSpawned(CommandSource source, Vector3d spawnLocation, CompoundNBT data) {
     }
 
@@ -3066,8 +3553,47 @@ public abstract class Entity implements INameable, ICommandSource {
         return level.getGameRules().getBoolean(GameRules.RULE_VERYHARD);
     }
 
+    public void setYRot(float v) {
+        this.yRot = v;
+    }
+
+    public float getYRot() {
+        return this.yRot;
+    }
+
     @FunctionalInterface
     public interface IMoveCallback {
         void accept(Entity p_accept_1_, double p_accept_2_, double p_accept_4_, double p_accept_6_);
+    }
+
+    protected MovementEmission getMovementEmission() {
+        return MovementEmission.ALL;
+    }
+
+    public static enum MovementEmission {
+        NONE(false, false),
+        SOUNDS(true, false),
+        EVENTS(false, true),
+        ALL(true, true);
+
+        final boolean sounds;
+        final boolean events;
+
+        private MovementEmission(boolean bl, boolean bl2) {
+            this.sounds = bl;
+            this.events = bl2;
+        }
+
+        public boolean emitsAnything() {
+            return this.events || this.sounds;
+        }
+
+        public boolean emitsEvents() {
+            return this.events;
+        }
+
+        public boolean emitsSounds() {
+            return this.sounds;
+        }
     }
 }

@@ -8,6 +8,7 @@ import net.minecraft.entity.IRendersAsItem;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,6 +19,8 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -42,7 +45,13 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
    private int life;
    private int lifetime;
    private LivingEntity attachedToEntity;
+   private boolean blindness;
    private boolean fromFireworkArrow;
+   private boolean noDamage = false;
+
+   public void setNoDamage() {
+      this.noDamage = true;
+   }
 
    public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> p_i50164_1_, World p_i50164_2_) {
       super(p_i50164_1_, p_i50164_2_);
@@ -99,8 +108,9 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
       return super.shouldRender(p_145770_1_, p_145770_3_, p_145770_5_) && !this.isAttachedToEntity();
    }
 
-   public void setFromFireworkArrow(Boolean value) {
+   public void setFromFireworkArrow(Boolean value, boolean blindness) {
       this.fromFireworkArrow = value;
+      this.blindness = blindness;
    }
 
    public boolean isFromFireworkArrow() {
@@ -168,6 +178,7 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
    private void explode() {
       this.level.broadcastEntityEvent(this, (byte)17);
       this.dealExplosionDamage();
+      this.gameEvent(GameEvent.EXPLODE, this.getOwner());
       this.remove();
    }
 
@@ -231,11 +242,18 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
 
                if (flag) {
                   float f1 = f * (float)Math.sqrt((5.0D - (double)this.distanceTo(livingentity)) / 5.0D);
-                  if (isFromFireworkArrow()) {
-                     // Increase damage for firework arrows, for example, by a factor of 2
-                     livingentity.hurt(DamageSource.fireworks(this, this.getOwner()), f1 * 2);
-                  } else {
-                     livingentity.hurt(DamageSource.fireworks(this, this.getOwner()), f1);
+                   boolean flag1 = false;
+                   if (!noDamage) {
+                       if (isFromFireworkArrow()) {
+                         // Increase damage for firework arrows, for example, by a factor of 2
+                           flag1 = livingentity.hurt(DamageSource.fireworks(this, this.getOwner()), f1 * 2);
+                       } else {
+                           flag1 = livingentity.hurt(DamageSource.fireworks(this, this.getOwner()), f1);
+                       }
+
+                   }
+                  if (flag1 && blindness) {
+                     livingentity.addEffect(new EffectInstance(Effects.BLINDNESS, 10 * 20, 0, false, true));
                   }
                }
             }
@@ -274,6 +292,10 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
       super.addAdditionalSaveData(p_213281_1_);
       p_213281_1_.putInt("Life", this.life);
       p_213281_1_.putInt("LifeTime", this.lifetime);
+      p_213281_1_.putBoolean("FromFireworkArrow", this.fromFireworkArrow);
+      p_213281_1_.putBoolean("Blindness", this.blindness);
+      p_213281_1_.putBoolean("NoDamage", this.noDamage);
+
       ItemStack itemstack = this.entityData.get(DATA_ID_FIREWORKS_ITEM);
       if (!itemstack.isEmpty()) {
          p_213281_1_.put("FireworksItem", itemstack.save(new CompoundNBT()));
@@ -286,6 +308,7 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
       super.readAdditionalSaveData(p_70037_1_);
       this.life = p_70037_1_.getInt("Life");
       this.lifetime = p_70037_1_.getInt("LifeTime");
+      this.noDamage = p_70037_1_.getBoolean("NoDamage");
       ItemStack itemstack = ItemStack.of(p_70037_1_.getCompound("FireworksItem"));
       if (!itemstack.isEmpty()) {
          this.entityData.set(DATA_ID_FIREWORKS_ITEM, itemstack);
@@ -294,6 +317,8 @@ public class FireworkRocketEntity extends ProjectileEntity implements IRendersAs
       if (p_70037_1_.contains("ShotAtAngle")) {
          this.entityData.set(DATA_SHOT_AT_ANGLE, p_70037_1_.getBoolean("ShotAtAngle"));
       }
+      this.fromFireworkArrow = p_70037_1_.getBoolean("FromFireworkArrow");
+      this.blindness = p_70037_1_.getBoolean("Blindness");
 
    }
 

@@ -3,17 +3,12 @@ package net.minecraft.client.renderer.entity.model;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.AnimationState;
 import net.minecraft.client.animation.HierarchicalModel;
-import net.minecraft.client.animation.definitions.CreakingAnimation;
 import net.minecraft.client.animation.definitions.EndermanAnimation;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.monster.EndermanEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -66,7 +61,7 @@ public class EndermanModel<T extends LivingEntity> extends HierarchicalModel<T> 
       right_leg.texOffs(56, 0).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 30.0F, 2.0F, 0.0F, false);
 
       left_leg = new ModelRenderer(this, "left_leg");
-      left_leg.setPos(2.0F, -6.0F, 0.0F);
+      left_leg.setPos(2.2F, -6.0F, 0.0F);
       left_leg.texOffs(56, 0).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 30.0F, 2.0F, 0.0F, true);
 
       root.addChildren(right_leg, left_leg);
@@ -105,7 +100,7 @@ public class EndermanModel<T extends LivingEntity> extends HierarchicalModel<T> 
 
    @Override
    public ImmutableSet<ModelRenderer> getAllParts() {
-      return ImmutableSet.of(root);
+      return ImmutableSet.of(root, this.body, this.head, this.headwear, this.left_arm, this.right_arm, this.left_leg, this.right_leg);
    }
 
    @Override

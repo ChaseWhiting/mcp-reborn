@@ -1,29 +1,47 @@
 package net.minecraft.util.math.vector;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Random;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.dispenser.IPosition;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.math3.exception.MathArithmeticException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.util.FastMath;
 
 /**
  * Represents a 3D vector with double precision.
  */
 public class Vector3d implements IPosition {
+   public static final Codec<Vector3d> CODEC = Codec.DOUBLE.listOf()
+           .comapFlatMap(list2 -> Util.fixedSize(list2, 3)
+                           .map(list -> new Vector3d(list.get(0), list.get(1), list.get(2))),
+                   vec3 -> List.of(vec3.x(), vec3.y(), vec3.z()));
+
+
    public static final Vector3d ZERO = new Vector3d(0.0D, 0.0D, 0.0D);
    public static final Vector3d UP = new Vector3d(0.0, 1.0, 0.0);
    public final double x;
    public final double y;
    public final double z;
+
+
+   public Vector3d relative(Direction direction, double d) {
+      Vector3i vec3i = direction.getNormal();
+      return new Vector3d(this.x + d * (double)vec3i.getX(), this.y + d * (double)vec3i.getY(), this.z + d * (double)vec3i.getZ());
+   }
+
+   public static Vector3d containing(double d, double d2, double d3) {
+      return new Vector3d(MathHelper.floor(d), MathHelper.floor(d2), MathHelper.floor(d3));
+   }
 
    /**
     * Creates a Vector3d from an RGB color represented as an integer.
@@ -47,6 +65,14 @@ public class Vector3d implements IPosition {
     */
    public static Vector3d atCenterOf(Vector3i position) {
       return new Vector3d((double)position.getX() + 0.5D, (double)position.getY() + 0.5D, (double)position.getZ() + 0.5D);
+   }
+
+   public double horizontalDistanceSqr() {
+      return this.x * this.x + this.z * this.z;
+   }
+
+   public double horizontalDistance() {
+      return Math.sqrt(this.x * this.x + this.z * this.z);
    }
 
    /**
@@ -197,6 +223,13 @@ public class Vector3d implements IPosition {
       return this.distanceToSqr(position.x(), position.y(), position.z()) < distance * distance;
    }
 
+   public boolean closerThan(Vector3d vec3, double d, double d2) {
+      double d3 = vec3.x() - this.x;
+      double d4 = vec3.y() - this.y;
+      double d5 = vec3.z() - this.z;
+      return MathHelper.lengthSquared(d3, d5) < MathHelper.square((float) d) && Math.abs(d4) < d2;
+   }
+
    /**
     * Computes the Euclidean distance to another vector.
     *
@@ -246,6 +279,10 @@ public class Vector3d implements IPosition {
     */
    public Vector3d scale(double factor) {
       return this.multiply(factor, factor, factor);
+   }
+
+   public Vector3d scale(double xFactor, double yFactor, double zFactor) {
+      return this.multiply(xFactor, yFactor, zFactor);
    }
 
    /**

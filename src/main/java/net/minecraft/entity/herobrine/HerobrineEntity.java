@@ -451,9 +451,9 @@ public class HerobrineEntity extends Monster implements ICrossbowUser {
         this.hasImpulse = true;
     }
 
-    public boolean doHurtTarget(Entity entity) {
+    public boolean doHurtTarget(Entity target) {
 
-        return super.doHurtTarget(entity);
+        return super.doHurtTarget(target);
     }
 
     class AttackGoal extends MeleeAttackGoal {

@@ -6,13 +6,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.animation.AnimationState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Mob;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,22 +23,61 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-public class BatEntity extends AmbientEntity {
+public class BatEntity extends AmbientEntity implements WarmColdVariantHolder {
    private static final DataParameter<Byte> DATA_ID_FLAGS = EntityDataManager.defineId(BatEntity.class, DataSerializers.BYTE);
    static final EntityPredicate BAT_RESTING_TARGETING = (new EntityPredicate()).range(4.0D).allowSameTeam();
    private BlockPos targetPosition;
    public final AnimationState flyAnimationState = new AnimationState();
    public final AnimationState restAnimationState = new AnimationState();
+   private static final DataParameter<Integer> DATA_TYPE_ID = EntityDataManager.defineId(BatEntity.class, DataSerializers.INT);
+
 
    public BatEntity(EntityType<? extends BatEntity> p_i50290_1_, World p_i50290_2_) {
       super(p_i50290_1_, p_i50290_2_);
       this.setResting(true);
    }
 
+   @Override
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.EVENTS;
+   }
+
+
+   public void onSyncedDataUpdated(DataParameter dataParameter) {
+      super.onSyncedDataUpdated(dataParameter);
+      if (dataParameter.equals(DATA_TYPE_ID)) {
+         this.refreshDimensions();
+      }
+   }
+
+   public EntitySize getDimensions(Pose p_213305_1_) {
+       if (this.getVariant().isWarm()) {
+           return super.getDimensions(p_213305_1_).scale(1.2f);
+       }
+      if (this.getVariant().isCold()) {
+         return super.getDimensions(p_213305_1_).scale(0.8f);
+      }
+
+       return super.getDimensions(p_213305_1_);
+   }
+
    protected void defineSynchedData() {
       super.defineSynchedData();
       this.entityData.define(DATA_ID_FLAGS, (byte)0);
+      this.entityData.define(DATA_TYPE_ID, 0);
    }
+
+   @Override
+   public void setVariant(WarmColdVariant variant) {
+      entityData.set(DATA_TYPE_ID, variant.getId());
+   }
+
+   @Override
+   public WarmColdVariant getVariant() {
+      return WarmColdVariant.byId(entityData.get(DATA_TYPE_ID));
+   }
+
+
 
    protected float getSoundVolume() {
       return 0.1F;
@@ -198,11 +231,13 @@ public class BatEntity extends AmbientEntity {
    public void readAdditionalSaveData(CompoundNBT p_70037_1_) {
       super.readAdditionalSaveData(p_70037_1_);
       this.entityData.set(DATA_ID_FLAGS, p_70037_1_.getByte("BatFlags"));
+      this.setVariant(this.getVariantFromTag(p_70037_1_));
    }
 
    public void addAdditionalSaveData(CompoundNBT p_213281_1_) {
       super.addAdditionalSaveData(p_213281_1_);
       p_213281_1_.putByte("BatFlags", this.entityData.get(DATA_ID_FLAGS));
+      this.putVariantToTag(p_213281_1_);
    }
 
    public static boolean checkBatSpawnRules(EntityType<BatEntity> p_223369_0_, IWorld p_223369_1_, SpawnReason p_223369_2_, BlockPos p_223369_3_, Random p_223369_4_) {

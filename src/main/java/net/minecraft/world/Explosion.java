@@ -19,10 +19,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.ProtectionEnchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.TNTEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.warden.event.GameEvent;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
@@ -45,6 +47,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class Explosion {
    private static final ExplosionContext EXPLOSION_DAMAGE_CALCULATOR = new ExplosionContext();
    private final boolean fire;
+   private final boolean hellfire;
+
    private final Explosion.Mode blockInteraction;
    private final Random random = new Random();
    private final World level;
@@ -83,6 +87,21 @@ public class Explosion {
       this.y = p_i231610_7_;
       this.z = p_i231610_9_;
       this.fire = p_i231610_12_;
+      this.hellfire = false;
+      this.blockInteraction = p_i231610_13_;
+      this.damageSource = p_i231610_3_ == null ? DamageSource.explosion(this) : p_i231610_3_;
+      this.damageCalculator = p_i231610_4_ == null ? this.makeDamageCalculator(p_i231610_2_) : p_i231610_4_;
+   }
+
+   public Explosion(World p_i231610_1_, @Nullable Entity p_i231610_2_, @Nullable DamageSource p_i231610_3_, @Nullable ExplosionContext p_i231610_4_, double p_i231610_5_, double p_i231610_7_, double p_i231610_9_, float p_i231610_11_, boolean p_i231610_12_, Explosion.Mode p_i231610_13_, boolean hellfire) {
+      this.level = p_i231610_1_;
+      this.source = p_i231610_2_;
+      this.radius = p_i231610_11_;
+      this.x = p_i231610_5_;
+      this.y = p_i231610_7_;
+      this.z = p_i231610_9_;
+      this.fire = p_i231610_12_;
+      this.hellfire = hellfire;
       this.blockInteraction = p_i231610_13_;
       this.damageSource = p_i231610_3_ == null ? DamageSource.explosion(this) : p_i231610_3_;
       this.damageCalculator = p_i231610_4_ == null ? this.makeDamageCalculator(p_i231610_2_) : p_i231610_4_;
@@ -128,6 +147,7 @@ public class Explosion {
    public void explode() {
       Set<BlockPos> set = Sets.newHashSet();
       int i = 16;
+      this.level.gameEvent(this.source, GameEvent.EXPLODE, new Vector3d(this.x, this.y, this.z));
 
       for(int j = 0; j < 16; ++j) {
          for(int k = 0; k < 16; ++k) {
@@ -193,10 +213,22 @@ public class Explosion {
                   d9 = d9 / d13;
                   double d14 = (double)getSeenPercent(vector3d, entity);
                   double d10 = (1.0D - d12) * d14;
-                  entity.hurt(this.getDamageSource(), (float)((int)((d10 * d10 + d10) / 2.0D * 7.0D * (double)f2 + 1.0D)));
+
+                  float totalDamage = (float)((int)((d10 * d10 + d10) / 2.0D * 7.0D * (double)f2 + 1.0D));
+
+                  if (entity instanceof LivingEntity living) {
+                     if (living.getAttributeValue(Attributes.BLAST_RESISTANCE) > 0.0D) {
+                        totalDamage *= (float) (1.0 - (float) living.getAttributeValue(Attributes.BLAST_RESISTANCE));
+                     }
+                  }
+
+                  entity.hurt(this.getDamageSource(), totalDamage);
                   double d11 = d10;
-                  if (entity instanceof LivingEntity) {
+                  if (entity instanceof LivingEntity livingEntity) {
                      d11 = ProtectionEnchantment.getExplosionKnockbackAfterDampener((LivingEntity)entity, d10);
+
+
+
                   }
 
                   entity.setDeltaMovement(entity.getDeltaMovement().add(d5 * d11, d7 * d11, d9 * d11));
@@ -264,6 +296,14 @@ public class Explosion {
          for(BlockPos blockpos2 : this.toBlow) {
             if (this.random.nextInt(3) == 0 && this.level.getBlockState(blockpos2).isAir() && this.level.getBlockState(blockpos2.below()).isSolidRender(this.level, blockpos2.below())) {
                this.level.setBlockAndUpdate(blockpos2, AbstractFireBlock.getState(this.level, blockpos2));
+            }
+         }
+      }
+
+      if (this.hellfire) {
+         for(BlockPos blockpos2 : this.toBlow) {
+            if (this.random.nextInt(3) == 0 && this.level.getBlockState(blockpos2).isAir() && this.level.getBlockState(blockpos2.below()).isSolidRender(this.level, blockpos2.below())) {
+               this.level.setBlockAndUpdate(blockpos2, Blocks.HELLFIRE.defaultBlockState());
             }
          }
       }

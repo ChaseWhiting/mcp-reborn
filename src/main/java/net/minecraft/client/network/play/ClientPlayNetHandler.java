@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.block.Block;
+import net.minecraft.block.sensor.SculkSensorBlockEntity;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
@@ -86,6 +87,7 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
+import net.minecraft.entity.gumbeeper.GumballEntity;
 import net.minecraft.entity.item.*;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.item.minecart.ChestMinecartEntity;
@@ -96,6 +98,8 @@ import net.minecraft.entity.item.minecart.MinecartEntity;
 import net.minecraft.entity.item.minecart.SpawnerMinecartEntity;
 import net.minecraft.entity.item.minecart.TNTMinecartEntity;
 import net.minecraft.entity.monster.GuardianEntity;
+import net.minecraft.entity.monster.crimson_mosquito.CrimsonMosquitoEntity;
+import net.minecraft.entity.monster.enderiophage.EntityEnderiophage;
 import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -114,6 +118,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.MerchantOffers;
 import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.item.dagger.DesolateDaggerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
@@ -147,20 +152,7 @@ import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatisticsManager;
 import net.minecraft.tags.ITagCollectionSupplier;
 import net.minecraft.tags.TagRegistryManager;
-import net.minecraft.tileentity.BannerTileEntity;
-import net.minecraft.tileentity.BeaconTileEntity;
-import net.minecraft.tileentity.BedTileEntity;
-import net.minecraft.tileentity.BeehiveTileEntity;
-import net.minecraft.tileentity.CampfireTileEntity;
-import net.minecraft.tileentity.CommandBlockTileEntity;
-import net.minecraft.tileentity.ConduitTileEntity;
-import net.minecraft.tileentity.EndGatewayTileEntity;
-import net.minecraft.tileentity.JigsawTileEntity;
-import net.minecraft.tileentity.MobSpawnerTileEntity;
-import net.minecraft.tileentity.SignTileEntity;
-import net.minecraft.tileentity.SkullTileEntity;
-import net.minecraft.tileentity.StructureBlockTileEntity;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.*;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.MovementInputFromOptions;
@@ -320,7 +312,9 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
          if (entity2 != null) {
             ((AbstractArrowEntity) entity).setOwner(entity2);
          }
-      } else if (entitytype == EntityType.BONE_ARROW) {
+      } else if (entitytype == EntityType.DESOLATE_DAGGER) {
+         entity = new DesolateDaggerEntity(level, d0, d1, d2);
+      }else if (entitytype == EntityType.BONE_ARROW) {
          entity = new BoneArrowEntity(this.level, d0, d1, d2);
          Entity entity2 = this.level.getEntity(p_147235_1_.getData());
          if (entity2 != null) {
@@ -356,7 +350,9 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
          entity = new SnowballEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.LLAMA_SPIT) {
          entity = new LlamaSpitEntity(this.level, d0, d1, d2, p_147235_1_.getXa(), p_147235_1_.getYa(), p_147235_1_.getZa());
-      } else if (entitytype == EntityType.ITEM_FRAME) {
+      } else if (entitytype == EntityType.MOSQUITO_SPIT) {
+         entity = new EntityMosquitoSpit(this.level, d0, d1, d2, p_147235_1_.getXa(), p_147235_1_.getYa(), p_147235_1_.getZa());
+      }  else if (entitytype == EntityType.ITEM_FRAME) {
          entity = new ItemFrameEntity(this.level, new BlockPos(d0, d1, d2), Direction.from3DDataValue(p_147235_1_.getData()));
       } else if (entitytype == EntityType.LEASH_KNOT) {
          entity = new LeashKnotEntity(this.level, new BlockPos(d0, d1, d2));
@@ -364,7 +360,10 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
          entity = new EnderPearlEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.EYE_OF_ENDER) {
          entity = new EyeOfEnderEntity(this.level, d0, d1, d2);
-      } else if (entitytype == EntityType.FIREWORK_ROCKET) {
+      } else if (entitytype == EntityType.POKEBALL) {
+         entity = new PokeballEntity(EntityType.POKEBALL, this.level);
+
+      }else if (entitytype == EntityType.FIREWORK_ROCKET) {
          entity = new FireworkRocketEntity(this.level, d0, d1, d2, ItemStack.EMPTY);
       } else if (entitytype == EntityType.FIREBALL) {
          entity = new FireballEntity(this.level, d0, d1, d2, p_147235_1_.getXa(), p_147235_1_.getYa(), p_147235_1_.getZa());
@@ -377,17 +376,25 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
       } else if (entitytype == EntityType.SHULKER_BULLET) {
          entity = new ShulkerBulletEntity(this.level, d0, d1, d2, p_147235_1_.getXa(), p_147235_1_.getYa(), p_147235_1_.getZa());
       } else if (entitytype == EntityType.EGG) {
-         entity = new EggEntity(this.level, d0, d1, d2);
+         entity = new TemperateEggEntity(this.level, d0, d1, d2);
+      } else if (entitytype == EntityType.COLD_EGG) {
+         entity = new ColdEggEntity(this.level, d0, d1, d2);
+      } else if (entitytype == EntityType.WARM_EGG) {
+         entity = new WarmEggEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.STARFURY_STAR) {
          entity = new StarfuryStarEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.CAT_PROJECTILE) {
          entity = new MeowmereProjectileEntity(this.level, d0, d1, d2);
+      } else if (entitytype == EntityType.GUMBALL) {
+         entity = new GumballEntity(this.level, d0, d1, d2);
       }else if (entitytype == EntityType.EVOKER_FANGS) {
          entity = new EvokerFangsEntity(this.level, d0, d1, d2, 0.0F, 0, (LivingEntity)null);
       } else if (entitytype == EntityType.POTION) {
          entity = new PotionEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.EXPERIENCE_BOTTLE) {
          entity = new ExperienceBottleEntity(this.level, d0, d1, d2);
+      }else if (entitytype == EntityType.INFERNAL_FIREBALL) {
+         entity = new InfernalFireballEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.BOAT) {
          entity = new BoatEntity(this.level, d0, d1, d2);
       } else if (entitytype == EntityType.TNT) {
@@ -1046,13 +1053,39 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
       this.minecraft.player.openTextEdit((SignTileEntity)tileentity);
    }
 
+   public void handleMosquitoDismount(MosquitoDismount ds) {
+      PacketThreadUtil.ensureRunningOnSameThread(ds, this, this.minecraft);
+      if (minecraft.player != null) {
+         if (minecraft.player.level != null) {
+            Entity entity = minecraft.player.level.getEntity(ds.rider);
+            Entity entity2 = minecraft.player.level.getEntity(ds.mount);
+            if ((entity instanceof CrimsonMosquitoEntity || entity instanceof EntityEnderiophage) && entity2 != null) {
+               entity.stopRiding();
+            }
+         }
+      }
+   }
+
+   public void handleMosquitoMountMob(MosquitoMountMob ds) {
+      PacketThreadUtil.ensureRunningOnSameThread(ds, this, this.minecraft);
+      if (minecraft.player != null) {
+         if (minecraft.player.level != null) {
+            Entity entity = minecraft.player.level.getEntity(ds.rider);
+            Entity entity2 = minecraft.player.level.getEntity(ds.mount);
+            if ((entity instanceof CrimsonMosquitoEntity || entity instanceof EntityEnderiophage) && entity2 instanceof PlayerEntity && entity.distanceTo(entity2) < 16D) {
+               entity.startRiding(entity2);
+            }
+         }
+      }
+   }
+
    public void handleBlockEntityData(SUpdateTileEntityPacket p_147273_1_) {
       PacketThreadUtil.ensureRunningOnSameThread(p_147273_1_, this, this.minecraft);
       BlockPos blockpos = p_147273_1_.getPos();
       TileEntity tileentity = this.minecraft.level.getBlockEntity(blockpos);
       int i = p_147273_1_.getType();
       boolean flag = i == 2 && tileentity instanceof CommandBlockTileEntity;
-      if (i == 1 && tileentity instanceof MobSpawnerTileEntity || flag || i == 3 && tileentity instanceof BeaconTileEntity || i == 4 && tileentity instanceof SkullTileEntity || i == 6 && tileentity instanceof BannerTileEntity || i == 7 && tileentity instanceof StructureBlockTileEntity || i == 8 && tileentity instanceof EndGatewayTileEntity || i == 9 && tileentity instanceof SignTileEntity || i == 11 && tileentity instanceof BedTileEntity || i == 5 && tileentity instanceof ConduitTileEntity || i == 12 && tileentity instanceof JigsawTileEntity || i == 13 && tileentity instanceof CampfireTileEntity || i == 14 && tileentity instanceof BeehiveTileEntity) {
+      if (i == 1 && tileentity instanceof MobSpawnerTileEntity || flag || i == 3 && tileentity instanceof BeaconTileEntity || i == 4 && tileentity instanceof SkullTileEntity || i == 6 && tileentity instanceof BannerTileEntity || i == 7 && tileentity instanceof StructureBlockTileEntity || i == 8 && tileentity instanceof EndGatewayTileEntity || i == 9 && tileentity instanceof SignTileEntity || i == 11 && tileentity instanceof BedTileEntity || i == 5 && tileentity instanceof ConduitTileEntity || i == 12 && tileentity instanceof JigsawTileEntity || i == 13 && tileentity instanceof CampfireTileEntity || i == 14 && tileentity instanceof BeehiveTileEntity || i == 15 && tileentity instanceof SculkSensorBlockEntity || i == 16 && tileentity instanceof BrushableBlockEntity) {
          tileentity.load(this.minecraft.level.getBlockState(blockpos), p_147273_1_.getTag());
       }
 
@@ -1623,7 +1656,22 @@ public class ClientPlayNetHandler implements IClientPlayNetHandler {
          } else if (SCustomPayloadPlayPacket.DEBUG_NEIGHBORSUPDATE_PACKET.equals(resourcelocation)) {
             long l1 = packetbuffer.readVarLong();
             BlockPos blockpos9 = packetbuffer.readBlockPos();
-            ((NeighborsUpdateDebugRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(l1, blockpos9);
+            int x = packetbuffer.readInt();
+            int y = packetbuffer.readInt();
+            int z = packetbuffer.readInt();
+
+
+            BlockPos blockpos10 = new BlockPos(x, y, z);
+
+//
+//            System.out.println("- Read packet for Neighbour Update -");
+//            System.out.println("Gametime: " + l1);
+//            System.out.println("Block position (via packetbuffer.readBlockPos(): " + blockpos9);
+//            System.out.println("Block position (via x, y, and z: " + blockpos10);
+//
+//            System.out.println("-                                  -");
+
+            ((NeighborsUpdateDebugRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(l1, blockpos10);
          } else if (SCustomPayloadPlayPacket.DEBUG_CAVES_PACKET.equals(resourcelocation)) {
             BlockPos blockpos2 = packetbuffer.readBlockPos();
             int k2 = packetbuffer.readInt();

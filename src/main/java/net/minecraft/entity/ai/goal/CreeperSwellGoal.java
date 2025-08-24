@@ -15,6 +15,7 @@ public class CreeperSwellGoal extends Goal {
    }
 
    public boolean canUse() {
+
       LivingEntity livingentity = this.creeper.getTarget();
       boolean canSee = livingentity != null && this.creeper.getSensing().canSee(livingentity);
       boolean flag = livingentity != null && this.creeper.distanceToSqr(livingentity) < (canSee ? 26 : 17) && livingentity instanceof VillagerEntity && creeper.veryHardmode();
