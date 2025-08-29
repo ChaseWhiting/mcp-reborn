@@ -1,11 +1,11 @@
 buildscript {
     repositories {
         mavenLocal()
-        maven { url = 'https://files.minecraftforge.net/maven' } // Changed to HTTPS
+        maven { url = 'https://files.minecraftforge.net/maven' }
         mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.56'
     }
 }
 
@@ -14,8 +14,8 @@ plugins {
     id 'java'
 }
 
-sourceCompatibility = '15'
-targetCompatibility = '15'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 import net.minecraftforge.forge.tasks.*
 
@@ -31,8 +31,8 @@ configurations {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_15
-    targetCompatibility = JavaVersion.VERSION_15
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 
@@ -60,7 +60,11 @@ dependencies {
     implementation 'org.jetbrains:annotations:24.0.1'
     implementation 'org.deeplearning4j:deeplearning4j-core:1.0.0-M1.1'
     implementation 'org.deeplearning4j:rl4j-core:1.0.0-M1.1'
-    implementation 'org.slf4j:slf4j-simple:1.7.30'
+    implementation("com.openai:openai-java:2.0.0")
+    //implementation 'org.slf4j:slf4j-simple:1.7.30'
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    implementation("org.slf4j:slf4j-simple:2.0.17")
+    implementation 'org.joml:joml:1.10.5'
 
     implementation 'org.nd4j:nd4j-native-platform:1.0.0-M1.1'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
@@ -107,6 +111,7 @@ shadowJar {
 }
 
 jar {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
             exclude 'META-INF', 'META-INF/**'

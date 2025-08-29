@@ -77,10 +77,7 @@ import net.minecraft.village.GossipManager;
 import net.minecraft.village.GossipType;
 import net.minecraft.village.PointOfInterestManager;
 import net.minecraft.village.PointOfInterestType;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.raid.Raid;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -244,6 +241,10 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
          }
       }
 
+
+
+
+
       if (this.lastTradedPlayer != null && this.level instanceof ServerWorld) {
          ((ServerWorld)this.level).onReputationEvent(IReputationType.TRADE, this.lastTradedPlayer, this);
          this.level.broadcastEntityEvent(this, (byte)14);
@@ -268,6 +269,22 @@ public class VillagerEntity extends AbstractVillagerEntity implements IReputatio
       super.tick();
       if (this.getUnhappyCounter() > 0) {
          this.setUnhappyCounter(this.getUnhappyCounter() - 1);
+      }
+      if (level.isServerSide && this.level().getGameRules().getBoolean(GameRules.DYNAMIC_VILLAGER_AI) && ((tickCount + getId()) % 20) == 0 ) {
+         // Scan for nearby non-villager entities
+         List<Entity> nearby = this.level().getEntities(
+                 this,
+                 this.getBoundingBox().inflate(3.5D),
+                 entity -> !(entity instanceof VillagerEntity)
+         );
+
+         if (nearby.isEmpty()) {
+            // Suppress AI
+            this.setNoAi(true);
+         } else {
+            // Re-enable AI
+            this.setNoAi(false);
+         }
       }
 
       this.maybeDecayGossip();

@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.FireSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
@@ -14,6 +15,7 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -46,64 +48,184 @@ public abstract class AbstractFireBlock extends Block {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public void animateTick(BlockState p_180655_1_, World p_180655_2_, BlockPos p_180655_3_, Random p_180655_4_) {
-      if (p_180655_4_.nextInt(24) == 0) {
-         p_180655_2_.playLocalSound((double)p_180655_3_.getX() + 0.5D, (double)p_180655_3_.getY() + 0.5D, (double)p_180655_3_.getZ() + 0.5D, SoundEvents.FIRE_AMBIENT, SoundCategory.BLOCKS, 1.0F + p_180655_4_.nextFloat(), p_180655_4_.nextFloat() * 0.7F + 0.3F, false);
+   public void animateTick(BlockState p_180655_1_, World world, BlockPos pos, Random random) {
+      if (random.nextInt(24) == 0) {
+         world.playLocalSound((double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, SoundEvents.FIRE_AMBIENT, SoundCategory.BLOCKS, 1.0F + random.nextFloat(), random.nextFloat() * 0.7F + 0.3F, false);
       }
 
-      BlockPos blockpos = p_180655_3_.below();
-      BlockState blockstate = p_180655_2_.getBlockState(blockpos);
-      if (!this.canBurn(blockstate) && !blockstate.isFaceSturdy(p_180655_2_, blockpos, Direction.UP)) {
-         if (this.canBurn(p_180655_2_.getBlockState(p_180655_3_.west()))) {
+      BlockPos blockpos = pos.below();
+      BlockState blockstate = world.getBlockState(blockpos);
+      if (!this.canBurn(blockstate) && !blockstate.isFaceSturdy(world, blockpos, Direction.UP)) {
+         if (this.canBurn(world.getBlockState(pos.west()))) {
             for(int j = 0; j < 2; ++j) {
-               double d3 = (double)p_180655_3_.getX() + p_180655_4_.nextDouble() * (double)0.1F;
-               double d8 = (double)p_180655_3_.getY() + p_180655_4_.nextDouble();
-               double d13 = (double)p_180655_3_.getZ() + p_180655_4_.nextDouble();
-               p_180655_2_.addParticle(ParticleTypes.LARGE_SMOKE, d3, d8, d13, 0.0D, 0.0D, 0.0D);
+               double d3 = (double)pos.getX() + random.nextDouble() * (double)0.1F;
+               double d8 = (double)pos.getY() + random.nextDouble();
+               double d13 = (double)pos.getZ() + random.nextDouble();
+               world.addParticle(ParticleTypes.LARGE_SMOKE, d3, d8, d13, 0.0D, 0.0D, 0.0D);
+
+               if (random.nextFloat() < 0.15F) {
+                  BasicParticleType bp = random.nextFloat() > 0.8F ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE;
+                  world.addAlwaysVisibleParticle(bp, true,
+                          d3,
+                          d8,
+                          d13, 0.0D, 0.07D, 0.0D);
+               }
+
+               if (random.nextInt(5) == 0) {
+                  for(int i = 0; i < random.nextInt(1) + 1; ++i) {
+                     BasicParticleType bp = (random.nextFloat() > 0.8F ? ParticleTypes.TNT_LAVA : ParticleTypes.LAVA);
+                     world.addParticle(bp,
+                             d3,
+                             d8,
+                             d13,
+                             (random.nextFloat() / 2.0F), 5.0E-5D,
+                             (random.nextFloat() / 2.0F));
+                  }
+               }
             }
          }
 
-         if (this.canBurn(p_180655_2_.getBlockState(p_180655_3_.east()))) {
+         if (this.canBurn(world.getBlockState(pos.east()))) {
             for(int k = 0; k < 2; ++k) {
-               double d4 = (double)(p_180655_3_.getX() + 1) - p_180655_4_.nextDouble() * (double)0.1F;
-               double d9 = (double)p_180655_3_.getY() + p_180655_4_.nextDouble();
-               double d14 = (double)p_180655_3_.getZ() + p_180655_4_.nextDouble();
-               p_180655_2_.addParticle(ParticleTypes.LARGE_SMOKE, d4, d9, d14, 0.0D, 0.0D, 0.0D);
+               double d4 = (double)(pos.getX() + 1) - random.nextDouble() * (double)0.1F;
+               double d9 = (double)pos.getY() + random.nextDouble();
+               double d14 = (double)pos.getZ() + random.nextDouble();
+               world.addParticle(ParticleTypes.LARGE_SMOKE, d4, d9, d14, 0.0D, 0.0D, 0.0D);
+
+               if (random.nextFloat() < 0.15F) {
+                  BasicParticleType bp = random.nextFloat() > 0.8F ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE;
+                  world.addAlwaysVisibleParticle(bp, true,
+                          d4,
+                          d9,
+                          d14, 0.0D, 0.07D, 0.0D);
+               }
+
+               if (random.nextInt(5) == 0) {
+                  for(int i = 0; i < random.nextInt(1) + 1; ++i) {
+                     BasicParticleType bp = (random.nextFloat() > 0.8F ? ParticleTypes.TNT_LAVA : ParticleTypes.LAVA);
+                     world.addParticle(bp,
+                             d4,
+                             d9,
+                             d14,
+                             (random.nextFloat() / 2.0F), 5.0E-5D,
+                             (random.nextFloat() / 2.0F));
+                  }
+               }
             }
          }
 
-         if (this.canBurn(p_180655_2_.getBlockState(p_180655_3_.north()))) {
+         if (this.canBurn(world.getBlockState(pos.north()))) {
             for(int l = 0; l < 2; ++l) {
-               double d5 = (double)p_180655_3_.getX() + p_180655_4_.nextDouble();
-               double d10 = (double)p_180655_3_.getY() + p_180655_4_.nextDouble();
-               double d15 = (double)p_180655_3_.getZ() + p_180655_4_.nextDouble() * (double)0.1F;
-               p_180655_2_.addParticle(ParticleTypes.LARGE_SMOKE, d5, d10, d15, 0.0D, 0.0D, 0.0D);
+               double d5 = (double)pos.getX() + random.nextDouble();
+               double d10 = (double)pos.getY() + random.nextDouble();
+               double d15 = (double)pos.getZ() + random.nextDouble() * (double)0.1F;
+               world.addParticle(ParticleTypes.LARGE_SMOKE, d5, d10, d15, 0.0D, 0.0D, 0.0D);
+
+               if (random.nextFloat() < 0.15F) {
+                  BasicParticleType bp = random.nextFloat() > 0.8F ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE;
+                  world.addAlwaysVisibleParticle(bp, true,
+                          d5,
+                          d10,
+                          d15, 0.0D, 0.07D, 0.0D);
+               }
+
+               if (random.nextInt(5) == 0) {
+                  for(int i = 0; i < random.nextInt(1) + 1; ++i) {
+                     BasicParticleType bp = (random.nextFloat() > 0.8F ? ParticleTypes.TNT_LAVA : ParticleTypes.LAVA);
+                     world.addParticle(bp,
+                             d5,
+                             d10,
+                             d15,
+                             (random.nextFloat() / 2.0F), 5.0E-5D,
+                             (random.nextFloat() / 2.0F));
+                  }
+               }
             }
          }
 
-         if (this.canBurn(p_180655_2_.getBlockState(p_180655_3_.south()))) {
+         if (this.canBurn(world.getBlockState(pos.south()))) {
             for(int i1 = 0; i1 < 2; ++i1) {
-               double d6 = (double)p_180655_3_.getX() + p_180655_4_.nextDouble();
-               double d11 = (double)p_180655_3_.getY() + p_180655_4_.nextDouble();
-               double d16 = (double)(p_180655_3_.getZ() + 1) - p_180655_4_.nextDouble() * (double)0.1F;
-               p_180655_2_.addParticle(ParticleTypes.LARGE_SMOKE, d6, d11, d16, 0.0D, 0.0D, 0.0D);
+               double d6 = (double)pos.getX() + random.nextDouble();
+               double d11 = (double)pos.getY() + random.nextDouble();
+               double d16 = (double)(pos.getZ() + 1) - random.nextDouble() * (double)0.1F;
+               world.addParticle(ParticleTypes.LARGE_SMOKE, d6, d11, d16, 0.0D, 0.0D, 0.0D);
+
+               if (random.nextFloat() < 0.15F) {
+                  BasicParticleType bp = random.nextFloat() > 0.8F ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE;
+                  world.addAlwaysVisibleParticle(bp, true,
+                          d6,
+                          d11,
+                          d16, 0.0D, 0.07D, 0.0D);
+               }
+
+               if (random.nextInt(5) == 0) {
+                  for(int i = 0; i < random.nextInt(1) + 1; ++i) {
+                     BasicParticleType bp = (random.nextFloat() > 0.8F ? ParticleTypes.TNT_LAVA : ParticleTypes.LAVA);
+                     world.addParticle(bp,
+                             d6,
+                             d11,
+                             d16,
+                             (random.nextFloat() / 2.0F), 5.0E-5D,
+                             (random.nextFloat() / 2.0F));
+                  }
+               }
             }
          }
 
-         if (this.canBurn(p_180655_2_.getBlockState(p_180655_3_.above()))) {
+         if (this.canBurn(world.getBlockState(pos.above()))) {
             for(int j1 = 0; j1 < 2; ++j1) {
-               double d7 = (double)p_180655_3_.getX() + p_180655_4_.nextDouble();
-               double d12 = (double)(p_180655_3_.getY() + 1) - p_180655_4_.nextDouble() * (double)0.1F;
-               double d17 = (double)p_180655_3_.getZ() + p_180655_4_.nextDouble();
-               p_180655_2_.addParticle(ParticleTypes.LARGE_SMOKE, d7, d12, d17, 0.0D, 0.0D, 0.0D);
+               double d7 = (double)pos.getX() + random.nextDouble();
+               double d12 = (double)(pos.getY() + 1) - random.nextDouble() * (double)0.1F;
+               double d17 = (double)pos.getZ() + random.nextDouble();
+               world.addParticle(ParticleTypes.LARGE_SMOKE, d7, d12, d17, 0.0D, 0.0D, 0.0D);
+
+               if (random.nextFloat() < 0.15F) {
+                  BasicParticleType bp = random.nextFloat() > 0.8F ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE;
+                  world.addAlwaysVisibleParticle(bp, true,
+                          d7,
+                          d12,
+                          d17, 0.0D, 0.07D, 0.0D);
+               }
+
+               if (random.nextInt(5) == 0) {
+                  for(int i = 0; i < random.nextInt(1) + 1; ++i) {
+                     BasicParticleType bp = (random.nextFloat() > 0.8F ? ParticleTypes.TNT_LAVA : ParticleTypes.LAVA);
+                     world.addParticle(bp,
+                             d7,
+                             d12,
+                             d17,
+                             (random.nextFloat() / 2.0F), 5.0E-5D,
+                             (random.nextFloat() / 2.0F));
+                  }
+               }
             }
          }
       } else {
          for(int i = 0; i < 3; ++i) {
-            double d0 = (double)p_180655_3_.getX() + p_180655_4_.nextDouble();
-            double d1 = (double)p_180655_3_.getY() + p_180655_4_.nextDouble() * 0.5D + 0.5D;
-            double d2 = (double)p_180655_3_.getZ() + p_180655_4_.nextDouble();
-            p_180655_2_.addParticle(ParticleTypes.LARGE_SMOKE, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+            double d0 = (double)pos.getX() + random.nextDouble();
+            double d1 = (double)pos.getY() + random.nextDouble() * 0.5D + 0.5D;
+            double d2 = (double)pos.getZ() + random.nextDouble();
+            world.addParticle(ParticleTypes.LARGE_SMOKE, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+
+            if (random.nextFloat() < 0.15F) {
+               BasicParticleType bp = random.nextFloat() > 0.8F ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE;
+               world.addAlwaysVisibleParticle(bp, true,
+                       d0,
+                       d1,
+                       d2, 0.0D, 0.07D, 0.0D);
+            }
+
+            if (random.nextInt(5) == 0) {
+               for(int x = 0; x < random.nextInt(1) + 1; ++x) {
+                  BasicParticleType bp = (random.nextFloat() > 0.8F ? ParticleTypes.TNT_LAVA : ParticleTypes.LAVA);
+                  world.addParticle(bp,
+                          d0,
+                          d1,
+                          d2,
+                          (random.nextFloat() / 2.0F), 5.0E-5D,
+                          (random.nextFloat() / 2.0F));
+               }
+            }
          }
       }
 

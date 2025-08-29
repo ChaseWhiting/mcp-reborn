@@ -5,7 +5,8 @@ public enum GameEvent {
     BLOCK_DESTROY("block_destroy"),
     BLOCK_BREAKING("block_breaking"),
     BLOCK_BROKEN("block_broken"),
-    UPDATE_BLOCK("update_block");
+    UPDATE_BLOCK("update_block"),
+    HURT_ENTITY_FIRE("hurt_entity");
 
 
     final String name;

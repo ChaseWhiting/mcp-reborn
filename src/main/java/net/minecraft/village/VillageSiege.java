@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
@@ -31,8 +32,9 @@ public class VillageSiege implements ISpecialSpawner {
    public int tick(ServerWorld p_230253_1_, boolean p_230253_2_, boolean p_230253_3_) {
       if (!p_230253_1_.isDay() && p_230253_2_) {
          float f = p_230253_1_.getTimeOfDay(0.0F);
+         boolean hm = p_230253_1_.getGameRules().getBoolean(GameRules.RULE_VERYHARD);
          if ((double)f == 0.5D) {
-            this.siegeState = p_230253_1_.random.nextInt(10) == 0 ? VillageSiege.State.SIEGE_TONIGHT : VillageSiege.State.SIEGE_DONE;
+            this.siegeState = p_230253_1_.random.nextInt(hm ? 1 : 10) == 0 ? VillageSiege.State.SIEGE_TONIGHT : VillageSiege.State.SIEGE_DONE;
          }
 
          if (this.siegeState == VillageSiege.State.SIEGE_DONE) {
@@ -69,6 +71,7 @@ public class VillageSiege implements ISpecialSpawner {
    }
 
    private boolean tryToSetupSiege(ServerWorld p_75529_1_) {
+      boolean hm = p_75529_1_.getGameRules().getBoolean(GameRules.RULE_VERYHARD);
       for(PlayerEntity playerentity : p_75529_1_.players()) {
          if (!playerentity.isSpectator()) {
             BlockPos blockpos = playerentity.blockPosition();
@@ -80,7 +83,7 @@ public class VillageSiege implements ISpecialSpawner {
                   this.spawnZ = blockpos.getZ() + MathHelper.floor(MathHelper.sin(f) * 32.0F);
                   if (this.findRandomSpawnPos(p_75529_1_, new BlockPos(this.spawnX, this.spawnY, this.spawnZ)) != null) {
                      this.nextSpawnTime = 0;
-                     this.zombiesToSpawn = 20;
+                     this.zombiesToSpawn = (hm ? 40 : 20);
                      break;
                   }
                }

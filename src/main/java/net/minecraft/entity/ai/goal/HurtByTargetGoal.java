@@ -8,7 +8,9 @@ import java.util.UUID;
 import net.minecraft.entity.*;
 import net.minecraft.entity.monster.bogged.BoggedEntity;
 import net.minecraft.entity.monster.Monster;
+import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.GameRules;
@@ -35,6 +37,13 @@ public class HurtByTargetGoal extends TargetGoal {
          if (this.mob instanceof BoggedEntity && ((BoggedEntity) this.mob).isAlliedTo(livingentity) && EntityPredicates.NO_CREATIVE_OR_SPECTATOR.test(livingentity)) {
             return true;  // Allow attack even if it's a trusted player
          }
+
+
+         if (mob instanceof PolarBearEntity pb && !livingentity.isAlliedTo(mob) && pb.isTrusting() && livingentity instanceof PlayerEntity) {
+            pb.setTrusting(false);
+            return true;
+         }
+
 
          if (this.mob instanceof BoggedEntity && livingentity instanceof BoggedEntity) {
             BoggedEntity mobBogged = (BoggedEntity) this.mob;

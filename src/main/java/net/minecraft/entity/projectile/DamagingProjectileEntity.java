@@ -90,6 +90,16 @@ public abstract class DamagingProjectileEntity extends ProjectileEntity {
 
          this.setDeltaMovement(vector3d.add(this.xPower, this.yPower, this.zPower).scale((double)f));
          this.level.addParticle(this.getTrailParticle(), d0, d1 + 0.5D, d2, 0.0D, 0.0D, 0.0D);
+         if (random.nextInt(3) == 0 && this instanceof AbstractFireballEntity) {
+            for(int x = 0; x < random.nextInt(3) + 1; ++x) {
+               level.addParticle(ParticleTypes.LAVA,
+                       d0,
+                       d1 + 0.5D,
+                       d2,
+                       (random.nextFloat() / 2.0F), 5.0E-5D,
+                       (random.nextFloat() / 2.0F));
+            }
+         }
          this.setPos(d0, d1, d2);
       } else {
          this.remove();

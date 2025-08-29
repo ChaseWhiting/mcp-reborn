@@ -93,6 +93,16 @@ public class TNTEntity extends Entity {
          if (!this.level.isClientSide) {
             this.explode();
          }
+         for (int x = 0; x < random.nextInt(10, 20) + 15; ++x) {
+            level.addParticle(ParticleTypes.TNT_LAVA,
+                    this.getX(),
+                    this.getY() + 0.5D,
+                    this.getZ(),
+                    (random.nextFloat() - 0.5F) * 1.5F,
+                    (random.nextFloat() * 0.5D) + 0.1D,
+                    (random.nextFloat() - 0.5F) * 1.5F);
+         }
+
       } else {
          this.updateInWaterStateAndDoFluidPushing();
          if (this.level.isClientSide) {

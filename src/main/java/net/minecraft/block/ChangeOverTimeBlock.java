@@ -18,6 +18,10 @@ public interface ChangeOverTimeBlock<T extends Enum<T>> {
 
     default void changeOverTime(BlockState blockState2, ServerWorld serverLevel, BlockPos blockPos, Random random) {
         float chance = 0.05688889f;
+
+        if (serverLevel.isRainingAt(blockPos.above())) {
+            chance += 0.05688889F;
+        }
         if (random.nextFloat() < chance) {
             this.getNextState(blockState2, serverLevel, blockPos, random).ifPresent(newState -> {
                 if (newState.getBlock() instanceof DoorBlock) {
@@ -62,6 +66,12 @@ public interface ChangeOverTimeBlock<T extends Enum<T>> {
         }
         float f = (float)(n4 + 1) / (float)(n4 + n3 + 1);
         float f2 = f * f * this.getChanceModifier();
+
+        // Check if it's raining at the block position
+        if (serverLevel.isRainingAt(blockPos) || serverLevel.isRainingAt(blockPos.above())) {
+            f2 *= 1.5F; // increase chance by 50%, tweak as needed
+        }
+
         if (random.nextFloat() < f2) {
             return this.getNext(blockState);
         }

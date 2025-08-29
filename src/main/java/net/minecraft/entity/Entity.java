@@ -590,6 +590,10 @@ public abstract class Entity implements INameable, ICommandSource {
         this.updateInWaterStateAndDoFluidPushing();
         this.updateFluidOnEyes();
         this.updateSwimming();
+        if (random.nextFloat() < 0.2F && remainingFireTicks > 0) {
+            this.level.addParticle(ParticleTypes.LARGE_SMOKE, getRandomX(0.5D), getRandomY() - 0.2D, getRandomZ(0.5D), 0.0D, 0.0D, 0.0D);
+        }
+
         if (this.level.isClientSide) {
             this.clearFire();
         } else if (this.remainingFireTicks > 0) {
@@ -608,6 +612,7 @@ public abstract class Entity implements INameable, ICommandSource {
                 }
 
                 this.setRemainingFireTicks(this.remainingFireTicks - 1);
+
             }
         }
 

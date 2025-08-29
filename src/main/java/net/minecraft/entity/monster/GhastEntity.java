@@ -20,6 +20,10 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.happy_ghast.HappyGhastEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.passive.Animal;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.fluid.FluidState;
@@ -60,6 +64,15 @@ public class GhastEntity extends FlyingEntity implements IMob {
       this.goalSelector.addGoal(7, new GhastEntity.FireballAttackGoal(this));
       this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, (p_213812_1_) -> {
          return Math.abs(p_213812_1_.getY() - this.getY()) <= 4.0D;
+      }));
+      this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, VillagerEntity.class, 10, true, false, (p_213812_1_) -> {
+         return true;
+      }));
+      this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, IronGolemEntity.class, 10, true, false, (p_213812_1_) -> {
+         return true;
+      }));
+      this.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(this, Animal.class, 10, true, false, (p_213812_1_) -> {
+         return !(p_213812_1_ instanceof HoglinEntity) && !(p_213812_1_ instanceof ZoglinEntity) && !(p_213812_1_ instanceof HappyGhastEntity);
       }));
    }
 
@@ -168,7 +181,8 @@ public class GhastEntity extends FlyingEntity implements IMob {
       public void tick() {
          LivingEntity livingentity = this.ghast.getTarget();
          double d0 = 64.0D;
-         if (livingentity.distanceToSqr(this.ghast) < 4096.0D && this.ghast.canSee(livingentity)) {
+         double b = ghast.veryHardmode() ? 8192D : 4096D;
+         if (livingentity.distanceToSqr(this.ghast) < b && (this.ghast.canSee(livingentity) || ghast.veryHardmode())) {
             World world = this.ghast.level;
             ++this.chargeTime;
             if (this.chargeTime == 10 && !this.ghast.isSilent()) {

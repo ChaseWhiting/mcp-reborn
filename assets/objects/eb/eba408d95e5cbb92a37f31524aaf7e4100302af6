@@ -9345,6 +9345,23 @@
         ],
         "subtitle": "subtitles.entity.polar_bear.ambient"
     },
+        "entity.polar_bear.eat": {
+            "sounds": [
+                {
+                    "name": "mob/dolphin/eat1",
+                    "volume": 1.1
+                },
+                {
+                    "name": "mob/dolphin/eat2",
+                    "volume": 1.1
+                },
+                {
+                    "name": "mob/dolphin/eat3",
+                    "volume": 1.1
+                }
+            ],
+            "subtitle": "subtitles.entity.polar_bear.eat"
+        },
     "entity.polar_bear.ambient_baby": {
         "sounds": [
             "mob/polarbear_baby/idle1",

@@ -19,14 +19,14 @@ public class SharedConstants {
    public static final char[] ILLEGAL_FILE_CHARACTERS = new char[]{'/', '\n', '\r', '\t', '\u0000', '\f', '`', '?', '*', '\\', '<', '>', '|', '"', ':'};
    private static GameVersion CURRENT_VERSION;
 
-   public static boolean isAllowedChatCharacter(char p_71566_0_) {
-      return p_71566_0_ != 167 && p_71566_0_ >= ' ' && p_71566_0_ != 127;
+   public static boolean isAllowedChatCharacter(char c) {
+      return c != 167 && c >= ' ' && c != 127;
    }
 
-   public static String filterText(String p_71565_0_) {
+   public static String filterText(String str) {
       StringBuilder stringbuilder = new StringBuilder();
 
-      for(char c0 : p_71565_0_.toCharArray()) {
+      for(char c0 : str.toCharArray()) {
          if (isAllowedChatCharacter(c0)) {
             stringbuilder.append(c0);
          }

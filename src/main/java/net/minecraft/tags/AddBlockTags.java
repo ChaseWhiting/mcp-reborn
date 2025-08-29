@@ -69,6 +69,46 @@ public class AddBlockTags {
         blockTagBuilders.get(new ResourceLocation("minecraft", "logs")).add(Blocks.PALE_OAK_LOG, Blocks.STRIPPED_PALE_LOG, Blocks.PALE_OAK_WOOD, Blocks.STRIPPED_PALE_OAK_WOOD);
         blockTagBuilders.get(new ResourceLocation("minecraft", "logs_that_burn")).add(Blocks.PALE_OAK_LOG, Blocks.STRIPPED_PALE_LOG, Blocks.PALE_OAK_WOOD, Blocks.STRIPPED_PALE_OAK_WOOD);
 
+        blockTagBuilders.put(new ResourceLocation("minecraft", "copper_that_can_burn"), ITag.Builder.tag());
+        blockTagBuilders.get(new ResourceLocation("minecraft", "copper_that_can_burn"))
+                .add(
+                        Blocks.COPPER_BLOCK,
+                        Blocks.EXPOSED_COPPER,
+                        Blocks.WEATHERED_COPPER,
+
+                        Blocks.CUT_COPPER,
+                        Blocks.EXPOSED_CUT_COPPER,
+                        Blocks.WEATHERED_CUT_COPPER,
+
+                        Blocks.CUT_COPPER_STAIRS,
+                        Blocks.EXPOSED_CUT_COPPER_STAIRS,
+                        Blocks.WEATHERED_CUT_COPPER_STAIRS,
+
+                        Blocks.CUT_COPPER_SLAB,
+                        Blocks.EXPOSED_CUT_COPPER_SLAB,
+                        Blocks.WEATHERED_CUT_COPPER_SLAB,
+
+                        Blocks.CHISELED_COPPER,
+                        Blocks.EXPOSED_CHISELED_COPPER,
+                        Blocks.WEATHERED_CHISELED_COPPER,
+
+                        Blocks.COPPER_DOOR,
+                        Blocks.EXPOSED_COPPER_DOOR,
+                        Blocks.WEATHERED_COPPER_DOOR,
+
+                        Blocks.COPPER_TRAPDOOR,
+                        Blocks.EXPOSED_COPPER_TRAPDOOR,
+                        Blocks.WEATHERED_COPPER_TRAPDOOR,
+
+                        Blocks.COPPER_GRATE,
+                        Blocks.EXPOSED_COPPER_GRATE,
+                        Blocks.WEATHERED_COPPER_GRATE,
+
+                        Blocks.COPPER_BULB,
+                        Blocks.EXPOSED_COPPER_BULB,
+                        Blocks.WEATHERED_COPPER_BULB
+                );
+
     }
 
 }

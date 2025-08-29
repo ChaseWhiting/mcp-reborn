@@ -31,7 +31,6 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
       boolean[][] patchMap = new boolean[radius * 2 + 1][radius * 2 + 1];
       int size = radius * 2 + 1;
 
-      // --- seed core
       for (int dx = -radius; dx <= radius; dx++) {
          for (int dz = -radius; dz <= radius; dz++) {
             double distance = Math.sqrt(dx * dx + dz * dz);
@@ -42,7 +41,6 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
          }
       }
 
-      // --- smooth core
       for (int i = 0; i < 2; i++) {
          boolean[][] newPatchMap = new boolean[size][size];
          for (int dx = -radius; dx <= radius; dx++) {
@@ -56,14 +54,13 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
          patchMap = newPatchMap;
       }
 
-      // --- core placement (unchanged mix)
       for (int dx = -radius; dx <= radius; dx++) {
          for (int dz = -radius; dz <= radius; dz++) {
             if (patchMap[dx + radius][dz + radius]) {
                int wx = origin.getX() + dx;
                int wz = origin.getZ() + dz;
                IChunk chunk = world.getChunk(wx >> 4, wz >> 4);
-               chunk.getOrCreateHeightmapUnprimed(Heightmap.Type.WORLD_SURFACE); // ensures it exists
+               chunk.getOrCreateHeightmapUnprimed(Heightmap.Type.WORLD_SURFACE);
                int worldHeight = chunk.getHeight(Heightmap.Type.WORLD_SURFACE, wx & 15, wz & 15);
                mutablePos.set(wx, worldHeight, wz);
                Block blockBelow = world.getBlockState(mutablePos).getBlock();
@@ -76,7 +73,24 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
                   if (materialChance < 0.65F - (0.3F * (float)blendFactor)) {
                      world.setBlock(mutablePos, Blocks.SAND.defaultBlockState(), 2);
 
-                     addCacti(world, mutablePos, random, 0);
+                     // World seed for determinism across gen passes
+                     long seed = world.getSeed(); // ISeedReader/IWorld has getSeed() in 1.16.x
+
+// Low-frequency noise sampled at world coords (wx, wz).
+// Try 32–48 for broad clusters. Larger -> fewer, larger cactus zones.
+                     double n = valueNoise2D(seed, wx, wz, 40);
+
+// Convert noise to a boost that only applies in positive “hotspot” regions.
+// Threshold means: only boost when n > ~0.2; maxBoost caps cluster density.
+                     float base = 0.013F;
+                     float maxBoost = 0.15F; // hotspots can reach base + ~0.075 ≈ 0.088 total
+                     double t = Math.max(0.0, (n - 0.2) / 0.8); // 0 at n<=0.2, 1 near n=1.0
+                     t = t * t; // bias: fewer but more distinct hotspots (optional)
+                     float cactusChance = base + (float)(t * maxBoost);
+
+// Call unchanged
+                     addCacti(world, mutablePos, random, cactusChance);
+
                   } else {
                      world.setBlock(mutablePos, Blocks.COARSE_DIRT.defaultBlockState(), 2);
                   }
@@ -86,9 +100,8 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
          }
       }
 
-      // --- feather ring: softly convert nearby grass outside the core to a MIX (sand + coarse)
-      //     keeps your inner ratio intact; adds blend and removes stray grass
-      int featherWidth = 3; // tune 2..5
+
+      int featherWidth = 3;
       for (int dx = -(radius + featherWidth); dx <= (radius + featherWidth); dx++) {
          for (int dz = -(radius + featherWidth); dz <= (radius + featherWidth); dz++) {
             int mapX = dx + radius;
@@ -98,7 +111,6 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
             boolean isCore = inMap && patchMap[mapX][mapZ];
             if (isCore) continue;
 
-            // distance to nearest core cell; 1..featherWidth, or -1 if none within range
             int nearest = distanceToPatch(patchMap, mapX, mapZ, featherWidth);
             if (nearest < 0) continue;
 
@@ -107,15 +119,12 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
             int wy = world.getHeight(Heightmap.Type.WORLD_SURFACE, wx, wz) - 1;
             mutablePos.set(wx, wy, wz);
 
-            // Only touch grass surface to avoid wrecking other surfaces
             if (!world.getBlockState(mutablePos).is(Blocks.GRASS_BLOCK)) continue;
 
-            // Mirror your edge mix but fade outward:
-            // At nearest=1 (immediately outside): ~35% sand (same as core edge)
-            // At nearest=featherWidth: ~20% sand (still some speckles)
-            double s = (nearest - 1) / Math.max(1.0, (double)(featherWidth - 1)); // 0..1
-            double edgeBlend = 1.0 + 0.5 * s;  // 1.0..1.5
-            float sandChance = (float)Math.max(0.05, 0.65 - 0.3 * edgeBlend); // ~0.35..0.20 then floor at 5%
+
+            double s = (nearest - 1) / Math.max(1.0, (double)(featherWidth - 1));
+            double edgeBlend = 1.0 + 0.5 * s;
+            float sandChance = (float)Math.max(0.05, 0.65 - 0.3 * edgeBlend);
 
             if (random.nextFloat() < sandChance) {
                world.setBlock(mutablePos, Blocks.SAND.defaultBlockState(), 2);
@@ -130,6 +139,54 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
    }
 
 
+
+   // Hash -> [0,1)
+   private static double rand01(long s) {
+      s ^= (s >>> 33);
+      s *= 0xff51afd7ed558ccdL;
+      s ^= (s >>> 33);
+      s *= 0xc4ceb9fe1a85ec53L;
+      s ^= (s >>> 33);
+      // convert to [0,1)
+      return (Double.longBitsToDouble((s & ((1L << 52) - 1)) | 0x3ff0000000000000L) - 1.0);
+   }
+
+   // Smoothstep for interpolation
+   private static double smooth(double t) {
+      return t * t * (3.0 - 2.0 * t);
+   }
+
+   /**
+    * Low-frequency, bilinearly interpolated value noise in [-1,1].
+    * cellSize controls how large "clusters" are (bigger -> larger patches).
+    */
+   private static double valueNoise2D(long worldSeed, int x, int z, int cellSize) {
+      int gx = Math.floorDiv(x, cellSize);
+      int gz = Math.floorDiv(z, cellSize);
+      double fx = (double)(x - gx * cellSize) / cellSize;
+      double fz = (double)(z - gz * cellSize) / cellSize;
+
+      long k1 = 0x9e3779b97f4a7c15L; // golden ratio constant
+      long k2 = 0xc2b2ae3d27d4eb4fL;
+
+      // Corner randoms in [0,1)
+      double v00 = rand01(worldSeed ^ (gx * k1) ^ (gz * k2));
+      double v10 = rand01(worldSeed ^ ((gx + 1) * k1) ^ (gz * k2));
+      double v01 = rand01(worldSeed ^ (gx * k1) ^ ((gz + 1) * k2));
+      double v11 = rand01(worldSeed ^ ((gx + 1) * k1) ^ ((gz + 1) * k2));
+
+      // Bilinear with smoothstep
+      double sx = smooth(fx);
+      double sz = smooth(fz);
+      double a = v00 + sx * (v10 - v00);
+      double b = v01 + sx * (v11 - v01);
+      double v = a + sz * (b - a);
+
+      return v * 2.0 - 1.0; // map to [-1,1]
+   }
+
+
+
    private boolean isAirOnSides(BlockPos pos, ISeedReader world) {
       for (BlockPos p : List.of(pos.west(), pos.east(), pos.south(), pos.north())) {
          if (world.getBlockState(p).isSolidRender(world, pos)) return false;
@@ -138,8 +195,8 @@ public class CoarseDirtSandFeature extends Feature<ProbabilityConfig> {
       return true;
    }
 
-   private void addCacti(ISeedReader world, BlockPos.Mutable mutablePos, Random random, int countedPlacedCacti) {
-      if (random.nextFloat() < 0.013F || countedPlacedCacti > 0) {
+   private void addCacti(ISeedReader world, BlockPos.Mutable mutablePos, Random random, float chance) {
+      if (random.nextFloat() < chance) {
          BlockPos.Mutable mutable = mutablePos.above().mutable();
 
          int b = random.nextInt(0, 4);

@@ -18,7 +18,7 @@ public class CreeperSwellGoal extends Goal {
 
       LivingEntity livingentity = this.creeper.getTarget();
       boolean canSee = livingentity != null && this.creeper.getSensing().canSee(livingentity);
-      boolean flag = livingentity != null && this.creeper.distanceToSqr(livingentity) < (canSee ? 26 : 17) && livingentity instanceof VillagerEntity && creeper.veryHardmode();
+      boolean flag = livingentity != null && this.creeper.distanceToSqr(livingentity) < (canSee ? 26 : 17) && creeper.veryHardmode();
       return this.creeper.getSwellDir() > 0 || livingentity != null && this.creeper.distanceToSqr(livingentity) < 9.0D || flag;
    }
 
@@ -46,7 +46,7 @@ public class CreeperSwellGoal extends Goal {
             }
          } else {
             // Default behavior: swell if within 7 blocks and can see the target
-            if (distanceSq > 49.0D || !this.creeper.getSensing().canSee(this.target)) {
+            if (distanceSq > 49.0D || !this.creeper.getSensing().canSee(this.target) && !creeper.veryHardmode()) {
                this.creeper.setSwellDir(-1);
             } else {
                this.creeper.setSwellDir(1);

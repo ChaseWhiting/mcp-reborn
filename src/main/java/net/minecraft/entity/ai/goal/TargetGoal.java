@@ -31,6 +31,10 @@ public abstract class TargetGoal extends Goal {
       this.mustReach = p_i50309_3_;
    }
 
+   public Mob getMyself() {
+      return this.mob;
+   }
+
    public boolean canContinueToUse() {
       LivingEntity livingentity = this.mob.getTarget();
       if (livingentity == null) {

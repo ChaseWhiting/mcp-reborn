@@ -11,6 +11,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FenceBlock;
 import net.minecraft.block.TorchBlock;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Creature;
 import net.minecraft.entity.Entity;
@@ -106,7 +107,15 @@ public class ZombieEntity extends Monster {
       this.goalSelector.addGoal(0, new WaterSaveGoal(this));
 
       this.goalSelector.addGoal(3, new LadderClimbGoal(this));
-      this.goalSelector.addGoal(1, new AdvancedBreakBlockGoal(this, state -> !state.isAir(),d -> this.veryHardmode()));
+      this.goalSelector.addGoal(1, new AdvancedBreakBlockGoal(this,
+              state -> !state.isAir() && !state.getFluidState().is(FluidTags.WATER) && !state.getFluidState().is(FluidTags.LAVA)&& ( state.is(List.of(Blocks.COMPOSTER, Blocks.FARMLAND, Blocks.CHEST))||
+                      state.is(BlockTags.LOGS) || state.is(BlockTags.BEDS)|| state.is(BlockTags.STAIRS) || state.is(BlockTags.PLANKS) ||
+                      state.getMaterial() == Material.GLASS || state.getMaterial() == Material.BUILDABLE_GLASS ||
+                      state.getBlock() == Blocks.COBBLESTONE || state.is(List.of(Blocks.HAY_BLOCK, Blocks.MOSSY_COBBLESTONE,
+                      Blocks.SMOOTH_SANDSTONE, Blocks.CUT_SANDSTONE)) || state.is(BlockTags.FENCES) ||
+                      state.is(BlockTags.FENCE_GATES) || state.is(BlockTags.WALLS) || state.is(BlockTags.SLABS)
+              || state.is(List.of(Blocks.BRICKS, Blocks.STONE_BRICKS, Blocks.POLISHED_ANDESITE,
+                      Blocks.DEEPSLATE_BRICKS, Blocks.BLACKSTONE, Blocks.FURNACE, Blocks.CHEST, Blocks.BLAST_FURNACE, Blocks.BEE_NEST, Blocks.BEEHIVE))), d -> this.veryHardmode()));
       this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglinEntity.class, AbstractSkeletonEntity.class));
       this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
       this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillagerEntity.class, false));
@@ -364,11 +373,11 @@ public class ZombieEntity extends Monster {
 
    protected void populateDefaultEquipmentSlots(DifficultyInstance p_180481_1_) {
       super.populateDefaultEquipmentSlots(p_180481_1_);
-      List<Item> randomWoodenTools = List.of(Items.WOODEN_SWORD, Items.WOODEN_PICKAXE, Items.WOODEN_AXE, Items.WOODEN_SHOVEL, Items.WOODEN_HOE);
-      List<Item> randomGoldTools = List.of(Items.GOLDEN_SWORD, Items.GOLDEN_PICKAXE, Items.GOLDEN_AXE, Items.GOLDEN_SHOVEL, Items.GOLDEN_HOE);
-      List<Item> randomStoneTools = List.of(Items.STONE_SWORD, Items.STONE_PICKAXE, Items.STONE_AXE, Items.STONE_SHOVEL, Items.STONE_HOE, Items.SHEARS);
-      List<Item> randomIronTools = List.of(Items.IRON_SWORD, Items.IRON_PICKAXE, Items.IRON_AXE, Items.IRON_SHOVEL, Items.IRON_HOE, Items.BUCKET, Items.WATER_BUCKET, Items.SHEARS);
-      List<Item> randomDiamondTools = List.of(Items.DIAMOND_SWORD, Items.DIAMOND_PICKAXE, Items.DIAMOND_AXE, Items.DIAMOND_SHOVEL, Items.DIAMOND_HOE);
+      List<Item> randomWoodenTools = List.of(Items.WOODEN_SWORD, Items.WOODEN_PICKAXE, Items.WOODEN_AXE, Items.WOODEN_SHOVEL, Items.WOODEN_HOE, Items.LADDER);
+      List<Item> randomGoldTools = List.of(Items.GOLDEN_SWORD, Items.GOLDEN_PICKAXE, Items.GOLDEN_AXE, Items.GOLDEN_SHOVEL, Items.GOLDEN_HOE, Items.LADDER);
+      List<Item> randomStoneTools = List.of(Items.STONE_SWORD, Items.STONE_PICKAXE, Items.STONE_AXE, Items.STONE_SHOVEL, Items.STONE_HOE, Items.SHEARS, Items.LADDER);
+      List<Item> randomIronTools = List.of(Items.IRON_SWORD, Items.IRON_PICKAXE, Items.IRON_AXE, Items.IRON_SHOVEL, Items.IRON_HOE, Items.BUCKET, Items.WATER_BUCKET, Items.SHEARS, Items.LADDER);
+      List<Item> randomDiamondTools = List.of(Items.DIAMOND_SWORD, Items.DIAMOND_PICKAXE, Items.DIAMOND_AXE, Items.DIAMOND_SHOVEL, Items.DIAMOND_HOE, Items.LADDER);
        if (!veryHardmode()) {
            if (this.random.nextFloat() < (this.level.getDifficulty() == Difficulty.HARD ? 0.05F : 0.01F)) {
               int i = this.random.nextInt(3);

@@ -236,9 +236,7 @@ public abstract class AbstractSkeletonEntity extends Monster implements IRangedA
       boolean flag = (this instanceof StrayEntity);
       // Determine the item to be used for the main hand slot
       Item selectedItem;
-      if (random.nextFloat() < 0.09 && !flag && !(this instanceof BoggedEntity)) {
-         selectedItem = random1.nextFloat() < 0.097 ? Items.GILDED_CROSSBOW : Items.CROSSBOW;
-      } else {
+      {
          selectedItem = Items.BOW;
       }
 

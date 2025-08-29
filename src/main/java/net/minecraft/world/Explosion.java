@@ -266,6 +266,52 @@ public class Explosion {
          for(BlockPos blockpos : this.toBlow) {
             BlockState blockstate = this.level.getBlockState(blockpos);
             Block block = blockstate.getBlock();
+            if (particles) {
+               double d = (float)blockpos.getX() + this.level.random.nextFloat();
+               double d2 = (float)blockpos.getY() + this.level.random.nextFloat();
+               double d3 = (float)blockpos.getZ() + this.level.random.nextFloat();
+               double d4 = d - this.x;
+               double d5 = d2 - this.y;
+               double d6 = d3 - this.z;
+               double d7 = MathHelper.sqrt(d4 * d4 + d5 * d5 + d6 * d6);
+               d4 /= d7;
+               d5 /= d7;
+               d6 /= d7;
+               double d8 = 0.5 / (d7 / (double)this.radius + 0.1);
+               this.level.addParticle(ParticleTypes.POOF, (d + this.x) / 2.0, (d2 + this.y) / 2.0, (d3 + this.z) / 2.0, d4 *= (d8 *= (double)(this.level.random.nextFloat() * this.level.random.nextFloat() + 0.3f)), d5 *= d8, d6 *= d8);
+               this.level.addParticle(ParticleTypes.SMOKE, d, d2, d3, d4, d5, d6);
+
+               if (random.nextFloat() < 0.15F) {
+                  // Always start at the explosion center
+                  double startX = this.x;
+                  double startY = this.y;
+                  double startZ = this.z;
+
+                  // Generate a random direction vector on a sphere
+                  double theta = 2 * Math.PI * this.level.random.nextDouble(); // azimuth
+                  double phi = Math.acos(2 * this.level.random.nextDouble() - 1); // inclination
+                  double dirX = Math.sin(phi) * Math.cos(theta);
+                  double dirY = Math.sin(phi) * Math.sin(theta);
+                  double dirZ = Math.cos(phi);
+
+                  // Control speed
+                  double speed = 2 + this.level.random.nextDouble() * 0.3;
+
+                  // Apply velocity
+                  double velX = dirX * speed;
+                  double velY = dirY * speed * 1.5;
+                  double velZ = dirZ * speed;
+
+                  this.level.addParticle(
+                          ParticleTypes.TNT_LAVA,
+                          startX, startY, startZ, // always center
+                          velX, velY, velZ
+                  );
+               }
+
+
+
+            }
             if (!blockstate.isAir()) {
                BlockPos blockpos1 = blockpos.immutable();
                this.level.getProfiler().push("explosion_blocks");

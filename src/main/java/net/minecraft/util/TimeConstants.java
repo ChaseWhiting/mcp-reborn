@@ -1,7 +1,6 @@
 package net.minecraft.util;
 
 public class TimeConstants {
-
     public static final int THIRTY_SECONDS = (30 * 20);
     public static final int ONE_MINUTE = (60 * 20);
     public static final int TWO_MINUTES = ((60 + (60 * 1)) * 20);
@@ -18,5 +17,12 @@ public class TimeConstants {
     public static final int TWENTY_MINUTES = ((60 + (60 * 19)) * 20);
 
 
+    public static int calculateMinutes(int minutes) {
+        return (60 + (60 * (minutes - 1)) * 20);
+    }
+
+    public static int calculateSeconds(int seconds) {
+        return (seconds * 20);
+    }
 
 }

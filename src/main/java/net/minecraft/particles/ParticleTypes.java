@@ -86,6 +86,7 @@ public class ParticleTypes {
    public static final BasicParticleType ITEM_SNOWBALL = register("item_snowball", false);
    public static final BasicParticleType LARGE_SMOKE = register("large_smoke", false);
    public static final BasicParticleType LAVA = register("lava", false);
+   public static final BasicParticleType TNT_LAVA = register("tnt_lava", false);
    public static final BasicParticleType MYCELIUM = register("mycelium", false);
    public static final BasicParticleType NOTE = register("note", false);
    public static final BasicParticleType POOF = register("poof", true);

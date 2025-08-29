@@ -143,6 +143,8 @@ public class ParticleManager implements IFutureReloadListener {
       this.register(ParticleTypes.ITEM_SNOWBALL, new BreakingParticle.SnowballFactory());
       this.register(ParticleTypes.LARGE_SMOKE, LargeSmokeParticle.Factory::new);
       this.register(ParticleTypes.LAVA, LavaParticle.Factory::new);
+      this.register(ParticleTypes.TNT_LAVA, LavaParticle.TntFactory::new);
+
       this.register(ParticleTypes.MYCELIUM, SuspendedTownParticle.Factory::new);
       this.register(ParticleTypes.NAUTILUS, EnchantmentTableParticle.NautilusFactory::new);
       this.register(ParticleTypes.NOTE, NoteParticle.Factory::new);

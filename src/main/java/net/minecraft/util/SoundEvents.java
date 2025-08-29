@@ -628,6 +628,7 @@ public class SoundEvents {
    public static final SoundEvent DOLPHIN_ATTACK = register("entity.dolphin.attack");
    public static final SoundEvent DOLPHIN_DEATH = register("entity.dolphin.death");
    public static final SoundEvent DOLPHIN_EAT = register("entity.dolphin.eat");
+
    public static final SoundEvent DOLPHIN_HURT = register("entity.dolphin.hurt");
    public static final SoundEvent DOLPHIN_JUMP = register("entity.dolphin.jump");
    public static final SoundEvent DOLPHIN_PLAY = register("entity.dolphin.play");
@@ -1112,6 +1113,7 @@ public class SoundEvents {
    public static final SoundEvent POLAR_BEAR_HURT = register("entity.polar_bear.hurt");
    public static final SoundEvent POLAR_BEAR_STEP = register("entity.polar_bear.step");
    public static final SoundEvent POLAR_BEAR_WARNING = register("entity.polar_bear.warning");
+   public static final SoundEvent POLAR_BEAR_EAT = register("entity.polar_bear.eat");
    public static final SoundEvent PORTAL_AMBIENT = register("block.portal.ambient");
    public static final SoundEvent PORTAL_TRAVEL = register("block.portal.travel");
    public static final SoundEvent PORTAL_TRIGGER = register("block.portal.trigger");

@@ -58,19 +58,21 @@ public abstract class CustomBlockInteractGoal extends Goal {
          }
 
          // Check if the block in front is valid for breaking
-         for (int i = -1; i <3; i++) {
-            BlockPos target;
-            target = targetPos.offset(0, i, 0);
-            BlockState state = this.mob.level.getBlockState(target);
-            if (canSee(target)) {
-               if (this.statePredicate.test(state)) {
-                  this.blockPos = targetPos;
-                  return true;
-               }
-            }
-         }
+          if (mob.getRandom().nextFloat() < 0.25F) {
+              for (int i = -1; i <3; i++) {
+                 BlockPos target;
+                 target = targetPos.offset(0, i, 0);
+                 BlockState state = this.mob.level.getBlockState(target);
+                 if (canSee(target)) {
+                    if (this.statePredicate.test(state)) {
+                       this.blockPos = targetPos;
+                       return true;
+                    }
+                 }
+              }
+          }
 
-         // Perform the regular search if no block is directly in front
+          // Perform the regular search if no block is directly in front
          return this.findBlockOnArea();
       }
    }

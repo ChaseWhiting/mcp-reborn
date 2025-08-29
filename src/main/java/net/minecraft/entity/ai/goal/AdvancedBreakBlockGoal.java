@@ -102,7 +102,9 @@ public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
          return false;
       } else {
          if (this.mob.getTarget() != null) {
-            return (this.mob.getTarget().distanceTo(this.mob) > 13 || !this.mob.getSensing().canSee(this.mob.getTarget()) && mob.getNavigation().createPath(mob.getTarget(), 0) == null) && this.isValidDifficulty(this.mob.level.getDifficulty());
+            return false;
+
+            //return (this.mob.getTarget().distanceTo(this.mob) > 13 || !this.mob.getSensing().canSee(this.mob.getTarget()) && mob.getNavigation().createPath(mob.getTarget(), 0) == null) && this.isValidDifficulty(this.mob.level.getDifficulty());
          }
 
 
@@ -123,7 +125,11 @@ public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
               && this.isValidDifficulty(this.mob.level.getDifficulty());
 
       if (this.mob.getTarget() != null) {
-         flag = flag && this.mob.getTarget().distanceTo(this.mob) > 13 || !this.mob.getSensing().canSee(this.mob.getTarget());
+         mob.getNavigation().stop();
+         mob.getLookControl().setLookAt(mob.getTarget().getEyePosition(0.0F));
+         return false;
+
+         //flag = flag && (this.mob.getTarget().distanceTo(this.mob) > 13 || !this.mob.getSensing().canSee(this.mob.getTarget())) && mob.getNavigation().createPath(mob.getTarget(), 0) == null;
       }
 
       return flag;
@@ -131,6 +137,7 @@ public class AdvancedBreakBlockGoal extends CustomBlockInteractGoal {
 
    public void stop() {
       super.stop();
+      mob.getNavigation().stop();
       this.mob.level.destroyBlockProgress(this.mob.getId(), this.blockPos, -1);
    }
 

@@ -106,6 +106,8 @@ public final class BlockTags {
    public static final ITag.INamedTag<Block> STONE_BUTTONS = bind("stone_buttons");
    public static final ITag.INamedTag<Block> CONCRETE_POWDER = bind("concrete_powder");
 
+   public static final ITag.INamedTag<Block> COPPER_THAT_CAN_BURN = bind("copper_that_can_burn");
+
    public static final ITag.INamedTag<Block> TRAIL_RUINS_REPLACEABLE = bind("trail_ruins_replaceable");
 
 

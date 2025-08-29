@@ -44,6 +44,7 @@ import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.merchant.IReputationTracking;
 import net.minecraft.entity.merchant.IReputationType;
+import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.RayTracing;
 import net.minecraft.entity.monster.enderiophage.EntityEnderiophage;
 import net.minecraft.entity.passive.Animal;
@@ -60,6 +61,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.network.DebugPacketSender;
 import net.minecraft.network.IPacket;
+import net.minecraft.network.play.ServerPlayNetHandler;
 import net.minecraft.network.play.server.*;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.pathfinding.PathNavigator;
@@ -555,12 +557,37 @@ public class ServerWorld extends World implements ISeedReader {
    }
 
 
-   protected BlockPos findLightingTargetAround(BlockPos p_175736_1_) {
-      BlockPos blockpos = this.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING, p_175736_1_);
+   protected BlockPos findLightingTargetAround(BlockPos p) {
+      BlockPos blockpos = this.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING, p);
 
       Optional<BlockPos> optional = this.findLightningRod(blockpos);
       if (optional.isPresent()) {
          return optional.get();
+      }
+
+
+      if (random.nextFloat() <= 0.15F && getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
+         List<ServerPlayerEntity> players = this.getPlayers(player -> player != null && player.isAlive());
+          if (!players.isEmpty()) {
+              ServerPlayerEntity pl = players.get(random.nextInt(players.size()));
+              if (random.nextFloat() < 0.2F && pl != null && canSeeSky(pl.blockPosition())) {
+                 return pl.blockPosition();
+              } else if (pl != null ){
+                 BlockPos blp = new BlockPos(pl.getRandomX(random.nextDouble(5, 10)), pl.getY(), pl.getRandomZ(random.nextDouble(5, 10)));
+                 return this.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING, blp);
+              }
+          }
+      }
+
+      if (random.nextFloat() >= 0.75F && getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
+         List<CreeperEntity> creepers = this.getEntities(EntityType.CREEPER, new AxisAlignedBB(blockpos).inflate(25D, 6D, 25D),
+                 creeper -> creeper != null && !creeper.isPowered() && creeper.isAlive());
+          if (!creepers.isEmpty()) {
+              CreeperEntity creeper = creepers.get(random.nextInt(creepers.size()));
+              if (creeper != null && random.nextBoolean() && canSeeSky(creeper.blockPosition())) {
+                 return creeper.blockPosition();
+              }
+          }
       }
 
       AxisAlignedBB axisalignedbb = (new AxisAlignedBB(blockpos, new BlockPos(blockpos.getX(), this.getMaxBuildHeight(), blockpos.getZ()))).inflate(3.0D);
@@ -1032,6 +1059,11 @@ public class ServerWorld extends World implements ISeedReader {
       switch (event) {
          case UPDATE_BLOCK -> {
                this.setBlockAndUpdate(position, Block.stateById(eventData));
+         }
+         case HURT_ENTITY_FIRE -> {
+            if (getEntity(eventData) != null && getEntity(eventData) instanceof LivingEntity living && getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
+               living.setSecondsOnFire(2 + (living.getRemainingFireTicks() / 20));
+            }
          }
       }
    }

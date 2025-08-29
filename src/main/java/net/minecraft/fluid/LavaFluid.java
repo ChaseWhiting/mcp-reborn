@@ -38,19 +38,31 @@ public abstract class LavaFluid extends FlowingFluid {
    }
 
    @OnlyIn(Dist.CLIENT)
-   public void animateTick(World p_204522_1_, BlockPos p_204522_2_, FluidState p_204522_3_, Random p_204522_4_) {
-      BlockPos blockpos = p_204522_2_.above();
+   public void animateTick(World p_204522_1_, BlockPos pos, FluidState p_204522_3_, Random random) {
+      BlockPos blockpos = pos.above();
       if (p_204522_1_.getBlockState(blockpos).isAir() && !p_204522_1_.getBlockState(blockpos).isSolidRender(p_204522_1_, blockpos)) {
-         if (p_204522_4_.nextInt(100) == 0) {
-            double d0 = (double)p_204522_2_.getX() + p_204522_4_.nextDouble();
-            double d1 = (double)p_204522_2_.getY() + 1.0D;
-            double d2 = (double)p_204522_2_.getZ() + p_204522_4_.nextDouble();
-            p_204522_1_.addParticle(ParticleTypes.LAVA, d0, d1, d2, 0.0D, 0.0D, 0.0D);
-            p_204522_1_.playLocalSound(d0, d1, d2, SoundEvents.LAVA_POP, SoundCategory.BLOCKS, 0.2F + p_204522_4_.nextFloat() * 0.2F, 0.9F + p_204522_4_.nextFloat() * 0.15F, false);
+         if (random.nextInt(100) == 0) {
+            double d0 = (double)pos.getX() + random.nextDouble();
+            double d1 = (double)pos.getY() + 1.0D;
+            double d2 = (double)pos.getZ() + random.nextDouble();
+
+            if (p_204522_1_.getGameRules().getBoolean(GameRules.RULE_VERYHARD)) {
+               for (int i = 0; i < random.nextInt(0, 4) + 1; i++) {
+                  p_204522_1_.addParticle(ParticleTypes.TNT_LAVA,
+                          pos.getX() + random.nextDouble(),
+                          pos.getY() + 1.0D,
+                          pos.getZ() + random.nextDouble(), 0.0D, 0.0D, 0.0D);
+               }
+            } else {
+               p_204522_1_.addParticle(ParticleTypes.LAVA, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+
+            }
+
+            p_204522_1_.playLocalSound(d0, d1, d2, SoundEvents.LAVA_POP, SoundCategory.BLOCKS, 0.2F + random.nextFloat() * 0.2F, 0.9F + random.nextFloat() * 0.15F, false);
          }
 
-         if (p_204522_4_.nextInt(200) == 0) {
-            p_204522_1_.playLocalSound((double)p_204522_2_.getX(), (double)p_204522_2_.getY(), (double)p_204522_2_.getZ(), SoundEvents.LAVA_AMBIENT, SoundCategory.BLOCKS, 0.2F + p_204522_4_.nextFloat() * 0.2F, 0.9F + p_204522_4_.nextFloat() * 0.15F, false);
+         if (random.nextInt(200) == 0) {
+            p_204522_1_.playLocalSound((double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), SoundEvents.LAVA_AMBIENT, SoundCategory.BLOCKS, 0.2F + random.nextFloat() * 0.2F, 0.9F + random.nextFloat() * 0.15F, false);
          }
       }
 

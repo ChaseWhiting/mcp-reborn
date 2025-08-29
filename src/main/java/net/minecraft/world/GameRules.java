@@ -35,6 +35,7 @@ public class GameRules {
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_DOFIRETICK = register("doFireTick", GameRules.Category.UPDATES, GameRules.BooleanValue.create(true));
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_SPAWNER_FARTHER_RANGE = register("spawnMobsFromSpawnerFarther", Category.MOBS, GameRules.BooleanValue.create(false));
    public static final RuleKey<GameRules.BooleanValue> RULE_VERYHARD = register("veryHardMode", Category.MOBS, GameRules.BooleanValue.create(false));
+   public static final RuleKey<GameRules.BooleanValue> DYNAMIC_VILLAGER_AI = register("killvillagerbrain", Category.MOBS, GameRules.BooleanValue.create(false));
 
    public static final GameRules.RuleKey<GameRules.BooleanValue> RULE_ADVANCED_FALL_CALCULATION = register("advancedFallCalculation", Category.UPDATES, GameRules.BooleanValue.create(false));
 
